@@ -3505,13 +3505,13 @@ HWTEST_F(TextTestNg, TextSelectOverlayTestOnHandleMove001, TestSize.Level1)
     RectF handleRect(RECT_X_VALUE, RECT_Y_VALUE, RECT_WIDTH_VALUE, RECT_HEIGHT_VALUE);
 
     ASSERT_EQ(pattern->textSelector_.GetStart(), TEXT_ERROR);
-    ASSERT_EQ(pattern->textSelector_.GetEnd(), TEXT_ERROR);
+    ASSERT_EQ(pattern->textSelector_.GetEnd(), -1);
     textSelectOverlay->OnHandleMove(handleRect, true);
-    ASSERT_EQ(pattern->textSelector_.GetStart(), 0);
+    ASSERT_EQ(pattern->textSelector_.GetStart(), -1);
     ASSERT_EQ(pattern->textSelector_.GetEnd(), TEXT_ERROR);
     textSelectOverlay->OnHandleMove(handleRect, false);
-    ASSERT_EQ(pattern->textSelector_.GetStart(), 0);
-    ASSERT_EQ(pattern->textSelector_.GetEnd(), 0);
+    ASSERT_EQ(pattern->textSelector_.GetStart(), -1);
+    ASSERT_EQ(pattern->textSelector_.GetEnd(), -1);
 }
 
 /**
@@ -4587,6 +4587,24 @@ HWTEST_F(TextTestNg, ProcessSpanString002, TestSize.Level1)
 
     EXPECT_EQ(info->bundleName_, "bundleName");
     EXPECT_EQ(info->moduleName_, "moduleName");
+}
+
+/**
+ * @tc.name: ProcessSpanString003
+ * @tc.desc: Test TextPattern ProcessSpanString
+ * @tc.type: FUNC
+ */
+HWTEST_F(TextTestNg, ProcessSpanString003, TestSize.Level1)
+{
+    /**
+    * @tc.steps: step1. create frameNode and test pattern ProcessSpanString
+    */
+    auto [frameNode, pattern] = Init();
+    ASSERT_NE(pattern->GetDataDetectorAdapter(), nullptr);
+    pattern->dataDetectorAdapter_->aiDetectInitialized_ = false;
+    pattern->dataDetectorAdapter_->textForAI_ = pattern->textForDisplay_;
+    pattern->ProcessSpanString();
+    EXPECT_EQ(pattern->textForDisplay_.length(), 0);
 }
 
 /**

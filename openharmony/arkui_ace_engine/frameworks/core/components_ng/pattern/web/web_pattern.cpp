@@ -707,13 +707,14 @@ bool WebPattern::IsPreviewMenuNotNeedShowPreview()
 
 bool IsLongPreviewMenu(const std::shared_ptr<WebPreviewSelectionMenuParam>& param)
 {
-    return param->previewBuilder && param->responseType == ResponseType::LONG_PRESS &&
-        param->type != WebElementType::TEXT;
+    return param->type == WebElementType::AILINK ||
+        (param->previewBuilder && param->responseType == ResponseType::LONG_PRESS &&
+            param->type != WebElementType::TEXT);
 }
 
 void WebPattern::ConfigLongPreviewMenuParam(const std::shared_ptr<WebPreviewSelectionMenuParam>& param)
 {
-    auto onPreviewMenuAppear = [onAppear = std::move(param->menuParam.onDisappear),
+    auto onPreviewMenuAppear = [onAppear = std::move(param->menuParam.onAppear),
                                 onMenuShow = param->onMenuShow]() {
         TAG_LOGD(AceLogTag::ACE_WEB, "onLongPreviewMenuAppear");
         if (onAppear) {
@@ -1415,6 +1416,11 @@ void WebPattern::HandleFlingMove(const GestureEvent& event)
                                                event.GetVelocity().GetVelocityX(),
                                                event.GetVelocity().GetVelocityY(),
                                                pressedCodes);
+    }
+    auto parent = dragEndRecursiveParent_.Upgrade();
+    if (parent) {
+        OnParentScrollDragEndRecursive(parent);
+        dragEndRecursiveParent_.Reset();
     }
 }
 
@@ -4712,6 +4718,7 @@ void WebPattern::CloseSelectOverlay()
 {
     auto pipeline = PipelineContext::GetCurrentContext();
     CHECK_NULL_VOID(pipeline);
+    CHECK_NULL_VOID(delegate_);
     if (webSelectOverlay_ && webSelectOverlay_->IsShowHandle()) {
         webSelectOverlay_->CloseOverlay(false, CloseReason::CLOSE_REASON_CLICK_OUTSIDE);
         webSelectOverlay_->SetIsShowHandle(false);
@@ -6144,6 +6151,7 @@ void WebPattern::InitSelectPopupMenuViewOption(const std::vector<RefPtr<FrameNod
     const double& dipScale)
 {
     int32_t optionIndex = -1;
+    CHECK_NULL_VOID(params);
     int32_t width = params->GetSelectMenuBound() ? params->GetSelectMenuBound()->GetWidth() : 0;
     auto items = params->GetMenuItems();
     int32_t selectedIndex = params->GetSelectedItem();
@@ -6175,6 +6183,7 @@ void WebPattern::InitSelectPopupMenuViewOption(const std::vector<RefPtr<FrameNod
         }
         auto selectCallback = [callback](int32_t index) {
             std::vector<int32_t> indices { static_cast<int32_t>(index) };
+            CHECK_NULL_VOID(callback);
             callback->Continue(indices);
         };
         hub->SetOnSelect(std::move(selectCallback));
@@ -6187,6 +6196,7 @@ void WebPattern::InitSelectPopupMenuView(RefPtr<FrameNode>& menuWrapper,
     std::shared_ptr<OHOS::NWeb::NWebSelectPopupMenuParam> params,
     const double& dipScale)
 {
+    CHECK_NULL_VOID(menuWrapper);
     auto menu = AceType::DynamicCast<FrameNode>(menuWrapper->GetChildAtIndex(0));
     CHECK_NULL_VOID(menu);
     auto menuPattern = menu->GetPattern<MenuPattern>();
@@ -6694,6 +6704,7 @@ void WebPattern::OnOverScrollFlingVelocityHandler(float velocity, bool isFling)
     auto remain = 0.f;
     if (!isFling) {
         if (scrollState_) {
+            isSelfReachEdge_ = true;
             if (CheckOverParentScroll(velocity, NestedScrollMode::SELF_FIRST)) {
                 result = HandleScroll(parent.Upgrade(), -directVelocity, SCROLL_FROM_UPDATE, NestedState::CHILD_SCROLL);
                 remain = result.remain;
@@ -6946,6 +6957,7 @@ bool WebPattern::FilterScrollEventHandleOffset(float offset)
     if (IsRtl() && expectedScrollAxis_ == Axis::HORIZONTAL) {
         directOffset = -offset;
     }
+    isSelfReachEdge_ = false;
     auto it = parentsMap_.find(expectedScrollAxis_);
     CHECK_EQUAL_RETURN(it, parentsMap_.end(), false);
     auto parent = it->second;
@@ -6953,8 +6965,10 @@ bool WebPattern::FilterScrollEventHandleOffset(float offset)
         auto res =
             HandleScroll(parent.Upgrade(), directOffset, SCROLL_FROM_UPDATE, NestedState::CHILD_CHECK_OVER_SCROLL);
         if (NearZero(res.remain)) {
+            isParentReverseReachEdge_ = true;
             return true;
         }
+        isParentReverseReachEdge_ = false;
         directOffset = res.remain;
     }
     if (CheckParentScroll(offset, NestedScrollMode::PARENT_FIRST)) {
@@ -7007,7 +7021,11 @@ bool WebPattern::FilterScrollEventHandleVelocity(const float velocity)
     CHECK_EQUAL_RETURN(it, parentsMap_.end(), false);
     auto parent = it->second;
     if (parent.Upgrade() && parent.Upgrade()->NestedScrollOutOfBoundary()) {
-        return HandleScrollVelocity(parent.Upgrade(), directVelocity);
+        if (isSelfReachEdge_ || isParentReverseReachEdge_) {
+            return HandleScrollVelocity(parent.Upgrade(), directVelocity);
+        }
+        dragEndRecursiveParent_ = parent;
+        return false;
     }
     if (CheckParentScroll(velocity, NestedScrollMode::PARENT_FIRST)) {
         if (isParentReachEdge_) {
@@ -7628,6 +7646,7 @@ void WebPattern::OnShowAutofillPopup(
         selectParam.push_back({ item, "" });
     }
     auto menu = MenuView::Create(selectParam, id, host->GetTag());
+    CHECK_NULL_VOID(menu);
     auto context = PipelineContext::GetCurrentContext();
     CHECK_NULL_VOID(context);
     auto menuContainer = AceType::DynamicCast<FrameNode>(menu->GetChildAtIndex(0));
@@ -7683,6 +7702,7 @@ void WebPattern::OnShowAutofillPopupV2(
     CHECK_NULL_VOID(dataListNode);
     auto menu = MenuView::Create(std::move(optionParam), dataListNode->GetId(), dataListNode->GetTag(),
         MenuType::MENU, menuParam);
+    CHECK_NULL_VOID(menu);
     auto menuContainer = AceType::DynamicCast<FrameNode>(menu->GetChildAtIndex(0));
     CHECK_NULL_VOID(menuContainer);
     auto menuPattern = menuContainer->GetPattern<MenuPattern>();

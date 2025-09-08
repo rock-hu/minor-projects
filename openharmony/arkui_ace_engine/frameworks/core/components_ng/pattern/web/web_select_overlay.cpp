@@ -367,7 +367,6 @@ void WebSelectOverlay::SetMenuOptions(SelectOverlayInfo& selectInfo,
         selectInfo.menuInfo.showCopyAll = true;
     }
     bool detectFlag = !isSelectAll_;
-
     auto value = GetSelectedText();
     auto queryWord = std::regex_replace(value, std::regex("^\\s+|\\s+$"), "");
     if (!queryWord.empty()) {
@@ -379,10 +378,10 @@ void WebSelectOverlay::SetMenuOptions(SelectOverlayInfo& selectInfo,
     }
     selectInfo.menuInfo.showAIWrite = !(!(flags & OHOS::NWeb::NWebQuickMenuParams::QM_EF_CAN_CUT) ||
         (copyOption == OHOS::NWeb::NWebPreference::CopyOptionMode::NONE) || !pattern->IsShowAIWrite());
-    // should be the last
-    canShowAIMenu_ = (copyOption != OHOS::NWeb::NWebPreference::CopyOptionMode::NONE) &&
+    bool canCopyOut = (copyOption != OHOS::NWeb::NWebPreference::CopyOptionMode::NONE) &&
                      (copyOption != OHOS::NWeb::NWebPreference::CopyOptionMode::IN_APP);
-    canShowAIMenu_ = canShowAIMenu_ && !(flags & OHOS::NWeb::NWebQuickMenuParams::QM_EF_CAN_CUT);
+    selectInfo.menuInfo.showShare = canCopyOut && !queryWord.empty();
+    canShowAIMenu_ = canCopyOut && !(flags & OHOS::NWeb::NWebQuickMenuParams::QM_EF_CAN_CUT) && !queryWord.empty();
     selectInfo.menuInfo.isAskCeliaEnabled = canShowAIMenu_;
     DetectSelectedText(detectFlag ? value : std::string());
 }
@@ -580,6 +579,7 @@ void WebSelectOverlay::QuickMenuIsNeedNewAvoid(
         float selectWidth = params->GetSelectWidth();
         float selectHeight = params->GetSelectXHeight();
         selectInfo.selectArea = RectF(selectX, selectY, selectWidth, selectHeight);
+        selectInfo.selectArea = ComputeSelectAreaRect(selectInfo.selectArea);
     }
 }
 
@@ -719,6 +719,35 @@ RectF WebSelectOverlay::ComputeTouchHandleRect(std::shared_ptr<OHOS::NWeb::NWebT
     paintRect.SetOffset({ x, y });
     paintRect.SetSize({ SelectHandleInfo::GetDefaultLineWidth().ConvertToPx(), edgeHeight });
     return paintRect;
+}
+
+RectF WebSelectOverlay::ComputeSelectAreaRect(RectF& selectArea)
+{
+    auto pattern = GetPattern<WebPattern>();
+    CHECK_NULL_RETURN(pattern, RectF());
+    RectF selectAreaRect;
+    auto offset = pattern->GetCoordinatePoint().value_or(OffsetF());
+    auto size = pattern->GetHostFrameSize().value_or(SizeF());
+    float x = selectArea.GetX();
+    float y = selectArea.GetY();
+
+    if (x > size.Width()) {
+        x = offset.GetX() + size.Width();
+    } else {
+        x += offset.GetX();
+    }
+
+    if (y < 0) {
+        y = offset.GetY();
+    } else if (y > size.Height()) {
+        y = offset.GetY() + size.Height();
+    } else {
+        y += offset.GetY();
+    }
+
+    selectAreaRect.SetOffset({ x, y });
+    selectAreaRect.SetSize({ selectArea.Width(), selectArea.Height()});
+    return selectAreaRect;
 }
 
 WebOverlayType WebSelectOverlay::GetTouchHandleOverlayType(
@@ -886,6 +915,11 @@ void WebSelectOverlay::OnMenuItemAction(OptionMenuActionId id, OptionMenuType ty
             break;
         case OptionMenuActionId::SEARCH:
             HandleOnSearch();
+            pattern->CloseSelectOverlay();
+            SelectCancel();
+            break;
+        case OptionMenuActionId::SHARE:
+            HandleOnShare();
             pattern->CloseSelectOverlay();
             SelectCancel();
             break;
@@ -1168,7 +1202,7 @@ void WebSelectOverlay::OnHandleMarkInfoChange(
         manager->MarkHandleDirtyNode(PROPERTY_UPDATE_RENDER);
     }
     if ((flag & DIRTY_FIRST_HANDLE) == DIRTY_FIRST_HANDLE || (flag & DIRTY_SECOND_HANDLE) == DIRTY_SECOND_HANDLE) {
-        if (info->menuInfo.showShare != (IsSupportMenuShare() && AllowShare() && IsNeedMenuShare())) {
+        if (info->menuInfo.showShare != (IsSupportMenuShare() && IsNeedMenuShare())) {
             info->menuInfo.showShare = !info->menuInfo.showShare;
             manager->NotifyUpdateToolBar(true);
         }
@@ -1270,6 +1304,7 @@ bool WebSelectOverlay::IsSingleHandle()
 
 void WebSelectOverlay::OnHandleIsHidden()
 {
+    isShowHandle_ = false;
     auto pattern = GetPattern<WebPattern>();
     CHECK_NULL_VOID(pattern);
     pattern->UpdateSingleHandleVisible(false);

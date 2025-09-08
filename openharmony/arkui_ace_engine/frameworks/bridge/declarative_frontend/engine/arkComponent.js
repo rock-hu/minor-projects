@@ -3395,7 +3395,7 @@ class TransitionModifier extends ModifierWithKey {
       getUINativeModule().common.resetTransition(node);
     }
     else {
-      getUINativeModule().common.setTransition(node, this.value);
+      getUINativeModule().common.setTransition(node, this.value.transitionEffect, this.value.callback);
     }
   }
 }
@@ -4502,8 +4502,13 @@ class ArkComponent {
   animation(value) {
     throw new Error('Method not implemented.');
   }
-  transition(value) {
-    modifierWithKey(this._modifiersWithKeys, TransitionModifier.identity, TransitionModifier, value);
+  transition(value, callback) {
+    let arkTransition = new ArkTransition();
+    arkTransition.transitionEffect = value;
+    if (typeof callback === 'function') {
+      arkTransition.callback = callback;
+    }
+    modifierWithKey(this._modifiersWithKeys, TransitionModifier.identity, TransitionModifier, arkTransition);
     return this;
   }
   gesture(gesture, mask) {
@@ -5269,6 +5274,9 @@ class ArkComponent {
     return this;
   }
   customProperty(key, value) {
+    if (this._weakPtr?.invalid()) {
+      return this;
+    }
     let returnBool = getUINativeModule().frameNode.setCustomPropertyModiferByKey(this.nativePtr, key, value);
     if (!returnBool) {
       const property = new ArkCustomProperty();
@@ -8443,7 +8451,7 @@ class ImageTransitionModifier extends ModifierWithKey {
     if (reset) {
       getUINativeModule().image.resetImageTransition(node);
     } else {
-      getUINativeModule().image.setImageTransition(node, this.value);
+      getUINativeModule().image.setImageTransition(node, this.value.transitionEffect, this.value.callback);
     }
   }
 }
@@ -8811,8 +8819,13 @@ class ArkImageComponent extends ArkComponent {
     modifierWithKey(this._modifiersWithKeys, ImageOpacityModifier.identity, ImageOpacityModifier, value);
     return this;
   }
-  transition(value) {
-    modifierWithKey(this._modifiersWithKeys, ImageTransitionModifier.identity, ImageTransitionModifier, value);
+  transition(value, callback) {
+    let arkTransition = new ArkTransition();
+    arkTransition.transitionEffect = value;
+    if (typeof callback === 'function') {
+      arkTransition.callback = callback;
+    }
+    modifierWithKey(this._modifiersWithKeys, ImageTransitionModifier.identity, ImageTransitionModifier, arkTransition);
     return this;
   }
   dynamicRangeMode(value) {
@@ -12453,7 +12466,7 @@ class ArkSpanComponent {
   animation(value) {
     throw new Error('Method not implemented.');
   }
-  transition(value) {
+  transition(value, callback) {
     throw new Error('Method not implemented.');
   }
   gesture(gesture, mask) {
@@ -18422,7 +18435,7 @@ class VideoTransitionModifier extends ModifierWithKey {
       getUINativeModule().video.resetTransition(node);
     }
     else {
-      getUINativeModule().video.setTransition(node, this.value);
+      getUINativeModule().video.setTransition(node, this.value.transitionEffect, this.value.callback);
     }
   }
   checkObjectDiff() {
@@ -18658,8 +18671,13 @@ class ArkVideoComponent extends ArkComponent {
     modifierWithKey(this._modifiersWithKeys, VideoOpacityModifier.identity, VideoOpacityModifier, value);
     return this;
   }
-  transition(value) {
-    modifierWithKey(this._modifiersWithKeys, VideoTransitionModifier.identity, VideoTransitionModifier, value);
+  transition(value, callback) {
+    let arkTransition = new ArkTransition();
+    arkTransition.transitionEffect = value;
+    if (typeof callback === 'function') {
+      arkTransition.callback = callback;
+    }
+    modifierWithKey(this._modifiersWithKeys, VideoTransitionModifier.identity, VideoTransitionModifier, arkTransition);
     return this;
   }
   onStart(callback) {
@@ -18962,6 +18980,15 @@ class ArkSharedTransition {
   }
   isEqual(another) {
     return (this.id === another.id) && (this.options === another.options);
+  }
+}
+class ArkTransition {
+  constructor() {
+    this.transitionEffect = undefined;
+    this.callback = undefined;
+  }
+  isEqual(another) {
+    return (this.transitionEffect === another.transitionEffect) && (this.callback === another.callback);
   }
 }
 class ArkEdgeEffect {
@@ -34981,6 +35008,17 @@ class ArkListItemComponent extends ArkComponent {
     return this;
   }
 }
+
+class ListItemSwipeActionManager {
+  static expand(node, direction) {
+    getUINativeModule().listItemSwipeActionManager.expand(
+      node === null || node === void 0 ? void 0 : node.nodePtr_, direction);
+  }
+  static collapse(node) {
+    getUINativeModule().listItemSwipeActionManager.collapse(node === null || node === void 0 ? void 0 : node.nodePtr_);
+  }
+}
+
 // @ts-ignore
 if (globalThis.ListItem !== undefined) {
   globalThis.ListItem.attributeModifier = function (modifier) {

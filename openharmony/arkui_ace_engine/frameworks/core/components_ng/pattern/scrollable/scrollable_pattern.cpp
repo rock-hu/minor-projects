@@ -1566,6 +1566,12 @@ void ScrollablePattern::AnimateTo(
         return;
     }
     finalPosition_ = position;
+    scrollToDirection_ = ScrollToDirection::NONE;
+    if (GreatNotEqual(finalPosition_, GetTotalOffset())) {
+        scrollToDirection_ = ScrollToDirection::FORWARD;
+    } else {
+        scrollToDirection_ = ScrollToDirection::BACKWARD;
+    }
     auto host = GetHost();
     CHECK_NULL_VOID(host);
     if (smooth) {
@@ -1720,6 +1726,10 @@ void ScrollablePattern::InitSpringOffsetProperty()
         }
         if (pattern->isBackToTopRunning_) {
             source = SCROLL_FROM_STATUSBAR;
+        }
+        if ((pattern->scrollToDirection_ == ScrollToDirection::FORWARD && Positive(delta)) ||
+            (pattern->scrollToDirection_ == ScrollToDirection::BACKWARD && Negative(delta))) {
+            delta = 0;
         }
         if (!pattern->UpdateCurrentOffset(delta, source) || stopAnimation || pattern->isAnimateOverScroll_) {
             if (pattern->isAnimateOverScroll_ && pattern->GetCanStayOverScroll()) {
@@ -2698,7 +2708,7 @@ bool ScrollablePattern::HandleScrollVelocity(float velocity,  const RefPtr<Nesta
                      "IsAtBottom:%u, velocity:%f, id:%d, tag:%s",
         isOutOfBoundary, needFlingAtEdge, edgeEffect, IsAtTop(), IsAtBottom(), velocity,
         static_cast<int32_t>(host->GetAccessibilityId()), host->GetTag().c_str());
-    if (!isOutOfBoundary && needFlingAtEdge) {
+    if (!isOutOfBoundary && (needFlingAtEdge || !GetCanOverScroll())) {
         // trigger scroll animation if edge not reached
         if (scrollableEvent_ && scrollableEvent_->GetScrollable()) {
             scrollableEvent_->GetScrollable()->StartScrollAnimation(0.0f, velocity);
@@ -2736,7 +2746,13 @@ bool ScrollablePattern::HandleScrollableOverScroll(float velocity)
         OnScrollEndRecursiveInner(velocity);
         return true;
     }
-    return false;
+    OnScrollEnd();
+    auto parent = GetNestedScrollParent();
+    auto nestedScroll = GetNestedScroll();
+    if (!result && parent && nestedScroll.NeedParent()) {
+        result = parent->HandleScrollVelocity(velocity, Claim(this));
+    }
+    return result;
 }
 
 bool ScrollablePattern::CanSpringOverScroll() const
@@ -2771,10 +2787,10 @@ bool ScrollablePattern::HandleOverScroll(float velocity)
         OnScrollEndRecursiveInner(velocity);
         return false;
     }
-    if (InstanceOf<ScrollablePattern>(parent) && HandleScrollableOverScroll(velocity)) {
-        // Triggers ancestor spring animation that out of boundary, and after ancestor returns to the boundary,
-        // triggers child RemainVelocityToChild
-        return true;
+    if (parent && InstanceOf<ScrollablePattern>(parent)) {
+        // Components that are not ScrollablePattern do not implement NestedScrollOutOfBoundary and
+        // handleScroll is handled differently, so isolate the implementation of handleOverScroll
+        return HandleScrollableOverScroll(velocity);
     }
     // parent handle over scroll first
     if ((velocity < 0 && (nestedScroll.forward == NestedScrollMode::SELF_FIRST)) ||

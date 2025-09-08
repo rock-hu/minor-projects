@@ -137,12 +137,19 @@ public:
         return true;
     }
 
-    bool CheckHashInNodeId(JSThread *thread, const std::vector<Reference> &refs, const std::string &filePath)
+    bool CheckHashInRawheap(JSThread *thread, const std::vector<Reference> &refs, const std::string &filePath)
     {
         uint64_t fileSize = rawheap_translate::FileReader::GetFileSize(filePath);
         rawheap_translate::FileReader file;
-        rawheap_translate::RawHeapTranslateV1 translate(nullptr);
-        if (!file.Initialize(filePath) || !translate.Parse(file, fileSize)) {
+        rawheap_translate::MetaParser metaParser;
+
+        if (!file.Initialize(filePath) || !rawheap_translate::RawHeap::ParseMetaData(file, &metaParser) ||
+            !file.CheckAndGetHeaderAt(fileSize - sizeof(uint64_t), 0)) {
+            return false;
+        }
+
+        rawheap_translate::RawHeapTranslateV1 translate(&metaParser);
+        if (!translate.Parse(file, file.GetHeaderLeft()) || !translate.Translate()) {
             return false;
         }
 
@@ -152,22 +159,21 @@ public:
                 continue;
             }
 
-            auto it = translate.nodesMap_.find(ref.value_.GetRawData());
-            if (it == translate.nodesMap_.end()) {
-                std::cout << "CheckHashInNodeId, missed object in rawheap." << std::endl;
+            uint32_t hash = static_cast<uint32_t>(JSObject::Cast(ref.value_)->GetHash(thread));
+            if (hash == 0) {
+                continue;
+            }
+
+            if (translate.hashSet_.find(hash) == translate.hashSet_.end()) {
+                std::cout << "CheckHashInRawheap, missed object hash in rawheap." << std::endl;
                 return false;
             }
 
             ++checkCnt;
-            // 32: 32-bits means a half of uint64_t
-            if (JSObject::Cast(ref.value_)->GetHash(thread) != static_cast<int32_t>(it->second->nodeId >> 32)) {
-                std::cout << "CheckHashInNodeId, hash value verification failed!" << std::endl;
-                return false;
-            }
         }
 
         if (checkCnt == 0) {
-            std::cout << "CheckHashInNodeId, no JSObject." << std::endl;
+            std::cout << "CheckHashInRawheap, no JSObject." << std::endl;
             return false;
         }
         return true;
@@ -262,6 +268,28 @@ public:
         GTEST_LOG_(ERROR) << "file: " << filePath.c_str() << ", target:" << targetStr.c_str()
                           << ", line:" << std::to_string(lineNum) <<"not found";
         return false;  // Lost the Line
+    }
+
+    bool ReadRawHeapSectionInfo(std::string &filePath, std::vector<uint32_t> &section)
+    {
+        uint64_t fileSize = rawheap_translate::FileReader::GetFileSize(filePath);
+        rawheap_translate::FileReader file;
+        if (!file.Initialize(filePath) || !file.CheckAndGetHeaderAt(file.GetFileSize() - sizeof(uint64_t), 0)) {
+            return false;
+        }
+        if (!file.CheckAndGetHeaderAt(fileSize - sizeof(uint64_t), sizeof(uint32_t))) {
+            GTEST_LOG_(ERROR) << "sections header error!";
+            return false;
+        }
+
+        uint32_t sectionHeaderOffset = fileSize - (file.GetHeaderLeft() + 2) * sizeof(uint32_t);
+        section.resize(file.GetHeaderLeft());
+        if (!file.Seek(sectionHeaderOffset) || !file.ReadArray(section, file.GetHeaderLeft())) {
+            GTEST_LOG_(ERROR) << "read sections error!";
+            return false;
+        }
+
+        return true;
     }
 
     JSHandle<JSTypedArray> CreateNumberTypedArray(JSType jsType)
@@ -1656,7 +1684,7 @@ HWTEST_F_L0(HeapDumpTest, TestHeapDumpBinaryDumpByForkWithCallback)
     ASSERT_TRUE(status);
 }
 
-HWTEST_F_L0(HeapDumpTest, TestGenerateMixedNodeId)
+HWTEST_F_L0(HeapDumpTest, TestGenerateHashInRawheap)
 {
     ObjectFactory *factory = ecmaVm_->GetFactory();
     HeapDumpTestHelper tester(ecmaVm_);
@@ -1676,7 +1704,34 @@ HWTEST_F_L0(HeapDumpTest, TestGenerateMixedNodeId)
     dumpOption.isSync = false;
     dumpOption.isJSLeakWatcher = true;
     ASSERT_TRUE(tester.GenerateRawHeapSnashot(rawHeapPath, dumpOption));
-    ASSERT_TRUE(tester.CheckHashInNodeId(thread_, vec, rawHeapPath));
+    ASSERT_TRUE(tester.AddMetaDataJsonToRawheap(rawHeapPath));
+    ASSERT_TRUE(tester.CheckHashInRawheap(thread_, vec, rawHeapPath));
+}
+
+HWTEST_F_L0(HeapDumpTest, TestDecodeRawheapAddrTableItemSizeMin)
+{
+    ObjectFactory *factory = ecmaVm_->GetFactory();
+    HeapDumpTestHelper tester(ecmaVm_);
+    std::vector<Reference> vec;
+    CreateObjectsForBinaryDump(thread_, factory, &tester, vec);
+
+    std::string rawHeapPath("test_binary_dump_addrtable_size_min.rawheap");
+    DumpSnapShotOption dumpOption;
+    ASSERT_TRUE(tester.GenerateRawHeapSnashot(rawHeapPath, dumpOption));
+
+    std::vector<uint32_t> sections;
+    ASSERT_TRUE(tester.ReadRawHeapSectionInfo(rawHeapPath, sections));
+
+    FILE* fd = std::fopen(rawHeapPath.c_str(), "rb+");
+    ASSERT_TRUE(fd != nullptr);
+    uint32_t testUnitSize = sizeof(uint64_t) - 1;
+    std::fseek(fd, sections[4] + sizeof(uint32_t), SEEK_SET);
+    std::fwrite(reinterpret_cast<char *>(&testUnitSize), sizeof(testUnitSize), sizeof(testUnitSize), fd);
+    std::fclose(fd);
+
+    std::string heapsnapshotPath("test_binary_dump_addrtable_size_min.heapsnapshot");
+    ASSERT_TRUE(tester.AddMetaDataJsonToRawheap(rawHeapPath));
+    ASSERT_FALSE(tester.DecodeRawheap(rawHeapPath, heapsnapshotPath));
 }
 #endif
 

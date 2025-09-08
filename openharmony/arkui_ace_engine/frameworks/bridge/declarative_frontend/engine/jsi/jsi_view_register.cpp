@@ -1137,6 +1137,8 @@ panda::Local<panda::JSValueRef> WrapAxisEventPointer(panda::JsiRuntimeCallInfo* 
         panda::FunctionRef::New(vm, NG::ArkTSUtils::JsGetHorizontalAxisValue));
     dynamicEvent->Set(vm, panda::StringRef::NewFromUtf8(vm, "getVerticalAxisValue"),
         panda::FunctionRef::New(vm, NG::ArkTSUtils::JsGetVerticalAxisValue));
+    dynamicEvent->Set(vm, panda::StringRef::NewFromUtf8(vm, "getPinchAxisScaleValue"),
+        panda::FunctionRef::New(vm, NG::ArkTSUtils::JsGetPinchAxisScaleValue));
     dynamicEvent->Set(vm, panda::StringRef::NewFromUtf8(vm, "getModifierKeyState"),
         panda::FunctionRef::New(vm, NG::ArkTSUtils::JsGetModifierKeyState));
     panda::Local<panda::JSValueRef> pointerObj = runtimeCallInfo->GetCallArgRef(1);
@@ -1547,12 +1549,8 @@ panda::Local<panda::JSValueRef> RestoreDefault(panda::JsiRuntimeCallInfo* runtim
 
 panda::Local<panda::JSValueRef> JSHandleUncaughtException(panda::JsiRuntimeCallInfo* runtimeCallInfo)
 {
-    ContainerScope scope(Container::CurrentIdSafely());
     EcmaVM* vm = runtimeCallInfo->GetVM();
-    auto engine = EngineHelper::GetCurrentEngineSafely();
-    CHECK_NULL_RETURN(engine, panda::JSValueRef::Undefined(vm));
-    auto nativeEngine = engine->GetNativeEngine();
-    auto arkNativeEngine = static_cast<ArkNativeEngine*>(nativeEngine);
+    ArkNativeEngine* arkNativeEngine = reinterpret_cast<ArkNativeEngine*>(JSNApi::GetEnv(vm));
     CHECK_NULL_RETURN(arkNativeEngine, panda::JSValueRef::Undefined(vm));
     NapiUncaughtExceptionCallback callback = arkNativeEngine->GetNapiUncaughtExceptionCallback();
     Local<JSValueRef> firstArg = runtimeCallInfo->GetCallArgRef(0);

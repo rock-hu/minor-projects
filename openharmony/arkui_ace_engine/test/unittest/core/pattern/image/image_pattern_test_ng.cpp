@@ -42,13 +42,6 @@ public:
     ~MockImageObject() override = default;
 };
 
-class MockDrawableDescriptor : public DrawableDescriptor {
-public:
-    MOCK_METHOD(void, RegisterRedrawCallback, (RedrawCallback && callback), (override));
-    MOCK_METHOD(void, Draw, (RSCanvas & canvas, const NG::ImagePaintConfig& config), (override));
-    MOCK_METHOD(int32_t, GetDrawableSrcType, (), (override));
-};
-
 /**
  * @tc.name: TriggerVisibleAreaChangeForChild001
  * @tc.desc: Test function for ImagePattern.
@@ -133,7 +126,8 @@ HWTEST_F(ImagePatternTestNg, SetColorFilter001, TestSize.Level0)
     imageInfoConfig.src = std::make_shared<std::string>(ALT_SRC_URL);
     imageInfoConfig.bundleName = BUNDLE_NAME;
     imageInfoConfig.moduleName = MODULE_NAME;
-    image.Create(imageInfoConfig, pixMap);
+    imageInfoConfig.pixelMap = pixMap;
+    image.Create(imageInfoConfig);
     auto frameNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
     ASSERT_NE(frameNode, nullptr);
     image.SetAlt(ImageSourceInfo { RESOURCE_URL });
@@ -591,7 +585,8 @@ HWTEST_F(ImagePatternTestNg, TriggerFirstVisibleAreaChange003, TestSize.Level0)
     imageInfoConfig.src = std::make_shared<std::string>(IMAGE_SRC_URL);
     imageInfoConfig.bundleName = BUNDLE_NAME;
     imageInfoConfig.moduleName = MODULE_NAME;
-    image.Create(imageInfoConfig, pixMap);
+    imageInfoConfig.pixelMap = pixMap;
+    image.Create(imageInfoConfig);
     auto frameNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
     ASSERT_NE(frameNode, nullptr);
     auto imagePattern = frameNode->GetPattern<ImagePattern>();
@@ -621,7 +616,8 @@ HWTEST_F(ImagePatternTestNg, TriggerFirstVisibleAreaChange004, TestSize.Level0)
     imageInfoConfig.src = std::make_shared<std::string>(IMAGE_SRC_URL);
     imageInfoConfig.bundleName = BUNDLE_NAME;
     imageInfoConfig.moduleName = MODULE_NAME;
-    image.Create(imageInfoConfig, pixMap);
+    imageInfoConfig.pixelMap = pixMap;
+    image.Create(imageInfoConfig);
     auto frameNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
     ASSERT_NE(frameNode, nullptr);
     auto imagePattern = frameNode->GetPattern<ImagePattern>();
@@ -1394,6 +1390,23 @@ HWTEST_F(ImagePatternTestNg, CheckCallback002, TestSize.Level0)
 }
 
 /**
+ * @tc.name: TestCreateImageDfxConfig002
+ * @tc.desc: Verify srcType is correctly mapped from ImageSourceInfo.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ImagePatternTestNg, TestCreateImageDfxConfig002, TestSize.Level0)
+{
+    auto frameNode = CreatePixelMapAnimator();
+    ASSERT_NE(frameNode, nullptr);
+    auto imagePattern = frameNode->GetPattern<ImagePattern>();
+    ASSERT_NE(imagePattern, nullptr);
+
+    ImageSourceInfo info("http://example.com/test.png");
+    auto imageDfxConfig = imagePattern->CreateImageDfxConfig(info);
+    EXPECT_EQ(imageDfxConfig.srcType_, static_cast<int32_t>(info.GetSrcType()));
+}
+
+/**
  * @tc.name: ImageHandleCopyTest001
  * @tc.desc: Test function for ImagePattern.
  * @tc.type: FUNC
@@ -1417,6 +1430,28 @@ HWTEST_F(ImagePatternTestNg, ImageHandleCopyTest001, TestSize.Level0)
      */
     imagePattern->HandleCopy();
     EXPECT_NE(imagePattern->clipboard_, nullptr);
+}
+
+/**
+ * @tc.name: TestCreateImageDfxConfig001
+ * @tc.desc: Test function for ImagePattern.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ImagePatternTestNg, TestCreateImageDfxConfig001, TestSize.Level0)
+{
+    /**
+     * @tc.steps: step1. create Image frameNode.
+     */
+    auto frameNode = CreatePixelMapAnimator();
+    ASSERT_NE(frameNode, nullptr);
+    auto imagePattern = frameNode->GetPattern<ImagePattern>();
+    ASSERT_NE(imagePattern, nullptr);
+    /**
+     * @tc.steps: step2. call CreateImageDfxConfig.
+     * @tc.expected:
+     */
+    auto imageDfxConfig = imagePattern->CreateImageDfxConfig(ImageSourceInfo(""));
+    EXPECT_EQ(imageDfxConfig.imageSrc_, "empty source");
 }
 
 /**
@@ -1638,7 +1673,8 @@ HWTEST_F(ImagePatternTestNg, DumpFillColor, TestSize.Level0)
     imageInfoConfig.src = std::make_shared<std::string>(IMAGE_SRC_URL);
     imageInfoConfig.bundleName = BUNDLE_NAME;
     imageInfoConfig.moduleName = MODULE_NAME;
-    image.Create(imageInfoConfig, pixMap);
+    imageInfoConfig.pixelMap = pixMap;
+    image.Create(imageInfoConfig);
     auto frameNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
     EXPECT_NE(frameNode, nullptr);
     auto imagePattern = frameNode->GetPattern<ImagePattern>();
@@ -1674,7 +1710,8 @@ HWTEST_F(ImagePatternTestNg, SetImageAnalyzerConfig, TestSize.Level0)
     imageInfoConfig.src = std::make_shared<std::string>(IMAGE_SRC_URL);
     imageInfoConfig.bundleName = BUNDLE_NAME;
     imageInfoConfig.moduleName = MODULE_NAME;
-    image.Create(imageInfoConfig, pixMap);
+    imageInfoConfig.pixelMap = pixMap;
+    image.Create(imageInfoConfig);
     auto frameNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
     EXPECT_NE(frameNode, nullptr);
     auto imagePattern = frameNode->GetPattern<ImagePattern>();
@@ -1708,7 +1745,8 @@ HWTEST_F(ImagePatternTestNg, RecycleImageData001, TestSize.Level0)
     imageInfoConfig.src = std::make_shared<std::string>(IMAGE_SRC_URL);
     imageInfoConfig.bundleName = BUNDLE_NAME;
     imageInfoConfig.moduleName = MODULE_NAME;
-    image.Create(imageInfoConfig, pixMap);
+    imageInfoConfig.pixelMap = pixMap;
+    image.Create(imageInfoConfig);
     auto frameNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
     EXPECT_NE(frameNode, nullptr);
     auto imagePattern = frameNode->GetPattern<ImagePattern>();
@@ -1739,7 +1777,8 @@ HWTEST_F(ImagePatternTestNg, RecycleImageData002, TestSize.Level0)
     imageInfoConfig.src = std::make_shared<std::string>(IMAGE_SRC_URL);
     imageInfoConfig.bundleName = BUNDLE_NAME;
     imageInfoConfig.moduleName = MODULE_NAME;
-    image.Create(imageInfoConfig, pixMap);
+    imageInfoConfig.pixelMap = pixMap;
+    image.Create(imageInfoConfig);
     auto frameNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
     EXPECT_NE(frameNode, nullptr);
     auto imagePattern = frameNode->GetPattern<ImagePattern>();
@@ -1771,7 +1810,8 @@ HWTEST_F(ImagePatternTestNg, RecycleImageData003, TestSize.Level0)
     imageInfoConfig.src = std::make_shared<std::string>(IMAGE_SRC_URL);
     imageInfoConfig.bundleName = BUNDLE_NAME;
     imageInfoConfig.moduleName = MODULE_NAME;
-    image.Create(imageInfoConfig, pixMap);
+    imageInfoConfig.pixelMap = pixMap;
+    image.Create(imageInfoConfig);
     auto frameNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
     EXPECT_NE(frameNode, nullptr);
     auto imagePattern = frameNode->GetPattern<ImagePattern>();
@@ -1802,7 +1842,8 @@ HWTEST_F(ImagePatternTestNg, RecycleImageData004, TestSize.Level0)
     imageInfoConfig.src = std::make_shared<std::string>(IMAGE_SRC_URL);
     imageInfoConfig.bundleName = BUNDLE_NAME;
     imageInfoConfig.moduleName = MODULE_NAME;
-    image.Create(imageInfoConfig, pixMap);
+    imageInfoConfig.pixelMap = pixMap;
+    image.Create(imageInfoConfig);
     auto frameNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
     EXPECT_NE(frameNode, nullptr);
     auto imagePattern = frameNode->GetPattern<ImagePattern>();
@@ -2612,46 +2653,6 @@ HWTEST_F(ImagePatternTestNg, ImagePatternInitOnKeyEvent002, TestSize.Level1)
 }
 
 /**
- * @tc.name: RegisterDrawableRedrawCallback001
- * @tc.desc: call RegisterDrawableRedrawCallback.
- * @tc.type: FUNC
- */
-HWTEST_F(ImagePatternTestNg, RegisterDrawableRedrawCallback001, TestSize.Level1)
-{
-    auto frameNode = CreatePixelMapAnimator();
-    ASSERT_NE(frameNode, nullptr);
-    EXPECT_EQ(frameNode->GetTag(), V2::IMAGE_ETS_TAG);
-    auto imagePattern = frameNode->GetPattern<ImagePattern>();
-    ASSERT_NE(imagePattern, nullptr);
-
-    imagePattern->isRegisterRedrawCallback_ = false;
-    auto drawable = AceType::MakeRefPtr<MockDrawableDescriptor>();
-    imagePattern->drawable_ = drawable;
-    imagePattern->RegisterDrawableRedrawCallback();
-    EXPECT_TRUE(imagePattern->isRegisterRedrawCallback_);
-}
-
-/**
- * @tc.name: RegisterDrawableRedrawCallback002
- * @tc.desc: call RegisterDrawableRedrawCallback.
- * @tc.type: FUNC
- */
-HWTEST_F(ImagePatternTestNg, RegisterDrawableRedrawCallback002, TestSize.Level1)
-{
-    auto frameNode = CreatePixelMapAnimator();
-    ASSERT_NE(frameNode, nullptr);
-    EXPECT_EQ(frameNode->GetTag(), V2::IMAGE_ETS_TAG);
-    auto imagePattern = frameNode->GetPattern<ImagePattern>();
-    ASSERT_NE(imagePattern, nullptr);
-
-    imagePattern->isRegisterRedrawCallback_ = true;
-    auto drawable = AceType::MakeRefPtr<MockDrawableDescriptor>();
-    imagePattern->drawable_ = drawable;
-    imagePattern->RegisterDrawableRedrawCallback();
-    EXPECT_TRUE(imagePattern->isRegisterRedrawCallback_);
-}
-
-/**
  * @tc.name: UpdateOffsetForImageAnalyzerOverlay001
  * @tc.desc: call UpdateOffsetForImageAnalyzerOverlay.
  * @tc.type: FUNC
@@ -2714,7 +2715,8 @@ HWTEST_F(ImagePatternTestNg, TestImageJsonImageWidth_Height01, TestSize.Level0)
     imageInfoConfig.src = std::make_shared<std::string>(IMAGE_SRC_URL);
     imageInfoConfig.bundleName = BUNDLE_NAME;
     imageInfoConfig.moduleName = MODULE_NAME;
-    image.Create(imageInfoConfig, pixMap);
+    imageInfoConfig.pixelMap = pixMap;
+    image.Create(imageInfoConfig);
 
     auto frameNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
     EXPECT_NE(frameNode, nullptr);
@@ -2723,7 +2725,7 @@ HWTEST_F(ImagePatternTestNg, TestImageJsonImageWidth_Height01, TestSize.Level0)
     imagePattern->loadingCtx_ = AceType::MakeRefPtr<ImageLoadingContext>(
         ImageSourceInfo(IMAGE_SRC_URL, IMAGE_SOURCEINFO_WIDTH, IMAGE_SOURCEINFO_HEIGHT),
         LoadNotifier(nullptr, nullptr, nullptr));
-    
+
     /**
      * @tc.steps: step2. call ToJsonValue.
      * @tc.expected: as follows
@@ -2823,7 +2825,8 @@ HWTEST_F(ImagePatternTestNg, TestImageLoadSuccessEvent001, TestSize.Level0)
     imageInfoConfig.src = std::make_shared<std::string>(IMAGE_SRC_URL);
     imageInfoConfig.bundleName = BUNDLE_NAME;
     imageInfoConfig.moduleName = MODULE_NAME;
-    image.Create(imageInfoConfig, pixMap);
+    imageInfoConfig.pixelMap = pixMap;
+    image.Create(imageInfoConfig);
 
     auto frameNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
     EXPECT_NE(frameNode, nullptr);
@@ -2869,16 +2872,17 @@ HWTEST_F(ImagePatternTestNg, ImageCreateTest001, TestSize.Level0)
     imageInfoConfig.src = std::make_shared<std::string>(IMAGE_SRC_URL);
     imageInfoConfig.bundleName = BUNDLE_NAME;
     imageInfoConfig.moduleName = MODULE_NAME;
-    image.Create(imageInfoConfig, pixMap);
+    imageInfoConfig.pixelMap = pixMap;
+    image.Create(imageInfoConfig);
 
     auto frameNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
     EXPECT_NE(frameNode, nullptr);
     auto imagePattern = frameNode->GetPattern<ImagePattern>();
     ASSERT_NE(imagePattern, nullptr);
     /**
-    * @tc.steps: step2. check isFullyInitializedFromTheme_ is false.
-    * @tc.expected: isFullyInitializedFromTheme_ is false.
-    */
+     * @tc.steps: step2. check isFullyInitializedFromTheme_ is false.
+     * @tc.expected: isFullyInitializedFromTheme_ is false.
+     */
     EXPECT_FALSE(imagePattern->isFullyInitializedFromTheme_);
     imagePattern->InitFromThemeIfNeed();
     /**
@@ -2909,18 +2913,18 @@ HWTEST_F(ImagePatternTestNg, TestImageLoadingCtxCreate, TestSize.Level0)
         LoadNotifier(nullptr, nullptr, nullptr), false, true);
     ASSERT_NE(loadingCtx1, nullptr);
     /**
-    * @tc.steps: step2. check isSceneBoardWindow_ value.
-    * @tc.expected: isSceneBoardWindow_ is true.
-    */
+     * @tc.steps: step2. check isSceneBoardWindow_ value.
+     * @tc.expected: isSceneBoardWindow_ is true.
+     */
     EXPECT_TRUE(loadingCtx1->isSceneBoardWindow_);
     auto loadingCtx2 = AceType::MakeRefPtr<ImageLoadingContext>(
         ImageSourceInfo(IMAGE_SRC_URL, IMAGE_SOURCEINFO_WIDTH, IMAGE_SOURCEINFO_HEIGHT),
         LoadNotifier(nullptr, nullptr, nullptr), false, false);
     ASSERT_NE(loadingCtx2, nullptr);
     /**
-    * @tc.steps: step2. check isSceneBoardWindow_ value.
-    * @tc.expected: isSceneBoardWindow_ is false.
-    */
+     * @tc.steps: step2. check isSceneBoardWindow_ value.
+     * @tc.expected: isSceneBoardWindow_ is false.
+     */
     EXPECT_FALSE(loadingCtx2->isSceneBoardWindow_);
 }
 } // namespace OHOS::Ace::NG

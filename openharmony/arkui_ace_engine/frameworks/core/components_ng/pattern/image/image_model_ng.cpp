@@ -76,7 +76,7 @@ void SetFrameNodeDraggable(RefPtr<FrameNode>& frameNode, bool isImageSpan)
     }
 }
 
-void ImageModelNG::Create(const ImageInfoConfig& imageInfoConfig, RefPtr<PixelMap>& pixMap)
+void ImageModelNG::Create(ImageInfoConfig& imageInfoConfig)
 {
     auto* stack = ViewStackProcessor::GetInstance();
     auto nodeId = stack->ClaimNodeId();
@@ -93,15 +93,15 @@ void ImageModelNG::Create(const ImageInfoConfig& imageInfoConfig, RefPtr<PixelMa
     stack->Push(frameNode);
     auto pattern = frameNode->GetPattern<ImagePattern>();
     CHECK_NULL_VOID(pattern);
-    if (src.empty() && !pixMap && pattern->GetIsAnimation()) {
+    if (src.empty() && !imageInfoConfig.pixelMap && pattern->GetIsAnimation()) {
         pattern->SetSrcUndefined(true);
         return;
     }
 
     // set draggable for framenode
     SetFrameNodeDraggable(frameNode, imageInfoConfig.isImageSpan);
-    auto srcInfo =
-        CreateSourceInfo(imageInfoConfig.src, pixMap, imageInfoConfig.bundleName, imageInfoConfig.moduleName);
+    auto srcInfo = CreateSourceInfo(
+        imageInfoConfig.src, imageInfoConfig.pixelMap, imageInfoConfig.bundleName, imageInfoConfig.moduleName);
     srcInfo.SetIsUriPureNumber(imageInfoConfig.isUriPureNumber);
 
     if (pattern->GetImageType() != ImageType::BASE) {
@@ -1331,7 +1331,7 @@ void ImageModelNG::CreateWithResourceObj(ImageResourceType resourceType, const R
 {
     auto frameNode = ViewStackProcessor::GetInstance()->GetMainFrameNode();
     CHECK_NULL_VOID(frameNode);
-    CreateWithResourceObj(frameNode , resourceType, resObj);
+    CreateWithResourceObj(frameNode, resourceType, resObj);
 }
 
 void ImageModelNG::CreateWithResourceObj(
@@ -1381,6 +1381,14 @@ void ImageModelNG::SetSupportSvg2(FrameNode* frameNode, bool enable)
 void ImageModelNG::ResetSupportSvg2(FrameNode* frameNode)
 {
     SetSupportSvg2(frameNode, false);
+}
+
+bool ImageModelNG::GetSupportSvg2(FrameNode* frameNode)
+{
+    CHECK_NULL_RETURN(frameNode, false);
+    auto imagePattern = frameNode->GetPattern<ImagePattern>();
+    CHECK_NULL_RETURN(imagePattern, false);
+    return imagePattern->GetSupportSvg2();
 }
 } // namespace OHOS::Ace::NG
 #endif // FOUNDATION_ACE_FRAMEWORKS_CORE_COMPONENTS_NG_PATTERN_IMAGE_IMAGE_MODEL_NG_CPP

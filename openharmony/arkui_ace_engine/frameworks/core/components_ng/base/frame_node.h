@@ -591,8 +591,9 @@ public:
     int32_t GetAllDepthChildrenCount();
 
     void OnAccessibilityEvent(
-        AccessibilityEventType eventType, WindowsContentChangeTypes windowsContentChangeType =
-                                              WindowsContentChangeTypes::CONTENT_CHANGE_TYPE_INVALID) const;
+        AccessibilityEventType eventType,
+        WindowsContentChangeTypes windowsContentChangeType = WindowsContentChangeTypes::CONTENT_CHANGE_TYPE_INVALID,
+        bool sendByNode = false);
 
     void OnAccessibilityEventForVirtualNode(AccessibilityEventType eventType, int64_t accessibilityId);
 
@@ -1589,6 +1590,8 @@ private:
 
     void AddFrameNodeSnapshot(
         bool isHit, int32_t parentId, const std::vector<RectF>& responseRegionList, EventTreeType type);
+
+    void UpdateFrameNodeSnapshot(const TouchResult& touchResult, EventTreeType type);
 
     int32_t GetNodeExpectedRate();
 

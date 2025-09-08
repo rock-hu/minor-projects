@@ -2010,7 +2010,7 @@ HWTEST_F(SearchTestTwoNg, searchModelStatic007, TestSize.Level1)
     EXPECT_EQ(textFieldLayoutProperty->GetPlaceholderTextColor().value(), Color::GRAY);
 
     SearchModelStatic::SetPlaceholderColor(frameNode, std::nullopt);
-    EXPECT_FALSE(textFieldLayoutProperty->GetPlaceholderTextColor().has_value());
+    EXPECT_TRUE(textFieldLayoutProperty->GetPlaceholderTextColor().has_value());
 }
 
 /**
@@ -2353,8 +2353,8 @@ HWTEST_F(SearchTestTwoNg, CalcSearchWidth003, TestSize.Level1)
     auto columnLayoutWrapper = column.second;
     RefPtr<LayoutWrapper> layoutWrapper = columnLayoutWrapper;
     auto& childLayoutConstraint = layoutWrapper->GetLayoutProperty()->GetCalcLayoutConstraint();
-    childLayoutConstraint->minSize->SetWidth(CalcLength(200.0f));
-    childLayoutConstraint->maxSize->SetWidth(CalcLength(50.0f));
+    childLayoutConstraint->minSize = CalcSize(CalcLength(200.0f), CalcLength());
+    childLayoutConstraint->maxSize = CalcSize(CalcLength(50.0f), CalcLength());
     LayoutConstraintT<float> layoutConstraintT;
     layoutConstraintT.percentReference.SetWidth(100.0f);
     layoutConstraintT.maxSize.SetWidth(150.0f);

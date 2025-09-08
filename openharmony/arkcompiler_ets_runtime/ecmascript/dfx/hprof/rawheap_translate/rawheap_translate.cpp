@@ -180,6 +180,33 @@ void RawHeap::SetVersion(const std::string &version)
     version_ = version;
 }
 
+void RawHeap::CreateHashEdge(Node *node)
+{
+    static const StringId hashStrId = InsertAndGetStringId("ArkInternalHash");
+    uint32_t hash = static_cast<uint32_t>(node->nodeId >> 32);  // 32: the high-32bits means hash value
+    node->nodeId &= 0xFFFFFFFFULL;
+    if (hash == 0) {
+        return;
+    }
+
+    Node *hashNode = new Node(nodeIndex_++);
+    hashNode->nodeId = 0;
+    hashNode->type = 7;  // 7: means HEAPNUMBER
+    hashNode->strId = InsertAndGetStringId("Int: " + std::to_string(hash));
+    InsertEdge(hashNode, hashStrId, EdgeType::DEFAULT);
+    primitiveNodes_.push_back(hashNode);
+    node->edgeCount++;
+
+#ifdef OHOS_UNIT_TEST
+    hashSet_.insert(hash);
+#endif
+}
+
+void RawHeap::AddPrimitiveNodes()
+{
+    nodes_.insert(nodes_.end(), primitiveNodes_.begin(), primitiveNodes_.end());
+}
+
 bool RawHeap::ReadSectionInfo(FileReader &file, uint32_t offset, std::vector<uint32_t> &section)
 {
     if (!file.CheckAndGetHeaderAt(offset - sizeof(uint64_t), sizeof(uint32_t))) {
@@ -236,10 +263,13 @@ bool RawHeapTranslateV1::Translate()
         JSType type = metaParser_->GetJSTypeFromHClass(hclass);
         FillNodes(node, type);
         CreateHClassEdge(node, hclass);
+        CreateHashEdge(node);
         if (!metaParser_->IsString(type)) {
             BuildEdges(node, type);
         }
     }
+
+    AddPrimitiveNodes();
     LOG_INFO_ << "success!";
     return true;
 }
@@ -281,7 +311,7 @@ bool RawHeapTranslateV1::ReadStringTable(FileReader &file)
 
 bool RawHeapTranslateV1::ReadObjectTable(FileReader &file, uint32_t offset, uint32_t totalSize)
 {
-    if (!file.CheckAndGetHeaderAt(offset, sizeof(AddrTableItem))) {
+    if (!file.CheckAndGetHeaderAt(offset, 0) || file.GetHeaderRight() < sizeof(AddrTableItem)) {
         LOG_ERROR_ << "object table header error!";
         return false;
     }
@@ -298,25 +328,25 @@ bool RawHeapTranslateV1::ReadObjectTable(FileReader &file, uint32_t offset, uint
     mem_.push_back(mem);
     char *data = objTableData.data();
     for (uint32_t i = 0; i < file.GetHeaderLeft(); ++i) {
-        uint64_t addr = ByteToU64(data);
+        AddrTableItem table = {
+            ByteToU64(data),    // addr
+            ByteToU64(data + sizeof(uint64_t)),     // id
+            ByteToU32(data + sizeof(uint64_t) * 2),     // objSize
+            ByteToU32(data + sizeof(uint64_t) * 2 + sizeof(uint32_t))   // offset
+        };
+        uint64_t addr = table.addr;
         Node *node = FindOrCreateNode(addr);
-        data += sizeof(uint64_t);
+        node->nodeId = table.id;
+        node->size = table.objSize;
 
-        node->nodeId = ByteToU64(data);
-        data += sizeof(uint64_t);
-
-        node->size = ByteToU32(data);
-        data += sizeof(uint32_t);
-
-        uint32_t memOffset = ByteToU32(data) - tableSize;
-        data += sizeof(uint32_t);
-
+        uint32_t memOffset = table.offset - tableSize;
         if (memOffset + sizeof(uint64_t) > memSize) {
             LOG_ERROR_ << "object memory offset error!";
             return false;
         }
 
         node->data = mem + memOffset;
+        data += file.GetHeaderRight();
     }
     LOG_INFO_ << "section objects count " << file.GetHeaderLeft();
     return true;
@@ -567,11 +597,14 @@ bool RawHeapTranslateV2::Translate()
             CreateEdge(node, hclass, InsertAndGetStringId("hclass"), EdgeType::DEFAULT);
         }
 
+        CreateHashEdge(node);
         if (metaParser_->IsString(node->jsType)) {
             continue;
         }
         BuildEdges(node);
     }
+
+    AddPrimitiveNodes();
     LOG_INFO_ << "success!";
     return true;
 }
@@ -614,13 +647,13 @@ bool RawHeapTranslateV2::ReadStringTable(FileReader &file)
 bool RawHeapTranslateV2::ReadObjectTable(FileReader &file)
 {
     // 4: index in sections means the offset of object table
-    if (!file.CheckAndGetHeaderAt(sections_[4], sizeof(AddrTableItemV2))) {
+    if (!file.CheckAndGetHeaderAt(sections_[4], 0) || file.GetHeaderRight() < sizeof(AddrTableItemV2)) {
         LOG_ERROR_ << "object table header error!";
         return false;
     }
 
     syntheticRoot_ = CreateNode();
-    uint32_t tableSize = file.GetHeaderLeft() * sizeof(AddrTableItemV2);
+    uint32_t tableSize = file.GetHeaderLeft() * file.GetHeaderRight();
     // 5: index in sections means the total size of object table
     memSize_ = sections_[5] - tableSize - sizeof(uint64_t);
     std::vector<char> objTableData(tableSize);
@@ -646,7 +679,7 @@ bool RawHeapTranslateV2::ReadObjectTable(FileReader &file)
         node->nodeId = table.nodeId;
         node->nativeSize = table.nativeSize;
         node->jsType = static_cast<uint8_t>(table.type);
-        tableData += sizeof(AddrTableItemV2);
+        tableData += file.GetHeaderRight();
     }
 
     LOG_INFO_ << "objects table count " << file.GetHeaderLeft();

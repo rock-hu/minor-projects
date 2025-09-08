@@ -1078,6 +1078,14 @@ void WebClientImpl::OnNativeEmbedMouseEvent(std::shared_ptr<NWeb::NWebNativeEmbe
     delegate->OnNativeEmbedMouseEvent(event);
 }
 
+void WebClientImpl::OnNativeEmbedObjectParamChange(std::shared_ptr<NWeb::NWebNativeEmbedParamDataInfo> paramDataInfo)
+{
+    auto delegate = webDelegate_.Upgrade();
+    CHECK_NULL_VOID(delegate);
+    ContainerScope scope(delegate->GetInstanceId());
+    delegate->OnNativeEmbedObjectParamChange(paramDataInfo);
+}
+
 void WebClientImpl::OnRootLayerChanged(int width, int height)
 {
     auto delegate = webDelegate_.Upgrade();
@@ -1567,5 +1575,12 @@ void WebClientImpl::SetImeShow(bool visible)
     auto delegate = webDelegate_.Upgrade();
     CHECK_NULL_VOID(delegate);
     delegate->SetImeShow(visible);
+}
+
+bool WebClientImpl::IsShowHandle()
+{
+    auto delegate = webDelegate_.Upgrade();
+    CHECK_NULL_RETURN(delegate, false);
+    return delegate->IsShowHandle();
 }
 } // namespace OHOS::Ace

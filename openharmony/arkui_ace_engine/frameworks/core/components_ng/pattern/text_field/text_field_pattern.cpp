@@ -664,6 +664,7 @@ bool TextFieldPattern::OnDirtyLayoutWrapperSwap(const RefPtr<LayoutWrapper>& dir
 
 void TextFieldPattern::OnSyncGeometryNode(const DirtySwapConfig& config)
 {
+    CHECK_NULL_VOID(!IsNormalInlineState());
     CHECK_NULL_VOID(HasFocus());
     parentGlobalOffset_ = GetPaintRectGlobalOffset();
     UpdateTextFieldManager(Offset(parentGlobalOffset_.GetX(), parentGlobalOffset_.GetY()), frameRect_.Height());
@@ -1181,7 +1182,8 @@ void TextFieldPattern::ProcessAutoFillOnFocus()
         requestFocusReason_ == RequestFocusReason::DRAG_ENTER || requestFocusReason_ == RequestFocusReason::DRAG_MOVE ||
         requestFocusReason_ == RequestFocusReason::DRAG_END || requestFocusReason_ == RequestFocusReason::AUTO_FILL ||
         requestFocusReason_ == RequestFocusReason::CLICK || requestFocusReason_ == RequestFocusReason::MOUSE ||
-        requestFocusReason_ == RequestFocusReason::DRAG_SELECT;
+        requestFocusReason_ == RequestFocusReason::DRAG_SELECT ||
+        requestFocusReason_ == RequestFocusReason::SWITCH_EDITABLE;
     if (needToRequestKeyboardOnFocus_ && !isIgnoreFocusReason && !IsModalCovered() && IsTriggerAutoFillPassword()) {
         DoProcessAutoFill();
     }
@@ -8077,6 +8079,18 @@ void TextFieldPattern::SetAccessibilityEditAction()
         pattern->suppressAccessibilityEvent_ = false;
         pattern->HandleOnPaste();
         pattern->CloseSelectOverlay(true);
+    });
+
+    accessibilityProperty->SetSwitchEditableMode([weakPtr = WeakClaim(this)](bool switchToEditable) {
+        const auto& pattern = weakPtr.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        if (switchToEditable) {
+            if (!pattern->HasFocus()) {
+                pattern->TextFieldRequestFocus(RequestFocusReason::SWITCH_EDITABLE);
+            }
+        } else {
+            pattern->StopEditing();
+        }
     });
 }
 

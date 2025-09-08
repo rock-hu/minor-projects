@@ -28,7 +28,7 @@ namespace OHOS::Ace::NG {
 
 class ACE_EXPORT ImageModelNG : public OHOS::Ace::ImageModel {
 public:
-    void Create(const ImageInfoConfig& imageInfoConfig, RefPtr<PixelMap>& pixMap) override;
+    void Create(ImageInfoConfig& imageInfoConfig) override;
     void CreateWithResourceObj(ImageResourceType resourceType, const RefPtr<ResourceObject>& resObject) override;
     void ResetImage() override;
     void CreateAnimation(const std::vector<ImageProperties>& imageList, int32_t duration, int32_t iteration) override;
@@ -163,6 +163,7 @@ public:
         FrameNode* frameNode, ImageResourceType resourceType, const RefPtr<ResourceObject>& resObject);
     static void SetSupportSvg2(FrameNode* frameNode, bool enable);
     static void ResetSupportSvg2(FrameNode* frameNode);
+    static bool GetSupportSvg2(FrameNode* frameNode);
 
 private:
     ImagePattern* GetImagePattern();

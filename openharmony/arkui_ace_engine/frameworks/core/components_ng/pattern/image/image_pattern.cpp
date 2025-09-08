@@ -43,7 +43,6 @@ constexpr int32_t DEFAULT_DURATION = 1000; // ms
 constexpr uint32_t CRITICAL_TIME = 50;     // ms. If show time of image is less than this, use more cacheImages.
 constexpr int64_t MICROSEC_TO_MILLISEC = 1000;
 constexpr int32_t DEFAULT_ITERATIONS = 1;
-constexpr int32_t MEMORY_LEVEL_CRITICAL_STATUS = 2;
 constexpr size_t URL_SAVE_LENGTH = 15;
 constexpr size_t URL_KEEP_TOTAL_LENGTH = 30;
 constexpr int32_t NEED_MASK_INDEX = 3;
@@ -109,7 +108,7 @@ constexpr float BOX_EPSILON = 0.5f;
 constexpr float IMAGE_SENSITIVE_RADIUS = 80.0f;
 constexpr double IMAGE_SENSITIVE_SATURATION = 1.0;
 constexpr double IMAGE_SENSITIVE_BRIGHTNESS = 1.08;
-constexpr uint32_t MAX_SRC_LENGTH = 120; // prevent the Base64 image format from too long.
+constexpr uint32_t MAX_SRC_LENGTH = 200; // prevent the Base64 image format from too long.
 constexpr int32_t IMAGE_LOAD_FAIL = 0;
 constexpr int32_t IMAGE_LOAD_SUCCESS = 1;
 
@@ -468,11 +467,11 @@ void ImagePattern::OnImageLoadSuccess()
         context->SetColorGamut(pixelMap->GetInnerColorGamut());
     }
     ReportPerfData(host, IMAGE_LOAD_SUCCESS);
-    /*  
-    * Trigger the completion callback. Since the callback is executed externally and its behavior 
-    * is not controlled here, it may lead to object mutation or destruction. Therefore, avoid 
-    * accessing internal member pointers or state after this call to prevent use-after-free 
-    * issues or crashes.  
+    /*
+    * Trigger the completion callback. Since the callback is executed externally and its behavior
+    * is not controlled here, it may lead to object mutation or destruction. Therefore, avoid
+    * accessing internal member pointers or state after this call to prevent use-after-free
+    * issues or crashes.
     */
     RectF paintRect = CalcImageContentPaintSize(geometryNode);
     LoadImageSuccessEvent event(loadingCtx_->GetImageSize().Width(), loadingCtx_->GetImageSize().Height(),
@@ -800,10 +799,6 @@ bool ImagePattern::OnDirtyLayoutWrapperSwap(const RefPtr<LayoutWrapper>& dirty, 
         return false;
     }
 
-    if (imageType_ == ImageType::PIXELMAP_DRAWABLE) {
-        return true;
-    }
-
     const auto& dstSize = dirty->GetGeometryNode()->GetContentSize();
     StartDecoding(dstSize);
     if (loadingCtx_) {
@@ -994,9 +989,6 @@ void ImagePattern::OnModifyDone()
         case ImageType::ANIMATED_DRAWABLE:
             OnAnimatedModifyDone();
             break;
-        case ImageType::PIXELMAP_DRAWABLE:
-            OnPixelMapDrawableModifyDone();
-            break;
         default:
             break;
     }
@@ -1130,80 +1122,6 @@ void ImagePattern::OnImageModifyDone()
     CloseSelectOverlay();
     UpdateOffsetForImageAnalyzerOverlay();
     SetFrameOffsetForOverlayNode();
-}
-
-void ImagePattern::OnPixelMapDrawableModifyDone()
-{
-    Pattern::OnModifyDone();
-    UpdateGestureAndDragWhenModify();
-    CHECK_EQUAL_VOID(CheckImagePrivacyForCopyOption(), true);
-    CloseSelectOverlay();
-    UpdateOffsetForImageAnalyzerOverlay();
-    SetFrameOffsetForOverlayNode();
-    // Data loading is not managed by image. Therefore, during component
-    // attribute initilizationm, the dirty node mark of image needs to
-    // be registered withe Drawable. Drawable triggers drawing again after
-    // data loading is complete.
-    RegisterDrawableRedrawCallback();
-}
-
-void ImagePattern::RegisterDrawableRedrawCallback()
-{
-    if (isRegisterRedrawCallback_) {
-        return;
-    }
-    CHECK_NULL_VOID(drawable_);
-    drawable_->RegisterRedrawCallback([weak = WeakClaim(this)] {
-        auto pattern = weak.Upgrade();
-        CHECK_NULL_VOID(pattern);
-        auto context = pattern->GetContext();
-        CHECK_NULL_VOID(context);
-        auto taskExecutor = context->GetTaskExecutor();
-        CHECK_NULL_VOID(taskExecutor);
-        taskExecutor->PostTask(
-            [weak = weak] {
-                auto pattern = weak.Upgrade();
-                CHECK_NULL_VOID(pattern);
-                pattern->Validate();
-            },
-            TaskExecutor::TaskType::UI, "ArkUIImageDrawableMarkRender");
-    });
-    isRegisterRedrawCallback_ = true;
-}
-
-void ImagePattern::Validate()
-{
-    auto host = GetHost();
-    CHECK_NULL_VOID(host);
-    ACE_SCOPED_TRACE("[Drawable][%d] validate callback", host->GetId());
-    // first mark dirty render
-    host->MarkNeedRenderOnly();
-    CHECK_NULL_VOID(contentMod_);
-    // because drawable is not a drawing attribute of the
-    // content modifier, redrawing cannot be trigged when
-    // drawable validates the content modifier. Therefore
-    // count attribute in the modifier needs to be used to
-    // forcibly refresh the content modifier.
-    contentMod_->SetContentChange();
-}
-
-ImagePaintConfig ImagePattern::CreatePaintConfig()
-{
-    ImagePaintConfig config;
-    auto lp = GetLayoutProperty<ImageLayoutProperty>();
-    CHECK_NULL_RETURN(lp, config);
-    config.imageFit_ = lp->GetImageFit().value_or(ImageFit::COVER);
-    return config;
-}
-
-void ImagePattern::DrawDrawable(RSCanvas& canvas)
-{
-    auto host = GetHost();
-    CHECK_NULL_VOID(host);
-    ACE_SCOPED_TRACE("[Drawable][%d] draw to canvas", host->GetId());
-    CHECK_NULL_VOID(drawable_);
-    auto config = CreatePaintConfig();
-    drawable_->Draw(canvas, config);
 }
 
 std::optional<SizeF> ImagePattern::GetImageSizeForMeasure()
@@ -1393,23 +1311,9 @@ bool ImagePattern::RecycleImageData()
 
 void ImagePattern::OnNotifyMemoryLevel(int32_t level)
 {
-    // when image component is [onShow], do not clean image data
-    if (isShow_ || level < MEMORY_LEVEL_CRITICAL_STATUS) {
-        return;
-    }
-    auto frameNode = GetHost();
-    CHECK_NULL_VOID(frameNode);
-    frameNode->SetTrimMemRecycle(false);
-    auto rsRenderContext = frameNode->GetRenderContext();
-    CHECK_NULL_VOID(rsRenderContext);
-    TAG_LOGD(AceLogTag::ACE_IMAGE, "%{public}s, %{private}s OnNotifyMemoryLevel %{public}d.",
-        imageDfxConfig_.ToStringWithoutSrc().c_str(), imageDfxConfig_.GetImageSrc().c_str(), level);
-    rsRenderContext->RemoveContentModifier(contentMod_);
-    contentMod_ = nullptr;
-    loadingCtx_ = nullptr;
-    image_ = nullptr;
-    altLoadingCtx_ = nullptr;
-    altImage_ = nullptr;
+    // Intentionally left blank: no handling for memory level in current version.
+    // This is a placeholder for future memory optimization logic.
+    return;
 }
 
 // when recycle image component, release the pixelmap resource

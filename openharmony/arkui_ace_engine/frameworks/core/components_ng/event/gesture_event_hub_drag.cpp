@@ -44,11 +44,7 @@
 #include "core/common/udmf/udmf_client.h"
 #include "core/components_ng/render/adapter/component_snapshot.h"
 #ifdef WEB_SUPPORTED
-#if !defined(ANDROID_PLATFORM) && !defined(IOS_PLATFORM)
 #include "core/components_ng/pattern/web/web_pattern.h"
-#else
-#include "core/components_ng/pattern/web/cross_platform/web_pattern.h"
-#endif
 #endif
 namespace OHOS::Ace::NG {
 namespace {
@@ -1239,15 +1235,17 @@ OnDragCallbackCore GestureEventHub::GetDragCallback()
     auto ret = [](const DragNotifyMsgCore& notifyMessage) {};
     auto frameNode = GetFrameNode();
     CHECK_NULL_RETURN(frameNode, ret);
-    auto callback = [id = frameNode->GetInstanceId(), weak = AceType::WeakClaim(this)]
+    auto callback = [id = frameNode->GetInstanceId(), weak = AceType::WeakClaim(AceType::RawPtr(frameNode))]
         (const DragNotifyMsgCore& notifyMessage) {
         ContainerScope scope(id);
-        auto pipeline = PipelineContext::GetCurrentContextSafelyWithCheck();
-        CHECK_NULL_VOID(pipeline);
-        auto taskScheduler = pipeline->GetTaskExecutor();
+        auto container = Container::GetContainer(id);
+        CHECK_NULL_VOID(container);
+        auto taskScheduler = container->GetTaskExecutor();
         CHECK_NULL_VOID(taskScheduler);
         taskScheduler->PostTask([id, weak, notifyMessage]() {
-                auto gestureEventHub = weak.Upgrade();
+                auto node = weak.Upgrade();
+                CHECK_NULL_VOID(node);
+                auto gestureEventHub = node->GetOrCreateGestureEventHub();
                 CHECK_NULL_VOID(gestureEventHub);
                 gestureEventHub->HandleDragEnd(id, notifyMessage);
             },
@@ -1767,7 +1765,7 @@ bool GestureEventHub::TryDoDragStartAnimation(const RefPtr<PipelineBase>& contex
     auto gatherNodeOffset = isExpandDisplay
             ? DragDropManager::GetTouchOffsetRelativeToSubwindow(dragNodePipeline->GetInstanceId()) + positionToWindow
             : positionToWindow;
-    DragEventActuator::UpdateGatherAnimatePosition(childrenInfo, gatherNodeOffset);
+    DragEventActuator::UpdateGatherAnimatePosition(gatherNode, gatherNodeOffset);
 
     // mount node
     auto subWindowOverlayManager = subWindow->GetOverlayManager();

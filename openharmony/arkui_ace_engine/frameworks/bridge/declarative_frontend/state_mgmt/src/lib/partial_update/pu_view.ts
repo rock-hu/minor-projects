@@ -511,9 +511,9 @@ abstract class ViewPU extends PUV2ViewBase
   }
 
   // collect elements need to update synchronously and its owning view
-  public collectElementsNeedToUpdateSynchronously(varName: PropertyInfo, dependentElmtIds: Set<number>, isAllowedWatchCallback: boolean): void {
+  public collectElementsNeedToUpdateSynchronously(varName: PropertyInfo, dependentElmtIds: Set<number> | undefined, isAllowedWatchCallback: boolean): void {
     stateMgmtConsole.debug(`collectElementsNeedToUpdateSynchronously ${this.debugInfo__()} change ${varName} dependent elements ${dependentElmtIds}`);
-    if (dependentElmtIds.size && !this.isFirstRender()) {
+    if (dependentElmtIds?.size && !this.isFirstRender()) {
       for (const elmtId of dependentElmtIds) {
         if (this.hasRecycleManager()) {
           this.dirtyElementIdsNeedsUpdateSynchronously_.add(this.recycleManager_.proxyNodeId(elmtId));
@@ -535,11 +535,13 @@ abstract class ViewPU extends PUV2ViewBase
   }
 
   // implements IMultiPropertiesChangeSubscriber
-  viewPropertyHasChanged(varName: PropertyInfo, dependentElmtIds: Set<number>): void {
+  viewPropertyHasChanged(varName: PropertyInfo, dependentElmtIds: Set<number> | undefined): void {
     stateMgmtProfiler.begin('ViewPU.viewPropertyHasChanged');
-    aceDebugTrace.begin('ViewPU.viewPropertyHasChanged', this.constructor.name, varName, dependentElmtIds.size, this.id__(), this.dirtDescendantElementIds_.size, this.runReuse_);
+    aceDebugTrace.begin('ViewPU.viewPropertyHasChanged', this.constructor.name, varName,
+      dependentElmtIds ? dependentElmtIds.size : 0, this.id__(),
+      this.dirtDescendantElementIds_.size, this.runReuse_);
     if (this.isRenderInProgress) {
-      stateMgmtConsole.applicationError(`${this.debugInfo__()}: State variable '${varName}' has changed during render! It's illegal to change @Component state while build (initial render or re-render) is on-going. Application error!`);
+      stateMgmtConsole.frequentApplicationError(`@Component '${this.constructor.name}: State variable '${varName}' has changed during render! It's illegal to change @Component state while build (initial render or re-render) is on-going. Application error!`);
     } else if (this.isPrebuilding_) {
       const propertyChangedFunc: PrebuildFunc = () => {
         this.viewPropertyHasChanged(varName, dependentElmtIds);
@@ -553,7 +555,7 @@ abstract class ViewPU extends PUV2ViewBase
 
     this.syncInstanceId();
 
-    if (dependentElmtIds.size && !this.isFirstRender()) {
+    if (dependentElmtIds?.size && !this.isFirstRender()) {
       if (!this.dirtDescendantElementIds_.size && !this.runReuse_) {
         // mark ComposedElement dirty when first elmtIds are added
         // do not need to do this every time
@@ -770,7 +772,7 @@ abstract class ViewPU extends PUV2ViewBase
         value.resetSource(providedVarStore);
         // store the consume reconnect to provide
         this.reconnectConsume_.set(providedPropName, value);
-        value.getDependencies().forEach((id: number) => {
+        value.getDependencies()?.forEach((id: number) => {
           this.UpdateElement(id);
         })
       }
@@ -786,7 +788,7 @@ abstract class ViewPU extends PUV2ViewBase
       // reset consume to default value.
       if (!provide) {
         value.resetFakeSource();
-        value.getDependencies().forEach((id: number) => {
+        value.getDependencies()?.forEach((id: number) => {
           this.UpdateElement(id);
         })
         this.reconnectConsume_.delete(key);
@@ -836,7 +838,7 @@ abstract class ViewPU extends PUV2ViewBase
       });
 
       if (this.dirtDescendantElementIds_.size) {
-        stateMgmtConsole.applicationError(`${this.debugInfo__()}: New UINode objects added to update queue while re-render! - Likely caused by @Component state change during build phase, not allowed. Application error!`);
+        stateMgmtConsole.frequentApplicationError(`@Component '${this.constructor.name}:: New UINode objects added to update queue while re-render! - Likely caused by @Component state change during build phase, not allowed. Application error!`);
       }
 
       for (const dirtRetakenElementId of this.dirtRetakenElementIds_) {

@@ -12585,6 +12585,33 @@ void ResetImageRotateOrientation(ArkUI_NodeHandle node)
     fullImpl->getNodeModifiers()->getImageModifier()->resetImageRotateOrientation(node->uiNodeHandle);
 }
 
+int32_t SetSupportSvg2(ArkUI_NodeHandle node, const ArkUI_AttributeItem* item)
+{
+    auto* fullImpl = GetFullImpl();
+    auto actualSize = CheckAttributeItemArray(item, REQUIRED_ONE_PARAM);
+    if (actualSize < 0) {
+        return ERROR_CODE_PARAM_INVALID;
+    }
+    fullImpl->getNodeModifiers()->getImageModifier()->setSupportSvg2(
+        node->uiNodeHandle, static_cast<bool>(item->value[0].i32));
+    return ERROR_CODE_NO_ERROR;
+}
+
+const ArkUI_AttributeItem* GetSupportSvg2(ArkUI_NodeHandle node)
+{
+    auto fullImpl = GetFullImpl();
+    auto autoResize = fullImpl->getNodeModifiers()->getImageModifier()->getSupportSvg2(node->uiNodeHandle);
+    g_numberValues[0].i32 = autoResize;
+    g_attributeItem.size = REQUIRED_ONE_PARAM;
+    return &g_attributeItem;
+}
+
+void ResetSupportSvg2(ArkUI_NodeHandle node)
+{
+    auto fullImpl = GetFullImpl();
+    fullImpl->getNodeModifiers()->getImageModifier()->resetSupportSvg2(node->uiNodeHandle);
+}
+
 int32_t SetAlt(ArkUI_NodeHandle node, const ArkUI_AttributeItem* item)
 {
     if (!item || (!item->string && !item->object)) {
@@ -16129,6 +16156,175 @@ void ResetSliderSuffix(ArkUI_NodeHandle node)
     fullImpl->getNodeModifiers()->getSliderModifier()->resetSuffix(node->uiNodeHandle);
 }
 
+int32_t SetSliderBlockLinearGradientColor(ArkUI_NodeHandle node, const ArkUI_AttributeItem* item)
+{
+    if (item == nullptr || item->object == nullptr) {
+        return ERROR_CODE_PARAM_INVALID;
+    }
+    auto* fullImpl = GetFullImpl();
+    const ArkUI_ColorStop* colorStop = reinterpret_cast<ArkUI_ColorStop*>(item->object);
+    int colorLength = colorStop->size;
+    for (int i = 0; i < static_cast<int32_t>(colorLength); i++) {
+        if (colorStop->stops[i] < 0 || colorStop->stops[i] > 1) {
+            return ERROR_CODE_PARAM_INVALID;
+        }
+    }
+    std::vector<uint32_t> colorValues;
+    struct ArkUIGradientType gradientObj;
+    for (int i = 0; i < static_cast<int32_t>(colorLength); i++) {
+        colorValues.push_back(colorStop->colors[i]);
+    }
+    gradientObj.color = &(*colorValues.begin());
+    std::vector<ArkUILengthType> offsetValues;
+    for (int i = 0; i < static_cast<int32_t>(colorLength); i++) {
+        offsetValues.push_back(ArkUILengthType {
+            .number = colorStop->stops[i]});
+    }
+    gradientObj.offset = &(*offsetValues.begin());
+    fullImpl->getNodeModifiers()->getSliderModifier()->setLinearBlockColor(
+        node->uiNodeHandle, &gradientObj, colorLength);
+    return ERROR_CODE_NO_ERROR;
+}
+
+const ArkUI_AttributeItem* GetSliderBlockLinearGradientColor(ArkUI_NodeHandle node)
+{
+    ArkUI_Uint32 colors[NUM_10];
+    ArkUI_Float32 stops[NUM_10];
+    auto resultValue = GetFullImpl()->getNodeModifiers()->getSliderModifier()->getLinearBlockColor(
+        node->uiNodeHandle, &colors, &stops);
+
+    static ArkUI_ColorStop colorStop;
+    static uint32_t gradientColors[NUM_10];
+    static float gradientStops[NUM_10];
+    for (int i = 0; i < resultValue; i++) {
+        gradientColors[i] = colors[i];
+        gradientStops[i] = stops[i];
+    }
+    colorStop.colors = gradientColors;
+    colorStop.stops = gradientStops;
+    colorStop.size = resultValue;
+    g_attributeItem.object = &colorStop;
+    return &g_attributeItem;
+}
+
+void ResetSliderBlockLinearGradientColor(ArkUI_NodeHandle node)
+{
+    auto* fullImpl = GetFullImpl();
+    fullImpl->getNodeModifiers()->getSliderModifier()->resetLinearBlockColor(node->uiNodeHandle);
+}
+
+int32_t SetSliderSelectedLinearGradientColor(ArkUI_NodeHandle node, const ArkUI_AttributeItem* item)
+{
+    if (item == nullptr || item->object == nullptr) {
+        return ERROR_CODE_PARAM_INVALID;
+    }
+    auto* fullImpl = GetFullImpl();
+    const ArkUI_ColorStop* colorStop = reinterpret_cast<ArkUI_ColorStop*>(item->object);
+    int colorLength = colorStop->size;
+    for (int i = 0; i < static_cast<int32_t>(colorLength); i++) {
+        if (colorStop->stops[i] < 0 || colorStop->stops[i] > 1) {
+            return ERROR_CODE_PARAM_INVALID;
+        }
+    }
+    std::vector<uint32_t> colorValues;
+    std::vector<ArkUILengthType> offsetValues;
+    struct ArkUIGradientType gradientObj;
+    for (int i = 0; i < static_cast<int32_t>(colorLength); i++) {
+        colorValues.push_back(colorStop->colors[i]);
+        offsetValues.push_back(ArkUILengthType {
+            .number = colorStop->stops[i]});
+    }
+    gradientObj.color = &(*colorValues.begin());
+    gradientObj.offset = &(*offsetValues.begin());
+    fullImpl->getNodeModifiers()->getSliderModifier()->setLinearSelectColor(
+        node->uiNodeHandle, &gradientObj, colorLength);
+    return ERROR_CODE_NO_ERROR;
+}
+
+const ArkUI_AttributeItem* GetSliderSelectedLinearGradientColor(ArkUI_NodeHandle node)
+{
+    ArkUI_Uint32 colors[NUM_10];
+    ArkUI_Float32 stops[NUM_10];
+    auto resultValue = GetFullImpl()->getNodeModifiers()->getSliderModifier()->getLinearSelectColor(
+        node->uiNodeHandle, &colors, &stops);
+
+    static ArkUI_ColorStop colorStop;
+    static uint32_t gradientColors[NUM_10];
+    static float gradientStops[NUM_10];
+    for (int i = 0; i < resultValue; i++) {
+        gradientColors[i] = colors[i];
+        gradientStops[i] = stops[i];
+    }
+    colorStop.colors = gradientColors;
+    colorStop.stops = gradientStops;
+    colorStop.size = resultValue;
+    g_attributeItem.object = &colorStop;
+    return &g_attributeItem;
+}
+
+void ResetSliderSelectedLinearGradientColor(ArkUI_NodeHandle node)
+{
+    auto* fullImpl = GetFullImpl();
+    fullImpl->getNodeModifiers()->getSliderModifier()->resetLinearSelectColor(node->uiNodeHandle);
+}
+
+int32_t SetSliderTrackLinearGradientColor(ArkUI_NodeHandle node, const ArkUI_AttributeItem* item)
+{
+    if (item == nullptr || item->object == nullptr) {
+        return ERROR_CODE_PARAM_INVALID;
+    }
+    auto* fullImpl = GetFullImpl();
+    const ArkUI_ColorStop* colorStop = reinterpret_cast<ArkUI_ColorStop*>(item->object);
+    int colorLength = colorStop->size;
+    for (int i = 0; i < static_cast<int32_t>(colorLength); i++) {
+        if (colorStop->stops[i] < 0 || colorStop->stops[i] > 1) {
+            return ERROR_CODE_PARAM_INVALID;
+        }
+    }
+    std::vector<uint32_t> colorValues;
+    struct ArkUIGradientType gradientObj;
+    for (int i = 0; i < static_cast<int32_t>(colorLength); i++) {
+        colorValues.push_back(colorStop->colors[i]);
+    }
+    gradientObj.color = &(*colorValues.begin());
+    std::vector<ArkUILengthType> offsetValues;
+    for (int i = 0; i < static_cast<int32_t>(colorLength); i++) {
+        offsetValues.push_back(ArkUILengthType {
+            .number = colorStop->stops[i]});
+    }
+    gradientObj.offset = &(*offsetValues.begin());
+    fullImpl->getNodeModifiers()->getSliderModifier()->setLinearTrackBackgroundColor(
+        node->uiNodeHandle, &gradientObj, colorLength);
+    return ERROR_CODE_NO_ERROR;
+}
+
+const ArkUI_AttributeItem* GetSliderTrackLinearGradientColor(ArkUI_NodeHandle node)
+{
+    ArkUI_Uint32 colors[NUM_10];
+    ArkUI_Float32 stops[NUM_10];
+    auto resultValue = GetFullImpl()->getNodeModifiers()->getSliderModifier()->getLinearTrackBackgroundColor(
+        node->uiNodeHandle, &colors, &stops);
+
+    static ArkUI_ColorStop colorStop;
+    static uint32_t gradientColors[NUM_10];
+    static float gradientStops[NUM_10];
+    for (int i = 0; i < resultValue; i++) {
+        gradientColors[i] = colors[i];
+        gradientStops[i] = stops[i];
+    }
+    colorStop.colors = gradientColors;
+    colorStop.stops = gradientStops;
+    colorStop.size = resultValue;
+    g_attributeItem.object = &colorStop;
+    return &g_attributeItem;
+}
+
+void ResetSliderTrackLinearGradientColor(ArkUI_NodeHandle node)
+{
+    auto* fullImpl = GetFullImpl();
+    fullImpl->getNodeModifiers()->getSliderModifier()->resetLinearTrackBackgroundColor(node->uiNodeHandle);
+}
+
 using Setter = int32_t(ArkUI_NodeHandle node, const ArkUI_AttributeItem* value);
 using Getter = const ArkUI_AttributeItem*(ArkUI_NodeHandle node);
 using Resetter = void(ArkUI_NodeHandle node);
@@ -16611,7 +16807,7 @@ int32_t SetImageAttribute(ArkUI_NodeHandle node, int32_t subTypeId, const ArkUI_
     static Setter* setters[] = { SetImageSrc, SetObjectFit, SetInterpolation, SetObjectRepeat, SetColorFilter,
         SetAutoResize, SetAlt, SetImageDraggable, SetRenderMode, SetFitOriginalSize, SetFillColor, SetResizable,
         SetSyncLoad, SetSourceSize, SetImageMatrix, SetMatchTextDirection, SetCopyOption, SetEnableAnalyzer,
-        SetDynamicRangeMode, SetHdrBrightness, SetImageRotateOrientation };
+        SetDynamicRangeMode, SetHdrBrightness, SetImageRotateOrientation, SetSupportSvg2 };
     if (static_cast<uint32_t>(subTypeId) >= sizeof(setters) / sizeof(Setter*)) {
         TAG_LOGE(AceLogTag::ACE_NATIVE_NODE, "image node attribute: %{public}d NOT IMPLEMENT", subTypeId);
         return ERROR_CODE_NATIVE_IMPL_TYPE_NOT_SUPPORTED;
@@ -16624,7 +16820,7 @@ const ArkUI_AttributeItem* GetImageAttribute(ArkUI_NodeHandle node, int32_t subT
     static Getter* getters[] = { GetImageSrc, GetObjectFit, GetInterpolation, GetObjectRepeat, GetColorFilter,
         GetAutoResize, GetAlt, GetImageDraggable, GetRenderMode, GetFitOriginalSize, GetFillColor, GetResizable,
         GetSyncLoad, GetSourceSize, GetImageMatrix, GetMatchTextDirection, GetCopyOption, GetEnableAnalyzer,
-        GetDynamicRangeMode, GetHdrBrightness, GetImageRotateOrientation };
+        GetDynamicRangeMode, GetHdrBrightness, GetImageRotateOrientation, GetSupportSvg2 };
     if (static_cast<uint32_t>(subTypeId) >= sizeof(getters) / sizeof(Getter*)) {
         TAG_LOGE(AceLogTag::ACE_NATIVE_NODE, "image node attribute: %{public}d NOT IMPLEMENT", subTypeId);
         return nullptr;
@@ -16638,7 +16834,7 @@ void ResetImageAttribute(ArkUI_NodeHandle node, int32_t subTypeId)
         ResetColorFilter, ResetAutoResize, ResetAlt, ResetImageDraggable, ResetRenderMode,
         ResetFitOriginalSize, ResetFillColor, ResetResizable, ResetSyncLoad, ResetSourceSize,
         ResetImageMatrix, ResetMatchTextDirection, ResetCopyOption, ResetEnableAnalyzer,
-        ResetDynamicRangeMode, ResetHdrBrightness, ResetImageRotateOrientation };
+        ResetDynamicRangeMode, ResetHdrBrightness, ResetImageRotateOrientation, ResetSupportSvg2 };
     if (static_cast<uint32_t>(subTypeId) >= sizeof(resetters) / sizeof(Resetter*)) {
         TAG_LOGE(AceLogTag::ACE_NATIVE_NODE, "image node attribute: %{public}d NOT IMPLEMENT", subTypeId);
         return;
@@ -17142,6 +17338,9 @@ int32_t SetSliderAttribute(ArkUI_NodeHandle node, int32_t subTypeId, const ArkUI
         SetSliderEnableHapticFeedback,
         SetSliderPrefix,
         SetSliderSuffix,
+        SetSliderBlockLinearGradientColor,
+        SetSliderTrackLinearGradientColor,
+        SetSliderSelectedLinearGradientColor,
     };
     if (static_cast<uint32_t>(subTypeId) >= sizeof(setters) / sizeof(Setter*)) {
         TAG_LOGE(AceLogTag::ACE_NATIVE_NODE, "slider node attribute: %{public}d NOT IMPLEMENT", subTypeId);
@@ -17167,6 +17366,11 @@ const ArkUI_AttributeItem* GetSliderAttribute(ArkUI_NodeHandle node, int32_t sub
         GetSliderStyle,
         GetSliderTrackThickness,
         GetSliderEnableHapticFeedback,
+        nullptr,
+        nullptr,
+        GetSliderBlockLinearGradientColor,
+        GetSliderTrackLinearGradientColor,
+        GetSliderSelectedLinearGradientColor,
     };
     if (static_cast<uint32_t>(subTypeId) >= sizeof(getters) / sizeof(Getter*)) {
         TAG_LOGE(AceLogTag::ACE_NATIVE_NODE, "slider node attribute: %{public}d NOT IMPLEMENT", subTypeId);
@@ -17195,6 +17399,9 @@ void ResetSliderAttribute(ArkUI_NodeHandle node, int32_t subTypeId)
         ResetSliderEnableHapticFeedback,
         ResetSliderPrefix,
         ResetSliderSuffix,
+        ResetSliderBlockLinearGradientColor,
+        ResetSliderTrackLinearGradientColor,
+        ResetSliderSelectedLinearGradientColor,
     };
     if (static_cast<uint32_t>(subTypeId) >= sizeof(resetters) / sizeof(Resetter*)) {
         TAG_LOGE(AceLogTag::ACE_NATIVE_NODE, "slider node attribute: %{public}d NOT IMPLEMENT", subTypeId);

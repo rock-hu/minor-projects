@@ -798,6 +798,7 @@ void SpanItem::UpdateSymbolSpanParagraph(
     auto symbolSpanStyle = textStyle;
     auto symbolUnicode = GetSymbolUnicode();
     symbolSpanStyle.SetTextStyleUid(nodeId_);
+    symbolSpanStyle.SetSymbolUid(nodeId_);
     if (fontStyle || textLineStyle) {
         UseSelfStyle(fontStyle, textLineStyle, symbolSpanStyle, true);
         if (fontStyle && fontStyle->HasFontWeight()) {
@@ -1400,7 +1401,7 @@ bool ImageSpanItem::EncodeTlv(std::vector<uint8_t>& buff)
         TLVUtil::WriteUint8(buff, TLV_IMAGESPANOPTION_BUNDLENAME_TAG);
         TLVUtil::WriteString(buff, options.bundleName.value());
     }
-    if (options.bundleName.has_value()) {
+    if (options.moduleName.has_value()) {
         TLVUtil::WriteUint8(buff, TLV_IMAGESPANOPTION_MODULENAME_TAG);
         TLVUtil::WriteString(buff, options.moduleName.value());
     }

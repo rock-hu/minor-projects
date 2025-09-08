@@ -26,6 +26,7 @@
 #include "interfaces/native/node/node_extened.h"
 #include "interfaces/native/node/node_model.h"
 #include "interfaces/native/node/styled_string.h"
+#include "test/mock/base/mock_system_properties.h"
 #include "test/mock/base/mock_task_executor.h"
 #include "test/mock/core/common/mock_container.h"
 #include "test/mock/core/common/mock_theme_manager.h"
@@ -139,30 +140,29 @@ HWTEST_F(NativeNodeTest, OH_ArkUI_NodeUtils_GetLayoutPosition001, TestSize.Level
 }
 
 /**
- * @tc.name: OH_ArkUI_NodeUtils_GetLayoutPosition002
- * @tc.desc: Test OH_ArkUI_NodeUtils_GetLayoutPosition.
+ * @tc.name: OH_ArkUI_NodeUtils_GetParentInPageTree001
+ * @tc.desc: Test OH_ArkUI_NodeUtils_GetParentInPageTree.
  * @tc.type: FUNC
  */
-HWTEST_F(NativeNodeTest, OH_ArkUI_NodeUtils_GetLayoutPosition002, TestSize.Level1)
+HWTEST_F(NativeNodeTest, OH_ArkUI_NodeUtils_GetParentInPageTree001, TestSize.Level1)
 {
     /**
-     * @tc.steps: step1. Create a node not nullptr.
-     * @tc.expect: result is OHOS::Ace::ERROR_CODE_NO_ERROR.
+     * @tc.steps: step1. Create a node  nullptr.
+     * @tc.expect: result is nullptr.
      */
-    ArkUI_NodeHandle node = new ArkUI_Node();
-    ArkUI_IntOffset localOffset;
+    ArkUI_NodeHandle node = nullptr;
 
     /**
      * @tc.steps: step2. Call the function.
      * @tc.expect: the function is be called.
      */
-    int32_t result = OH_ArkUI_NodeUtils_GetLayoutPosition(node, &localOffset);
+    ArkUI_NodeHandle result = OH_ArkUI_NodeUtils_GetParentInPageTree(node);
 
     /**
      * @tc.steps: step3. Verify the result.
-     * @tc.expect: result is OHOS::Ace::ERROR_CODE_NO_ERROR.
+     * @tc.expect: result is nullptr.
      */
-    EXPECT_EQ(result, OHOS::Ace::ERROR_CODE_NO_ERROR);
+    EXPECT_EQ(result, nullptr);
 }
 
 /**
@@ -8377,6 +8377,60 @@ HWTEST_F(NativeNodeTest, NativeNodeTest147, TestSize.Level1)
 }
 
 /**
+ * @tc.name: NativeNodeTest148
+ * @tc.desc: Test imageNode function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NativeNodeTest, NativeNodeTest148, TestSize.Level1)
+{
+    auto nodeAPI = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(
+        OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
+    auto rootNode = nodeAPI->createNode(ARKUI_NODE_SLIDER);
+    uint32_t colors[] = {0xFFFEBB62, 0xffFFA0A4, 0xffFF0000};
+    float stops[] = {0.0, 0.5, 1};
+    ArkUI_ColorStop linerGrand[] = {{colors, stops, 3}};
+    ArkUI_AttributeItem item = {nullptr, 0, nullptr, linerGrand};
+    EXPECT_EQ(nodeAPI->setAttribute(rootNode, NODE_SLIDER_BLOCK_LINEAR_GRADIENT_COLOR, &item),
+        ARKUI_ERROR_CODE_NO_ERROR);
+    EXPECT_NE(nodeAPI->getAttribute(rootNode, NODE_SLIDER_BLOCK_LINEAR_GRADIENT_COLOR), nullptr);
+    EXPECT_EQ(nodeAPI->resetAttribute(rootNode, NODE_SLIDER_BLOCK_LINEAR_GRADIENT_COLOR),
+        ARKUI_ERROR_CODE_NO_ERROR);
+
+    EXPECT_EQ(nodeAPI->setAttribute(rootNode, NODE_SLIDER_TRACK_LINEAR_GRADIENT_COLOR, &item),
+        ARKUI_ERROR_CODE_NO_ERROR);
+    EXPECT_NE(nodeAPI->getAttribute(rootNode, NODE_SLIDER_TRACK_LINEAR_GRADIENT_COLOR), nullptr);
+    EXPECT_EQ(nodeAPI->resetAttribute(rootNode, NODE_SLIDER_TRACK_LINEAR_GRADIENT_COLOR),
+        ARKUI_ERROR_CODE_NO_ERROR);
+
+    EXPECT_EQ(nodeAPI->setAttribute(rootNode, NODE_SLIDER_SELECTED_LINEAR_GRADIENT_COLOR, &item),
+        ARKUI_ERROR_CODE_NO_ERROR);
+    EXPECT_NE(nodeAPI->getAttribute(rootNode, NODE_SLIDER_SELECTED_LINEAR_GRADIENT_COLOR), nullptr);
+    EXPECT_EQ(nodeAPI->resetAttribute(rootNode, NODE_SLIDER_SELECTED_LINEAR_GRADIENT_COLOR),
+        ARKUI_ERROR_CODE_NO_ERROR);
+    nodeAPI->disposeNode(rootNode);
+}
+
+/**
+ * @tc.name: NativeNodeTest149
+ * @tc.desc: Test imageNode function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NativeNodeTest, NativeNodeTest149, TestSize.Level1)
+{
+    auto nodeAPI = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(
+        OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
+    auto rootNode = new ArkUI_Node({ ARKUI_NODE_IMAGE, nullptr, true });
+
+    ArkUI_NumberValue value[] = { { .i32 = true } };
+    ArkUI_AttributeItem item = { value, sizeof(value) / sizeof(ArkUI_NumberValue) };
+    EXPECT_EQ(nodeAPI->setAttribute(rootNode, NODE_IMAGE_SUPPORT_SVG2, &item), ARKUI_ERROR_CODE_NO_ERROR);
+    EXPECT_EQ(nodeAPI->resetAttribute(rootNode, NODE_IMAGE_SUPPORT_SVG2), ARKUI_ERROR_CODE_NO_ERROR);
+    EXPECT_NE(nodeAPI->getAttribute(rootNode, NODE_IMAGE_SUPPORT_SVG2), nullptr);
+
+    nodeAPI->disposeNode(rootNode);
+}
+
+/**
  * @tc.name: NativeNodeTest_OutlineColor001
  * @tc.desc: Test customNode function.
  * @tc.type: FUNC
@@ -8592,13 +8646,16 @@ HWTEST_F(NativeNodeTest, NativeNodeRegisterCommonEventTest001, TestSize.Level1)
 {
     auto nodeAPI = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(
         OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
-    auto Button = nodeAPI->createNode(ARKUI_NODE_BUTTON);
+    auto stack = nodeAPI->createNode(ARKUI_NODE_STACK);
+    EXPECT_NE(stack, nullptr);
     auto callback = [](ArkUI_NodeEvent *event) {};
 
-    auto ret = OH_ArkUI_NativeModule_RegisterCommonEvent(Button, NODE_ON_CLICK, nullptr, callback);
+    auto ret = OH_ArkUI_NativeModule_RegisterCommonEvent(stack, NODE_ON_CLICK_EVENT, nullptr, callback);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_NO_ERROR);
+    ret = OH_ArkUI_NativeModule_RegisterCommonEvent(nullptr, NODE_ON_CLICK_EVENT, nullptr, callback);
     EXPECT_EQ(ret, ARKUI_ERROR_CODE_PARAM_INVALID);
-    ret = OH_ArkUI_NativeModule_RegisterCommonEvent(nullptr, NODE_ON_CLICK, nullptr, callback);
-    EXPECT_EQ(ret, ARKUI_ERROR_CODE_PARAM_INVALID);
+    ret = OH_ArkUI_NativeModule_UnregisterCommonEvent(stack, NODE_ON_CLICK_EVENT);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_NO_ERROR);
 }
 
 /**
@@ -8610,14 +8667,203 @@ HWTEST_F(NativeNodeTest, NativeNodeRegisterCommonEventTest002, TestSize.Level1)
 {
     auto nodeAPI = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(
         OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
-    auto Button = nodeAPI->createNode(ARKUI_NODE_BUTTON);
+    auto stack = nodeAPI->createNode(ARKUI_NODE_STACK);
+    EXPECT_NE(stack, nullptr);
+    auto callback = [](ArkUI_NodeEvent *event) {};
 
-    auto ret = OH_ArkUI_NativeModule_UnregisterCommonEvent(Button, NODE_ON_CLICK);
+    auto ret = OH_ArkUI_NativeModule_RegisterCommonEvent(stack, NODE_TOUCH_EVENT, nullptr, callback);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_NO_ERROR);
+    ret = OH_ArkUI_NativeModule_RegisterCommonEvent(nullptr, NODE_TOUCH_EVENT, nullptr, callback);
     EXPECT_EQ(ret, ARKUI_ERROR_CODE_PARAM_INVALID);
-    ret = OH_ArkUI_NativeModule_UnregisterCommonEvent(Button, NODE_DISPATCH_KEY_EVENT);
+    ret = OH_ArkUI_NativeModule_UnregisterCommonEvent(stack, NODE_TOUCH_EVENT);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_NO_ERROR);
+}
+
+/**
+ * @tc.name: NativeNodeRegisterCommonEventTest003
+ * @tc.desc: Test Common event.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NativeNodeTest, NativeNodeRegisterCommonEventTest003, TestSize.Level1)
+{
+    auto nodeAPI = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(
+        OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
+    auto stack = nodeAPI->createNode(ARKUI_NODE_STACK);
+    EXPECT_NE(stack, nullptr);
+    auto callback = [](ArkUI_NodeEvent *event) {};
+
+    auto ret = OH_ArkUI_NativeModule_RegisterCommonEvent(stack, NODE_EVENT_ON_APPEAR, nullptr, callback);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_NO_ERROR);
+    ret = OH_ArkUI_NativeModule_RegisterCommonEvent(nullptr, NODE_EVENT_ON_APPEAR, nullptr, callback);
     EXPECT_EQ(ret, ARKUI_ERROR_CODE_PARAM_INVALID);
-    ret = OH_ArkUI_NativeModule_UnregisterCommonEvent(nullptr, NODE_ON_CLICK);
+    ret = OH_ArkUI_NativeModule_UnregisterCommonEvent(stack, NODE_EVENT_ON_APPEAR);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_NO_ERROR);
+}
+
+/**
+ * @tc.name: NativeNodeRegisterCommonEventTest004
+ * @tc.desc: Test Common event.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NativeNodeTest, NativeNodeRegisterCommonEventTest004, TestSize.Level1)
+{
+    auto nodeAPI = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(
+        OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
+    auto stack = nodeAPI->createNode(ARKUI_NODE_STACK);
+    EXPECT_NE(stack, nullptr);
+    auto callback = [](ArkUI_NodeEvent *event) {};
+
+    auto ret = OH_ArkUI_NativeModule_RegisterCommonEvent(stack, NODE_EVENT_ON_DISAPPEAR, nullptr, callback);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_NO_ERROR);
+    ret = OH_ArkUI_NativeModule_RegisterCommonEvent(nullptr, NODE_EVENT_ON_DISAPPEAR, nullptr, callback);
     EXPECT_EQ(ret, ARKUI_ERROR_CODE_PARAM_INVALID);
+    ret = OH_ArkUI_NativeModule_UnregisterCommonEvent(stack, NODE_EVENT_ON_DISAPPEAR);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_NO_ERROR);
+}
+
+/**
+ * @tc.name: NativeNodeRegisterCommonEventTest005
+ * @tc.desc: Test Common event.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NativeNodeTest, NativeNodeRegisterCommonEventTest005, TestSize.Level1)
+{
+    auto nodeAPI = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(
+        OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
+    auto stack = nodeAPI->createNode(ARKUI_NODE_STACK);
+    EXPECT_NE(stack, nullptr);
+    auto callback = [](ArkUI_NodeEvent *event) {};
+
+    auto ret = OH_ArkUI_NativeModule_RegisterCommonEvent(stack, NODE_ON_KEY_EVENT, nullptr, callback);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_NO_ERROR);
+    ret = OH_ArkUI_NativeModule_RegisterCommonEvent(nullptr, NODE_ON_KEY_EVENT, nullptr, callback);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_PARAM_INVALID);
+    ret = OH_ArkUI_NativeModule_UnregisterCommonEvent(stack, NODE_ON_KEY_EVENT);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_NO_ERROR);
+}
+
+/**
+ * @tc.name: NativeNodeRegisterCommonEventTest006
+ * @tc.desc: Test Common event.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NativeNodeTest, NativeNodeRegisterCommonEventTest006, TestSize.Level1)
+{
+    auto nodeAPI = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(
+        OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
+    auto stack = nodeAPI->createNode(ARKUI_NODE_STACK);
+    EXPECT_NE(stack, nullptr);
+    auto callback = [](ArkUI_NodeEvent *event) {};
+
+    auto ret = OH_ArkUI_NativeModule_RegisterCommonEvent(stack, NODE_ON_FOCUS, nullptr, callback);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_NO_ERROR);
+    ret = OH_ArkUI_NativeModule_RegisterCommonEvent(nullptr, NODE_ON_FOCUS, nullptr, callback);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_PARAM_INVALID);
+    ret = OH_ArkUI_NativeModule_UnregisterCommonEvent(stack, NODE_ON_FOCUS);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_NO_ERROR);
+}
+
+/**
+ * @tc.name: NativeNodeRegisterCommonEventTest007
+ * @tc.desc: Test Common event.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NativeNodeTest, NativeNodeRegisterCommonEventTest007, TestSize.Level1)
+{
+    auto nodeAPI = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(
+        OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
+    auto stack = nodeAPI->createNode(ARKUI_NODE_STACK);
+    EXPECT_NE(stack, nullptr);
+    auto callback = [](ArkUI_NodeEvent *event) {};
+
+    auto ret = OH_ArkUI_NativeModule_RegisterCommonEvent(stack, NODE_ON_BLUR, nullptr, callback);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_NO_ERROR);
+    ret = OH_ArkUI_NativeModule_RegisterCommonEvent(nullptr, NODE_ON_BLUR, nullptr, callback);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_PARAM_INVALID);
+    ret = OH_ArkUI_NativeModule_UnregisterCommonEvent(stack, NODE_ON_BLUR);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_NO_ERROR);
+}
+
+/**
+ * @tc.name: NativeNodeRegisterCommonEventTest008
+ * @tc.desc: Test Common event.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NativeNodeTest, NativeNodeRegisterCommonEventTest008, TestSize.Level1)
+{
+    auto nodeAPI = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(
+        OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
+    auto stack = nodeAPI->createNode(ARKUI_NODE_STACK);
+    EXPECT_NE(stack, nullptr);
+    auto callback = [](ArkUI_NodeEvent *event) {};
+
+    auto ret = OH_ArkUI_NativeModule_RegisterCommonEvent(stack, NODE_ON_HOVER, nullptr, callback);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_NO_ERROR);
+    ret = OH_ArkUI_NativeModule_RegisterCommonEvent(nullptr, NODE_ON_HOVER, nullptr, callback);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_PARAM_INVALID);
+    ret = OH_ArkUI_NativeModule_UnregisterCommonEvent(stack, NODE_ON_HOVER);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_NO_ERROR);
+}
+
+/**
+ * @tc.name: NativeNodeRegisterCommonEventTest009
+ * @tc.desc: Test Common event.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NativeNodeTest, NativeNodeRegisterCommonEventTest009, TestSize.Level1)
+{
+    auto nodeAPI = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(
+        OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
+    auto stack = nodeAPI->createNode(ARKUI_NODE_STACK);
+    EXPECT_NE(stack, nullptr);
+    auto callback = [](ArkUI_NodeEvent *event) {};
+
+    auto ret = OH_ArkUI_NativeModule_RegisterCommonEvent(stack, NODE_ON_MOUSE, nullptr, callback);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_NO_ERROR);
+    ret = OH_ArkUI_NativeModule_RegisterCommonEvent(nullptr, NODE_ON_MOUSE, nullptr, callback);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_PARAM_INVALID);
+    ret = OH_ArkUI_NativeModule_UnregisterCommonEvent(stack, NODE_ON_MOUSE);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_NO_ERROR);
+}
+
+/**
+ * @tc.name: NativeNodeRegisterCommonEventTest010
+ * @tc.desc: Test Common event.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NativeNodeTest, NativeNodeRegisterCommonEventTest010, TestSize.Level1)
+{
+    auto nodeAPI = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(
+        OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
+    auto stack = nodeAPI->createNode(ARKUI_NODE_STACK);
+    EXPECT_NE(stack, nullptr);
+    auto callback = [](ArkUI_NodeEvent *event) {};
+
+    auto ret = OH_ArkUI_NativeModule_RegisterCommonEvent(stack, NODE_ON_SIZE_CHANGE, nullptr, callback);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_NO_ERROR);
+    ret = OH_ArkUI_NativeModule_RegisterCommonEvent(nullptr, NODE_ON_SIZE_CHANGE, nullptr, callback);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_PARAM_INVALID);
+    ret = OH_ArkUI_NativeModule_UnregisterCommonEvent(stack, NODE_ON_SIZE_CHANGE);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_NO_ERROR);
+}
+
+/**
+ * @tc.name: NativeNodeRegisterCommonEventTest011
+ * @tc.desc: Test Common event.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NativeNodeTest, NativeNodeRegisterCommonEventTest011, TestSize.Level1)
+{
+    auto nodeAPI = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(
+        OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
+    auto stack = nodeAPI->createNode(ARKUI_NODE_STACK);
+    EXPECT_NE(stack, nullptr);
+    auto callback = [](ArkUI_NodeEvent *event) {};
+
+    auto ret = OH_ArkUI_NativeModule_RegisterCommonEvent(stack, NODE_ON_CLICK, nullptr, callback);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_NODE_UNSUPPORTED_EVENT_TYPE);
+    ret = OH_ArkUI_NativeModule_UnregisterCommonEvent(stack, NODE_ON_CLICK);
+    EXPECT_EQ(ret, ARKUI_ERROR_CODE_NODE_UNSUPPORTED_EVENT_TYPE);
 }
 
 /**
@@ -8730,5 +8976,385 @@ HWTEST_F(NativeNodeTest, NativeNodeOverlayTest002, TestSize.Level1)
     nodeAPI->setAttribute(rootNode, NODE_OVERLAY, &item4);
     overlayVal = nodeAPI->getAttribute(rootNode, NODE_OVERLAY);
     EXPECT_EQ(overlayVal->value[0].i32, static_cast<int32_t>(ARKUI_ALIGNMENT_BOTTOM_END));
+}
+
+/**
+ * @tc.name: SwiperArrowStyleTest001
+ * @tc.desc: Test NODE_SWIPER_SHOW_DISPLAY_ARROW function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NativeNodeTest, SwiperArrowStyleTest001, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. Turn on the dark and light switch and initialize.
+     */
+    g_isConfigChangePerform = true;
+    EXPECT_TRUE(SystemProperties::ConfigChangePerform());
+    auto nodeAPI = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(
+        OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
+    ArkUI_NodeHandle swiper = nodeAPI->createNode(ARKUI_NODE_SWIPER);
+    const int size = 9;
+    const char* arr[size] = {"0", "1", "2", "3", "4", "5", "6", "7", "8"};
+
+    /**
+     * @tc.steps: step2. Initialize the text component and mount it to the swiper.
+     */
+    for (int i = 0; i < size; i++) {
+        ArkUI_NodeHandle textNode = nodeAPI->createNode(ARKUI_NODE_TEXT);
+        ArkUI_AttributeItem content = { .string = arr[i] };
+        nodeAPI->setAttribute(textNode, NODE_TEXT_CONTENT, &content);
+        
+        ArkUI_NumberValue value[] = {0};
+        ArkUI_AttributeItem item = {value, 1};
+        value[0].f32 = 200;
+        nodeAPI->setAttribute(textNode, NODE_WIDTH, &item);
+        value[0].f32 = 120;
+        nodeAPI->setAttribute(textNode, NODE_HEIGHT, &item);
+        value[0].u32 = 0xFFAFEEEE;
+        nodeAPI->setAttribute(textNode, NODE_BACKGROUND_COLOR, &item);
+        value[0].i32 = 0;
+        nodeAPI->setAttribute(textNode, NODE_TEXT_ALIGN, &item);
+        value[0].f32 = 20;
+        nodeAPI->setAttribute(textNode, NODE_FONT_SIZE, &item);
+        
+        ArkUI_AttributeItem textId = {.string = "SwiperTextId1"};
+        nodeAPI->setAttribute(textNode, NODE_ID, &textId);
+        nodeAPI->addChild(swiper, textNode);
+    }
+
+    /**
+     * @tc.steps: step3. Create an arrowStyle and configure the properties,
+     *            then set the arrowStyle to the NODE_SWIPER_SHOW_DISPLAY_ARROW.
+     */
+    ArkUI_SwiperArrowStyle* arrowStyle = OH_ArkUI_SwiperArrowStyle_Create();
+    OH_ArkUI_SwiperArrowStyle_SetBackgroundSize(arrowStyle, 10);
+    OH_ArkUI_SwiperArrowStyle_SetBackgroundColor(arrowStyle, 0xF5DEB3);
+    OH_ArkUI_SwiperArrowStyle_SetArrowSize(arrowStyle, 10);
+    OH_ArkUI_SwiperArrowStyle_SetArrowColor(arrowStyle, 0xDDDDDD);
+    ArkUI_NumberValue valueTemp[1];
+    ArkUI_AttributeItem itemTemp = {.value=valueTemp, .size=1, .object = arrowStyle};
+    valueTemp[0].i32 = 2;
+    auto setResult = nodeAPI->setAttribute(swiper, NODE_SWIPER_SHOW_DISPLAY_ARROW, &itemTemp);
+    EXPECT_EQ(setResult, ERROR_CODE_NO_ERROR);
+
+    /**
+     * @tc.steps: step4. Test attribute acquisition,
+     */
+    auto getResult = nodeAPI->getAttribute(swiper, NODE_SWIPER_SHOW_DISPLAY_ARROW);
+    auto returnObject = static_cast<ArkUI_SwiperArrowStyle*>(getResult->object);
+    ASSERT_NE(returnObject, nullptr);
+    EXPECT_EQ(OH_ArkUI_SwiperArrowStyle_GetBackgroundColor(arrowStyle), 0xF5DEB3);
+    EXPECT_EQ(OH_ArkUI_SwiperArrowStyle_GetArrowColor(arrowStyle), 0xDDDDDD);
+    OH_ArkUI_SwiperArrowStyle_Destroy(arrowStyle);
+    nodeAPI->disposeNode(swiper);
+    g_isConfigChangePerform = false;
+    EXPECT_FALSE(SystemProperties::ConfigChangePerform());
+}
+
+/**
+ * @tc.name: SwiperArrowStyleTest002
+ * @tc.desc: Test NODE_SWIPER_SHOW_DISPLAY_ARROW function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NativeNodeTest, SwiperArrowStyleTest002, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. Turn off the dark and light switch and initialize.
+     */
+    g_isConfigChangePerform = false;
+    EXPECT_FALSE(SystemProperties::ConfigChangePerform());
+    auto nodeAPI = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(
+        OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
+    ArkUI_NodeHandle swiperNode = nodeAPI->createNode(ARKUI_NODE_SWIPER);
+    const int size = 6;
+    const char* arr[size] = {"0", "1", "2", "3", "4", "5"};
+
+    /**
+     * @tc.steps: step2. Initialize the text component and mount it to the swiper.
+     */
+    for (int i = 0; i < size; i++) {
+        ArkUI_NodeHandle text = nodeAPI->createNode(ARKUI_NODE_TEXT);
+        ArkUI_AttributeItem content = { .string = arr[i] };
+        nodeAPI->setAttribute(text, NODE_TEXT_CONTENT, &content);
+        
+        ArkUI_NumberValue value[] = {0};
+        ArkUI_AttributeItem item = {value, 1};
+        value[0].f32 = 300;
+        nodeAPI->setAttribute(text, NODE_WIDTH, &item);
+        value[0].f32 = 150;
+        nodeAPI->setAttribute(text, NODE_HEIGHT, &item);
+        
+        ArkUI_AttributeItem textId = {.string = "SwiperTextId2"};
+        nodeAPI->setAttribute(text, NODE_ID, &textId);
+        nodeAPI->addChild(swiperNode, text);
+    }
+
+    /**
+     * @tc.steps: step3. Create an arrowStyle and configure the properties,
+     *            then set the arrowStyle to the NODE_SWIPER_SHOW_DISPLAY_ARROW.
+     */
+    ArkUI_SwiperArrowStyle* arrowStyle = OH_ArkUI_SwiperArrowStyle_Create();
+    OH_ArkUI_SwiperArrowStyle_SetArrowSize(arrowStyle, 20);
+    OH_ArkUI_SwiperArrowStyle_SetArrowColor(arrowStyle, 0xFF003153);
+    OH_ArkUI_SwiperArrowStyle_SetBackgroundSize(arrowStyle, 30);
+    OH_ArkUI_SwiperArrowStyle_SetBackgroundColor(arrowStyle, 0x66334455);
+    ArkUI_NumberValue valueTemp[1];
+    ArkUI_AttributeItem itemTemp = {.value=valueTemp, .size=1, .object = arrowStyle};
+    valueTemp[0].i32 = 2;
+    auto setResult = nodeAPI->setAttribute(swiperNode, NODE_SWIPER_SHOW_DISPLAY_ARROW, &itemTemp);
+    EXPECT_EQ(setResult, ERROR_CODE_NO_ERROR);
+
+    /**
+     * @tc.steps: step4. Test attribute acquisition,
+     */
+    auto getResult = nodeAPI->getAttribute(swiperNode, NODE_SWIPER_SHOW_DISPLAY_ARROW);
+    auto returnObject = static_cast<ArkUI_SwiperArrowStyle*>(getResult->object);
+    ASSERT_NE(returnObject, nullptr);
+    EXPECT_EQ(OH_ArkUI_SwiperArrowStyle_GetBackgroundColor(arrowStyle), 0x66334455);
+    EXPECT_EQ(OH_ArkUI_SwiperArrowStyle_GetArrowColor(arrowStyle), 0xFF003153);
+    OH_ArkUI_SwiperArrowStyle_Destroy(arrowStyle);
+    nodeAPI->disposeNode(swiperNode);
+}
+
+/**
+ * @tc.name: SwiperIndicatorTest001
+ * @tc.desc: Test NODE_SWIPER_INDICATOR function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NativeNodeTest, SwiperIndicatorTest001, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. Turn on the dark and light switch and initialize.
+     */
+    g_isConfigChangePerform = true;
+    EXPECT_TRUE(SystemProperties::ConfigChangePerform());
+    auto nodeAPI = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(
+        OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
+    ArkUI_NodeHandle swiper = nodeAPI->createNode(ARKUI_NODE_SWIPER);
+    const int size = 3;
+    const char* arr[size] = {"0", "1", "2"};
+
+    /**
+     * @tc.steps: step2. Initialize the text component and mount it to the swiper.
+     */
+    for (int i = 0; i < size; i++) {
+        ArkUI_NodeHandle textNode = nodeAPI->createNode(ARKUI_NODE_TEXT);
+        ArkUI_AttributeItem content = { .string = arr[i] };
+        nodeAPI->setAttribute(textNode, NODE_TEXT_CONTENT, &content);
+        ArkUI_NumberValue value[] = {0};
+        ArkUI_AttributeItem item = {value, 1};
+        value[0].u32 = 0x00FFFF;
+        nodeAPI->setAttribute(textNode, NODE_BACKGROUND_COLOR, &item);
+        value[0].f32 = 15;
+        nodeAPI->setAttribute(textNode, NODE_FONT_SIZE, &item);
+        value[0].i32 = 5;
+        nodeAPI->setAttribute(textNode, NODE_TEXT_ALIGN, &item);
+        value[0].f32 = 120;
+        nodeAPI->setAttribute(textNode, NODE_HEIGHT, &item);
+        value[0].f32 = 200;
+        nodeAPI->setAttribute(textNode, NODE_WIDTH, &item);
+        ArkUI_AttributeItem textId = {.string = "SwiperIndicatorTextId"};
+        nodeAPI->setAttribute(textNode, NODE_ID, &textId);
+        nodeAPI->addChild(swiper, textNode);
+    }
+
+    /**
+     * @tc.steps: step3. Create an indicator and configure the properties,
+     *            then set the indicator to the NODE_SWIPER_INDICATOR.
+     */
+    auto indicator = OH_ArkUI_SwiperDigitIndicator_Create();
+    OH_ArkUI_SwiperDigitIndicator_SetFontSize(indicator, 10);
+    OH_ArkUI_SwiperDigitIndicator_SetFontColor(indicator, 0xF5DEB3);
+    OH_ArkUI_SwiperDigitIndicator_SetSelectedFontSize(indicator, 10);
+    OH_ArkUI_SwiperDigitIndicator_SetSelectedFontColor(indicator, 0xDDDDDD);
+    ArkUI_NumberValue valueTemp[] = {{.i32 = ARKUI_SWIPER_INDICATOR_TYPE_DIGIT}};
+    ArkUI_AttributeItem itemTemp = {.value=valueTemp, .size=1, .object = indicator};
+    auto setResult = nodeAPI->setAttribute(swiper, NODE_SWIPER_INDICATOR, &itemTemp);
+    EXPECT_EQ(setResult, ERROR_CODE_NO_ERROR);
+
+    /**
+     * @tc.steps: step4. Test attribute acquisition,
+     */
+    EXPECT_EQ(OH_ArkUI_SwiperDigitIndicator_GetFontColor(indicator), 0xF5DEB3);
+    EXPECT_EQ(OH_ArkUI_SwiperDigitIndicator_GetSelectedFontColor(indicator), 0xDDDDDD);
+    OH_ArkUI_SwiperDigitIndicator_Destroy(indicator);
+    nodeAPI->disposeNode(swiper);
+    g_isConfigChangePerform = false;
+    EXPECT_FALSE(SystemProperties::ConfigChangePerform());
+}
+
+/**
+ * @tc.name: SwiperIndicatorTest002
+ * @tc.desc: Test NODE_SWIPER_INDICATOR function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NativeNodeTest, SwiperIndicatorTest002, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. Turn off the dark and light switch and initialize.
+     */
+    g_isConfigChangePerform = false;
+    EXPECT_FALSE(SystemProperties::ConfigChangePerform());
+    auto nodeAPI = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(
+        OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
+    ArkUI_NodeHandle swiperNode = nodeAPI->createNode(ARKUI_NODE_SWIPER);
+    const int size = 6;
+    const char* arr[size] = {"a", "b", "c", "d", "e", "f"};
+
+    /**
+     * @tc.steps: step2. Initialize the text component and mount it to the swiper.
+     */
+    for (int i = 0; i < size; i++) {
+        ArkUI_NodeHandle text = nodeAPI->createNode(ARKUI_NODE_TEXT);
+        ArkUI_AttributeItem content = { .string = arr[i] };
+        nodeAPI->setAttribute(text, NODE_TEXT_CONTENT, &content);
+        ArkUI_NumberValue value[] = {0};
+        ArkUI_AttributeItem item = {value, 1};
+        value[0].f32 = 300;
+        nodeAPI->setAttribute(text, NODE_WIDTH, &item);
+        value[0].f32 = 150;
+        nodeAPI->setAttribute(text, NODE_HEIGHT, &item);
+        nodeAPI->addChild(swiperNode, text);
+    }
+
+    /**
+     * @tc.steps: step3. Create an indicator and configure the properties,
+     *            then set the indicator to the NODE_SWIPER_INDICATOR.
+     */
+    auto indicator = OH_ArkUI_SwiperDigitIndicator_Create();
+    OH_ArkUI_SwiperDigitIndicator_SetSelectedFontSize(indicator, 20);
+    OH_ArkUI_SwiperDigitIndicator_SetSelectedFontColor(indicator, 0x6B8E23);
+    OH_ArkUI_SwiperDigitIndicator_SetFontSize(indicator, 25);
+    OH_ArkUI_SwiperDigitIndicator_SetFontColor(indicator, 0xDA70D6);
+    ArkUI_NumberValue valueTemp[] = {{.i32 = ARKUI_SWIPER_INDICATOR_TYPE_DIGIT}};
+    ArkUI_AttributeItem itemTemp = {.value=valueTemp, .size=1, .object = indicator};
+    auto setResult = nodeAPI->setAttribute(swiperNode, NODE_SWIPER_INDICATOR, &itemTemp);
+    EXPECT_EQ(setResult, ERROR_CODE_NO_ERROR);
+
+    /**
+     * @tc.steps: step4. Test attribute acquisition,
+     */
+    EXPECT_EQ(OH_ArkUI_SwiperDigitIndicator_GetFontColor(indicator), 0xDA70D6);
+    EXPECT_EQ(OH_ArkUI_SwiperDigitIndicator_GetSelectedFontColor(indicator), 0x6B8E23);
+    OH_ArkUI_SwiperDigitIndicator_Destroy(indicator);
+    nodeAPI->disposeNode(swiperNode);
+}
+
+/**
+ * @tc.name: SwiperIndicatorTest003
+ * @tc.desc: Test NODE_SWIPER_INDICATOR function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NativeNodeTest, SwiperIndicatorTest003, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. Turn on the dark and light switch and initialize.
+     */
+    g_isConfigChangePerform = true;
+    EXPECT_TRUE(SystemProperties::ConfigChangePerform());
+    auto nodeAPI = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(
+        OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
+    ArkUI_NodeHandle swiper = nodeAPI->createNode(ARKUI_NODE_SWIPER);
+    const int size = 4;
+    const char* arr[size] = {"a", "b", "c", "d"};
+
+    /**
+     * @tc.steps: step2. Initialize the text component and mount it to the swiper.
+     */
+    for (int i = 0; i < size; i++) {
+        ArkUI_NodeHandle textNode = nodeAPI->createNode(ARKUI_NODE_TEXT);
+        ArkUI_AttributeItem content = { .string = arr[i] };
+        nodeAPI->setAttribute(textNode, NODE_TEXT_CONTENT, &content);
+        ArkUI_NumberValue value[] = {0};
+        ArkUI_AttributeItem item = {value, 1};
+        value[0].u32 = 0xF5DEB3;
+        nodeAPI->setAttribute(textNode, NODE_BACKGROUND_COLOR, &item);
+        value[0].f32 = 70;
+        nodeAPI->setAttribute(textNode, NODE_FONT_SIZE, &item);
+        value[0].i32 = 50;
+        nodeAPI->setAttribute(textNode, NODE_TEXT_ALIGN, &item);
+        value[0].f32 = 500;
+        nodeAPI->setAttribute(textNode, NODE_HEIGHT, &item);
+        value[0].f32 = 320;
+        nodeAPI->setAttribute(textNode, NODE_WIDTH, &item);
+        nodeAPI->addChild(swiper, textNode);
+    }
+
+    /**
+     * @tc.steps: step3. Create an swiperIndicator and configure the properties,
+     *            then set the swiperIndicator to the NODE_SWIPER_INDICATOR.
+     */
+    auto swiperIndicator = OH_ArkUI_SwiperIndicator_Create(ARKUI_SWIPER_INDICATOR_TYPE_DOT);
+    OH_ArkUI_SwiperIndicator_SetColor(swiperIndicator, 0xDDDDDD);
+    OH_ArkUI_SwiperIndicator_SetSelectedColor(swiperIndicator, 0xF5DEB3);
+    ArkUI_NumberValue valueTemp[] = {{.i32 = ARKUI_SWIPER_INDICATOR_TYPE_DOT}};
+    ArkUI_AttributeItem itemTemp = {.value=valueTemp, .size=1, .object = swiperIndicator};
+    auto setResult = nodeAPI->setAttribute(swiper, NODE_SWIPER_INDICATOR, &itemTemp);
+    EXPECT_EQ(setResult, ERROR_CODE_NO_ERROR);
+
+    /**
+     * @tc.steps: step4. Test attribute acquisition,
+     */
+    EXPECT_EQ(OH_ArkUI_SwiperIndicator_GetColor(swiperIndicator), 0xDDDDDD);
+    EXPECT_EQ(OH_ArkUI_SwiperIndicator_GetSelectedColor(swiperIndicator), 0xF5DEB3);
+    OH_ArkUI_SwiperIndicator_Dispose(swiperIndicator);
+    nodeAPI->disposeNode(swiper);
+    g_isConfigChangePerform = false;
+    EXPECT_FALSE(SystemProperties::ConfigChangePerform());
+}
+
+/**
+ * @tc.name: SwiperIndicatorTest004
+ * @tc.desc: Test NODE_SWIPER_INDICATOR function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NativeNodeTest, SwiperIndicatorTest004, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. Turn off the dark and light switch and initialize.
+     */
+    g_isConfigChangePerform = false;
+    EXPECT_FALSE(SystemProperties::ConfigChangePerform());
+    auto nodeAPI = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(
+        OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1"));
+    ArkUI_NodeHandle swiperNode = nodeAPI->createNode(ARKUI_NODE_SWIPER);
+    const int size = 7;
+    const char* arr[size] = {"a", "b", "c", "d", "e", "f", "g"};
+
+    /**
+     * @tc.steps: step2. Initialize the text component and mount it to the swiper.
+     */
+    for (int i = 0; i < size; i++) {
+        ArkUI_NodeHandle text = nodeAPI->createNode(ARKUI_NODE_TEXT);
+        ArkUI_AttributeItem content = { .string = arr[i] };
+        nodeAPI->setAttribute(text, NODE_TEXT_CONTENT, &content);
+        ArkUI_NumberValue value[] = {0};
+        ArkUI_AttributeItem item = {value, 1};
+        value[0].f32 = 430;
+        nodeAPI->setAttribute(text, NODE_WIDTH, &item);
+        value[0].f32 = 170;
+        nodeAPI->setAttribute(text, NODE_HEIGHT, &item);
+        nodeAPI->addChild(swiperNode, text);
+    }
+
+    /**
+     * @tc.steps: step3. Create an swiperIndicator and configure the properties,
+     *            then set the swiperIndicator to the NODE_SWIPER_INDICATOR.
+     */
+    auto swiperIndicator = OH_ArkUI_SwiperIndicator_Create(ARKUI_SWIPER_INDICATOR_TYPE_DOT);
+    OH_ArkUI_SwiperIndicator_SetColor(swiperIndicator, 0xffde6355);
+    OH_ArkUI_SwiperIndicator_SetSelectedColor(swiperIndicator, 0xfff5f5f5);
+    ArkUI_NumberValue valueTemp[] = {{.i32 = ARKUI_SWIPER_INDICATOR_TYPE_DOT}};
+    ArkUI_AttributeItem itemTemp = {.value=valueTemp, .size=1, .object = swiperIndicator};
+    auto setResult = nodeAPI->setAttribute(swiperNode, NODE_SWIPER_INDICATOR, &itemTemp);
+    EXPECT_EQ(setResult, ERROR_CODE_NO_ERROR);
+
+    /**
+     * @tc.steps: step4. Test attribute acquisition,
+     */
+    EXPECT_EQ(OH_ArkUI_SwiperIndicator_GetColor(swiperIndicator), 0xffde6355);
+    EXPECT_EQ(OH_ArkUI_SwiperIndicator_GetSelectedColor(swiperIndicator), 0xfff5f5f5);
+    OH_ArkUI_SwiperIndicator_Dispose(swiperIndicator);
+    nodeAPI->disposeNode(swiperNode);
 }
 } // namespace OHOS::Ace

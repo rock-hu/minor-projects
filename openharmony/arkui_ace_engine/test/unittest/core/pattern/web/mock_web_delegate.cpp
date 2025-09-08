@@ -498,10 +498,6 @@ int WebDelegate::GetHitTestResult()
     return false;
 }
 void WebDelegate::GetHitTestValue(HitTestResult& result) {}
-int WebDelegate::GetProgress()
-{
-    return false;
-}
 int WebDelegate::GetPageHeight()
 {
     return false;
@@ -1229,6 +1225,12 @@ std::shared_ptr<OHOS::NWeb::NWebAccessibilityNodeInfo> WebDelegate::GetAccessibi
 }
 OHOS::NWeb::NWebPreference::CopyOptionMode WebDelegate::GetCopyOptionMode() const
 {
+    if (g_setReturnStatus == STATUS_TRUE) {
+        return OHOS::NWeb::NWebPreference::CopyOptionMode::LOCAL_DEVICE;
+    }
+    if (g_setReturnStatus == STATUS_FALSE) {
+        return OHOS::NWeb::NWebPreference::CopyOptionMode::IN_APP;
+    }
     return OHOS::NWeb::NWebPreference::CopyOptionMode::NONE;
 }
 bool WebDelegate::OnOpenAppLink(const std::string& url, std::shared_ptr<OHOS::NWeb::NWebAppLinkCallback> callback)
@@ -1268,7 +1270,7 @@ void WebDelegate::ScaleGestureChangeV2(int type, double scale, double originScal
 {}
 std::string WebDelegate::GetSelectInfo() const
 {
-    return "";
+    return g_setReturnStatus;
 }
 std::string WebDelegate::GetAllTextInfo() const
 {
@@ -1410,4 +1412,5 @@ void WebDelegate::SetTouchHandleExistState(bool touchHandleExist) {}
 void WebDelegate::SetBorderRadiusFromWeb(double borderRadiusTopLeft, double borderRadiusTopRight,
     double borderRadiusBottomLeft, double borderRadiusBottomRight) {}
 void WebDelegate::SetForceEnableZoom(bool isEnabled) {}
+bool WebDelegate::IsShowHandle() { return false; }
 } // namespace OHOS::Ace

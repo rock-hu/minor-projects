@@ -385,6 +385,19 @@ HWTEST_F(RichEditorSelectOverlayTestNg, GetSelectOverlayInfo, TestSize.Level1)
     ASSERT_TRUE(secondHandleInfo.has_value());
     EXPECT_FALSE(secondHandleInfo.value().isShow);
     EXPECT_FALSE(secondHandleInfo.value().isTouchable);
+
+    richEditorPattern->textSelector_.firstHandle = RectF(20, 20, 20, 20);
+    richEditorPattern->textSelector_.secondHandle = RectF(60, 40, 20, 20);
+    selectOverlay->hasTransform_ = true;
+    selectOverlay->SetUsingMouse(false);
+    firstHandleInfo = selectOverlay->GetFirstHandleInfo();
+    ASSERT_TRUE(firstHandleInfo.has_value());
+    EXPECT_FALSE(firstHandleInfo.value().isShow);
+
+    selectOverlay->SetUsingMouse(true);
+    firstHandleInfo = selectOverlay->GetFirstHandleInfo();
+    ASSERT_TRUE(firstHandleInfo.has_value());
+    EXPECT_FALSE(firstHandleInfo.value().isShow);
 }
 
 /**
@@ -1434,4 +1447,21 @@ HWTEST_F(RichEditorSelectOverlayTestNg, UpdateSelectorOnHandleMove001, TestSize.
     richEditorPattern->selectOverlay_->UpdateSelectorOnHandleMove(offsetF, true);
 }
 
+/**
+ * @tc.name: ToggleMenu001
+ * @tc.desc: test ToggleMenu
+ * @tc.type: FUNC
+ */
+HWTEST_F(RichEditorSelectOverlayTestNg, ToggleMenu001, TestSize.Level1)
+{
+    ASSERT_NE(richEditorNode_, nullptr);
+    auto richEditorPattern = richEditorNode_->GetPattern<RichEditorPattern>();
+    ASSERT_NE(richEditorPattern, nullptr);
+    WeakPtr<TextBase> textBase;
+    richEditorPattern->selectOverlay_ = AceType::MakeRefPtr<RichEditorSelectOverlay>(textBase);
+    richEditorPattern->selectOverlay_->isShowMenu_ = false;
+    richEditorPattern->selectOverlay_->needRefreshMenu_ = false;
+    richEditorPattern->selectOverlay_->ToggleMenu();
+    EXPECT_TRUE(richEditorPattern->selectOverlay_->isShowMenu_);
+}
 } // namespace OHOS::Ace::NG

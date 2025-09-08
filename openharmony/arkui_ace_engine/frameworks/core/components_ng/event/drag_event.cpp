@@ -40,11 +40,7 @@
 #include "core/components_ng/render/adapter/component_snapshot.h"
 
 #ifdef WEB_SUPPORTED
-#if !defined(ANDROID_PLATFORM) && !defined(IOS_PLATFORM)
 #include "core/components_ng/pattern/web/web_pattern.h"
-#else
-#include "core/components_ng/pattern/web/cross_platform/web_pattern.h"
-#endif
 #endif // WEB_SUPPORTED
 
 namespace OHOS::Ace::NG {
@@ -1035,6 +1031,17 @@ void DragEventActuator::UpdateGatherAnimatePosition(
         imageContext->UpdatePosition(OffsetT<Dimension>(Dimension(GatherNodeOffset.GetX() + childFrameOffset.GetX()),
             Dimension(GatherNodeOffset.GetY() + childFrameOffset.GetY())));
     }
+}
+
+void DragEventActuator::UpdateGatherAnimatePosition(
+    const RefPtr<FrameNode>& gatherNode, const OffsetF& GatherNodeOffset)
+{
+    CHECK_NULL_VOID(gatherNode);
+    auto imageContext = gatherNode->GetRenderContext();
+    CHECK_NULL_VOID(imageContext);
+    auto offset = imageContext->GetPaintRectWithoutTransform();
+    imageContext->UpdatePosition(OffsetT<Dimension>(
+        Dimension(GatherNodeOffset.GetX() + offset.GetX()), Dimension(GatherNodeOffset.GetY() + offset.GetY())));
 }
 
 void DragEventActuator::UpdatePreviewPositionAndScale(

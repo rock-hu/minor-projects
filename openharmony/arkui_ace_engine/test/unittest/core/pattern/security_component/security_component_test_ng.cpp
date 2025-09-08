@@ -252,6 +252,7 @@ RefPtr<LayoutWrapperNode> SecurityComponentModelTestNg::CreateSecurityComponentL
     auto buttonNode = GetSecCompChildNode(node, V2::BUTTON_ETS_TAG);
     CHECK_NULL_RETURN(buttonNode, nullptr);
     auto buttonWrapper = CreateLayoutWrapper(buttonNode);
+    CHECK_NULL_RETURN(buttonWrapper, nullptr);
     auto buttonAlgorithm = AceType::MakeRefPtr<MockSecurityComponentButtonLayoutAlgorithm>();
     CHECK_NULL_RETURN(buttonAlgorithm, nullptr);
     buttonWrapper->SetLayoutAlgorithm(AceType::MakeRefPtr<LayoutAlgorithmWrapper>(buttonAlgorithm));
@@ -1823,10 +1824,10 @@ HWTEST_F(SecurityComponentModelTestNg, SecurityComponentHandlerTest001, TestSize
 
     KeyEvent key;
     EXPECT_EQ(SecurityComponentHandler::ReportSecurityComponentClickEvent(
-        noExistId, invalidFrameNode, key, [] (int32_t) {}), -1);
+        noExistId, invalidFrameNode, key, [] (int32_t) {}, message), -1);
     key.enhanceData = { 0 };
     EXPECT_EQ(SecurityComponentHandler::ReportSecurityComponentClickEvent(
-        noExistId, invalidFrameNode, key, [] (int32_t) {}), -1);
+        noExistId, invalidFrameNode, key, [] (int32_t) {}, message), -1);
 }
 
 /**

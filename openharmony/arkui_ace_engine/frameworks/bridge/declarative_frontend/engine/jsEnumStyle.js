@@ -791,6 +791,7 @@ let StickyStyle;
   StickyStyle[StickyStyle.None = 0] = 'None';
   StickyStyle[StickyStyle.Header = 1] = 'Header';
   StickyStyle[StickyStyle.Footer = 2] = 'Footer';
+  StickyStyle[StickyStyle.BOTH = 3] = 'BOTH';
 })(StickyStyle || (StickyStyle = {}));
 
 let ScrollSnapAlign;
@@ -3104,7 +3105,7 @@ class NavPathStack {
     }
     try {
       let serializeCount = 0;
-      const MAX_COUNT = 1000;
+      const MAX_COUNT = 10000;
       const serializeFilter = (key, value) => {
         serializeCount++;
         if (serializeCount > MAX_COUNT) {
@@ -4317,3 +4318,9 @@ let ReplaceEffectType;
   ReplaceEffectType[ReplaceEffectType.CROSS_FADE = 1] = 'CROSS_FADE';
   ReplaceEffectType[ReplaceEffectType.SLASH_OVERLAY = 2] = 'SLASH_OVERLAY';
 })(ReplaceEffectType || (ReplaceEffectType = {}));
+
+let ListItemSwipeActionDirection;
+(function (ListItemSwipeActionDirection) {
+  ListItemSwipeActionDirection[ListItemSwipeActionDirection.START = 0] = 'START';
+  ListItemSwipeActionDirection[ListItemSwipeActionDirection.END = 1] = 'END';
+})(ListItemSwipeActionDirection || (ListItemSwipeActionDirection = {}));

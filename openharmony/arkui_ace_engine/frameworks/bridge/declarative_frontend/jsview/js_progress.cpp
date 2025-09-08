@@ -79,7 +79,7 @@ void JSProgress::Create(const JSCallbackInfo& info)
         jsStyle = paramObject->GetProperty("style");
     }
 
-    auto progressStyle = ProgressStyle::Ring;
+    auto progressStyle = ProgressStyle::Linear;
     if (jsStyle->IsNumber()) {
         progressStyle = static_cast<ProgressStyle>(jsStyle->ToNumber<int32_t>());
     }
@@ -435,7 +435,7 @@ void JSProgress::JsSetFontDefault()
     RefPtr<ProgressTheme> progressTheme = GetTheme<ProgressTheme>();
     ProgressModel::GetInstance()->SetFontSize(progressTheme->GetTextSize());
     ProgressModel::GetInstance()->SetFontFamily(textTheme->GetTextStyle().GetFontFamilies());
-    ProgressModel::GetInstance()->SetFontWeight(textTheme->GetTextStyle().GetFontWeight());
+    ProgressModel::GetInstance()->SetFontWeight(static_cast<FontWeight>(progressTheme->GetFontWeight()));
     ProgressModel::GetInstance()->SetItalicFontStyle(textTheme->GetTextStyle().GetFontStyle());
 }
 

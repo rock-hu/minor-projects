@@ -2226,7 +2226,7 @@ let ItemProperty = class ItemProperty {
   constructor() {
     this.fontColor = segmentButtonTheme.FONT_COLOR;
     this.fontSize = segmentButtonTheme.FONT_SIZE;
-    this.fontWeight = initFontWeight(FontWeight.Regular)
+    this.fontWeight = FontWeight.Regular;
     this.isSelected = false;
   }
 };
@@ -2695,7 +2695,7 @@ export class SegmentButton extends ViewPU {
       });
       Stack.accessibilityLevel('no');
       Gesture.create(GesturePriority.High);
-      GestureGroup.create(GestureMode.Parallel);
+      GestureGroup.create(GestureMode.Exclusive);
       TapGesture.create();
       TapGesture.onAction(event => {
         if (this.isGestureInProgress) {

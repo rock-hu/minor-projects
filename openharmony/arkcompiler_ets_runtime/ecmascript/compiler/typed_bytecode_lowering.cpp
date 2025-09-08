@@ -458,7 +458,9 @@ template<TypedBinOp Op>
 void TypedBytecodeLowering::SpeculateNumbers(const BinOpTypeInfoAccessor &tacc)
 {
     AddProfiling(tacc.GetGate());
-    pgoTypeLog_.CollectGateTypeLogInfo(tacc.GetGate(), true);
+    if (IsLogEnabled()) {
+        pgoTypeLog_.CollectGateTypeLogInfo(tacc.GetGate(), true);
+    }
     GateRef left = tacc.GetLeftGate();
     GateRef right = tacc.GetReightGate();
     GateRef result = builder_.TypedBinaryOp<Op>(left, right, tacc.GetParamType());
@@ -469,7 +471,9 @@ template<TypedUnOp Op>
 void TypedBytecodeLowering::SpeculateNumber(const UnOpTypeInfoAccessor &tacc)
 {
     AddProfiling(tacc.GetGate());
-    pgoTypeLog_.CollectGateTypeLogInfo(tacc.GetGate(), false);
+    if (IsLogEnabled()) {
+        pgoTypeLog_.CollectGateTypeLogInfo(tacc.GetGate(), false);
+    }
     GateRef result = builder_.TypedUnaryOp<Op>(tacc.GetValue(), tacc.GetParamType());
     acc_.ReplaceHirAndReplaceDeadIfException(tacc.GetGate(), builder_.GetStateDepend(), result);
 }
@@ -1370,7 +1374,10 @@ bool TypedBytecodeLowering::TryLowerTypedLdobjBynameFromGloablBuiltin(GateRef ga
             return false;
         }
         AddProfiling(gate);
-        builder_.MathHClassConsistencyCheck(receiver);
+        
+        GateRef classIndexGate = circuit_->GetConstantGate(MachineType::I64,
+            static_cast<int64_t>(GlobalEnv::MATH_FUNCTION_CLASS_INDEX), GateType::NJSValue());
+        builder_.BuiltinHClassConsistencyCheck(receiver, classIndexGate);
         GateRef plrGate = builder_.Int32(plr.GetData());
         GateRef result = builder_.LoadProperty(receiver, plrGate, plr.IsFunction());
         acc_.ReplaceHirAndReplaceDeadIfException(gate, builder_.GetStateDepend(), result);

@@ -2941,6 +2941,17 @@ void RichEditorPattern::SetAccessibilityAction()
         return pattern->GetCaretPosition();
     });
     SetAccessibilityEditAction();
+
+    property->SetSwitchEditableMode([weakPtr = WeakClaim(this)](bool switchToEditable) {
+        TAG_LOGI(AceLogTag::ACE_RICH_TEXT, "Accessibility SwitchEditableMode=%{public}d", switchToEditable);
+        const auto& pattern = weakPtr.Upgrade();
+        CHECK_NULL_VOID(pattern);
+        if (!switchToEditable) {
+            pattern->StopEditing();
+            return;
+        }
+        IF_TRUE(auto focusHub = pattern->GetFocusHub(), focusHub->RequestFocusImmediately());
+    });
 }
 
 void RichEditorPattern::SetAccessibilityEditAction()
@@ -4770,10 +4781,7 @@ void RichEditorPattern::SetSubSpans(RefPtr<SpanString>& spanString, int32_t star
     std::list<RefPtr<SpanItem>> subSpans;
     std::u16string text;
     for (const auto& spanItem : spans) {
-        if (!spanItem || spanItem->spanItemType == SpanItemType::CustomSpan ||
-            spanItem->spanItemType == SpanItemType::SYMBOL) {
-            continue;
-        }
+        CHECK_NULL_CONTINUE(spanItem && spanItem->spanItemType != SpanItemType::CustomSpan);
         auto spanEndPos = spanItem->position;
         auto spanStartPos = spanItem->rangeStart;
         if (spanEndPos > start && spanStartPos < end) {
@@ -4782,6 +4790,10 @@ void RichEditorPattern::SetSubSpans(RefPtr<SpanString>& spanString, int32_t star
             auto spanStart = oldStart <= start ? 0 : oldStart - start;
             auto spanEnd = oldEnd < end ? oldEnd - start : end - start;
             auto newSpanItem = GetSameSpanItem(spanItem);
+            if (spanItem->spanItemType == SpanItemType::PLACEHOLDER ||
+                spanItem->spanItemType == SpanItemType::SYMBOL) {
+                newSpanItem = spanItem->GetSameStyleSpanItem();
+            }
             CHECK_NULL_CONTINUE(newSpanItem);
             newSpanItem->spanItemType = spanItem->spanItemType;
             newSpanItem->interval = {spanStart, spanEnd};
@@ -5778,9 +5790,11 @@ void RichEditorPattern::DeleteByRange(OperationRecord* const record, int32_t sta
         return;
     }
     std::u16string deleteText = DeleteForwardOperation(length, false);
-    if (record && deleteText.length() != 0) {
-        record->deleteText = deleteText;
-    }
+    auto isDeleteContent = !deleteText.empty();
+    IF_TRUE(isDeleteContent && record, record->deleteText = deleteText);
+    auto isDeleteLastContent = isDeleteContent && previewTextRecord_.needReplacePreviewText &&
+        previewTextRecord_.newPreviewContent.empty() && !previewTextRecord_.previewContent.empty();
+    IF_TRUE(isDeleteLastContent, FireOnSelectionChange(caretPosition_));
 }
 
 bool RichEditorPattern::NotUpdateCaretInPreview(int32_t caret, const PreviewTextRecord& record)
@@ -8322,7 +8336,6 @@ void RichEditorPattern::MouseRightFocus(const MouseInfo& info)
     CHECK_NULL_VOID(overlayMod_);
     DynamicCast<RichEditorOverlayModifier>(overlayMod_)->SetCaretOffsetAndHeight(caretOffset, caretHeight);
     StartTwinkling();
-    RequestKeyboardToEdit();
 }
 
 void RichEditorPattern::FireOnSelect(int32_t selectStart, int32_t selectEnd)
@@ -8426,6 +8439,8 @@ void RichEditorPattern::TriggerAvoidOnCaretChange()
     CHECK_NULL_VOID(pipeline);
     auto textFieldManager = DynamicCast<TextFieldManagerNG>(pipeline->GetTextFieldManager());
     CHECK_NULL_VOID(textFieldManager);
+    auto richEditorTheme = GetTheme<RichEditorTheme>();
+    CHECK_NULL_VOID(richEditorTheme);
     CHECK_NULL_VOID(pipeline->UsingCaretAvoidMode());
     auto safeAreaManager = pipeline->GetSafeAreaManager();
     if (!safeAreaManager || NearZero(safeAreaManager->GetKeyboardInset().Length(), 0)) {
@@ -8437,7 +8452,9 @@ void RichEditorPattern::TriggerAvoidOnCaretChange()
         return;
     }
     SetLastCaretPos(caretPos);
-    textFieldManager->SetHeight(GetCaretRect().Height());
+    auto [caretOffset, caretHeight] = CalculateCaretOffsetAndHeight();
+    textFieldManager->SetHeight(NearZero(caretHeight) ?
+        richEditorTheme->GetDefaultCaretHeight().ConvertToPx() : caretHeight);
     auto taskExecutor = pipeline->GetTaskExecutor();
     CHECK_NULL_VOID(taskExecutor);
     taskExecutor->PostTask([manager = WeakPtr<TextFieldManagerNG>(textFieldManager)] {
@@ -11267,6 +11284,7 @@ std::tuple<int32_t, int32_t, RefPtr<SpanItem>> RichEditorPattern::GetTargetSpanI
         TAG_LOGD(AceLogTag::ACE_RICH_TEXT, "target cannot insert, move right, spanIndex=%{public}d", spanIndex);
     }
     bool replaceInsert = textSelector_.IsValid() && changeValue.GetChangeReason() == TextChangeReason::INPUT;
+    replaceInsert |= previewTextRecord_.needReplaceText;
     if (replaceInsert && moveRight && targetSpanItem) { // is replace & left side cannot insert & right side can insert
         TAG_LOGD(AceLogTag::ACE_RICH_TEXT, "replaceInsert, moveRight");
         while (targetSpanItem && allDelSpanSet.count(RawPtr(targetSpanItem)) != 0) { // current span is all deleted
