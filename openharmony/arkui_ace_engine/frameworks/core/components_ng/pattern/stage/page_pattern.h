@@ -316,8 +316,6 @@ public:
 
     void OnDetachFromFrameNode(FrameNode* frameNode) override;
 
-    void OnWindowSizeChanged(int32_t width, int32_t height, WindowSizeChangeReason type) override;
-
     void SetIsNeedRemove(bool isNeedRemove)
     {
         isNeedRemove_ = isNeedRemove;
@@ -342,6 +340,7 @@ protected:
     void BeforeCreateLayoutWrapper() override;
     bool OnDirtyLayoutWrapperSwap(const RefPtr<LayoutWrapper>& wrapper, const DirtySwapConfig& config) override;
     void BeforeSyncGeometryProperties(const DirtySwapConfig& config) override;
+    void FirePageTransitionStart();
     void FirePageTransitionFinish();
 
     void OnAttachToMainTree() override;

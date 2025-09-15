@@ -1278,6 +1278,8 @@ ArkUINativeModuleValue ArkUINativeModule::GetArkUINativeModule(ArkUIRuntimeCallI
         panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), CommonBridge::SetOnChildTouchTest));
     common->Set(vm, panda::StringRef::NewFromUtf8(vm, "resetOnChildTouchTest"),
         panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), CommonBridge::ResetOnChildTouchTest));
+    common->Set(vm, panda::StringRef::NewFromUtf8(vm, "allowForceDark"),
+        panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), CommonBridge::AllowForceDark));
     object->Set(vm, panda::StringRef::NewFromUtf8(vm, "common"), common);
 
     auto nativeUtils = panda::ObjectRef::New(vm);
@@ -4347,6 +4349,10 @@ void ArkUINativeModule::RegisterImageAttributes(Local<panda::ObjectRef> object, 
         panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), ImageBridge::SetSupportSvg2));
     image->Set(vm, panda::StringRef::NewFromUtf8(vm, "resetSupportSvg2"),
         panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), ImageBridge::ResetSupportSvg2));
+    image->Set(vm, panda::StringRef::NewFromUtf8(vm, "setContentTransition"),
+        panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), ImageBridge::SetContentTransition));
+    image->Set(vm, panda::StringRef::NewFromUtf8(vm, "resetContentTransition"),
+        panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), ImageBridge::ResetContentTransition));
     object->Set(vm, panda::StringRef::NewFromUtf8(vm, "image"), image);
 }
 
@@ -5568,6 +5574,22 @@ void ArkUINativeModule::RegisterScrollableAttributes(Local<panda::ObjectRef> obj
         panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), ScrollableBridge::SetOnWillStopDragging));
     scrollable->Set(vm, panda::StringRef::NewFromUtf8(vm, "resetOnWillStopDragging"),
         panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), ScrollableBridge::ResetOnWillStopDragging));
+    scrollable->Set(vm, panda::StringRef::NewFromUtf8(vm, "setOnWillStartDragging"),
+        panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), ScrollableBridge::SetOnWillStartDragging));
+    scrollable->Set(vm, panda::StringRef::NewFromUtf8(vm, "resetOnWillStartDragging"),
+        panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), ScrollableBridge::ResetOnWillStartDragging));
+    scrollable->Set(vm, panda::StringRef::NewFromUtf8(vm, "setOnDidStopDragging"),
+        panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), ScrollableBridge::SetOnDidStopDragging));
+    scrollable->Set(vm, panda::StringRef::NewFromUtf8(vm, "resetOnDidStopDragging"),
+        panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), ScrollableBridge::ResetOnDidStopDragging));
+    scrollable->Set(vm, panda::StringRef::NewFromUtf8(vm, "setOnWillStartFling"),
+        panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), ScrollableBridge::SetOnWillStartFling));
+    scrollable->Set(vm, panda::StringRef::NewFromUtf8(vm, "resetOnWillStartFling"),
+        panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), ScrollableBridge::ResetOnWillStartFling));
+    scrollable->Set(vm, panda::StringRef::NewFromUtf8(vm, "setOnDidStopFling"),
+        panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), ScrollableBridge::SetOnDidStopFling));
+    scrollable->Set(vm, panda::StringRef::NewFromUtf8(vm, "resetOnDidStopFling"),
+        panda::FunctionRef::New(const_cast<panda::EcmaVM*>(vm), ScrollableBridge::ResetOnDidStopFling));
     object->Set(vm, panda::StringRef::NewFromUtf8(vm, "scrollable"), scrollable);
 }
 

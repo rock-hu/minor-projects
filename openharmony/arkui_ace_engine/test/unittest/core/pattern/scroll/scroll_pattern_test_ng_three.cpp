@@ -15,7 +15,9 @@
 
 #include "gtest/gtest.h"
 #include "scroll_test_ng.h"
-
+#include "test/mock/core/common/mock_container.h"
+#include "test/mock/core/common/mock_theme_manager.h"
+#include "test/mock/core/pipeline/mock_pipeline_context.h"
 namespace OHOS::Ace::NG {
 // using namespace testing;
 // using namespace testing::ext;
@@ -365,5 +367,188 @@ TEST_F(ScrollPatternThreeTestNg, FireObserverOnDidScroll)
      */
     ScrollTo(ITEM_MAIN_SIZE);
     EXPECT_TRUE(isCallback);
+}
+
+
+/**
+ * @tc.name: GetDefaultFrictionTest001
+ * @tc.desc: Test ScrollPattern GetDefaultFriction
+ * @tc.type: FUNC
+ */
+HWTEST_F(ScrollPatternThreeTestNg, GetDefaultFrictionTest001, TestSize.Level1)
+{
+    MockContainer::SetUp();
+    auto scrollPattern = AceType::MakeRefPtr<ScrollPattern>();
+    auto frameNode = FrameNode::CreateFrameNode(V2::SCROLL_ETS_TAG, 2, scrollPattern);
+    ASSERT_NE(frameNode, nullptr);
+
+    int32_t backupApiVersion = MockContainer::Current()->GetApiTargetVersion();
+    MockContainer::Current()->SetApiTargetVersion(static_cast<int32_t>(PlatformVersion::VERSION_TEN));
+    EXPECT_EQ(scrollPattern->GetDefaultFriction(), FRICTION);
+    MockContainer::Current()->SetApiTargetVersion(static_cast<int32_t>(PlatformVersion::VERSION_ELEVEN));
+    EXPECT_EQ(scrollPattern->GetDefaultFriction(), API11_FRICTION);
+    MockContainer::Current()->SetApiTargetVersion(static_cast<int32_t>(PlatformVersion::VERSION_TWELVE));
+    EXPECT_EQ(scrollPattern->GetDefaultFriction(), API12_FRICTION);
+    MockContainer::Current()->SetApiTargetVersion(static_cast<int32_t>(PlatformVersion::VERSION_THIRTEEN));
+    auto context = PipelineBase::GetCurrentContext();
+    ASSERT_NE(context, nullptr);
+    auto scrollableTheme = context->GetTheme<ScrollableTheme>();
+    ASSERT_NE(scrollableTheme, nullptr);
+    auto friction = scrollableTheme->GetFriction();
+    EXPECT_EQ(scrollPattern->GetDefaultFriction(), friction);
+    MockContainer::Current()->SetApiTargetVersion(backupApiVersion);
+    MockContainer::TearDown();
+}
+
+/**
+ * @tc.name: GetDefaultFrictionTest002
+ * @tc.desc: Test ScrollPattern GetDefaultFriction
+ * @tc.type: FUNC
+ */
+HWTEST_F(ScrollPatternThreeTestNg, GetDefaultFrictionTest002, TestSize.Level1)
+{
+    MockContainer::SetUp();
+    auto scrollPattern = AceType::MakeRefPtr<ScrollPattern>();
+    auto frameNode = FrameNode::CreateFrameNode(V2::SCROLL_ETS_TAG, 2, scrollPattern);
+    ASSERT_NE(frameNode, nullptr);
+
+    int32_t backupApiVersion = MockContainer::Current()->GetApiTargetVersion();
+    MockContainer::Current()->SetApiTargetVersion(static_cast<int32_t>(PlatformVersion::VERSION_THIRTEEN));
+
+    auto themeManager = AceType::MakeRefPtr<MockThemeManager>();
+    MockPipelineContext::GetCurrent()->SetThemeManager(themeManager);
+    EXPECT_CALL(*themeManager, GetTheme(_)).WillRepeatedly(Return(nullptr));
+    EXPECT_EQ(scrollPattern->GetDefaultFriction(), API12_FRICTION);
+  
+    auto originalPipeline = NG::MockPipelineContext::pipeline_;
+    NG::MockPipelineContext::pipeline_ = nullptr;
+    EXPECT_EQ(scrollPattern->GetDefaultFriction(), API12_FRICTION);
+    NG::MockPipelineContext::pipeline_ = originalPipeline;
+    MockContainer::Current()->SetApiTargetVersion(backupApiVersion);
+    MockContainer::TearDown();
+}
+
+/**
+ * @tc.name: GetOverScrollOffset_PositiveStart
+ * @tc.desc: Test GetOverScrollOffset with Positive offset at start
+ * @tc.type: FUNC
+ */
+HWTEST_F(ScrollPatternThreeTestNg, GetOverScrollOffset_PositiveStart, TestSize.Level1) {
+    ScrollModelNG model = CreateScroll();
+    float contentOffset = 20;
+    ScrollableModelNG::SetContentStartOffset(contentOffset);
+    ScrollableModelNG::SetContentEndOffset(contentOffset * 1.5);
+    CreateContent();
+    CreateScrollDone();
+
+    EXPECT_EQ(pattern_->currentOffset_, 0.0f);
+    ScrollBy(0, -contentOffset * 0.5);
+    EXPECT_EQ(pattern_->currentOffset_, -contentOffset * 0.5);
+
+    auto result = pattern_->GetOverScrollOffset(contentOffset);
+    EXPECT_DOUBLE_EQ(result.start, contentOffset * 0.5);
+    EXPECT_DOUBLE_EQ(result.end, 0.0);
+
+    result = pattern_->GetOverScrollOffset(-contentOffset);
+    EXPECT_DOUBLE_EQ(result.start, 0.0);
+    EXPECT_DOUBLE_EQ(result.end, 0.0);
+}
+
+/**
+ * @tc.name: GetOverScrollOffset_NegativeStart
+ * @tc.desc: Test GetOverScrollOffset with Negative offset at start
+ * @tc.type: FUNC
+ */
+HWTEST_F(ScrollPatternThreeTestNg, GetOverScrollOffset_NegativeStart, TestSize.Level1) {
+    ScrollModelNG model = CreateScroll();
+    float contentOffset = 20;
+    ScrollableModelNG::SetContentStartOffset(contentOffset);
+    ScrollableModelNG::SetContentEndOffset(contentOffset * 1.5);
+    CreateContent();
+    CreateScrollDone();
+
+    EXPECT_EQ(pattern_->currentOffset_, 0.0f);
+    pattern_->currentOffset_ -= contentOffset * 0.5;
+    
+    // startPos <= 0 && newStartPos > 0
+    auto result = pattern_->GetOverScrollOffset(contentOffset);
+    EXPECT_DOUBLE_EQ(result.start, contentOffset * 0.5);
+    EXPECT_DOUBLE_EQ(result.end, 0.0);
+
+    // startPos <= 0 && newStartPos <= 0
+    result = pattern_->GetOverScrollOffset(-contentOffset);
+    EXPECT_DOUBLE_EQ(result.start, 0.0);
+    EXPECT_DOUBLE_EQ(result.end, 0.0);
+}
+
+/**
+ * @tc.name: GetOverScrollOffset_PositiveEnd
+ * @tc.desc: Test GetOverScrollOffset with Positive offset at end
+ * @tc.type: FUNC
+ */
+HWTEST_F(ScrollPatternThreeTestNg, GetOverScrollOffset_PositiveEnd, TestSize.Level1) {
+    ScrollModelNG model = CreateScroll();
+    float contentOffset = 20;
+    ScrollableModelNG::SetContentStartOffset(contentOffset);
+    ScrollableModelNG::SetContentEndOffset(contentOffset * 1.5);
+    CreateContent();
+    CreateScrollDone();
+
+    ScrollToEdge(ScrollEdgeType::SCROLL_BOTTOM, false);
+    pattern_->currentOffset_ -= 10;
+    
+    // endPos < endRefences && newEndPos < endRefences
+    auto result = pattern_->GetOverScrollOffset(-10.0);
+    EXPECT_DOUBLE_EQ(result.start, 0.0);
+    EXPECT_DOUBLE_EQ(result.end, -10.0);
+
+    // endPos < endRefences && newEndPos >= endRefences
+    result = pattern_->GetOverScrollOffset(20.0);
+    EXPECT_DOUBLE_EQ(result.start, 0.0);
+    EXPECT_DOUBLE_EQ(result.end, 10.0);
+}
+
+/**
+ * @tc.name: GetOverScrollOffset_NegativeEnd
+ * @tc.desc: Test GetOverScrollOffset with Negative offset at end
+ * @tc.type: FUNC
+ */
+HWTEST_F(ScrollPatternThreeTestNg, GetOverScrollOffset_NegativeEnd, TestSize.Level1) {
+    ScrollModelNG model = CreateScroll();
+    float contentOffset = 20;
+    ScrollableModelNG::SetContentStartOffset(contentOffset);
+    ScrollableModelNG::SetContentEndOffset(contentOffset * 1.5);
+    CreateContent();
+    CreateScrollDone();
+
+    ScrollToEdge(ScrollEdgeType::SCROLL_BOTTOM, false);
+    pattern_->currentOffset_ += 10;
+    
+    // endPos >= endRefences && newEndPos < endRefences
+    auto result = pattern_->GetOverScrollOffset(-15.0);
+    EXPECT_DOUBLE_EQ(result.start, 0.0);
+    EXPECT_DOUBLE_EQ(result.end, -5.0);
+
+    // endPos >= endRefences && newEndPos >= endRefences
+    result = pattern_->GetOverScrollOffset(10.0);
+    EXPECT_DOUBLE_EQ(result.start, 0.0);
+    EXPECT_DOUBLE_EQ(result.end, 0.0);
+}
+
+/**
+ * @tc.name: GetOverScrollOffset_ZeroScrollableDistance
+ * @tc.desc: Test GetOverScrollOffset with 0 scrollableDistance
+ * @tc.type: FUNC
+ */
+HWTEST_F(ScrollPatternThreeTestNg, GetOverScrollOffset_ZeroScrollableDistance, TestSize.Level1) {
+    ScrollModelNG model = CreateScroll();
+    CreateContent();
+    CreateScrollDone();
+    pattern_->scrollableDistance_ = 0.0f;
+    pattern_->currentOffset_ = -10.0;
+    
+    auto result = pattern_->GetOverScrollOffset(-5.0);
+    EXPECT_DOUBLE_EQ(result.start, 0.0);
+    EXPECT_DOUBLE_EQ(result.end, -5.0);
 }
 } // namespace OHOS::Ace::NG

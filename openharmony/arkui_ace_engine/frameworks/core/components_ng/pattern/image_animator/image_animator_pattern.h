@@ -16,9 +16,9 @@
 #ifndef FOUNDATION_ACE_FRAMEWORKS_CORE_COMPONENTS_NG_PATTERNS_IMAGE_ANIMATOR_IMAGE_ANIMATOR_PATTERN_H
 #define FOUNDATION_ACE_FRAMEWORKS_CORE_COMPONENTS_NG_PATTERNS_IMAGE_ANIMATOR_IMAGE_ANIMATOR_PATTERN_H
 
+#include "base/image/controlled_animator.h"
 #include "core/components/declaration/image/image_animator_declaration.h"
 #include "core/components_ng/base/frame_node.h"
-#include "core/components_ng/pattern/image_animator/controlled_animator.h"
 #include "core/components_ng/pattern/image_animator/image_animator_event_hub.h"
 #include "core/components_ng/pattern/pattern.h"
 
@@ -105,14 +105,14 @@ public:
         fixedSize_ = fixedSize;
     }
 
-    void OnInActive() override
+    void OnInActiveImageAnimator()
     {
         if (status_ == ControlledAnimator::ControlStatus::RUNNING) {
             controlledAnimator_->Pause();
         }
     }
 
-    void OnActive() override
+    void OnActiveImageAnimator()
     {
         if (status_ == ControlledAnimator::ControlStatus::RUNNING &&
             controlledAnimator_->GetControlStatus() != ControlledAnimator::ControlStatus::RUNNING) {
@@ -172,6 +172,11 @@ public:
         return true;
     }
 
+    void SetVisible(bool visible)
+    {
+        visible_ = visible;
+    }
+
 private:
     std::vector<PictureInfo> CreatePictureAnimation(int32_t size);
     void UpdateEventCallback();
@@ -221,6 +226,7 @@ private:
     int32_t formAnimationRemainder_ = 0;
     bool isFormAnimationStart_ = true;
     bool isFormAnimationEnd_ = false;
+    bool visible_ = false;
     bool isAutoMonitorInvisibleArea_ = false; // Controls whether the system's onVisibleAreaChange callback is used to
                                               // manage the play and stop behavior of ImageAnimator.
 };

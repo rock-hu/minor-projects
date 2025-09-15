@@ -16,7 +16,6 @@
 #include "core/components_ng/pattern/web/web_model_ng.h"
 
 #include "base/utils/utils.h"
-#include "base/web/webview/arkweb_utils/arkweb_utils.h"
 #include "core/components_ng/base/node_flag.h"
 #include "core/components_ng/base/view_abstract.h"
 #include "core/components_ng/base/view_abstract_model_ng.h"
@@ -27,6 +26,9 @@
 #include "core/pipeline_ng/pipeline_context.h"
 #if !defined(ANDROID_PLATFORM) && !defined(IOS_PLATFORM)
 #include "nweb_helper.h"
+#include "arkweb_utils.h"
+#else
+#include "base/web/webview/arkweb_utils/arkweb_utils.h"
 #endif
 
 namespace OHOS::Ace::NG {
@@ -1289,6 +1291,24 @@ void WebModelNG::SetOpenAppLinkFunction(std::function<void(const std::shared_ptr
     webPattern->SetOnOpenAppLinkCallback(std::move(jsCallback));
 }
 
+void WebModelNG::SetWebNativeMessageConnectFunction(
+    std::function<void(const std::shared_ptr<BaseEventInfo>&)>&& jsCallback)
+{
+    auto webPattern = ViewStackProcessor::GetInstance()->GetMainFrameNodePattern<WebPattern>();
+    CHECK_NULL_VOID(webPattern);
+
+    webPattern->SetWebNativeMessageConnectCallback(std::move(jsCallback));
+}
+
+void WebModelNG::SetWebNativeMessageDisconnectFunction(
+    std::function<void(const std::shared_ptr<BaseEventInfo>&)>&& jsCallback)
+{
+    auto webPattern = ViewStackProcessor::GetInstance()->GetMainFrameNodePattern<WebPattern>();
+    CHECK_NULL_VOID(webPattern);
+
+    webPattern->SetWebNativeMessageDisConnectCallback(std::move(jsCallback));
+}
+
 void WebModelNG::SetWebDetachFunction(std::function<void(int32_t)>&& jsCallback)
 {
     auto webPattern = ViewStackProcessor::GetInstance()->GetMainFrameNodePattern<WebPattern>();
@@ -2524,5 +2544,22 @@ void WebModelNG::SetForceEnableZoom(FrameNode* frameNode, bool isEnabled)
     auto webPattern = ViewStackProcessor::GetInstance()->GetMainFrameNodePattern<WebPattern>();
     CHECK_NULL_VOID(webPattern);
     webPattern->UpdateForceEnableZoom(isEnabled);
+}
+
+void WebModelNG::SetSafeBrowsingCheckFinishId(
+    std::function<void(const std::shared_ptr<BaseEventInfo>& info)>&& safeBrowsingCheckFinishId)
+{
+    auto webEventHub = ViewStackProcessor::GetInstance()->GetMainFrameNodeEventHub<WebEventHub>();
+    CHECK_NULL_VOID(webEventHub);
+    webEventHub->SetOnSafeBrowsingCheckFinishEvent(std::move(safeBrowsingCheckFinishId));
+}
+
+void WebModelNG::SetOnSafeBrowsingCheckFinish(
+    FrameNode* frameNode, std::function<void(const std::shared_ptr<BaseEventInfo>& info)>&& safeBrowsingCheckFinish)
+{
+    CHECK_NULL_VOID(frameNode);
+    auto webEventHub = ViewStackProcessor::GetInstance()->GetMainFrameNodeEventHub<WebEventHub>();
+    CHECK_NULL_VOID(webEventHub);
+    webEventHub->SetOnSafeBrowsingCheckFinishEvent(std::move(safeBrowsingCheckFinish));
 }
 } // namespace OHOS::Ace::NG

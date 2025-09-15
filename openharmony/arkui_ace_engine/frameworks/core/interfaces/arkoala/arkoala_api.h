@@ -44,7 +44,7 @@ extern "C" {
 #define ARKUI_NODE_GRAPHICS_API_VERSION 5
 #define ARKUI_NODE_MODIFIERS_API_VERSION 7
 #define ARKUI_AUTO_GENERATE_NODE_ID (-2)
-#define ARKUI_NUM_TEN 10
+#define ARKUI_SLIDER_LINEAR_GRADIENT_LIMIT 10
 #define ARKUI_MAX_ANCHOR_ID_SIZE 50
 enum ArkUIAPIVariantKind {
     BASIC = 1,
@@ -109,6 +109,7 @@ struct ArkUIGestureRecognizer;
 struct _ArkUIRenderNode;
 struct _ArkUIRenderModifier;
 struct _ArkUIRSProperty;
+struct ArkUI_GridLayoutOptions;
 
 typedef ArkUIGestureRecognizer* ArkUIGestureRecognizerHandle;
 typedef ArkUIGestureRecognizerHandle* ArkUIGestureRecognizerHandleArray;
@@ -151,6 +152,7 @@ typedef ArkUI_WaterFlowSectionOption* ArkUIWaterFlowSectionOption;
 typedef ArkUI_ListItemSwipeActionOption* ArkUIListItemSwipeActionOptionHandle;
 typedef ArkUI_ListItemSwipeActionItem* ArkUIListItemSwipeActionItemHandle;
 typedef ArkUI_ListChildrenMainSize* ArkUIListChildrenMainSize;
+typedef ArkUI_GridLayoutOptions* ArkUIGridLayoutOptions;
 
 typedef ArkUI_TextPickerRangeContentArray* ArkUITextPickerRangeContentArray;
 typedef ArkUI_TextCascadePickerRangeContentArray* ArkUITextCascadePickerRangeContentArray;
@@ -702,6 +704,8 @@ struct ArkUIClipShapeOptions {
     ArkUI_Float32 bottomLeftRadius;
     ArkUI_Float32 topRightRadius;
     ArkUI_Float32 bottomRightRadius;
+    ArkUI_Float32 offsetX;
+    ArkUI_Float32 offsetY;
     ArkUI_CharPtr commands;
 };
 
@@ -1269,6 +1273,10 @@ enum ArkUIEventSubKind {
     ON_SCROLL_DID_ZOOM,
     ON_SCROLL_ZOOM_START,
     ON_SCROLL_ZOOM_STOP,
+    ON_SCROLL_WILL_START_DRAGGING,
+    ON_SCROLL_DID_STOP_DRAGGING,
+    ON_SCROLL_WILL_START_FLING,
+    ON_SCROLL_DID_STOP_FLING,
 
     ON_TABS_CHANGE = ARKUI_MAX_EVENT_NUM * ARKUI_TABS,
     ON_NAVIGATOR_CLICK = ARKUI_MAX_EVENT_NUM * ARKUI_NAVIGATOR,
@@ -1288,6 +1296,10 @@ enum ArkUIEventSubKind {
     ON_GRID_START,
     ON_GRID_STOP,
     ON_GRID_SCROLL_TO_INDEX,
+    ON_GRID_SCROLL_FRAME_BEGIN,
+    ON_GRID_WILL_SCROLL,
+    ON_GRID_DID_SCROLL,
+    ON_GRID_SCROLL_BAR_UPDATE,
 
     ON_SIDEBAR_CHANGE = ARKUI_MAX_EVENT_NUM * ARKUI_SIDEBAR,
 
@@ -2273,6 +2285,15 @@ struct ArkUIRoundRectShape {
     ArkUI_Float32 bottomRightY = 0;
 };
 
+struct ArkUIRenderNodeClipOption {
+    ArkUIRectShape rect;
+    ArkUICircleShape circle;
+    ArkUIRoundRectShape roundRect;
+    ArkUIRectShape oval;
+    const char* commands;
+    int32_t type;
+};
+
 struct ArkUIMaskFill {
     ArkUI_Uint32 fillColor;
     ArkUI_Uint32 strokeColor;
@@ -2594,6 +2615,8 @@ struct ArkUICommonModifier {
     void (*setClip)(ArkUINodeHandle node, ArkUI_Int32 isClip);
     void (*setClipShape)(
         ArkUINodeHandle node, ArkUI_CharPtr type, const ArkUI_Float32* attribute, ArkUI_Int32 length, ArkUI_Int32 unit);
+    ArkUI_Bool (*setClipShapeWithObject)(
+        ArkUINodeHandle node, ArkUI_CharPtr type, const ArkUIRenderNodeClipOption* object, ArkUI_Int32 unit);
     void (*setClipPath)(ArkUINodeHandle node, ArkUI_CharPtr type, const ArkUI_Float32 (*attribute)[2],
         ArkUI_CharPtr commands, ArkUI_Int32 unit);
     void (*resetClip)(ArkUINodeHandle node);
@@ -2860,6 +2883,10 @@ struct ArkUICommonModifier {
     void (*resetHeightLayoutPolicy)(ArkUINodeHandle node);
     ArkUI_Int32 (*getHeightLayoutPolicy)(ArkUINodeHandle node);
     ArkUI_Bool (*getPositionEdges)(ArkUINodeHandle node, ArkUIStringAndFloat* result, ArkUI_Int32 unit);
+    void (*allowForceDark)(ArkUINodeHandle node, ArkUI_Bool forceDarkAllowed);
+    void (*resetAllowForceDark)(ArkUINodeHandle node);
+    ArkUI_Bool (*getAllowForceDark)(ArkUINodeHandle node);
+    ArkUI_Bool (*getPixelRound)(ArkUINodeHandle node, ArkUI_Int32* result);
 };
 
 struct ArkUICommonShapeModifier {
@@ -3296,6 +3323,9 @@ struct ArkUIImageModifier {
     void (*setSupportSvg2)(ArkUINodeHandle node, ArkUI_Bool enable);
     void (*resetSupportSvg2)(ArkUINodeHandle node);
     ArkUI_Int32 (*getSupportSvg2)(ArkUINodeHandle node);
+    void (*setContentTransition)(ArkUINodeHandle node, ArkUI_Int32 contentTransition);
+    ArkUI_Int32 (*getContentTransition)(ArkUINodeHandle node);
+    void (*resetContentTransition)(ArkUINodeHandle node);
 };
 
 struct ArkUIColumnModifier {
@@ -3822,10 +3852,13 @@ struct ArkUIGridModifier {
     void (*resetGridRowsGap)(ArkUINodeHandle node);
     void (*setGridScrollBar)(ArkUINodeHandle node, ArkUI_Int32 scrollBar);
     void (*resetGridScrollBar)(ArkUINodeHandle node);
+    ArkUI_Int32 (*getGridScrollBar)(ArkUINodeHandle node);
     void (*setGridScrollBarWidth)(ArkUINodeHandle node, ArkUI_Float32 value, ArkUI_Int32 unit);
     void (*resetGridScrollBarWidth)(ArkUINodeHandle node);
+    ArkUI_Float32 (*getGridScrollBarWidth)(ArkUINodeHandle node);
     void (*setGridScrollBarColor)(ArkUINodeHandle node, ArkUI_Uint32 scrollBarColor);
     void (*resetGridScrollBarColor)(ArkUINodeHandle node);
+    ArkUI_Uint32 (*getGridScrollBarColor)(ArkUINodeHandle node);
     void (*setGridCachedCount)(ArkUINodeHandle node, ArkUI_Int32 cachedCount);
     void (*resetGridCachedCount)(ArkUINodeHandle node);
     void (*setShowCached)(ArkUINodeHandle node, ArkUI_Bool show);
@@ -3851,10 +3884,12 @@ struct ArkUIGridModifier {
     void (*resetEdgeEffect)(ArkUINodeHandle node);
     void (*setNestedScroll)(ArkUINodeHandle node, ArkUI_Int32 forward, ArkUI_Int32 backward);
     void (*resetNestedScroll)(ArkUINodeHandle node);
+    void (*getNestedScroll)(ArkUINodeHandle node, ArkUI_Int32 (*values)[2]);
     void (*setEnableScroll)(ArkUINodeHandle node, ArkUI_Bool scrollEnabled);
     void (*resetEnableScroll)(ArkUINodeHandle node);
     void (*setFriction)(ArkUINodeHandle node, ArkUI_Float32 friction);
     void (*resetFriction)(ArkUINodeHandle node);
+    ArkUI_Float32 (*getFriction)(ArkUINodeHandle node);
     void (*setGridFocusWrapMode)(ArkUINodeHandle node, ArkUI_Int32 focusWrapMode);
     void (*resetGridFocusWrapMode)(ArkUINodeHandle node);
     ArkUI_Int32 (*getGridFocusWrapMode)(ArkUINodeHandle node);
@@ -3870,6 +3905,7 @@ struct ArkUIGridModifier {
     ArkUI_Int32 (*getCachedCount)(ArkUINodeHandle node);
     void (*setGridAlignItems)(ArkUINodeHandle node, ArkUI_Int32 alignItems);
     void (*resetGridAlignItems)(ArkUINodeHandle node);
+    ArkUI_Int32 (*getGridAlignItems)(ArkUINodeHandle node);
     void (*setSyncLoad)(ArkUINodeHandle node, ArkUI_Bool syncLoad);
     void (*resetSyncLoad)(ArkUINodeHandle node);
     ArkUI_Bool (*getSyncLoad)(ArkUINodeHandle node);
@@ -3892,6 +3928,13 @@ struct ArkUIGridModifier {
     void (*resetOnGridItemDrop)(ArkUINodeHandle node);
     void (*createWithResourceObjFriction)(ArkUINodeHandle node, void* resObj);
     void (*createWithResourceObjScrollBarColor)(ArkUINodeHandle node, void* resObj);
+
+    void (*resetGridEnableScrollInteraction)(ArkUINodeHandle node);
+    void (*setGridEnableScrollInteraction)(ArkUINodeHandle node, ArkUI_Bool value);
+    ArkUI_Int32 (*getGridEnableScrollInteraction)(ArkUINodeHandle node);
+
+    void (*resetGridLayoutOptions)(ArkUINodeHandle node);
+    void (*setGridLayoutOptions)(ArkUINodeHandle node, ArkUIGridLayoutOptions option);
 };
 
 struct ArkUIGridItemModifier {
@@ -3908,6 +3951,8 @@ struct ArkUIGridItemModifier {
     void (*setGridItemColumnEnd)(ArkUINodeHandle node, ArkUI_Int32 columnEnd);
     void (*resetGridItemColumnEnd)(ArkUINodeHandle node);
     void (*setGridItemOptions)(ArkUINodeHandle node, ArkUI_Int32 style);
+    void (*resetGridItemOptions)(ArkUINodeHandle node);
+    ArkUI_Int32 (*getGridItemOptions)(ArkUINodeHandle node);
     void (*setGridItemOnSelect)(ArkUINodeHandle node, void* callback);
     void (*resetGridItemOnSelect)(ArkUINodeHandle node);
 };
@@ -3951,6 +3996,14 @@ struct ArkUIScrollableModifier {
     void (*getScrollBarMargin)(ArkUINodeHandle node, ArkUIInt32orFloat32 (*values)[2]);
     void (*setOnWillStopDragging)(ArkUINodeHandle node, void* callback);
     void (*resetOnWillStopDragging)(ArkUINodeHandle node);
+    void (*setOnWillStartDragging)(ArkUINodeHandle node, void* callback);
+    void (*resetOnWillStartDragging)(ArkUINodeHandle node);
+    void (*setOnDidStopDragging)(ArkUINodeHandle node, void* callback);
+    void (*resetOnDidStopDragging)(ArkUINodeHandle node);
+    void (*setOnWillStartFling)(ArkUINodeHandle node, void* callback);
+    void (*resetOnWillStartFling)(ArkUINodeHandle node);
+    void (*setOnDidStopFling)(ArkUINodeHandle node, void* callback);
+    void (*resetOnDidStopFling)(ArkUINodeHandle node);
 };
 
 struct ArkUIScrollModifier {
@@ -4434,12 +4487,15 @@ struct ArkUISliderModifier {
     void (*resetLinearSelectColor)(ArkUINodeHandle node);
     void (*resetLinearBlockColor)(ArkUINodeHandle node);
 
-    ArkUI_Int32 (*getLinearTrackBackgroundColor)(ArkUINodeHandle node,
-        ArkUI_Uint32 (*colors)[ARKUI_NUM_TEN], ArkUI_Float32 (*stop)[ARKUI_NUM_TEN]);
-    ArkUI_Int32 (*getLinearSelectColor)(ArkUINodeHandle node,
-        ArkUI_Uint32 (*colors)[ARKUI_NUM_TEN], ArkUI_Float32 (*stop)[ARKUI_NUM_TEN]);
-    ArkUI_Int32 (*getLinearBlockColor)(ArkUINodeHandle node,
-        ArkUI_Uint32 (*colors)[ARKUI_NUM_TEN], ArkUI_Float32 (*stop)[ARKUI_NUM_TEN]);
+    ArkUI_Int32 (*getLinearTrackBackgroundColor)(
+        ArkUINodeHandle node, ArkUI_Uint32 (*colors)[ARKUI_SLIDER_LINEAR_GRADIENT_LIMIT],
+        ArkUI_Float32 (*stop)[ARKUI_SLIDER_LINEAR_GRADIENT_LIMIT]);
+    ArkUI_Int32 (*getLinearSelectColor)(
+        ArkUINodeHandle node, ArkUI_Uint32 (*colors)[ARKUI_SLIDER_LINEAR_GRADIENT_LIMIT],
+        ArkUI_Float32 (*stop)[ARKUI_SLIDER_LINEAR_GRADIENT_LIMIT]);
+    ArkUI_Int32 (*getLinearBlockColor)(
+        ArkUINodeHandle node, ArkUI_Uint32 (*colors)[ARKUI_SLIDER_LINEAR_GRADIENT_LIMIT],
+        ArkUI_Float32 (*stop)[ARKUI_SLIDER_LINEAR_GRADIENT_LIMIT]);
 };
 
 struct ArkUIProgressModifier {

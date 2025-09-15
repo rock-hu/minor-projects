@@ -905,7 +905,7 @@ void NavigationPattern::ClearSecondaryNodesIfNeeded(NavPathList&& preList)
      * The NavDestination between the homeNode and the first newly added NavDestination will be removed.
      */
     auto homeNode = homeNode_.Upgrade();
-    if (!forceSplitSuccess_ || !homeNodeTouched_) {
+    if (!forceSplitSuccess_ || !homeNodeTouched_ || isTopFullScreenPage_) {
         return;
     }
     if (!forceSplitUseNavBar_ && !homeNode) {
@@ -961,6 +961,25 @@ bool NavigationPattern::IsForceSplitSupported(const RefPtr<PipelineContext>& con
     auto manager = context->GetNavigationManager();
     CHECK_NULL_RETURN(manager, false);
     return manager->IsForceSplitSupported();
+}
+
+void NavigationPattern::NotifyForceFullScreenChangeIfNeeded(const std::vector<std::string>& allNames)
+{
+    if (allNames.empty()) {
+        return;
+    }
+    auto context = Claim(GetContext());
+    CHECK_NULL_VOID(context);
+    if (!IsForceSplitSupported(context)) {
+        return;
+    }
+    auto forceSplitMgr = context->GetForceSplitManager();
+    CHECK_NULL_VOID(forceSplitMgr);
+    auto isCurTopFullScreenPage = forceSplitMgr->IsFullScreenPage(allNames.back());
+    if (isTopFullScreenPage_ != isCurTopFullScreenPage) {
+        isTopFullScreenPage_ = isCurTopFullScreenPage;
+        forceSplitMgr->NotifyForceFullScreenChange(isTopFullScreenPage_);
+    }
 }
 
 void NavigationPattern::SyncWithJsStackIfNeeded()
@@ -1080,7 +1099,6 @@ void NavigationPattern::RecognizeHomePageIfNeeded()
         }
         auto navBar = AceType::DynamicCast<NavBarNode>(host->GetNavBarNode());
         if (navBar && ForceSplitUtils::IsHomePageNavBar(navBar)) {
-            TAG_LOGI(AceLogTag::ACE_NAVIGATION, "Recognize NavBar as HomePage");
             navBarIsHome_ = true;
             return;
         }
@@ -1102,6 +1120,7 @@ void NavigationPattern::UpdateNavPathList()
 {
     CHECK_NULL_VOID(navigationStack_);
     auto pathNames = navigationStack_->GetAllPathName();
+    NotifyForceFullScreenChangeIfNeeded(pathNames);
     auto indexes = navigationStack_->GetAllPathIndex();
     topFromSingletonMoved_ = navigationStack_->IsTopFromSingletonMoved();
     navigationStack_->ResetSingletonMoved();
@@ -3874,22 +3893,25 @@ void NavigationPattern::FireShowAndHideLifecycle(const RefPtr<NavDestinationGrou
     // fire removed navDestination lifecycle
     hostNode->FireHideNodeChange(NavDestinationLifecycle::ON_WILL_DISAPPEAR);
     FirePrePrimaryNodesOnWillDisappear(std::move(filterNodes));
-    FirePrimaryNodesOnShowAndActive();
-    FireHomeDestinationLifecycleForTransition(NavDestinationLifecycle::ON_SHOW);
-    FireHomeDestinationLifecycleForTransition(NavDestinationLifecycle::ON_ACTIVE);
     if (!isAnimated) {
         auto pipelineContext = PipelineContext::GetCurrentContext();
         CHECK_NULL_VOID(pipelineContext);
-        pipelineContext->AddAfterLayoutTask([weakNavigation = WeakClaim(this),
+        pipelineContext->AddAfterLayoutTask([weakNavigationPattern = WeakClaim(this),
             weakTopDestination = WeakPtr<NavDestinationGroupNode>(topDestination)]() {
-            auto navigation = weakNavigation.Upgrade();
-            CHECK_NULL_VOID(navigation);
+            auto pattern = weakNavigationPattern.Upgrade();
+            CHECK_NULL_VOID(pattern);
             auto topDestination = weakTopDestination.Upgrade();
-            navigation->NotifyDialogLifecycle(
+            pattern->FirePrimaryNodesOnShowAndActive();
+            pattern->FireHomeDestinationLifecycleForTransition(NavDestinationLifecycle::ON_SHOW);
+            pattern->FireHomeDestinationLifecycleForTransition(NavDestinationLifecycle::ON_ACTIVE);
+            pattern->NotifyDialogLifecycle(
                 NavDestinationLifecycle::ON_SHOW, true, NavDestVisibilityChangeReason::TRANSITION);
-            navigation->NotifyDestinationLifecycle(topDestination, NavDestinationLifecycle::ON_ACTIVE);
+            pattern->NotifyDestinationLifecycle(topDestination, NavDestinationLifecycle::ON_ACTIVE);
         });
     } else {
+        FirePrimaryNodesOnShowAndActive();
+        FireHomeDestinationLifecycleForTransition(NavDestinationLifecycle::ON_SHOW);
+        FireHomeDestinationLifecycleForTransition(NavDestinationLifecycle::ON_ACTIVE);
         NotifyDialogLifecycle(NavDestinationLifecycle::ON_SHOW, true, NavDestVisibilityChangeReason::TRANSITION);
         NotifyDestinationLifecycle(topDestination, NavDestinationLifecycle::ON_ACTIVE);
     }
@@ -4765,6 +4787,12 @@ bool NavigationPattern::IsPageLevelConfigEnabled(bool considerSize)
 void NavigationPattern::OnStartOneTransitionAnimation()
 {
     runningTransitionCount_++;
+
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto pipeline = host->GetContext();
+    CHECK_NULL_VOID(pipeline);
+    pipeline->SetTHPNotifyState(ThpNotifyState::NAVIGATION_TRANSITION);
 }
 
 void NavigationPattern::OnFinishOneTransitionAnimation()
@@ -4773,6 +4801,13 @@ void NavigationPattern::OnFinishOneTransitionAnimation()
     if (runningTransitionCount_ == 0) {
         OnAllTransitionAnimationFinish();
     }
+    
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto pipeline = host->GetContext();
+    CHECK_NULL_VOID(pipeline);
+    pipeline->SetTHPNotifyState(ThpNotifyState::DEFAULT);
+    pipeline->PostTaskResponseRegion(DEFAULT_DELAY_THP);
 }
 
 void NavigationPattern::GetAllNodes(
@@ -5210,7 +5245,7 @@ void NavigationPattern::TryForceSplitIfNeeded(const SizeF& frameSize)
     bool forceSplitUseNavBar = false;
     auto navManager = context->GetNavigationManager();
     CHECK_NULL_VOID(navManager);
-    if (navManager->IsForceSplitEnable()) {
+    if (navManager->IsForceSplitEnable() && !isTopFullScreenPage_) {
         /**
          * The force split mode must meet the following conditions to take effect:
          *   1. Belonging to the main window of the application

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,10 +15,10 @@
 
 #include "core/components_ng/pattern/image_animator/image_animator_pattern.h"
 
+#include "base/image/controlled_animator.h"
 #include "base/utils/multi_thread.h"
-#include "core/components_ng/pattern/image/image_pattern.h"
 #include "core/components/image/image_theme.h"
-#include "core/components_ng/pattern/image_animator/controlled_animator.h"
+#include "core/components_ng/pattern/image/image_pattern.h"
 #include "core/pipeline_ng/pipeline_context.h"
 
 namespace OHOS::Ace::NG {
@@ -286,6 +286,9 @@ void ImageAnimatorPattern::RunAnimatorByStatus(int32_t index)
             ShowIndex(index);
             break;
         default:
+            if (isAutoMonitorInvisibleArea_ && !visible_) {
+                return;
+            }
             ResetFormAnimationStartTime();
             if (isFormAnimationEnd_) {
                 ResetFormAnimationFlag();
@@ -387,6 +390,7 @@ void ImageAnimatorPattern::RegisterVisibleAreaChange()
     auto callback = [weak = WeakClaim(this)](bool visible, double ratio) {
         auto self = weak.Upgrade();
         CHECK_NULL_VOID(self);
+        self->SetVisible(visible);
         if (self->CheckIfNeedVisibleAreaChange()) {
             self->OnVisibleAreaChange(visible, ratio);
         }
@@ -405,9 +409,9 @@ void ImageAnimatorPattern::OnVisibleAreaChange(bool visible, double ratio)
         TAG_LOGI(AceLogTag::ACE_IMAGE, "ImageAnimator OnVisibleAreaChange visible:%{public}d", visible);
     }
     if (!visible) {
-        OnInActive();
+        OnInActiveImageAnimator();
     } else {
-        OnActive();
+        OnActiveImageAnimator();
     }
 }
 

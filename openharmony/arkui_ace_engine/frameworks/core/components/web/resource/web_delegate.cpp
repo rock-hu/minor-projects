@@ -64,6 +64,7 @@
 
 #include "core/common/container.h"
 #include "base/include/ark_web_errno.h"
+#include "arkweb_utils.h"
 
 namespace OHOS::Ace {
 
@@ -110,8 +111,9 @@ constexpr uint32_t DRAG_DELAY_MILLISECONDS = 300;
 constexpr uint32_t ACCESSIBILITY_DELAY_MILLISECONDS = 100;
 constexpr uint32_t DELAY_MILLISECONDS_1000 = 1000;
 constexpr uint32_t NO_NATIVE_FINGER_TYPE = 100;
-constexpr uint32_t ACCESSIBILITY_PAGE_CHANGE_DELAY_MILLISECONDS = 100;
+constexpr uint32_t ACCESSIBILITY_PAGE_CHANGE_DELAY_MILLISECONDS = 200;
 const std::string DEFAULT_NATIVE_EMBED_ID = "0";
+constexpr uint32_t TIMEOUT_SECONDS = 5;
 
 const std::vector<std::string> CANONICALENCODINGNAMES = {
     "Big5",         "EUC-JP",       "EUC-KR",       "GB18030",
@@ -968,6 +970,7 @@ WebDelegate::~WebDelegate()
     UnregisterSurfacePositionChangedCallback();
     UnregisterAvoidAreaChangeListener(instanceId_);
     UnRegisterConfigObserver();
+    UnregisterFreeMultiWindowListener();
 }
 
 void WebDelegate::ReleasePlatformResource()
@@ -2273,6 +2276,8 @@ bool WebDelegate::PrepareInitOHOSWeb(const WeakPtr<PipelineBase>& context)
         onLoadFinishedV2_ = useNewPipe ? eventHub->GetOnLoadFinishedEvent()
                                       : AceAsyncEvent<void(const std::shared_ptr<BaseEventInfo>&)>::Create(
                                           webCom->GetOnLoadFinishedEventId(), oldContext);
+        onSafeBrowsingCheckFinishV2_ = useNewPipe ? eventHub->GetOnSafeBrowsingCheckFinishEvent()
+                                                      : nullptr;
     }
     return true;
 }
@@ -5965,16 +5970,17 @@ void WebDelegate::OnRenderExited(OHOS::NWeb::RenderExitReason reason)
         TaskExecutor::TaskType::JS, "ArkUIWebRenderExited");
 }
 
-void WebDelegate::OnRefreshAccessedHistory(const std::string& url, bool isRefreshed)
+void WebDelegate::OnRefreshAccessedHistory(const std::string& url, bool isRefreshed, bool isMainFrame)
 {
     CHECK_NULL_VOID(taskExecutor_);
     taskExecutor_->PostTask(
-        [weak = WeakClaim(this), url, isRefreshed]() {
+        [weak = WeakClaim(this), url, isRefreshed, isMainFrame]() {
             auto delegate = weak.Upgrade();
             CHECK_NULL_VOID(delegate);
             auto onRefreshAccessedHistoryV2 = delegate->onRefreshAccessedHistoryV2_;
             if (onRefreshAccessedHistoryV2) {
-                onRefreshAccessedHistoryV2(std::make_shared<RefreshAccessedHistoryEvent>(url, isRefreshed));
+                onRefreshAccessedHistoryV2(std::make_shared<RefreshAccessedHistoryEvent>(
+                    url, isRefreshed, isMainFrame));
             }
         },
         TaskExecutor::TaskType::JS, "ArkUIWebRefreshAccessedHistory");
@@ -8373,6 +8379,7 @@ void WebDelegate::OnDetachContext()
 {
     UnRegisterScreenLockFunction();
     UnregisterSurfacePositionChangedCallback();
+    UnregisterFreeMultiWindowListener();
     auto context = context_.Upgrade();
     CHECK_NULL_VOID(context);
     auto pipelineContext = DynamicCast<NG::PipelineContext>(context);
@@ -8391,6 +8398,7 @@ void WebDelegate::OnAttachContext(const RefPtr<NG::PipelineContext> &context)
     instanceId_ = context->GetInstanceId();
     context_ = context;
     RegisterSurfacePositionChangedCallback();
+    RegisterFreeMultiWindowListener();
     if (nweb_) {
         auto screenLockCallback = std::make_shared<NWebScreenLockCallbackImpl>(context);
         nweb_->RegisterScreenLockFunction(instanceId_, screenLockCallback);
@@ -9166,6 +9174,76 @@ void WebDelegate::SetForceEnableZoom(bool isEnabled)
     nweb_->SetForceEnableZoom(isEnabled);
 }
 
+void WebDelegate::OnExtensionDisconnect(int32_t connectId)
+{
+    auto context = context_.Upgrade();
+    auto jsTaskExecutor = SingleTaskExecutor::Make(context->GetTaskExecutor(), TaskExecutor::TaskType::JS);
+    jsTaskExecutor.PostSyncTask(
+        [weak = WeakClaim(this), connectId]() {
+            auto delegate = weak.Upgrade();
+            CHECK_NULL_VOID(delegate);
+            auto webPattern = delegate->webPattern_.Upgrade();
+            CHECK_NULL_VOID(webPattern);
+            auto disConnectCallback = webPattern->GetWebNativeMessageDisConnectCallback();
+            CHECK_NULL_VOID(disConnectCallback);
+            disConnectCallback(std::make_shared<WebNativeMessageEvent>(connectId));
+        },
+        "ArkUIWebExtensionDisconnect");
+}
+
+std::string WebDelegate::OnWebNativeMessage(std::shared_ptr<OHOS::NWeb::NWebRuntimeConnectInfo> info,
+    std::shared_ptr<OHOS::NWeb::NWebNativeMessageCallback> callback)
+{
+    if (!callback) {
+        return std::string("error:-1");
+    }
+    auto context = context_.Upgrade();
+    CHECK_NULL_RETURN(context, std::string("error:-1"));
+    auto pipelineContext = DynamicCast<NG::PipelineContext>(context);
+    CHECK_NULL_RETURN(pipelineContext, std::string("error:-1"));
+    auto pipeline = NG::PipelineContext::GetCurrentContextSafely();
+    std::mutex mtx;
+    std::condition_variable cv;
+    bool isCallbackDone = false;
+    std::string callbackResult;
+    bool isTimeout = false;
+    constexpr auto timeout = std::chrono::seconds(TIMEOUT_SECONDS);
+    auto jsTaskExecutor = SingleTaskExecutor::Make(context->GetTaskExecutor(), TaskExecutor::TaskType::JS);
+    jsTaskExecutor.PostSyncTask(
+        [weak = WeakClaim(this), info, callback, &mtx, &cv, &isCallbackDone, &callbackResult, &isTimeout]() {
+             auto setResultAndNotify = [&](const std::string& result = "") {
+                std::unique_lock<std::mutex> lock(mtx);
+                if (!isTimeout) {
+                    callbackResult = result;
+                    isCallbackDone = true;
+                }
+                cv.notify_one();
+            };
+            auto delegate = weak.Upgrade();
+            if (!delegate) return setResultAndNotify();
+            auto webPattern = delegate->webPattern_.Upgrade();
+            if (!webPattern) return setResultAndNotify();
+            auto webNativeMessageCallback = webPattern->GetWebNativeMessageConnectCallback();
+            if (!webNativeMessageCallback) return setResultAndNotify();
+            auto wrappedCallback = AceType::MakeRefPtr<WebNativeMessageCallbackOhos>(callback);
+            wrappedCallback->SetCompletionHandler([&](const std::string &result) { setResultAndNotify(result); });
+            webNativeMessageCallback(std::make_shared<WebNativeMessageEvent>(info->GetBundleName(),
+                info->GetExtensionOrigin(),
+                info->GetMessageReadPipe(),
+                info->GetMessageWritePipe(),
+                wrappedCallback));
+        }, "ArkUIWebNativeMessage");
+    {
+        std::unique_lock<std::mutex> lock(mtx);
+        if (!cv.wait_for(lock, timeout, [&]() { return isCallbackDone; })) {
+            isTimeout = true;
+            callbackResult = "error:4201";
+            return callbackResult;
+        }
+    }
+    return callbackResult;
+}
+
 void WebDelegate::SetImeShow(bool visible)
 {
     auto webPattern = webPattern_.Upgrade();
@@ -9178,5 +9256,97 @@ bool WebDelegate::IsShowHandle()
     auto webPattern = webPattern_.Upgrade();
     CHECK_NULL_RETURN(webPattern, false);
     return webPattern->IsShowHandle();
+}
+
+void WebDelegate::OnSafeBrowsingCheckFinish(int threat_type)
+{
+    if (onSafeBrowsingCheckFinishV2_) {
+        onSafeBrowsingCheckFinishV2_(
+            std::make_shared<SafeBrowsingCheckResultEvent>(threat_type));
+    }
+}
+
+bool WebDelegate::IsPcMode()
+{
+    auto container = AceType::DynamicCast<Platform::AceContainer>(Container::Current());
+    CHECK_NULL_RETURN(container, false);
+    int32_t instanceId = container->GetInstanceId();
+    auto window = Platform::AceContainer::GetUIWindow(instanceId);
+    CHECK_NULL_RETURN(window, false);
+    return window->IsPcWindow();
+}
+
+class WebFreeMultiWindowListener : public OHOS::Rosen::ISwitchFreeMultiWindowListener {
+public:
+    explicit WebFreeMultiWindowListener(WeakPtr<WebDelegate> webDelegate) : webDelegate_(webDelegate) {}
+    ~WebFreeMultiWindowListener() = default;
+
+    void OnSwitchFreeMultiWindow(bool enable) override
+    {
+        auto webDelegate = webDelegate_.Upgrade();
+        CHECK_NULL_VOID(webDelegate);
+        webDelegate->OnSwitchFreeMultiWindow(enable);
+    }
+private:
+    WeakPtr<WebDelegate> webDelegate_;
+};
+
+void WebDelegate::OnSwitchFreeMultiWindow(bool enable)
+{
+    TAG_LOGI(AceLogTag::ACE_WEB, "WebDelegate::OnSwitchFreeMultiWindow, freeMultiWindow is %{public}d", enable);
+    if (enable) {
+        return;
+    }
+    auto context = context_.Upgrade();
+    CHECK_NULL_VOID(context);
+    context->GetTaskExecutor()->PostTask(
+        [weak = WeakClaim(this)]() {
+            auto delegate = weak.Upgrade();
+            CHECK_NULL_VOID(delegate);
+            auto webPattern = delegate->webPattern_.Upgrade();
+            CHECK_NULL_VOID(webPattern);
+            webPattern->WindowMaximize(NG::WebWindowMaximizeReason::EXIT_FREE_MULTI_MODE);
+        },
+        TaskExecutor::TaskType::PLATFORM, "ArkUIWebMaximizeResize");
+}
+
+void WebDelegate::RegisterFreeMultiWindowListener()
+{
+    TAG_LOGD(AceLogTag::ACE_WEB, "WebDelegate::RegisterFreeMultiWindowListener in, webId: %{public}d", GetWebId());
+    if (freeMultiWindowListener_) {
+        TAG_LOGE(AceLogTag::ACE_WEB, "WebDelegate::RegisterFreeMultiWindowListener, already register");
+        return;
+    }
+    auto container = AceType::DynamicCast<Platform::AceContainer>(Container::Current());
+    CHECK_NULL_VOID(container);
+    int32_t instanceId = container->GetInstanceId();
+    auto window = Platform::AceContainer::GetUIWindow(instanceId);
+    CHECK_NULL_VOID(window);
+    freeMultiWindowListener_ = new WebFreeMultiWindowListener(AceType::WeakClaim(this));
+    OHOS::Rosen::WMError result = window->RegisterSwitchFreeMultiWindowListener(freeMultiWindowListener_);
+    if (OHOS::Rosen::WMError::WM_OK == result) {
+        TAG_LOGD(AceLogTag::ACE_WEB, "RegisterSwitchFreeMultiWindowListener ok, webId: %{public}d", GetWebId());
+    } else {
+        TAG_LOGE(AceLogTag::ACE_WEB, "RegisterSwitchFreeMultiWindowListener failed, webId: %{public}d", GetWebId());
+        freeMultiWindowListener_ = nullptr;
+    }
+}
+
+void WebDelegate::UnregisterFreeMultiWindowListener()
+{
+    TAG_LOGD(AceLogTag::ACE_WEB, "WebDelegate::UnregisterFreeMultiWindowListener in, webId: %{public}d", GetWebId());
+    CHECK_NULL_VOID(freeMultiWindowListener_);
+    auto container = AceType::DynamicCast<Platform::AceContainer>(Container::Current());
+    CHECK_NULL_VOID(container);
+    int32_t instanceId = container->GetInstanceId();
+    auto window = Platform::AceContainer::GetUIWindow(instanceId);
+    CHECK_NULL_VOID(window);
+    OHOS::Rosen::WMError result = window->UnregisterSwitchFreeMultiWindowListener(freeMultiWindowListener_);
+    if (OHOS::Rosen::WMError::WM_OK == result) {
+        TAG_LOGD(AceLogTag::ACE_WEB, "UnregisterSwitchFreeMultiWindowListener ok, webId: %{public}d", GetWebId());
+        freeMultiWindowListener_ = nullptr;
+    } else {
+        TAG_LOGE(AceLogTag::ACE_WEB, "UnregisterSwitchFreeMultiWindowListener failed, webId: %{public}d", GetWebId());
+    }
 }
 } // namespace OHOS::Ace

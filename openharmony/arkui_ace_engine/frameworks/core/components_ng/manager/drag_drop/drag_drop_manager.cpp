@@ -14,6 +14,7 @@
  */
 
 #include "core/components_ng/manager/drag_drop/drag_drop_manager.h"
+#include "drag_drop_func_wrapper.h"
 
 #include "base/geometry/point.h"
 #include "base/geometry/rect.h"
@@ -67,6 +68,7 @@ constexpr int32_t SQUARE_NUMBER = 2;
 constexpr float TOUCH_DRAG_PIXELMAP_SCALE = 1.05f;
 constexpr float MAX_DISTANCE_TO_PRE_POINTER = 3.0f;
 constexpr float DEFAULT_SPRING_RESPONSE = 0.347f;
+constexpr float MIN_SPRING_RESPONSE_FOR_SCENE_BOARD = 0.001f;
 constexpr float MIN_SPRING_RESPONSE = 0.05f;
 constexpr float DEL_SPRING_RESPONSE = 0.005f;
 constexpr float MIN_UI_EXTENSION_BOUNDARY_DISTANCE = 5.0f;
@@ -1068,11 +1070,10 @@ void DragDropManager::OnDragMove(const DragPointerEvent& pointerEvent, const std
     preTimeStamp_ = static_cast<uint64_t>(
         std::chrono::duration_cast<std::chrono::milliseconds>(pointerEvent.time.time_since_epoch()).count());
     SetIsWindowConsumed(false);
-    if (isDragFwkShow_) {
+    if (isDragFwkShow_ && !(container->IsSceneBoardWindow() && rootNode_ != node)) {
         auto menuWrapper = GetMenuWrapperNodeFromDrag();
         if (menuWrapper) {
-            OffsetF menuPosition(
-                static_cast<float>(pointerEvent.GetDisplayX()), static_cast<float>(pointerEvent.GetDisplayY()));
+            auto menuPosition = DragDropFuncWrapper::GetPointRelativeToMainWindow(point);
             SubwindowManager::GetInstance()->UpdateHideMenuOffsetNG(
                 menuPosition, 1.0, false, menuWrapper ? menuWrapper->GetId() : -1);
         }
@@ -2307,6 +2308,7 @@ void DragDropManager::CopyPreparedInfoForDrag(DragPreviewInfo& dragPreviewInfo, 
     dragPreviewInfo.stackNode = data.stackNode;
     dragPreviewInfo.sizeChangeEffect = data.sizeChangeEffect;
     dragPreviewInfo.menuNode = data.menuNode;
+    dragPreviewInfo.isSceneBoardTouchDrag = data.isSceneBoardTouchDrag;
 }
 
 bool DragDropManager::IsNeedDoDragMoveAnimate(const DragPointerEvent& pointerEvent)
@@ -2485,8 +2487,10 @@ void DragDropManager::DragMoveAnimation(
     auto containerId = Container::CurrentId();
     bool isMenuShow = overlayManager->IsMenuShow();
     AnimationOption option;
+    auto minResponse = info_.isSceneBoardTouchDrag ?
+        MIN_SPRING_RESPONSE_FOR_SCENE_BOARD : MIN_SPRING_RESPONSE;
     auto springResponse =
-        std::max(DEFAULT_SPRING_RESPONSE - DEL_SPRING_RESPONSE * allAnimationCnt_, MIN_SPRING_RESPONSE);
+        std::max(DEFAULT_SPRING_RESPONSE - DEL_SPRING_RESPONSE * allAnimationCnt_, minResponse);
     const RefPtr<Curve> curve = AceType::MakeRefPtr<ResponsiveSpringMotion>(springResponse, 0.99f, 0.0f);
     constexpr int32_t animateDuration = 30;
     option.SetCurve(curve);
@@ -2660,6 +2664,16 @@ void DragDropManager::DragStartAnimation(
     } else if (info_.sizeChangeEffect == DraggingSizeChangeEffect::SIZE_TRANSITION ||
                info_.sizeChangeEffect == DraggingSizeChangeEffect::SIZE_CONTENT_TRANSITION) {
         StartDragTransitionAnimation(newOffset, option, overlayManager, animateProperty, point);
+    }
+    if (info_.isSceneBoardTouchDrag) {
+        renderContext->UpdateOpacity(0.0f);
+        auto overlayManager = GetDragAnimationOverlayManager(containerId);
+        CHECK_NULL_VOID(overlayManager);
+        auto gatherNode = overlayManager->GetGatherNode();
+        CHECK_NULL_VOID(gatherNode);
+        auto gatherNodeRender = gatherNode->GetRenderContext();
+        CHECK_NULL_VOID(gatherNodeRender);
+        gatherNodeRender->UpdateOpacity(0.0f);
     }
 }
 

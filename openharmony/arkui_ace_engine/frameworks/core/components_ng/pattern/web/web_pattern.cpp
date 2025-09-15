@@ -38,7 +38,6 @@
 #include "page_node_info.h"
 
 #include "adapter/ohos/capability/html/span_to_html.h"
-#include "base/web/webview/arkweb_utils/arkweb_utils.h"
 #include "base/geometry/ng/offset_t.h"
 #include "base/geometry/rect.h"
 #include "base/image/file_uri_helper.h"
@@ -49,7 +48,7 @@
 #include "base/utils/linear_map.h"
 #include "base/utils/time_util.h"
 #include "base/utils/utils.h"
-#include "base/web/webview/arkweb_utils/arkweb_utils.h"
+#include "arkweb_utils.h"
 #include "bridge/common/utils/engine_helper.h"
 #include "core/common/ace_engine_ext.h"
 #include "core/common/ai/image_analyzer_manager.h"
@@ -3750,6 +3749,7 @@ void WebPattern::OnAttachContext(PipelineContext *context)
     InitConfigChangeCallback(pipelineContext);
     InitializeAccessibility();
     InitSurfaceDensityCallback(pipelineContext);
+    pipeline_ = WeakClaim(context);
 }
 
 void WebPattern::OnDetachContext(PipelineContext *contextPtr)
@@ -3784,6 +3784,7 @@ void WebPattern::OnDetachContext(PipelineContext *contextPtr)
         }
         tooltipId_ = -1;
     }
+    pipeline_.Reset();
 }
 
 void WebPattern::SetUpdateInstanceIdCallback(std::function<void(int32_t)>&& callback)
@@ -6056,6 +6057,7 @@ bool WebPattern::ShowTimeDialog(std::shared_ptr<OHOS::NWeb::NWebDateTimeChooser>
     CHECK_NULL_RETURN(overlayManager, false);
     NG::TimePickerSettingData settingData;
     settingData.isUseMilitaryTime = true;
+    settingData.dialogTitleDate = PickerDate::Current();
     DialogProperties properties = GetDialogProperties(theme);
     std::map<std::string, PickerTime> timePickerProperty;
     OHOS::NWeb::DateTime minimum = chooser->GetMinimum();
@@ -6276,7 +6278,7 @@ void WebPattern::OnWindowSizeChanged(int32_t width, int32_t height, WindowSizeCh
     CHECK_NULL_VOID(delegate_);
     TAG_LOGD(AceLogTag::ACE_WEB, "WindowSizeChangeReason type: %{public}d ", type);
     if (type == WindowSizeChangeReason::MAXIMIZE) {
-        WindowMaximize();
+        WindowMaximize(WebWindowMaximizeReason::MAXIMIZE);
         return;
     }
     AdjustRotationRenderFit(type);
@@ -6371,14 +6373,10 @@ void WebPattern::WindowDrag(int32_t width, int32_t height)
     }
 }
 
-void WebPattern::WindowMaximize()
+void WebPattern::WindowMaximize(WebWindowMaximizeReason reason)
 {
     if (!SystemProperties::GetWebDebugMaximizeResizeOptimize()) {
         TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::WindowMaximize not enabled");
-        return;
-    }
-    WebInfoType webInfoType = GetWebInfoType();
-    if (webInfoType != WebInfoType::TYPE_2IN1) {
         return;
     }
     if (layoutMode_ != WebLayoutMode::NONE || renderMode_ != RenderMode::ASYNC_RENDER) {
@@ -6388,11 +6386,15 @@ void WebPattern::WindowMaximize()
     if (!isAttachedToMainTree_ || !isVisible_) {
         return;
     }
-    TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::WindowMaximize, webId: %{public}d", GetWebId());
-    if (renderContextForSurface_) {
-        renderContextForSurface_->SetRenderFit(RenderFit::RESIZE_FILL);
-    }
-    if (delegate_) {
+    CHECK_NULL_VOID(delegate_);
+    WebInfoType webInfoType = GetWebInfoType();
+    if (webInfoType == WebInfoType::TYPE_2IN1 ||
+        (webInfoType == WebInfoType::TYPE_TABLET && delegate_->IsNWebEx() &&
+            (delegate_->IsPcMode() || reason == WebWindowMaximizeReason::EXIT_FREE_MULTI_MODE))) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "WebPattern::WindowMaximize, webId: %{public}d", GetWebId());
+        if (renderContextForSurface_) {
+            renderContextForSurface_->SetRenderFit(RenderFit::RESIZE_FILL);
+        }
         delegate_->MaximizeResize();
     }
 }
@@ -6882,10 +6884,6 @@ void WebPattern::OnRootLayerChanged(int width, int height)
 
 void WebPattern::ReleaseResizeHold()
 {
-    if (layoutMode_ != WebLayoutMode::FIT_CONTENT) {
-        return;
-    }
-    drawSize_.SetSize(rootLayerChangeSize_);
     auto frameNode = GetHost();
     CHECK_NULL_VOID(frameNode);
     frameNode->MarkDirtyNode(PROPERTY_UPDATE_LAYOUT | PROPERTY_UPDATE_MEASURE | PROPERTY_UPDATE_RENDER);
@@ -8181,6 +8179,9 @@ void WebPattern::UninitializeAccessibility()
     CHECK_NULL_VOID(frameNode);
     int64_t accessibilityId = frameNode->GetAccessibilityId();
     auto pipeline = PipelineContext::GetCurrentContext();
+    if (!pipeline) {
+        pipeline = pipeline_.Upgrade();
+    }
     CHECK_NULL_VOID(pipeline);
     auto accessibilityManager = pipeline->GetAccessibilityManager();
     CHECK_NULL_VOID(accessibilityManager);
@@ -8227,6 +8228,9 @@ bool WebPattern::OnAccessibilityChildTreeDeregister()
 {
     ContainerScope scope(instanceId_);
     auto pipeline = PipelineContext::GetCurrentContext();
+    if (!pipeline) {
+        pipeline = pipeline_.Upgrade();
+    }
     CHECK_NULL_RETURN(pipeline, false);
     auto accessibilityManager = pipeline->GetAccessibilityManager();
     CHECK_NULL_RETURN(accessibilityManager, false);
@@ -8558,7 +8562,8 @@ void WebPattern::AdjustRotationRenderFit(WindowSizeChangeReason type)
         return;
     }
 
-    if (delegate_) {
+    if (delegate_ &&
+        renderMode_ == RenderMode::ASYNC_RENDER && layoutMode_ != WebLayoutMode::FIT_CONTENT) {
         delegate_->MaximizeResize();
     }
 

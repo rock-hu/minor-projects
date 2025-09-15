@@ -48,6 +48,7 @@
 #include "core/components_ng/event/gesture_event_hub.h"
 #include "core/components_ng/pattern/image/image_model.h"
 #include "core/components_ng/pattern/image/image_model_ng.h"
+#include "core/drawable/drawable_descriptor.h"
 #include "core/image/image_source_info.h"
 
 namespace {
@@ -401,18 +402,14 @@ void JSImage::CreateImage(const JSCallbackInfo& info, bool isImageSpan)
     CHECK_EQUAL_VOID(CheckResetImage(srcValid, info), true);
     CheckIsCard(src, imageInfo);
     RefPtr<PixelMap> pixmap = nullptr;
+    RefPtr<DrawableDescriptor> drawable = nullptr;
     ImageType type = ImageType::BASE;
 #ifdef PIXEL_MAP_SUPPORTED
     if (!srcValid) {
         type = ParseImageType(imageInfo);
         if (type == ImageType::ANIMATED_DRAWABLE) {
-            std::vector<RefPtr<PixelMap>> pixelMaps;
-            int32_t duration = -1;
-            int32_t iterations = 1;
-            if (GetPixelMapListFromAnimatedDrawable(imageInfo, pixelMaps, duration, iterations)) {
-                CreateImageAnimation(pixelMaps, duration, iterations);
-                return;
-            }
+            auto* drawableAddr = reinterpret_cast<DrawableDescriptor*>(UnwrapNapiValue(imageInfo));
+            drawable = Referenced::Claim<DrawableDescriptor>(drawableAddr);
         } else if (type == ImageType::PIXELMAP_DRAWABLE || type == ImageType::DRAWABLE ||
                    type == ImageType::LAYERED_DRAWABLE) {
             pixmap = GetDrawablePixmap(imageInfo);
@@ -425,6 +422,7 @@ void JSImage::CreateImage(const JSCallbackInfo& info, bool isImageSpan)
     config.type = type;
     config.src = std::make_shared<std::string>(src);
     config.pixelMap = pixmap;
+    config.drawable = drawable;
     config.bundleName = bundleName;
     config.moduleName = moduleName;
     config.isUriPureNumber = (resId == -1);
@@ -1054,17 +1052,6 @@ void JSImage::SetOrientation(const JSCallbackInfo& info)
     ImageModel::GetInstance()->SetOrientation(res);
 }
 
-void JSImage::CreateImageAnimation(std::vector<RefPtr<PixelMap>>& pixelMaps, int32_t duration, int32_t iterations)
-{
-    std::vector<ImageProperties> imageList;
-    for (int i = 0; i < static_cast<int32_t>(pixelMaps.size()); i++) {
-        ImageProperties image;
-        image.pixelMap = pixelMaps[i];
-        imageList.push_back(image);
-    }
-    ImageModel::GetInstance()->CreateAnimation(imageList, duration, iterations);
-}
-
 void JSImage::JSBind(BindingTarget globalObj)
 {
     JSClass<JSImage>::Declare("Image");
@@ -1086,6 +1073,7 @@ void JSImage::JSBind(BindingTarget globalObj)
     JSClass<JSImage>::StaticMethod("hdrBrightness", &JSImage::SetHdrBrightness, opt);
     JSClass<JSImage>::StaticMethod("enhancedImageQuality", &JSImage::SetEnhancedImageQuality, opt);
     JSClass<JSImage>::StaticMethod("orientation", &JSImage::SetOrientation, opt);
+    JSClass<JSImage>::StaticMethod("contentTransition", &JSImage::SetContentTransition, opt);
 
     JSClass<JSImage>::StaticMethod("border", &JSImage::JsBorder);
     JSClass<JSImage>::StaticMethod("borderRadius", &JSImage::JsBorderRadius);
@@ -1240,5 +1228,41 @@ void JSImage::SupportSvg2(const JSCallbackInfo& info)
         ParseJsBool(info[0], enable);
     }
     ImageModel::GetInstance()->SetSupportSvg2(enable);
+}
+
+bool JSImage::ParseContentTransitionEffect(const JSRef<JSVal>& jsValue, ContentTransitionType& contentTransitionType)
+{
+    if (jsValue.IsEmpty() || jsValue->IsNull() || jsValue->IsUndefined() || !jsValue->IsObject()) {
+        return false;
+    }
+    auto paramObject = JSRef<JSObject>::Cast(jsValue);
+    JSRef<JSVal> typeVal = paramObject->GetProperty("contentTransitionType_");
+    if (typeVal.IsEmpty() || !typeVal->IsString()) {
+        return false;
+    }
+    static const std::unordered_map<std::string, ContentTransitionType> contentTransitionTypeMap {
+        { "IDENTITY", ContentTransitionType::IDENTITY },
+        { "OPACITY", ContentTransitionType::OPACITY },
+    };
+    auto it = contentTransitionTypeMap.find(typeVal->ToString());
+    if (it == contentTransitionTypeMap.end()) {
+        return false;
+    }
+    contentTransitionType = it->second;
+    return true;
+}
+
+void JSImage::SetContentTransition(const JSCallbackInfo& info)
+{
+    if (info.Length() < 1) {
+        ImageModel::GetInstance()->SetContentTransition(ContentTransitionType::IDENTITY);
+        return;
+    }
+    auto contentTransitionType = ContentTransitionType::IDENTITY;
+    if (ParseContentTransitionEffect(info[0], contentTransitionType)) {
+        ImageModel::GetInstance()->SetContentTransition(contentTransitionType);
+    } else {
+        ImageModel::GetInstance()->SetContentTransition(ContentTransitionType::IDENTITY);
+    }
 }
 } // namespace OHOS::Ace::Framework

@@ -4263,6 +4263,14 @@ void TextFieldPattern::UpdateHoverStyle(bool isHover)
     if (!hoverAndPressBgColorEnabled_) {
         return;
     }
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto inputEventHub = host->GetOrCreateInputEventHub();
+    CHECK_NULL_VOID(inputEventHub);
+    auto hoverEffect = inputEventHub->GetHoverEffect();
+    if (hoverEffect != HoverEffectType::UNKNOWN) {
+        return;
+    }
     auto paintProperty = GetPaintProperty<TextFieldPaintProperty>();
     CHECK_NULL_VOID(paintProperty);
     auto theme = GetTheme();
@@ -5145,6 +5153,13 @@ void TextFieldPattern::ExecuteInsertValueCommand(const InsertCommandInfo& info)
     auto isIME = (info.reason == InputReason::IME);
     auto layoutProperty = GetLayoutProperty<TextFieldLayoutProperty>();
     CHECK_NULL_VOID(layoutProperty);
+#if defined(IOS_PLATFORM)
+    if (info.compose.isActive && (insertValue.length() > 0 || info.unmarkText)) {
+        auto composeStart = info.compose.start;
+        auto composeEnd = info.compose.end;
+        DeleteByRange(composeStart, composeEnd);
+    }
+#endif
     TwinklingByFocus();
     auto start = selectController_->GetStartIndex();
     auto end = selectController_->GetEndIndex();
@@ -5793,13 +5808,18 @@ bool TextFieldPattern::CursorMoveDown()
     return false;
 }
 
-void TextFieldPattern::Delete(int32_t start, int32_t end)
+void TextFieldPattern::DeleteByRange(int32_t& start, int32_t& end)
 {
     SwapIfLarger(start, end);
     TAG_LOGI(AceLogTag::ACE_TEXT_FIELD, "Handle Delete within [%{public}d, %{public}d]", start, end);
     contentController_->erase(start, end - start);
     UpdateSelection(start);
     selectController_->MoveCaretToContentRect(start);
+}
+
+void TextFieldPattern::Delete(int32_t start, int32_t end)
+{
+    DeleteByRange(start, end);
     if (isLongPress_) {
         CancelGestureSelection();
     }
@@ -5966,6 +5986,22 @@ void TextFieldPattern::UpdateEditingValue(const std::shared_ptr<TextEditingValue
             value->selection.baseOffset -= deleteSize;
         }
     }
+#ifdef CROSS_PLATFORM
+    if (value->isDelete) {
+        HandleOnDelete(true);
+        return;
+    } else {
+#ifdef IOS_PLATFORM
+        compose_ = value->compose;
+        unmarkText_ = value->unmarkText;
+#endif
+        if (value->appendText.empty()) {
+            return;
+        }
+        InsertValue(UtfUtils::Str8DebugToStr16(value->appendText), true);
+        return;
+    }
+#endif
 #endif
     UpdateEditingValueToRecord();
     contentController_->SetTextValue(result);
@@ -10896,6 +10932,12 @@ void TextFieldPattern::AddInsertCommand(const std::u16string& insertValue, Input
     InsertCommandInfo info;
     info.insertValue = insertValue;
     info.reason = reason;
+#if defined(IOS_PLATFORM)
+    info.compose.start = compose_.GetStart();
+    info.compose.end = compose_.GetEnd();
+    info.compose.isActive = compose_.IsValid();
+    info.unmarkText = unmarkText_;
+#endif
     insertCommands_.emplace(info);
     CloseSelectOverlay(true);
     ScrollToSafeArea();
@@ -11410,7 +11452,7 @@ void TextFieldPattern::OnAccessibilityEventTextChange(const std::string& changeT
     event.type = AccessibilityEventType::TEXT_CHANGE;
     event.nodeId = host->GetAccessibilityId();
     std::string finalText;
-    if (IsInPasswordMode()) {
+    if (IsInPasswordMode() && GetTextObscured()) {
         char16_t obscuring =
         Localization::GetInstance()->GetLanguage() == "ar" ? OBSCURING_CHARACTER_FOR_AR : OBSCURING_CHARACTER;
         finalText = UtfUtils::Str16DebugToStr8(std::u16string(changeString.length(), obscuring));

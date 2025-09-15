@@ -192,6 +192,10 @@ public:
     virtual void SetDefaultFileSelectorShow(std::function<void(const std::shared_ptr<BaseEventInfo>&)>&& jsCallback) {};
     virtual void SetPermissionClipboard(std::function<void(const std::shared_ptr<BaseEventInfo>&)>&& jsCallback) {};
     virtual void SetOpenAppLinkFunction(std::function<void(const std::shared_ptr<BaseEventInfo>&)>&& jsCallback) {};
+    virtual void SetWebNativeMessageConnectFunction(
+        std::function<void(const std::shared_ptr<BaseEventInfo>&)>&& jsCallback) {};
+    virtual void SetWebNativeMessageDisconnectFunction(
+        std::function<void(const std::shared_ptr<BaseEventInfo>&)>&& jsCallback) {};
     virtual void SetWebDetachFunction(std::function<void(int32_t)>&& jsCallback) {};
     virtual void SetFaviconFunction(std::function<void(const std::shared_ptr<BaseEventInfo>&)>&& jsCallback) {};
     virtual void SetIntelligentTrackingPreventionResultId(
@@ -228,6 +232,8 @@ public:
     virtual void SetOnPdfScrollAtBottom(std::function<void(const BaseEventInfo* info)>&& jsCallback) {}
     virtual void SetOnPdfLoadEvent(std::function<void(const BaseEventInfo* info)>&& jsCallback) {}
     virtual void SetForceEnableZoom(bool isEnabled) {}
+    virtual void SetSafeBrowsingCheckFinishId(
+        std::function<void(const std::shared_ptr<BaseEventInfo>& info)>&& safeBrowsingCheckFinishId) {};
 private:
     static std::unique_ptr<WebModel> instance_;
     static std::mutex mutex_;

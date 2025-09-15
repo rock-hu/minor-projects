@@ -159,8 +159,9 @@ HWTEST_F(ListItemPatternTestNg, GetParentFrameNode003, TestSize.Level1)
         [](int32_t start, int32_t end, int32_t vStart, int32_t vEnd, bool isCache, bool forceUpdate) {};
     std::function<void(IndexType, IndexType)> onMoveFromTo = [](int32_t start, int32_t end) {};
     std::function<void()> onPurge = []() {};
+    std::function<void()> onUpdateDirty = []() {};
     RefPtr<RepeatVirtualScroll2Node> node = AceType::MakeRefPtr<RepeatVirtualScroll2Node>(
-        2, 2, 5, onGetRid4Index, onRecycleItems, onActiveRange, onMoveFromTo, onPurge);
+        2, 2, 5, onGetRid4Index, onRecycleItems, onActiveRange, onMoveFromTo, onPurge, onUpdateDirty);
     ASSERT_NE(node, nullptr);
     auto frameNode = FrameNode::CreateFrameNode(V2::LIST_ETS_TAG, 1, listItemPattern);
     ASSERT_NE(frameNode, nullptr);
@@ -461,13 +462,13 @@ HWTEST_F(ListItemPatternTestNg, ExpandSwipeAction001, TestSize.Level1)
     listItem->onMainTree_ = true;
     ListItemModelNG::ExpandSwipeAction(AceType::RawPtr(listItem), ListItemSwipeActionDirection::START);
     pipelineContext->FlushUITaskWithSingleDirtyNode(listItem);
+    EXPECT_EQ(listItemPattern->swiperIndex_, ListItemSwipeIndex::SWIPER_START);
+    ListItemModelNG::ExpandSwipeAction(AceType::RawPtr(listItem), ListItemSwipeActionDirection::END);
+    pipelineContext->FlushUITaskWithSingleDirtyNode(listItem);
     EXPECT_EQ(listItemPattern->swiperIndex_, ListItemSwipeIndex::SWIPER_END);
     ListItemModelNG::ExpandSwipeAction(AceType::RawPtr(listItem), ListItemSwipeActionDirection::END);
     pipelineContext->FlushUITaskWithSingleDirtyNode(listItem);
-    EXPECT_EQ(listItemPattern->swiperIndex_, ListItemSwipeIndex::SWIPER_START);
-    ListItemModelNG::ExpandSwipeAction(AceType::RawPtr(listItem), ListItemSwipeActionDirection::END);
-    pipelineContext->FlushUITaskWithSingleDirtyNode(listItem);
-    EXPECT_EQ(listItemPattern->swiperIndex_, ListItemSwipeIndex::SWIPER_START);
+    EXPECT_EQ(listItemPattern->swiperIndex_, ListItemSwipeIndex::SWIPER_END);
     MockPipelineContext::TearDown();
 }
 
@@ -505,14 +506,14 @@ HWTEST_F(ListItemPatternTestNg, ExpandSwipeAction002, TestSize.Level1)
     listItemPattern->startNodeSize_ = .0f;
     ListItemModelNG::ExpandSwipeAction(AceType::RawPtr(listItem), ListItemSwipeActionDirection::END);
     pipelineContext->FlushUITaskWithSingleDirtyNode(listItem);
-    EXPECT_EQ(listItemPattern->swiperIndex_, ListItemSwipeIndex::SWIPER_START);
+    EXPECT_EQ(listItemPattern->swiperIndex_, ListItemSwipeIndex::SWIPER_END);
     /**
      * @tc.desc: The target direction already has a size.
      */
     listItemPattern->endNodeSize_ = 1.0f;
     ListItemModelNG::ExpandSwipeAction(AceType::RawPtr(listItem), ListItemSwipeActionDirection::START);
     pipelineContext->FlushUITaskWithSingleDirtyNode(listItem);
-    EXPECT_EQ(listItemPattern->swiperIndex_, ListItemSwipeIndex::SWIPER_END);
+    EXPECT_EQ(listItemPattern->swiperIndex_, ListItemSwipeIndex::SWIPER_START);
     MockPipelineContext::TearDown();
 }
 
@@ -550,13 +551,13 @@ HWTEST_F(ListItemPatternTestNg, CollapseSwipeAction001, TestSize.Level1)
     listItem->onMainTree_ = true;
     ListItemModelNG::ExpandSwipeAction(AceType::RawPtr(listItem), ListItemSwipeActionDirection::START);
     pipelineContext->FlushUITaskWithSingleDirtyNode(listItem);
-    EXPECT_EQ(listItemPattern->swiperIndex_, ListItemSwipeIndex::SWIPER_END);
+    EXPECT_EQ(listItemPattern->swiperIndex_, ListItemSwipeIndex::SWIPER_START);
     ListItemModelNG::CollapseSwipeAction(AceType::RawPtr(listItem));
     EXPECT_EQ(listItemPattern->swiperIndex_, ListItemSwipeIndex::ITEM_CHILD);
 
     ListItemModelNG::ExpandSwipeAction(AceType::RawPtr(listItem), ListItemSwipeActionDirection::END);
     pipelineContext->FlushUITaskWithSingleDirtyNode(listItem);
-    EXPECT_EQ(listItemPattern->swiperIndex_, ListItemSwipeIndex::SWIPER_START);
+    EXPECT_EQ(listItemPattern->swiperIndex_, ListItemSwipeIndex::SWIPER_END);
     ListItemModelNG::CollapseSwipeAction(AceType::RawPtr(listItem));
     EXPECT_EQ(listItemPattern->swiperIndex_, ListItemSwipeIndex::ITEM_CHILD);
     MockPipelineContext::TearDown();

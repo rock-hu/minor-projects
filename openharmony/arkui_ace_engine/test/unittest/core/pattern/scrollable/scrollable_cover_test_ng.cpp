@@ -205,6 +205,9 @@ HWTEST_F(ScrollableCoverTestNg, SetScrollBarColorTest001, TestSize.Level1)
      * @tc.steps: step3. Set ScrollBarColor to blue with frameNode
      * @tc.expected: ScrollablePaintProperty ScrollBarColor is updated to blue
      */
+    ScrollableModelNG::ResetScrollBarColor(&(*scroll_));
+    auto scrollBarColor = scrollablePn->GetScrollBarColor();
+    EXPECT_EQ(scrollBarColor, std::nullopt);
     ScrollableModelNG::SetScrollBarColor(&(*scroll_), SCROLLBAR_COLOR_BLUE);
     scrollablePn = scroll_->GetPaintProperty<ScrollablePaintProperty>();
     EXPECT_EQ(scrollablePn->GetBarColor(), Color::FromString(SCROLLBAR_COLOR_BLUE));
@@ -701,7 +704,7 @@ HWTEST_F(ScrollableCoverTestNg, ProcessScrollMotionStopTest001, TestSize.Level1)
      * @tc.steps: step2. Call ProcessScrollMotionStop
      * @tc.expected: Verify that the scroll snap change is processed correctly
      */
-    scrollable->ProcessScrollMotionStop();
+    scrollable->ProcessScrollMotionStop(0);
     EXPECT_EQ(scrollable->currentVelocity_, 0.0);
     EXPECT_FALSE(isOverScrollCallbackCalled);
 
@@ -711,7 +714,7 @@ HWTEST_F(ScrollableCoverTestNg, ProcessScrollMotionStopTest001, TestSize.Level1)
      */
     scrollable->scrollPause_ = true;
     scrollable->edgeEffect_ = EdgeEffect::SPRING;
-    scrollable->ProcessScrollMotionStop();
+    scrollable->ProcessScrollMotionStop(0);
     EXPECT_FALSE(scrollable->scrollPause_);
 
     /**
@@ -725,7 +728,7 @@ HWTEST_F(ScrollableCoverTestNg, ProcessScrollMotionStopTest001, TestSize.Level1)
         return 0.0f;
     };
     scrollable->scrollPause_ = true;
-    scrollable->ProcessScrollMotionStop();
+    scrollable->ProcessScrollMotionStop(0);
     EXPECT_TRUE(isOverScrollCallbackCalled);
 }
 

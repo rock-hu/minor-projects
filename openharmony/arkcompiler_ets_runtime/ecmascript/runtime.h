@@ -25,6 +25,7 @@
 #include "ecmascript/mem/visitor.h"
 #include "ecmascript/module/js_shared_module_manager.h"
 #include "ecmascript/mutator_lock.h"
+#include "ecmascript/platform/dfx_hisys_event.h"
 #include "ecmascript/platform/mutex.h"
 #include "ecmascript/serializer/serialize_chunk.h"
 
@@ -52,6 +53,8 @@ public:
 
     void SuspendAll(JSThread *current);
     void ResumeAll(JSThread *current);
+    void SuspendOther(JSThread *current, JSThread *target);
+    void ResumeOther(JSThread *current, JSThread *target);
     void IterateSerializeRoot(RootVisitor &v);
 
     JSThread *GetMainThread() const
@@ -307,6 +310,12 @@ public:
     {
         isHybridVm_ = isHybridVm;
     }
+    
+    uint32_t AddIncompatibleEvent(DFXHiSysEvent::IncompatibleType type)
+    {
+        WriteLockHolder lock(incompatibleEventLock_);
+        return ++incompatibleEventMap_[type];
+    }
 
 private:
     static constexpr int32_t WORKER_DESTRUCTION_COUNT = 3;
@@ -316,6 +325,8 @@ private:
     ~Runtime();
     void SuspendAllThreadsImpl(JSThread *current);
     void ResumeAllThreadsImpl(JSThread *current);
+    void SuspendOtherThreadImpl(JSThread *current, JSThread *target);
+    void ResumeOtherThreadImpl(JSThread *current, JSThread *target);
 
     void PreInitialization(const EcmaVM *vm);
     void PostInitialization(const EcmaVM *vm);
@@ -374,6 +385,9 @@ private:
     int32_t sharedConstpoolCount_ = 0; // shared constpool count.
     std::set<int32_t> freeSharedConstpoolIndex_ {}; // reuse shared constpool index.
     bool postForked_ {false};
+
+    CMap<DFXHiSysEvent::IncompatibleType, uint32_t> incompatibleEventMap_;
+    RWLock incompatibleEventLock_;
 
     // Runtime instance and VMs creation.
     static int32_t vmCount_;

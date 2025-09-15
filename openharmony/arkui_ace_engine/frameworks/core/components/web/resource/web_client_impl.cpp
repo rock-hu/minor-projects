@@ -1568,6 +1568,26 @@ void WebClientImpl::OnInsertBlanklessFrameWithSize(const std::string& pathToFram
     delegate->CreateSnapshotFrameNode(pathToFrame, width, height);
 }
 
+void WebClientImpl::OnExtensionDisconnect(int32_t connectId)
+{
+    auto delegate = webDelegate_.Upgrade();
+    CHECK_NULL_VOID(delegate);
+    ContainerScope scope(delegate->GetInstanceId());
+    delegate->OnExtensionDisconnect(connectId);
+}
+
+std::string WebClientImpl::OnWebNativeMessage(std::shared_ptr<OHOS::NWeb::NWebRuntimeConnectInfo> info,
+    std::shared_ptr<OHOS::NWeb::NWebNativeMessageCallback> callback)
+{
+    auto delegate = webDelegate_.Upgrade();
+    if (!delegate) {
+        return "";
+    }
+
+    ContainerScope scope(delegate->GetInstanceId());
+    return delegate->OnWebNativeMessage(info, callback);
+}
+
 void WebClientImpl::SetImeShow(bool visible)
 {
     TAG_LOGI(AceLogTag::ACE_WEB,
@@ -1582,5 +1602,23 @@ bool WebClientImpl::IsShowHandle()
     auto delegate = webDelegate_.Upgrade();
     CHECK_NULL_RETURN(delegate, false);
     return delegate->IsShowHandle();
+}
+
+void WebClientImpl::OnSafeBrowsingCheckFinish(int threat_type)
+{
+    auto delegate = webDelegate_.Upgrade();
+    CHECK_NULL_VOID(delegate);
+    ContainerScope scope(delegate->GetInstanceId());
+    delegate->OnSafeBrowsingCheckFinish(threat_type);
+}
+
+void WebClientImpl::OnRefreshAccessedHistoryV2(const std::string& url, bool isReload, bool isMainFrame)
+{
+    auto delegate = webDelegate_.Upgrade();
+    if (!delegate) {
+        return;
+    }
+    ContainerScope scope(delegate->GetInstanceId());
+    delegate->OnRefreshAccessedHistory(url, isReload, isMainFrame);
 }
 } // namespace OHOS::Ace

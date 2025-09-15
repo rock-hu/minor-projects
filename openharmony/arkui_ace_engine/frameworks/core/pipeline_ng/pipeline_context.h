@@ -913,6 +913,8 @@ public:
     void ResetDragging() override;
     const RefPtr<PostEventManager>& GetPostEventManager();
 
+    RefPtr<FrameNode> GetContainerModalNode();
+    bool CheckNodeOnContainerModalTitle(const RefPtr<FrameNode>& node);
     void SetContainerModalTitleVisible(bool customTitleSettedShow, bool floatingTitleSettedShow);
     void SetContainerModalTitleHeight(int32_t height);
     int32_t GetContainerModalTitleHeight();
@@ -1028,7 +1030,11 @@ public:
 
     void NotifyResponseRegionChanged(const RefPtr<NG::FrameNode>& rootNode) override;
 
+    // remove task of ResponseRegionChanged
     void DisableNotifyResponseRegionChanged() override;
+
+    // re-Post task of ResponseRegionChanged
+    void PostTaskResponseRegion(int32_t delay) override;
 
     void SetLocalColorMode(ColorMode colorMode)
     {
@@ -1116,6 +1122,14 @@ public:
     void RemoveFrameNodeChangeListener(int32_t nodeId);
     bool AddChangedFrameNode(const WeakPtr<FrameNode>& node);
     void RemoveChangedFrameNode(int32_t nodeId);
+
+    void AddNeedReloadNodes(const WeakPtr<UINode>& node);
+    void ReloadNodesResource();
+
+    void NeedReloadResource(bool needReloadResource)
+    {
+        needReloadResource_ = needReloadResource;
+    }
 
     bool CatchInteractiveAnimations(const std::function<void()>& animationCallback) override;
 
@@ -1316,7 +1330,6 @@ protected:
         float safeHeight = 0.0f, const bool supportAvoidance = false);
     void OriginalAvoidanceLogic(
         float keyboardHeight, const std::shared_ptr<Rosen::RSTransaction>& rsTransaction = nullptr);
-    RefPtr<FrameNode> GetContainerModalNode();
     void DoKeyboardAvoidAnimate(const KeyboardAnimationConfig& keyboardAnimationConfig, float keyboardHeight,
         const std::function<void()>& func);
     void StartFoldStatusDelayTask(FoldStatus foldStatus);
@@ -1630,6 +1643,8 @@ private:
     Kit::ArkUIObjectLifecycleCallback objectLifecycleCallback_;
     bool needUpdateTimeForDVSync_ = false;
     uint64_t lastVSyncTime_ = 0;
+    bool needReloadResource_ = false;
+    std::list<WeakPtr<UINode>> needReloadNodes_;
 };
 
 /**

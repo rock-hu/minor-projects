@@ -32,6 +32,7 @@
 #include "core/components_ng/pattern/list/list_pattern.h"
 #include "core/components_ng/pattern/text/text_pattern.h"
 #include "core/pipeline_ng/pipeline_context.h"
+#include "core/components/select/select_theme.h"
 #include "core/common/resource/resource_manager.h"
 namespace OHOS::Ace::NG {
 namespace {
@@ -327,6 +328,20 @@ void ContainerModalPatternEnhance::SetContainerButtonHide(
     controlButtonsNode->FireCustomCallback(EVENT_NAME_CLOSE_VISIBILITY, hideClose);
 }
 
+void ContainerModalPatternEnhance::InitMenuDefaultRadius()
+{
+    auto containerNode = GetHost();
+    CHECK_NULL_VOID(containerNode);
+    auto pipeline = containerNode->GetContextRefPtr();
+    CHECK_NULL_VOID(pipeline);
+    auto customButtonNode = GetCustomButtonNode();
+    CHECK_NULL_VOID(customButtonNode);
+    auto theme = pipeline->GetTheme<SelectTheme>();
+    CHECK_NULL_VOID(theme);
+    auto defaultRadius = theme->GetMenuDefaultRadius().Value();
+    customButtonNode->FireCustomCallback(EVENT_NAME_BUTTON_MENU_DEFAULT_RADIUS, std::to_string(defaultRadius));
+}
+
 void ContainerModalPatternEnhance::UpdateTitleInTargetPos(bool isShow, int32_t height)
 {
     auto floatingTitleNode = GetFloatingTitleRow();
@@ -357,7 +372,7 @@ void ContainerModalPatternEnhance::UpdateTitleInTargetPos(bool isShow, int32_t h
             floatingContext->OnTransformTranslateUpdate({ 0.0f, static_cast<float>(height - rect.GetY()), 0.0f });
         }, nullptr, nullptr, GetContextRefPtr());
         buttonsContext->OnTransformTranslateUpdate({ 0.0f, height - static_cast<float>(titlePopupDistance), 0.0f });
-        controlButtonVisibleBeforeAnim_ = controlButtonsLayoutProperty->GetVisibilityValue();
+        controlButtonVisibleBeforeAnim_ = controlButtonsLayoutProperty->GetVisibilityValue(VisibleType::VISIBLE);
         controlButtonsLayoutProperty->UpdateVisibility(VisibleType::VISIBLE);
         auto buttonPopupDistance =
             floatTitleMgr_ ? 0.0f : ((titlePopupDistance - CONTAINER_TITLE_HEIGHT.ConvertToPx()) / 2);
@@ -701,7 +716,7 @@ bool ContainerModalPatternEnhance::GetFloatingTitleVisible()
     CHECK_NULL_RETURN(floatingTitleRow, false);
     auto floatingTitleRowProp = floatingTitleRow->GetLayoutProperty();
     CHECK_NULL_RETURN(floatingTitleRowProp, false);
-    return (floatingTitleRowProp->GetVisibilityValue() == VisibleType::VISIBLE);
+    return (floatingTitleRowProp->GetVisibilityValue(VisibleType::VISIBLE) == VisibleType::VISIBLE);
 }
 
 bool ContainerModalPatternEnhance::GetCustomTitleVisible()
@@ -710,7 +725,7 @@ bool ContainerModalPatternEnhance::GetCustomTitleVisible()
     CHECK_NULL_RETURN(customTitleRow, false);
     auto customTitleRowProp = customTitleRow->GetLayoutProperty();
     CHECK_NULL_RETURN(customTitleRowProp, false);
-    return (customTitleRowProp->GetVisibilityValue() == VisibleType::VISIBLE);
+    return (customTitleRowProp->GetVisibilityValue(VisibleType::VISIBLE) == VisibleType::VISIBLE);
 }
 
 bool ContainerModalPatternEnhance::GetControlButtonVisible()
@@ -719,7 +734,7 @@ bool ContainerModalPatternEnhance::GetControlButtonVisible()
     CHECK_NULL_RETURN(controlButtonRow, false);
     auto controlButtonRowProp = controlButtonRow->GetLayoutProperty();
     CHECK_NULL_RETURN(controlButtonRowProp, false);
-    return (controlButtonRowProp->GetVisibilityValue() == VisibleType::VISIBLE);
+    return (controlButtonRowProp->GetVisibilityValue(VisibleType::VISIBLE) == VisibleType::VISIBLE);
 }
 
 void ContainerModalPatternEnhance::Init()
@@ -943,6 +958,7 @@ void ContainerModalPatternEnhance::CallMenuWidthChange(int32_t resId)
     CalcDimension widthDimension(textSize.Width(), DimensionUnit::PX);
     auto width = widthDimension.ConvertToVp();
     TAG_LOGI(AceLogTag::ACE_APPBAR, "GetMenuWidth width = %{public}f", width);
+    InitMenuDefaultRadius();
     controlButtonsNode->FireCustomCallback(EVENT_NAME_MENU_WIDTH_CHANGE, std::to_string(width));
 }
 

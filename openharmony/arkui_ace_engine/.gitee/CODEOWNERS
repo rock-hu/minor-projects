@@ -2782,6 +2782,7 @@ frameworks/core/pipeline_ng/ @arkui_architecture
 
 [Native Node Interfaces]
 frameworks/core/interfaces/arkoala/arkoala_api.h @arkui_architecture
+frameworks/core/interfaces/native/common/ @arkuiframework
 frameworks/core/interfaces/native/BUILD.gn @arkui_architecture
 frameworks/core/interfaces/native/node/alphabet_indexer_modifier.cpp @arkui_superman
 frameworks/core/interfaces/native/node/alphabet_indexer_modifier.h @arkui_superman
@@ -3009,6 +3010,8 @@ frameworks/core/interfaces/native/node/water_flow_modifier.cpp @arkuiscroll
 frameworks/core/interfaces/native/node/water_flow_modifier.h @arkuiscroll
 frameworks/core/interfaces/native/node/web_modifier.cpp @arkwebinarkuireview
 frameworks/core/interfaces/native/node/web_modifier.h @arkwebinarkuireview
+frameworks/core/interfaces/native/implementation/base_event_accessor.cpp @arkuievent
+frameworks/core/interfaces/native/implementation/axis_event_accessor.cpp @arkuievent
 interfaces/native/BUILD.gn @arkui_architecture
 interfaces/native/drag_and_drop.h @arkuievent
 interfaces/native/drawable_descriptor.h @arkui_image
@@ -3153,6 +3156,7 @@ interfaces/napi/kits/utils/ @arkuiframework
 frameworks/core/interfaces/native/ani/web_ani_modifier.cpp @arkwebinarkuireview
 frameworks/core/interfaces/native/implementation/client_authentication_handler_accessor.cpp @arkwebinarkuireview
 frameworks/core/interfaces/native/implementation/client_authentication_handler_peer_impl.h @arkwebinarkuireview
+frameworks/core/interfaces/native/implementation/component_root_modifier.cpp  @arkuiframework
 frameworks/core/interfaces/native/implementation/console_message_accessor.cpp @arkwebinarkuireview
 frameworks/core/interfaces/native/implementation/console_message_peer_impl.h @arkwebinarkuireview
 frameworks/core/interfaces/native/implementation/controller_handler_accessor.cpp @arkwebinarkuireview
@@ -3202,6 +3206,36 @@ frameworks/core/interfaces/native/implementation/web_resource_response_peer_impl
 frameworks/core/interfaces/native/implementation/webview_controller_accessor.cpp @arkwebinarkuireview
 frameworks/core/interfaces/native/implementation/web/webview_controller_peer_impl.h @arkwebinarkuireview
 
+[ArkTS static]
+frameworks/core/interfaces/native/implementation/children_main_size_accessor.cpp @arkuiscroll
+frameworks/core/interfaces/native/implementation/children_main_size_peer.h @arkuiscroll
+frameworks/core/interfaces/native/implementation/flow_item_modifier.cpp @arkuiscroll
+frameworks/core/interfaces/native/implementation/grid_item_modifier.cpp @arkuiscroll
+frameworks/core/interfaces/native/implementation/grid_item_ops_accessor.cpp @arkuiscroll
+frameworks/core/interfaces/native/implementation/grid_modifier.cpp @arkuiscroll
+frameworks/core/interfaces/native/implementation/lazy_grid_layout_modifier.cpp @arkuiscroll
+frameworks/core/interfaces/native/implementation/lazyv_grid_layout_modifier.cpp @arkuiscroll
+frameworks/core/interfaces/native/implementation/list_item_group_modifier.cpp @arkuiscroll
+frameworks/core/interfaces/native/implementation/list_item_modifier.cpp @arkuiscroll
+frameworks/core/interfaces/native/implementation/list_modifier.cpp @arkuiscroll
+frameworks/core/interfaces/native/implementation/list_scroller_accessor.cpp @arkuiscroll
+frameworks/core/interfaces/native/implementation/list_scroller_peer_impl.h @arkuiscroll
+frameworks/core/interfaces/native/implementation/refresh_modifier.cpp @arkuiscroll
+frameworks/core/interfaces/native/implementation/scroll_bar_modifier.cpp @arkuiscroll
+frameworks/core/interfaces/native/implementation/scroll_modifier.cpp @arkuiscroll
+frameworks/core/interfaces/native/implementation/scrollable_common_method_modifier.cpp @arkuiscroll
+frameworks/core/interfaces/native/implementation/scrollable_target_info_accessor.cpp @arkuiscroll
+frameworks/core/interfaces/native/implementation/scrollable_target_info_peer.h @arkuiscroll
+frameworks/core/interfaces/native/implementation/scroller_accessor.cpp @arkuiscroll
+frameworks/core/interfaces/native/implementation/scroller_peer_impl.cpp @arkuiscroll
+frameworks/core/interfaces/native/implementation/scroller_peer_impl.h @arkuiscroll
+frameworks/core/interfaces/native/implementation/water_flow_modifier.cpp @arkuiscroll
+frameworks/core/interfaces/native/implementation/water_flow_scroller_peer_impl.h @arkuiscroll
+frameworks/core/interfaces/native/implementation/water_flow_sections_accessor_peer_impl.h @arkuiscroll
+frameworks/core/interfaces/native/implementation/water_flow_sections_accessor.cpp @arkuiscroll
+frameworks/core/interfaces/native/implementation/water_flow_modifier.cpp @arkuiscroll
+frameworks/core/interfaces/native/implementation/water_flow_scroller_peer_impl.h @arkuiscroll
+
 [Test source]
 test/mock/base @arkuiframework
 test/mock/core/event/ @arkuievent
@@ -3211,6 +3245,7 @@ test/mock/core/image_provider/ @arkui_image
 test/mock/core/manager/mock_display_manager.cpp @arkuilayout
 test/mock/core/manager/mock_display_manager.h @arkuilayout
 test/mock/core/svg/ @arkui_image
+test/mock/core/pipeline/ @arkuiframework
 test/mock/interfaces/ @arkui_architecture
 
 test/mock/core/animation/mock_animation_manager.h @arkuiscroll
@@ -3219,9 +3254,9 @@ test/mock/core/animation/mock_animation_proxy.h @arkuiscroll
 test/mock/core/animation/mock_implicit_animation.h @arkuiscroll
 test/mock/core/animation/mock_implicit_animation.cpp @arkuiscroll
 
-test/unittest/base/frame_node_test_ng.cpp @arkuiframework
 test/unittest/core/accessibility/ @arkuiabilitygroup
 test/unittest/core/animation/ @arkui_superman
+test/unittest/core/base/frame_node_test_ng.cpp @arkuiframework
 test/unittest/core/common/ace_engine/ @arkuiframework
 test/unittest/core/common/asset/ @arkuiframework
 test/unittest/core/common/clipboard/ @huawei_g_five
@@ -3386,6 +3421,7 @@ test/unittest/core/svg/ @arkui_image
 test/unittest/core/syntax/ @arkuieco3
 test/unittest/core/base/frame_node_test_ng_coverage.cpp @arkui_architecture
 test/unittest/core/base/inspector_test_ng.cpp @arkuiabilitygroup
+test/unittest/core/base/observer_test_ng.cpp @arkuiframework
 test/unittest/core/base/simplified_inspector_test_ng.cpp @arkuiframework
 test/unittest/interfaces/ @arkuiframework
 test/unittest/interfaces/ui_input_event_test.cpp @arkuievent

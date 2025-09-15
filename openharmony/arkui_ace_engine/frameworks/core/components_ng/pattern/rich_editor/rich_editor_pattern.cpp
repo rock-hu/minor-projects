@@ -551,110 +551,13 @@ void RichEditorPattern::AfterStyledStringChange(const UndoRedoRecord& record, bo
     AfterStyledStringChange(start, length, styledString->GetU16string());
 }
 
-void RichEditorPattern::ProcessStyledUndo(const UndoRedoRecord& record)
+void RichEditorPattern::SetSupportStyledUndo(bool enabled)
 {
-    CHECK_NULL_VOID(IsSupportStyledUndo());
-    auto host = GetHost();
-    CHECK_NULL_VOID(host);
-    IF_PRESENT(magnifierController_, RemoveMagnifierFrameNode());
-    ResetTouchAndMoveCaretState(false);
-    auto undoRecord = record;
-    undoRecord.Reverse();
-    isSpanStringMode_ ? ApplyRecordInStyledString(undoRecord) : ApplyRecordInSpans(undoRecord, true);
-    if (record.selectionBefore.GetLength() == 0) {
-        IF_TRUE(isEditing_, StartTwinkling());
-    } else {
-        HandleSelectionChange(undoRecord.selectionBefore.start, undoRecord.selectionBefore.end);
-        FireOnSelect(textSelector_.GetTextStart(), textSelector_.GetTextEnd());
-    }
-    SetCaretPosition(undoRecord.selectionBefore.end);
-    caretAffinityPolicy_ = undoRecord.caretAffinityBefore;
-    host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE);
-    host->MarkModifyDone();
-}
-
-void RichEditorPattern::ProcessStyledRedo(const UndoRedoRecord& record)
-{
-    CHECK_NULL_VOID(IsSupportStyledUndo());
-    auto host = GetHost();
-    CHECK_NULL_VOID(host);
-    isSpanStringMode_ ? ApplyRecordInStyledString(record) : ApplyRecordInSpans(record, false);
-    SetCaretPosition(record.rangeAfter.end);
-    IF_TRUE(isEditing_, StartTwinkling());
-    host->MarkDirtyNode(PROPERTY_UPDATE_MEASURE);
-    host->MarkModifyDone();
-}
-
-void RichEditorPattern::ApplyRecordInStyledString(const UndoRedoRecord& record)
-{
-    CHECK_NULL_VOID(styledString_);
-    auto start = record.rangeBefore.start;
-    auto length = record.rangeBefore.GetLength();
-    auto styledString = record.styledStringAfter;
-    auto startBefore = record.rangeAfter.start;
-    auto lengthBefore = record.rangeAfter.GetLength();
-    CloseSelectOverlay();
-    ResetSelection();
-    if (record.isOnlyStyleChange) {
-        std::vector<RefPtr<SpanBase>> updateSpans;
-        for (const auto& spanType : record.updateSpanTypes) {
-            styledString_->RemoveSpan(start, length, spanType);
-            auto spansBefore = styledString->GetSpans(0, lengthBefore, spanType);
-            for (auto& span : spansBefore) {
-                CHECK_NULL_CONTINUE(span);
-                auto spanStart = span->GetStartIndex() + startBefore;
-                auto spanEnd = span->GetEndIndex() + startBefore;
-                updateSpans.push_back(span->GetSubSpan(spanStart, spanEnd));
-            }
-        }
-        paragraphCache_.Clear();
-        styledString_->BindWithSpans(updateSpans);
-        styledString_->NotifySpanWatcher();
-    } else {
-        styledString_->ReplaceSpanString(start, length, styledString);
-    }
-}
-
-void RichEditorPattern::ApplyRecordInSpans(const UndoRedoRecord& record, bool isUndo)
-{
-    CloseSelectOverlay();
-    ResetSelection();
-    StopTwinkling();
-    DeleteForward(record.rangeBefore.start, record.rangeBefore.GetLength());
-    ApplyOptions(record.optionsListAfter.value_or(OptionsList{}), record.IsRestoreBuilderSpan(), isUndo);
-}
-
-void RichEditorPattern::ApplyOptions(const OptionsList& optionsList, bool restoreBuilderSpan, bool isUndo)
-{
-    int32_t optionsLength = 0;
-    for (const auto& option : optionsList) {
-        std::visit([weak = WeakClaim(this), restoreBuilderSpan, &optionsLength, isUndo](const auto& specificOption) {
-            using T = std::decay_t<decltype(specificOption)>;
-            auto pattern = weak.Upgrade();
-            CHECK_NULL_VOID(pattern);
-            auto reason = isUndo ? TextChangeReason::UNDO : TextChangeReason::REDO;
-            if constexpr (std::is_same_v<T, ImageSpanOptions>) {
-                ImageSpanOptions options = specificOption;
-                options.optionSource = OptionSource::UNDO_REDO;
-                pattern->AddImageSpan(options, reason, false, pattern->GetCaretIndex(), false);
-                optionsLength++;
-            } else if constexpr (std::is_same_v<T, TextSpanOptions>) {
-                TextSpanOptions options = specificOption;
-                options.optionSource = OptionSource::UNDO_REDO;
-                pattern->AddTextSpan(options, reason, false, pattern->GetCaretIndex());
-                optionsLength += static_cast<int32_t>(options.value.length());
-            } else if constexpr (std::is_same_v<T, SymbolSpanOptions>) {
-                SymbolSpanOptions options = specificOption;
-                options.optionSource = OptionSource::UNDO_REDO;
-                pattern->AddSymbolSpan(options, reason, false, pattern->GetCaretIndex());
-                optionsLength += SYMBOL_SPAN_LENGTH;
-            } else if constexpr (std::is_same_v<T, BuilderSpanOptions>) {
-                pattern->AddPlaceholderSpan(specificOption, restoreBuilderSpan, reason);
-                optionsLength++;
-            }
-        }, option);
-    }
-    TAG_LOGI(AceLogTag::ACE_RICH_TEXT, "ApplyOptions length=%{public}d", optionsLength);
+    TAG_LOGI(AceLogTag::ACE_RICH_TEXT, "SupportStyledUndo:%{public}d->%{public}d", isStyledUndoSupported_, enabled);
+    CHECK_NULL_VOID(!isSpanStringMode_ && (isStyledUndoSupported_ != enabled));
+    ClearOperationRecords();
+    isStyledUndoSupported_ = enabled;
+    undoManager_ = RichEditorUndoManager::Create(isSpanStringMode_, WeakClaim(this));
 }
 
 void RichEditorPattern::AddPlaceholderSpan(const BuilderSpanOptions& options, bool restoreBuilderSpan,
@@ -1447,6 +1350,8 @@ void RichEditorPattern::UpdateSpanNode(RefPtr<SpanNode> spanNode, const TextSpan
         spanNode->UpdateLetterSpacing(textStyle.GetLetterSpacing());
         spanNode->UpdateFontFeature(textStyle.GetFontFeatures());
         UpdateTextBackgroundStyle(spanNode, textStyle.GetTextBackgroundStyle());
+        StyleManager::AddTextColorResource(spanNode, textStyle);
+        StyleManager::AddTextDecorationColorResource(spanNode, textStyle);
     }
     UpdateUrlStyle(spanNode, options.urlAddress);
 }
@@ -1553,6 +1458,7 @@ int32_t RichEditorPattern::AddSymbolSpanOperation(const SymbolSpanOptions& optio
         spanNode->UpdateSymbolEffectStrategy(options.style.value().GetEffectStrategy());
         spanNode->UpdateSymbolType(options.style.value().GetSymbolType());
         spanNode->UpdateFontFamily(options.style.value().GetFontFamilies());
+        StyleManager::AddSymbolColorResource(spanNode, options.style.value());
     }
     bool isUndoRedo = (options.optionSource == OptionSource::UNDO_REDO);
     IF_TRUE(isUndoRedo && options.paraStyle.has_value(), UpdateParagraphStyle(spanNode, options.paraStyle.value()));
@@ -1932,6 +1838,7 @@ void RichEditorPattern::CopyTextSpanFontStyle(RefPtr<SpanNode>& source, RefPtr<S
     target->GetSpanItem()->useThemeFontColor = source->GetSpanItem()->useThemeFontColor;
     target->GetSpanItem()->useThemeDecorationColor = source->GetSpanItem()->useThemeDecorationColor;
     UpdateTextBackgroundStyle(target, source->GetTextBackgroundStyle());
+    target->CopyResource(source);
 }
 
 void RichEditorPattern::CopyTextSpanLineStyle(
@@ -2326,6 +2233,7 @@ void RichEditorPattern::UpdateTextStyle(
     if (updateSpanStyle.updateTextColor.has_value()) {
         spanNode->UpdateTextColorWithoutCheck(textStyle.GetTextColor());
         spanNode->GetSpanItem()->useThemeFontColor = false;
+        StyleManager::AddTextColorResource(spanNode, textStyle);
     }
     if (updateSpanStyle.updateLineHeight.has_value()) {
         spanNode->UpdateLineHeight(textStyle.GetLineHeight());
@@ -2370,6 +2278,7 @@ void RichEditorPattern::UpdateDecoration(
     if (updateSpanStyle.updateTextDecorationColor.has_value()) {
         spanNode->UpdateTextDecorationColorWithoutCheck(textStyle.GetTextDecorationColor());
         spanNode->GetSpanItem()->useThemeDecorationColor = false;
+        StyleManager::AddTextDecorationColorResource(spanNode, textStyle);
     }
     if (updateSpanStyle.updateTextDecorationStyle.has_value()) {
         spanNode->UpdateTextDecorationStyle(textStyle.GetTextDecorationStyle());
@@ -2394,6 +2303,7 @@ void RichEditorPattern::UpdateSymbolStyle(
     }
     if (updateSpanStyle.updateSymbolColor.has_value()) {
         spanNode->UpdateSymbolColorList(updateSpanStyle.updateSymbolColor.value());
+        StyleManager::AddSymbolColorResource(spanNode, textStyle);
     }
     if (updateSpanStyle.updateSymbolRenderingStrategy.has_value()) {
         spanNode->UpdateSymbolRenderingStrategy(updateSpanStyle.updateSymbolRenderingStrategy.value());
@@ -5484,6 +5394,36 @@ bool RichEditorPattern::UnableStandardInputCrossPlatform(TextInputConfiguration&
 }
 #endif
 
+void RichEditorPattern::UpdatePropertyImpl(const std::string& key, RefPtr<PropertyValueBase> value)
+{
+    auto color = std::get_if<Color>(&(value->GetValue()));
+    CHECK_NULL_VOID(color);
+    TAG_LOGI(AceLogTag::ACE_RICH_TEXT, "UpdateProperty, key=%{public}s, color=%{public}s",
+        key.c_str(), color->ToString().c_str());
+    const std::unordered_map<std::string, std::function<void(const Color& color)>> UPDATER_MAP = {
+        { StyleManager::CARET_COLOR_KEY,  [this](const Color& c){ SetCaretColor(c); } },
+        { StyleManager::SCROLL_BAR_COLOR_KEY,  [this](const Color& c){ UpdateScrollBarColor(c); } },
+        { StyleManager::PLACEHOLDER_FONT_COLOR_KEY,  [this](const Color& c){ UpdatePlaceholderFontColor(c); } },
+        { StyleManager::SELECTED_BACKGROUND_COLOR_KEY,  [this](const Color& c){ SetSelectedBackgroundColor(c); } },
+    };
+    auto iter = UPDATER_MAP.find(key);
+    IF_TRUE(iter != UPDATER_MAP.end(), iter->second(*color));
+}
+
+void RichEditorPattern::OnColorModeChange(uint32_t colorMode)
+{
+    TAG_LOGI(AceLogTag::ACE_RICH_TEXT, "OnColorModeChange, mode=%{public}u", colorMode);
+    Pattern::OnColorModeChange(colorMode);
+}
+
+void RichEditorPattern::UpdatePlaceholderFontColor(const Color& color)
+{
+    auto layoutProperty = GetLayoutProperty<RichEditorLayoutProperty>();
+    IF_PRESENT(layoutProperty, UpdatePlaceholderTextColor(color));
+    auto host = GetContentHost();
+    IF_PRESENT(host, MarkDirtyNode(PROPERTY_UPDATE_MEASURE));
+}
+
 void RichEditorPattern::OnColorConfigurationUpdate()
 {
     auto colorMode = GetColorMode();
@@ -6239,6 +6179,7 @@ TextStyle RichEditorPattern::CreateTextStyleByTypingStyle()
     IF_TRUE(updateSpanStyle.updateTextDecorationStyle, ret.SetTextDecorationStyle(textStyle.GetTextDecorationStyle()));
     IF_TRUE(updateSpanStyle.updateLineThicknessScale, ret.SetLineThicknessScale(textStyle.GetLineThicknessScale()));
     IF_TRUE(updateSpanStyle.updateTextBackgroundStyle, ret.SetTextBackgroundStyle(textStyle.GetTextBackgroundStyle()));
+    ret.CopyResource(textStyle);
     return ret;
 }
 
@@ -11694,45 +11635,6 @@ void RichEditorPattern::UpdateImageSpanResultByOptions(RichEditorAbstractSpanRes
     }
 }
 
-bool RichEditorPattern::BeforeSpansChange(const UndoRedoRecord& record, bool isUndo)
-{
-    auto eventHub = GetEventHub<RichEditorEventHub>();
-    CHECK_NULL_RETURN(eventHub, false);
-    CHECK_NULL_RETURN(eventHub->HasOnWillChange(), true);
-    RichEditorChangeValue changeValue(isUndo ? TextChangeReason::UNDO : TextChangeReason::REDO);
-    auto rangeBefore = isUndo ? record.rangeAfter : record.rangeBefore;
-    changeValue.SetRangeBefore(rangeBefore);
-    auto rangeAfter = isUndo ? record.rangeBefore : record.rangeAfter;
-    changeValue.SetRangeAfter(rangeAfter);
-    auto optionsList = isUndo ? record.optionsListBefore : record.optionsListAfter;
-    TextInsertValueInfo info;
-    CalcInsertValueObj(info, rangeBefore.start, true);
-    int32_t spanIndex = info.GetSpanIndex();
-    for (const auto& option : optionsList.value_or(OptionsList{})) {
-        std::visit([weak = WeakClaim(this), &changeValue, &spanIndex](const auto& specificOption) {
-            auto pattern = weak.Upgrade();
-            CHECK_NULL_VOID(pattern);
-            using T = std::decay_t<decltype(specificOption)>;
-            if constexpr (std::is_same_v<T, ImageSpanOptions>) {
-                auto retInfo = pattern->GetResultByImageSpanOptions(specificOption, spanIndex);
-                changeValue.SetRichEditorReplacedImageSpans(retInfo);
-            } else if constexpr (std::is_same_v<T, TextSpanOptions>) {
-                auto retInfo = pattern->GetResultByTextSpanOptions(specificOption, spanIndex);
-                changeValue.SetRichEditorReplacedSpans(retInfo);
-            } else if constexpr (std::is_same_v<T, SymbolSpanOptions>) {
-                auto retInfo = pattern->GetResultBySymbolSpanOptions(specificOption, spanIndex);
-                changeValue.SetRichEditorReplacedSymbolSpans(retInfo);
-            } else if constexpr (std::is_same_v<T, BuilderSpanOptions>) {
-                auto textOptions = TextSpanOptions{ .offset = specificOption.offset, .value = u" " };
-                auto retInfo = pattern->GetResultByTextSpanOptions(textOptions, spanIndex);
-                changeValue.SetRichEditorReplacedSpans(retInfo);
-            }
-            spanIndex++;
-        }, option);
-    }
-    return eventHub->FireOnWillChange(changeValue);
-}
-
 RichEditorAbstractSpanResult RichEditorPattern::GetResultByImageSpanOptions(const ImageSpanOptions& options,
     int32_t spanIndex)
 {
@@ -11795,20 +11697,6 @@ void RichEditorPattern::UpdateSymbolSpanResultByOptions(RichEditorAbstractSpanRe
     TextStyle style = options.style.value_or(TextStyle());
     retInfo.SetSymbolSpanStyle(SymbolSpanStyle(style));
     retInfo.SetValueResource(options.resourceObject);
-}
-
-void RichEditorPattern::AfterSpansChange(const UndoRedoRecord& record, bool isUndo)
-{
-    auto eventHub = GetEventHub<RichEditorEventHub>();
-    CHECK_NULL_VOID(eventHub);
-    CHECK_NULL_VOID(eventHub->HasOnDidChange());
-    RichEditorChangeValue changeValue(isUndo ? TextChangeReason::UNDO : TextChangeReason::REDO);
-    auto rangeBefore = isUndo ? record.rangeAfter : record.rangeBefore;
-    changeValue.SetRangeBefore(rangeBefore);
-    auto rangeAfter = isUndo ? record.rangeBefore : record.rangeAfter;
-    changeValue.SetRangeAfter(rangeAfter);
-    eventHub->FireOnDidChange(changeValue);
-    ReportAfterContentChangeEvent();
 }
 
 void RichEditorPattern::FixMoveDownChange(RichEditorChangeValue& changeValue, int32_t delLength)

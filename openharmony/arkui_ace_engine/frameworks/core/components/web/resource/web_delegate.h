@@ -23,7 +23,6 @@
 #include "base/memory/referenced.h"
 #include "core/components_ng/render/render_surface.h"
 #include "core/pipeline/pipeline_base.h"
-#include "base/web/webview/arkweb_utils/arkweb_utils.h"
 #if defined (OHOS_STANDARD_SYSTEM) && defined (ENABLE_ROSEN_BACKEND)
 #include <ui/rs_surface_node.h>
 #endif
@@ -446,6 +445,56 @@ public:
 
 private:
     std::shared_ptr<OHOS::NWeb::NWebAppLinkCallback> callback_;
+};
+
+class WebNativeMessageCallbackOhos : public WebNativeMessageCallback {
+    DECLARE_ACE_TYPE(WebNativeMessageCallbackOhos, WebNativeMessageCallback);
+
+public:
+    explicit WebNativeMessageCallbackOhos(const std::shared_ptr<OHOS::NWeb::NWebNativeMessageCallback> &callback)
+        : callback_(callback)
+    {}
+    using CompletionHandler = std::function<void(const std::string &)>;
+
+    void OnConnect(int connectionId) override
+    {
+        if (callback_) {
+            callback_->OnConnect(connectionId);
+        }
+        OnCallbackComplete("success:" + std::to_string(connectionId));
+    }
+
+    void OnDisconnect(int connectionId) override
+    {
+        if (callback_) {
+            callback_->OnDisconnect(connectionId);
+        }
+        OnCallbackComplete("disconnect:" + std::to_string(connectionId));
+    }
+    void OnFailed(int code) override
+    {
+        if (callback_) {
+            callback_->OnFailed(code);
+        }
+        OnCallbackComplete("error:" + std::to_string(code));
+    }
+
+    void SetCompletionHandler(CompletionHandler handler)
+    {
+        completionHandler_ = std::move(handler);
+    }
+
+    // Call this function to notify waiting thread
+    void OnCallbackComplete(const std::string &result)
+    {
+        if (completionHandler_) {
+            completionHandler_(result);
+        }
+    }
+
+private:
+    std::shared_ptr<OHOS::NWeb::NWebNativeMessageCallback> callback_;
+    CompletionHandler completionHandler_;
 };
 
 class DataResubmittedOhos : public DataResubmitted {
@@ -1104,7 +1153,7 @@ public:
     bool OnConsoleLog(std::shared_ptr<OHOS::NWeb::NWebConsoleLog> message);
     void OnRouterPush(const std::string& param);
     void OnRenderExited(OHOS::NWeb::RenderExitReason reason);
-    void OnRefreshAccessedHistory(const std::string& url, bool isRefreshed);
+    void OnRefreshAccessedHistory(const std::string& url, bool isRefreshed, bool isMainFrame = false);
     bool OnFileSelectorShow(const std::shared_ptr<BaseEventInfo>& info);
     void OnContextMenuDismissed();
     bool OnContextMenuShow(const std::shared_ptr<BaseEventInfo>& info);
@@ -1386,7 +1435,9 @@ public:
     void SetIsFileSelectorShow(bool isFileSelectorShow) { isFileSelectorShow_ = isFileSelectorShow; }
     bool IsFileSelectorShow() { return isFileSelectorShow_; }
 
-
+    void OnExtensionDisconnect(int32_t connectId);
+    std::string OnWebNativeMessage(std::shared_ptr<OHOS::NWeb::NWebRuntimeConnectInfo> info,
+        std::shared_ptr<OHOS::NWeb::NWebNativeMessageCallback> callback);
     bool ShowMagnifier();
     bool HideMagnifier();
     void UpdateSingleHandleVisible(bool isVisible);
@@ -1411,6 +1462,9 @@ public:
     }
     void SetForceEnableZoom(bool isEnabled);
     bool IsShowHandle();
+    void OnSafeBrowsingCheckFinish(int threat_type);
+    bool IsPcMode();
+    void OnSwitchFreeMultiWindow(bool enable);
 private:
     void InitWebEvent();
     void RegisterWebEvent();
@@ -1501,6 +1555,8 @@ private:
         const MouseInfo& mouseInfo, std::string embedId, const RefPtr<WebDelegate>& delegate);
     void HandleNativeMouseToTouch(const std::shared_ptr<OHOS::NWeb::NWebMouseEventResult>& result,
         const MouseInfo& mouseInfo, std::string embedId, const RefPtr<WebDelegate>& delegate);
+    void RegisterFreeMultiWindowListener();
+    void UnregisterFreeMultiWindowListener();
 #endif
 
     WeakPtr<WebComponent> webComponent_;
@@ -1574,6 +1630,7 @@ private:
     EventCallbackV2 onAdsBlockedV2_;
     EventCallbackV2 onLoadStartedV2_;
     EventCallbackV2 onLoadFinishedV2_;
+    EventCallbackV2 onSafeBrowsingCheckFinishV2_;
 
     int32_t renderMode_ = -1;
     int32_t layoutMode_ = -1;
@@ -1654,6 +1711,8 @@ private:
     double density_ = 0.0;
 
     bool isVisible_ = false;
+
+    sptr<OHOS::Rosen::ISwitchFreeMultiWindowListener> freeMultiWindowListener_ = nullptr;
 #endif
 };
 

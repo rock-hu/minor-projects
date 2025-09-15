@@ -606,6 +606,8 @@ void PipelineContext::OnDrawCompleted(const std::string& componentId) {}
 
 void PipelineContext::SetNeedRenderNode(const WeakPtr<FrameNode>& node) {}
 
+void PipelineContext::PostTaskResponseRegion(int32_t delay) {}
+
 void PipelineContext::SetNeedRenderForDrawChildrenNode(const WeakPtr<NG::UINode>& node) {}
 
 void PipelineContext::OnSurfacePositionChanged(int32_t posX, int32_t posY) {}
@@ -1141,6 +1143,30 @@ void PipelineContext::FlushDirtyPropertyNodes()
 void PipelineContext::DumpForceColor(const std::vector<std::string>& params) const {}
 void PipelineContext::AddFrameCallback(FrameCallbackFunc&& frameCallbackFunc, IdleCallbackFunc&& idleCallbackFunc,
     int64_t delayMillis) {}
+
+RefPtr<FrameNode> PipelineContext::GetContainerModalNode()
+{
+    if (windowModal_ != WindowModal::CONTAINER_MODAL) {
+        return nullptr;
+    }
+    CHECK_NULL_RETURN(rootNode_, nullptr);
+    return AceType::DynamicCast<FrameNode>(rootNode_->GetFirstChild());
+}
+
+bool PipelineContext::CheckNodeOnContainerModalTitle(const RefPtr<FrameNode>& node)
+{
+    CHECK_NULL_RETURN(node, false);
+    auto containerNode = GetContainerModalNode();
+    CHECK_NULL_RETURN(containerNode, false);
+    auto parent = node->GetParent();
+    while (parent) {
+        if (parent->GetTag() == V2::TOOLBARITEM_ETS_TAG) {
+            return true;
+        }
+        parent = parent->GetParent();
+    }
+    return false;
+}
 } // namespace OHOS::Ace::NG
 // pipeline_context ============================================================
 
@@ -1488,6 +1514,8 @@ std::string NG::PipelineContext::GetCurrentPageNameCallback()
 {
     return "";
 }
+
+void NG::PipelineContext::AddNeedReloadNodes(const WeakPtr<NG::UINode>& node) {}
 
 void NG::PipelineContext::SetVsyncListener(VsyncCallbackFun vsync)
 {

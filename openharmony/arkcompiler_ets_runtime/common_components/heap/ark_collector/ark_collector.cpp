@@ -160,8 +160,7 @@ static void MarkingRefField(BaseObject *obj, RefField<> &field, ParallelLocalMar
         DLOG(TRACE, "marking: skip weak obj when full gc, object: %p@%p, targetObj: %p", obj, &field, targetObj);
         // weak ref is cleared after roots pre-forward, so there might be a to-version weak ref which also need to be
         // cleared, offset recorded here will help us find it
-        weakStack.push_back(std::make_shared<std::tuple<RefField<>*, size_t>>(
-            &field, reinterpret_cast<uintptr_t>(&field) - reinterpret_cast<uintptr_t>(obj)));
+        weakStack.emplace_back(&field, reinterpret_cast<uintptr_t>(&field) - reinterpret_cast<uintptr_t>(obj));
         return;
     }
 
@@ -210,12 +209,6 @@ MarkingCollector::MarkingRefFieldVisitor ArkCollector::CreateMarkingObjectRefFie
         });
     }
     return visitor;
-}
-
-void ArkCollector::MarkingObjectRefFields(BaseObject *obj, MarkingRefFieldVisitor *data)
-{
-    data->SetMarkingRefFieldArgs(obj);
-    obj->ForEachRefField(data->GetRefFieldVisitor());
 }
 
 void ArkCollector::FixRefField(BaseObject* obj, RefField<>& field) const
@@ -659,6 +652,10 @@ void ArkCollector::PreforwardFlip()
     if (LIKELY_CC(allocBuffer != nullptr)) {
         allocBuffer->ClearRegions();
     }
+    if (gcReason_ == GC_REASON_YOUNG || globalWeakStack_.empty()) {
+        return;
+    }
+    globalWeakStack_.clear();
 }
 
 void ArkCollector::Preforward()

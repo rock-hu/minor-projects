@@ -50,6 +50,7 @@
 #include "ecmascript/module/module_path_helper.h"
 #include "common_components/heap/allocator/region_desc.h"
 #include "common_components/mutator/mutator.h"
+#include "ecmascript/platform/dfx_hisys_event.h"
 #ifdef ARK_SUPPORT_INTL
 #include "ecmascript/js_collator.h"
 #include "ecmascript/js_locale.h"
@@ -1129,6 +1130,15 @@ DEF_RUNTIME_STUBS(OptSuperCallForwardAllArgs)
     return RuntimeSuperCallForwardAllArgs(thread, sp, superFunc, newTarget, restNumArgs, startIdx).GetRawData();
 }
 
+DEF_RUNTIME_STUBS(ReportHiEvents)
+{
+    RUNTIME_STUBS_HEADER(ReportHiEvents);
+    DFXHiSysEvent::IncompatibleType type = static_cast<DFXHiSysEvent::IncompatibleType>(
+        GetHArg<JSTaggedValue>(argv, argc, 0)->GetInt());
+    DFXHiSysEvent::SendRuntimeIncompatibleEvent(thread, type);
+    return JSTaggedValue(true).GetRawData();
+}
+
 DEF_RUNTIME_STUBS(GetCallSpreadArgs)
 {
     RUNTIME_STUBS_HEADER(GetCallSpreadArgs);
@@ -1381,6 +1391,15 @@ DEF_RUNTIME_STUBS(GetArrayLiteralFromCache)
     JSTaggedValue cp = thread->GetEcmaVM()->FindOrCreateUnsharedConstpool(constpool.GetTaggedValue());
     return ConstantPool::GetLiteralFromCache<ConstPoolType::ARRAY_LITERAL>(
         thread, cp, index.GetInt(), module.GetTaggedValue()).GetRawData();
+}
+
+DEF_RUNTIME_STUBS(CreateUnsharedConstpool)
+{
+    RUNTIME_STUBS_HEADER(CreateUnsharedConstpool);
+    JSHandle<JSTaggedValue> sharedConstpool = GetHArg<JSTaggedValue>(argv, argc, 0);  // 0: means the first parameter
+    ASSERT(thread->GetEcmaVM()->FindUnsharedConstpool(sharedConstpool.GetTaggedValue()).IsHole());
+    thread->GetEcmaVM()->CreateUnsharedConstpool(sharedConstpool.GetTaggedValue());
+    return JSTaggedValue::Undefined().GetRawData();
 }
 
 DEF_RUNTIME_STUBS(StObjByValue)

@@ -723,17 +723,8 @@ void HeapSnapshot::FillNodes(bool isInFinish, bool isSimplify)
     LOG_ECMA(INFO) << "HeapSnapshot::FillNodes";
     ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK, "HeapSnapshot::FillNodes", "");
     // Iterate Heap Object
-    if (g_isEnableCMCGC) {
-        GenerateNodeRootVisitor visitor(*this, isInFinish, isSimplify);
-        rootVisitor_.VisitHeapRoots(vm_->GetJSThread(), visitor);
-    } else {
-        auto heap = vm_->GetHeap();
-        if (heap != nullptr) {
-            heap->IterateOverObjects([this, isInFinish, isSimplify](TaggedObject *obj) {
-                GenerateNode(JSTaggedValue(obj), 0, isInFinish, isSimplify);
-            }, isSimplify);
-        }
-    }
+    GenerateNodeRootVisitor visitor(*this, isInFinish, isSimplify);
+    rootVisitor_.VisitHeapRoots(vm_->GetJSThread(), visitor);
 }
 
 Node *HeapSnapshot::HandleStringNode(JSTaggedValue &entry, size_t &size, bool &isInFinish, bool isBinMod)
@@ -1154,14 +1145,11 @@ void HeapSnapshot::FillEdges(bool isSimplify)
 {
     LOG_ECMA(INFO) << "HeapSnapshot::FillEdges begin, nodeCount: " << nodeCount_;
     ECMA_BYTRACE_NAME(HITRACE_LEVEL_COMMERCIAL, HITRACE_TAG_ARK, "HeapSnapshot::FillEdges", "");
-    auto iter = nodes_.begin();
-    size_t count = 0;
-    while (count++ < nodes_.size()) {
-        ASSERT(*iter != nullptr);
-        auto entryFrom = *iter;
+    for (size_t i = 0; i < nodeCount_; ++i) {
+        Node *entryFrom = nodes_[i];
+        ASSERT(entryFrom != nullptr);
         JSTaggedValue value(entryFrom->GetAddress());
         if (!value.IsHeapObject()) {
-            iter++;
             continue;
         }
         std::vector<Reference> referenceResources;
@@ -1172,7 +1160,7 @@ void HeapSnapshot::FillEdges(bool isSimplify)
                 continue;
             }
             Node *entryTo = nullptr;
-            EdgeType type = toValue.IsWeak() ? EdgeType::WEAK : (EdgeType)it.type_;
+            EdgeType type = toValue.IsWeak() ? EdgeType::WEAK : it.type_;
             if (toValue.IsWeak()) {
                 toValue.RemoveWeakTag();
             }
@@ -1184,15 +1172,14 @@ void HeapSnapshot::FillEdges(bool isSimplify)
                 entryTo = GenerateNode(toValue, 0, true, isSimplify);
             }
             if (entryTo != nullptr) {
-                Edge *edge = (it.type_ == Reference::ReferenceType::ELEMENT) ?
+                Edge *edge = (it.type_ == EdgeType::ELEMENT) ?
                     Edge::NewEdge(chunk_, type, entryFrom, entryTo, it.index_) :
                     Edge::NewEdge(chunk_, type, entryFrom, entryTo, GetString(it.name_));
                 RenameFunction(it.name_, entryFrom, entryTo);
                 InsertEdgeUnique(edge);
-                (*iter)->IncEdgeCount();  // Update Node's edgeCount_ here
+                entryFrom->IncEdgeCount();  // Update Node's edgeCount_ here
             }
         }
-        iter++;
     }
     LOG_ECMA(INFO) << "HeapSnapshot::FillEdges exit, nodeCount: " << nodeCount_ << ", edgeCount: " << edgeCount_;
 }

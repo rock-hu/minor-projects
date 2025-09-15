@@ -246,19 +246,15 @@ HWTEST_F(NapiContextTest, NapiCreateContextTest005, testing::ext::TestSize.Level
 HWTEST_F(NapiContextTest, NapiCreateContextTest006, testing::ext::TestSize.Level1)
 {
     ASSERT_NE(engine_, nullptr);
-    std::thread t([]() {
-        NativeEngineProxy engine;
-        napi_env env = napi_env(engine);
+    napi_env env = reinterpret_cast<napi_env>(engine_);
 
-        NativeEngineProxy newEngine;
-        napi_env newEnv = napi_env(newEngine);
-        auto context = newEngine->context_;
-        (newEngine->context_).Empty();
-        napi_status status = napi_create_ark_context(env, &newEnv);
-        EXPECT_EQ(status, napi_ok);
-        newEngine->context_ = context;
-    });
-    t.join();
+    NativeEngineProxy newEngine;
+    napi_env newEnv = napi_env(newEngine);
+    auto context = newEngine->context_;
+    (newEngine->context_).Empty();
+    napi_status status = napi_create_ark_context(env, &newEnv);
+    EXPECT_EQ(status, napi_ok);
+    newEngine->context_ = context;
 }
 
 /**
@@ -1212,40 +1208,6 @@ HWTEST_F(NapiContextTest, NapiEnvCallbackScopeManagerTest002, testing::ext::Test
     ASSERT_NE(engine_->GetCallbackScopeManager(), nullptr);
 }
 
-/**
- * @tc.name: FinalizersCallbackTest001
- * @tc.desc: Test finalize callback execution of napi_wrap
- * @tc.type: FUNC
- */
-HWTEST_F(NapiContextTest, FinalizersCallbackTest001, testing::ext::TestSize.Level0)
-{
-    CheckContextEnv();
-    ASSERT_NE(multiContextEngine_, nullptr);
-    napi_env env = reinterpret_cast<napi_env>(multiContextEngine_);
-    const EcmaVM *vm = reinterpret_cast<ArkNativeEngine*>(engine_)->GetEcmaVm();
-
-    const char *str = GetTestCaseName();
-    size_t size = 2 * ArkNativeEngine::FINALIZERS_PACK_PENDING_NATIVE_BINDING_SIZE_THRESHOLD;
-    static bool finalizersCallbackDone[2] = {false, false};
-
-    for (int i = 0; i < 2; ++i) {
-        {
-            panda::LocalScope scope(vm);
-            napi_value object = nullptr;
-            napi_create_object(env, &object);
-            napi_wrap_with_size(env, object, (void*)str, [](napi_env env, void *data, void *hint) {
-                bool *result = reinterpret_cast<bool*>(hint);
-                ASSERT_FALSE(*result);
-                *result = true;
-            }, reinterpret_cast<void*>(&finalizersCallbackDone[i]), nullptr, size);
-        }
-        panda::JSNApi::TriggerGC(vm, panda::ecmascript::GCReason::OTHER, panda::JSNApi::TRIGGER_GC_TYPE::FULL_GC);
-    }
-
-    ASSERT_FALSE(finalizersCallbackDone[0]);
-    ASSERT_TRUE(finalizersCallbackDone[1]);
-}
-
 class ContextAsyncWorkTestData final : public NapiAsyncWorkTestData {
 public:
     ContextAsyncWorkTestData(napi_env env, const char* name) : NapiAsyncWorkTestData(env, name) {}
@@ -2116,24 +2078,21 @@ HWTEST_F(NapiContextTest, MapGetValuesWithMultiContext001, testing::ext::TestSiz
  */
 HWTEST_F(NapiContextTest, CreateLimitRuntimeWithMultiContext001, testing::ext::TestSize.Level1)
 {
-    std::thread t([]() {
-        static bool executed = false;
-        BasicDeathTest(
-            []() {
-                NativeEngineProxy rootEngine;
-                NativeEngineProxy contextEngine(*rootEngine);
-                napi_env limitEnv = nullptr;
-                napi_create_limit_runtime(contextEngine, &limitEnv);
-            },
-            [](std::string, std::string err) {
-                executed = true;
-                ASSERT_NE(err.find("(napi_create_limit_runtime)] multi-context does not support this interface"),
-                        std::string::npos);
-            })
-            .Run();
-        ASSERT_TRUE(executed);
-    });
-    t.join();
+    static bool executed = false;
+    BasicDeathTest(
+        []() {
+            NativeEngineProxy rootEngine;
+            NativeEngineProxy contextEngine(*rootEngine);
+            napi_env limitEnv = nullptr;
+            napi_create_limit_runtime(contextEngine, &limitEnv);
+        },
+        [](std::string, std::string err) {
+            executed = true;
+            ASSERT_NE(err.find("(napi_create_limit_runtime)] multi-context does not support this interface"),
+                      std::string::npos);
+        })
+        .Run();
+    ASSERT_TRUE(executed);
 }
 
 /**
@@ -2465,25 +2424,21 @@ HWTEST_F(NapiContextTest, SerializeInnerWithMultiContext006, testing::ext::TestS
  */
 HWTEST_F(NapiContextTest, RunActorWithMultiContext001, testing::ext::TestSize.Level1)
 {
-    std::thread t([]() {
-        static bool executed = false;
-        BasicDeathTest(
-            []() {
-                NativeEngineProxy rootEngine;
-                NativeEngineProxy contextEngine(*rootEngine);
-                napi_value result = nullptr;
-                char buf[16] { 0 };
-                napi_run_actor(contextEngine, "", buf, &result);
-            },
-            [](std::string, std::string err) {
-                executed = true;
-                ASSERT_NE(err.find("(napi_run_actor)] multi-context does not support this interface"),
-                          std::string::npos);
-            })
-            .Run();
-        ASSERT_TRUE(executed);
-    });
-    t.join();
+    static bool executed = false;
+    BasicDeathTest(
+        []() {
+            NativeEngineProxy rootEngine;
+            NativeEngineProxy contextEngine(*rootEngine);
+            napi_value result = nullptr;
+            char buf[16] { 0 };
+            napi_run_actor(contextEngine, "", buf, &result);
+        },
+        [](std::string, std::string err) {
+            executed = true;
+            ASSERT_NE(err.find("(napi_run_actor)] multi-context does not support this interface"), std::string::npos);
+        })
+        .Run();
+    ASSERT_TRUE(executed);
 }
 
 /**

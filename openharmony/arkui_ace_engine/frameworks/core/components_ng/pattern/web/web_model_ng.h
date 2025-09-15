@@ -219,6 +219,10 @@ public:
     void SetOpenAppLinkFunction(std::function<void(const std::shared_ptr<BaseEventInfo>&)>&& jsCallback) override;
     void SetWebDetachFunction(std::function<void(int32_t)>&& jsCallback) override;
     void SetFaviconFunction(std::function<void(const std::shared_ptr<BaseEventInfo>&)>&& jsCallback) override;
+    void SetWebNativeMessageConnectFunction(
+        std::function<void(const std::shared_ptr<BaseEventInfo>&)>&& jsCallback) override;
+    void SetWebNativeMessageDisconnectFunction(
+        std::function<void(const std::shared_ptr<BaseEventInfo>&)>&& jsCallback) override;
     void SetIntelligentTrackingPreventionResultId(
         std::function<void(const std::shared_ptr<BaseEventInfo>& info)>&&
             intelligentTrackingPreventionResultId) override;
@@ -250,6 +254,8 @@ public:
     void SetOnPdfScrollAtBottom(std::function<void(const BaseEventInfo* info)>&& jsCallback) override;
     void SetOnPdfLoadEvent(std::function<void(const BaseEventInfo* info)>&& jsCallback) override;
     void SetForceEnableZoom(bool isEnabled) override;
+    void SetSafeBrowsingCheckFinishId(
+        std::function<void(const std::shared_ptr<BaseEventInfo>& info)>&& safeBrowsingCheckFinishId) override;
 
     static void SetJsEnabled(FrameNode* frameNode, bool isJsEnabled);
     static void SetFileAccessEnabled(FrameNode* frameNode, bool isFileAccessEnabled);
@@ -381,6 +387,8 @@ public:
         FrameNode* frameNode, std::function<bool(const BaseEventInfo* info)>&& jsCallback, int dialogEventType);
     static void SetJavaScriptProxy(FrameNode* frameNode, std::function<void()>&& jsProxyCallback);
     static void SetForceEnableZoom(FrameNode* frameNode, bool isEnabled);
+    static void SetOnSafeBrowsingCheckFinish(FrameNode* frameNode,
+        std::function<void(const std::shared_ptr<BaseEventInfo>& info)>&& safeBrowsingCheckFinish);
 };
 } // namespace OHOS::Ace::NG
 #endif // FOUNDATION_ACE_FRAMEWORKS_CORE_COMPONENTS_NG_PATTERN_WEB_WEB_MODEL_NG_H

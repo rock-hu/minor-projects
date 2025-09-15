@@ -112,6 +112,12 @@ constexpr Dimension BUBBLE_HORIZONTAL_SUITABLEAGING_LEVEL_2_HEIGHT = 64.0_vp;
 constexpr Dimension SUITABLEAGING_LEVEL_1_TEXT_FONT_SIZE = 25.0_vp;
 constexpr Dimension SUITABLEAGING_LEVEL_2_TEXT_FONT_SIZE = 28.0_vp;
 constexpr float SCALE_VALUE = 1.5f;
+constexpr float BLOCK_LINEAR_GRADIENT_COLOR_OFFSET_STARE = 0.0f;
+constexpr float BLOCK_LINEAR_GRADIENT_COLOR_OFFSET_BETWEEN = 0.5f;
+constexpr float BLOCK_LINEAR_GRADIENT_COLOR_OFFSET_END = 1.0f;
+constexpr Dimension ARROW_HEIGHT = 8.0_vp;
+constexpr Dimension ARROW_WIDTH = 16.0_vp;
+constexpr Dimension CIRCULAR_HORIZON_OFFSET = 13.86_vp;
 } // namespace
 class SliderModifierTestNg : public testing::Test {
 public:
@@ -126,7 +132,26 @@ private:
     void MockCanvasFunction(Testing::MockCanvas& canvas);
     void MockTipsCanvasFunction(Testing::MockCanvas& canvas);
     void MockParagraphFunction(RefPtr<MockParagraph>& paragraph, Testing::MockCanvas& canvas);
+    Gradient CreateLinearGradientBlockColor();
 };
+
+Gradient SliderModifierTestNg::CreateLinearGradientBlockColor()
+{
+    Gradient gradient;
+    GradientColor gradientColor1;
+    gradientColor1.SetLinearColor(LinearColor(Color::WHITE));
+    gradientColor1.SetDimension(Dimension(BLOCK_LINEAR_GRADIENT_COLOR_OFFSET_STARE));
+    gradient.AddColor(gradientColor1);
+    GradientColor gradientColor2;
+    gradientColor2.SetLinearColor(LinearColor(Color::RED));
+    gradientColor2.SetDimension(Dimension(BLOCK_LINEAR_GRADIENT_COLOR_OFFSET_BETWEEN));
+    gradient.AddColor(gradientColor2);
+    GradientColor gradientColor3;
+    gradientColor3.SetLinearColor(LinearColor(Color::BLUE));
+    gradientColor3.SetDimension(Dimension(BLOCK_LINEAR_GRADIENT_COLOR_OFFSET_END));
+    gradient.AddColor(gradientColor3);
+    return gradient;
+}
 
 void SliderModifierTestNg::SetUpTestSuite()
 {
@@ -164,7 +189,6 @@ void SliderModifierTestNg::SetSliderContentModifier(SliderContentModifier& slide
     sliderContentModifier.SetStepRatio(SLIDER_CONTENT_MODIFIER_STEP_RATIO);
     sliderContentModifier.SetBackgroundSize(POINTF_START, POINTF_END);
     sliderContentModifier.SetSelectColor(SliderModelNG::CreateSolidGradient(TEST_COLOR));
-    sliderContentModifier.SetBlockColor(TEST_COLOR);
     SizeF blockSize;
     sliderContentModifier.SetBlockSize(blockSize);
 }
@@ -251,7 +275,7 @@ HWTEST_F(SliderModifierTestNg, SliderContentModifierTest001, TestSize.Level1)
     sliderContentModifier.SetSliderMode(SliderModelNG::SliderMode::OUTSET);
     sliderContentModifier.SetBlockBorderColor(TEST_COLOR);
     sliderContentModifier.SetBlockBorderWidth(SLIDER_CONTENT_MODIFIER_BLOCK_BORDER_WIDTH);
-    sliderContentModifier.SetLinerGradientBlockColor(SliderModelNG::CreateSolidGradient(TEST_COLOR));
+    sliderContentModifier.SetLinearGradientBlockColor(SliderModelNG::CreateSolidGradient(TEST_COLOR));
     Testing::MockCanvas canvas;
     MockCanvasFunction(canvas);
     DrawingContext context { canvas, SLIDER_WIDTH, SLIDER_HEIGHT };
@@ -1074,20 +1098,7 @@ HWTEST_F(SliderModifierTestNg, SliderContentModifierTest020, TestSize.Level1)
      * @tc.steps: step2. set sliderContentModifier attribute and call onDraw function.
      */
     SetSliderContentModifier(sliderContentModifier);
-
-    Gradient gradient;
-    GradientColor gradientColor1;
-    gradientColor1.SetLinearColor(LinearColor(Color::WHITE));
-    gradientColor1.SetDimension(Dimension(0.0));
-    gradient.AddColor(gradientColor1);
-    GradientColor gradientColor2;
-    gradientColor2.SetLinearColor(LinearColor(Color::RED));
-    gradientColor2.SetDimension(Dimension(0.5));
-    gradient.AddColor(gradientColor2);
-    GradientColor gradientColor3;
-    gradientColor3.SetLinearColor(LinearColor(Color::BLUE));
-    gradientColor3.SetDimension(Dimension(1.0));
-    gradient.AddColor(gradientColor3);
+    Gradient gradient = CreateLinearGradientBlockColor();
     std::vector<GradientColor> gradientColors = gradient.GetColors();
     sliderContentModifier.SetTrackBackgroundColor(gradient);
 
@@ -1596,6 +1607,9 @@ HWTEST_F(SliderModifierTestNg, SliderTipModifierTest002, TestSize.Level1)
     sliderTipModifier.SetParagraph(paragraph);
     sliderTipModifier.PaintTip(context);
     SizeF textSize = { 8, 8 };
+    sliderTipModifier.arrowWidth_ = static_cast<float>(ARROW_WIDTH.ConvertToPx());
+    sliderTipModifier.arrowHeight_ = static_cast<float>(ARROW_HEIGHT.ConvertToPx());
+    sliderTipModifier.circularHorizontalOffset_ = static_cast<float>(CIRCULAR_HORIZON_OFFSET.ConvertToPx());
     /**
      * @tc.steps: step2. set sliderTipModifier's axis is VERTICAL and call PaintText function.
      */
@@ -1698,6 +1712,16 @@ HWTEST_F(SliderModifierTestNg, SliderTipModifierTest005, TestSize.Level1)
      */
     auto pipeline = MockPipelineContext::GetCurrent();
     pipeline->SetFontScale(1.8f);
+    auto slidertheme = pipeline->GetTheme<SliderTheme>();
+    ASSERT_NE(slidertheme, nullptr);
+    slidertheme->bubbleLevel1HorizontalHeight_ = BUBBLE_HORIZONTAL_SUITABLEAGING_LEVEL_1_HEIGHT;
+    slidertheme->bubbleLevel1HorizontalWidth_ = BUBBLE_HORIZONTAL_SUITABLEAGING_LEVEL_1_WIDTH;
+    slidertheme->bubbleLevel1VerticalHeight_ = BUBBLE_VERTICAL_SUITABLEAGING_LEVEL_1_HEIGHT;
+    slidertheme->bubbleLevel1VerticalWidth_ = BUBBLE_VERTICAL_SUITABLEAGING_LEVEL_1_WIDTH;
+    slidertheme->bubbleLevel2HorizontalHeight_ = BUBBLE_HORIZONTAL_SUITABLEAGING_LEVEL_2_HEIGHT;
+    slidertheme->bubbleLevel2HorizontalWidth_ = BUBBLE_HORIZONTAL_SUITABLEAGING_LEVEL_2_WIDTH;
+    slidertheme->bubbleLevel2VerticalHeight_ = BUBBLE_VERTICAL_SUITABLEAGING_LEVEL_2_HEIGHT;
+    slidertheme->bubbleLevel2VerticalWidth_ = BUBBLE_VERTICAL_SUITABLEAGING_LEVEL_2_WIDTH;
     sliderTipModifier.SetSliderGlobalOffset(SLIDER_GLOBAL_OFFSET);
     sliderTipModifier.tipFlag_ = AceType::MakeRefPtr<PropertyBool>(true);
     sliderTipModifier.UpdateBubbleSize();
@@ -2316,21 +2340,9 @@ HWTEST_F(SliderModifierTestNg, SliderContentModifierTest042, TestSize.Level1)
      */
     SetSliderContentModifier(sliderContentModifier);
 
-    Gradient gradient;
-    GradientColor gradientColor1;
-    gradientColor1.SetLinearColor(LinearColor(Color::WHITE));
-    gradientColor1.SetDimension(Dimension(0.0));
-    gradient.AddColor(gradientColor1);
-    GradientColor gradientColor2;
-    gradientColor2.SetLinearColor(LinearColor(Color::RED));
-    gradientColor2.SetDimension(Dimension(0.5));
-    gradient.AddColor(gradientColor2);
-    GradientColor gradientColor3;
-    gradientColor3.SetLinearColor(LinearColor(Color::BLUE));
-    gradientColor3.SetDimension(Dimension(1.0));
-    gradient.AddColor(gradientColor3);
+    Gradient gradient = CreateLinearGradientBlockColor();
     std::vector<GradientColor> gradientColors = gradient.GetColors();
-    sliderContentModifier.SetLinerGradientBlockColor(gradient);
+    sliderContentModifier.SetLinearGradientBlockColor(gradient);
 
 
     Testing::MockCanvas canvas;
@@ -2341,6 +2353,518 @@ HWTEST_F(SliderModifierTestNg, SliderContentModifierTest042, TestSize.Level1)
     Gradient gradient3 = sliderContentModifier.blockGradientColor_->Get().GetGradient();
     std::vector<GradientColor> gradientColors3 = gradient3.GetColors();
     EXPECT_EQ(gradientColors.size(), gradientColors3.size());
+    EXPECT_EQ(gradientColors[0].GetLinearColor(), gradientColors3[0].GetLinearColor());
+    EXPECT_EQ(gradientColors[1].GetLinearColor(), gradientColors3[1].GetLinearColor());
+    EXPECT_EQ(gradientColors[2].GetLinearColor(), gradientColors3[2].GetLinearColor());
+    EXPECT_EQ(gradientColors[0].GetDimension(), gradientColors3[0].GetDimension());
+    EXPECT_EQ(gradientColors[1].GetDimension(), gradientColors3[1].GetDimension());
+    EXPECT_EQ(gradientColors[2].GetDimension(), gradientColors3[2].GetDimension());
+}
+
+/**
+ * @tc.name: SliderContentModifierTest043
+ * @tc.desc: TEST slider_content_modifier DrawBlockShapeCircle
+ * direction = HORIZONTAL, blockType = SHAPE, blockShape = CIRCLE, sliderMode = INSET
+ * @tc.type: FUNC
+ */
+HWTEST_F(SliderModifierTestNg, SliderContentModifierTest043, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. create frameNode and sliderContentModifier.
+     */
+    RefPtr<SliderPattern> sliderPattern = AceType::MakeRefPtr<SliderPattern>();
+    ASSERT_NE(sliderPattern, nullptr);
+    auto frameNode = FrameNode::CreateFrameNode(V2::SLIDER_ETS_TAG, -1, sliderPattern);
+    ASSERT_NE(frameNode, nullptr);
+    auto sliderPaintProperty = frameNode->GetPaintProperty<SliderPaintProperty>();
+    ASSERT_NE(sliderPaintProperty, nullptr);
+    SliderContentModifier::Parameters parameters;
+    parameters.selectStart = SELECT_START;
+    parameters.selectEnd = SELECT_END;
+    SliderContentModifier sliderContentModifier(parameters, nullptr);
+    /**
+     * @tc.steps: step2. set sliderContentModifier attribute and call onDraw function.
+     */
+    sliderContentModifier.SetDirection(Axis::HORIZONTAL);
+    sliderContentModifier.SetBlockType(SliderModelNG::BlockStyleType::SHAPE);
+    auto basicShape = AceType::MakeRefPtr<Circle>();
+    basicShape->SetBasicShapeType(BasicShapeType::CIRCLE);
+    sliderContentModifier.SetBlockShape(basicShape);
+    sliderContentModifier.SetSliderMode(SliderModelNG::SliderMode::INSET);
+
+    Testing::MockCanvas canvas;
+    MockCanvasFunction(canvas);
+    DrawingContext context { canvas, SLIDER_WIDTH, SLIDER_HEIGHT };
+    Gradient gradient = CreateLinearGradientBlockColor();
+    std::vector<GradientColor> gradientColors = gradient.GetColors();
+    sliderContentModifier.SetLinearGradientBlockColor(gradient);
+    auto circle = AccessibilityManager::DynamicCast<Circle>(sliderContentModifier.shape_);
+    ASSERT_NE(circle, nullptr);
+    sliderContentModifier.shapeWidth_->Set(1.0f);
+    sliderContentModifier.SetBlockSize(BLOCK_SIZE_F);
+    sliderContentModifier.shapeHeight_->Set(1.0f);
+    sliderContentModifier.DrawBlockShapeCircle(context, circle);
+    Gradient gradient3 = sliderContentModifier.blockGradientColor_->Get().GetGradient();
+    std::vector<GradientColor> gradientColors3 = gradient3.GetColors();
+    EXPECT_EQ(gradientColors[0].GetLinearColor(), gradientColors3[0].GetLinearColor());
+    EXPECT_EQ(gradientColors[1].GetLinearColor(), gradientColors3[1].GetLinearColor());
+    EXPECT_EQ(gradientColors[2].GetLinearColor(), gradientColors3[2].GetLinearColor());
+    EXPECT_EQ(gradientColors[0].GetDimension(), gradientColors3[0].GetDimension());
+    EXPECT_EQ(gradientColors[1].GetDimension(), gradientColors3[1].GetDimension());
+    EXPECT_EQ(gradientColors[2].GetDimension(), gradientColors3[2].GetDimension());
+}
+
+/**
+ * @tc.name: SliderContentModifierTest044
+ * @tc.desc: TEST slider_content_modifier DrawBlockShapeCircle
+ * direction = HORIZONTAL, blockType = SHAPE, blockShape = CIRCLE, sliderMode = INSET
+ * @tc.type: FUNC
+ */
+HWTEST_F(SliderModifierTestNg, SliderContentModifierTest044, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. create frameNode and sliderContentModifier.
+     */
+    RefPtr<SliderPattern> sliderPattern = AceType::MakeRefPtr<SliderPattern>();
+    ASSERT_NE(sliderPattern, nullptr);
+    auto frameNode = FrameNode::CreateFrameNode(V2::SLIDER_ETS_TAG, -1, sliderPattern);
+    ASSERT_NE(frameNode, nullptr);
+    auto sliderPaintProperty = frameNode->GetPaintProperty<SliderPaintProperty>();
+    ASSERT_NE(sliderPaintProperty, nullptr);
+    SliderContentModifier::Parameters parameters;
+    parameters.selectStart = SELECT_START;
+    parameters.selectEnd = SELECT_END;
+    SliderContentModifier sliderContentModifier(parameters, nullptr);
+    /**
+     * @tc.steps: step2. set sliderContentModifier attribute and call onDraw function.
+     */
+    sliderContentModifier.SetDirection(Axis::HORIZONTAL);
+    sliderContentModifier.SetBlockType(SliderModelNG::BlockStyleType::SHAPE);
+    auto basicShape = AceType::MakeRefPtr<Circle>();
+    basicShape->SetBasicShapeType(BasicShapeType::CIRCLE);
+    sliderContentModifier.SetBlockShape(basicShape);
+    sliderContentModifier.SetSliderMode(SliderModelNG::SliderMode::INSET);
+
+    Testing::MockCanvas canvas;
+    MockCanvasFunction(canvas);
+    DrawingContext context { canvas, SLIDER_WIDTH, SLIDER_HEIGHT };
+    Gradient gradient = CreateLinearGradientBlockColor();
+    std::vector<GradientColor> gradientColors = gradient.GetColors();
+    sliderContentModifier.SetLinearGradientBlockColor(gradient);
+    sliderContentModifier.reverse_ = true;
+    auto circle = AccessibilityManager::DynamicCast<Circle>(sliderContentModifier.shape_);
+    ASSERT_NE(circle, nullptr);
+    sliderContentModifier.shapeWidth_->Set(1.0f);
+    sliderContentModifier.SetBlockSize(BLOCK_SIZE_F);
+    sliderContentModifier.shapeHeight_->Set(1.0f);
+    sliderContentModifier.DrawBlockShapeCircle(context, circle);
+    Gradient gradient3 = sliderContentModifier.blockGradientColor_->Get().GetGradient();
+    std::vector<GradientColor> gradientColors3 = gradient3.GetColors();
+    EXPECT_EQ(gradientColors[0].GetLinearColor(), gradientColors3[0].GetLinearColor());
+    EXPECT_EQ(gradientColors[1].GetLinearColor(), gradientColors3[1].GetLinearColor());
+    EXPECT_EQ(gradientColors[2].GetLinearColor(), gradientColors3[2].GetLinearColor());
+    EXPECT_EQ(gradientColors[0].GetDimension(), gradientColors3[0].GetDimension());
+    EXPECT_EQ(gradientColors[1].GetDimension(), gradientColors3[1].GetDimension());
+    EXPECT_EQ(gradientColors[2].GetDimension(), gradientColors3[2].GetDimension());
+}
+
+/**
+ * @tc.name: SliderContentModifierTest045
+ * @tc.desc: TEST slider_content_modifier DrawBlockShapeEllipse
+ * direction = HORIZONTAL, blockType = SHAPE, blockShape = Ellipse, sliderMode = INSET
+ * @tc.type: FUNC
+ */
+HWTEST_F(SliderModifierTestNg, SliderContentModifierTest045, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. create frameNode and sliderContentModifier.
+     */
+    RefPtr<SliderPattern> sliderPattern = AceType::MakeRefPtr<SliderPattern>();
+    ASSERT_NE(sliderPattern, nullptr);
+    auto frameNode = FrameNode::CreateFrameNode(V2::SLIDER_ETS_TAG, -1, sliderPattern);
+    ASSERT_NE(frameNode, nullptr);
+    auto sliderPaintProperty = frameNode->GetPaintProperty<SliderPaintProperty>();
+    ASSERT_NE(sliderPaintProperty, nullptr);
+    SliderContentModifier::Parameters parameters;
+    parameters.selectStart = SELECT_START;
+    parameters.selectEnd = SELECT_END;
+    SliderContentModifier sliderContentModifier(parameters, nullptr);
+    /**
+     * @tc.steps: step2. set sliderContentModifier attribute.
+     */
+    sliderContentModifier.SetDirection(Axis::HORIZONTAL);
+    sliderContentModifier.SetBlockType(SliderModelNG::BlockStyleType::SHAPE);
+    auto basicShape = AceType::MakeRefPtr<Ellipse>();
+    basicShape->SetBasicShapeType(BasicShapeType::ELLIPSE);
+    sliderContentModifier.SetBlockShape(basicShape);
+    sliderContentModifier.SetSliderMode(SliderModelNG::SliderMode::INSET);
+    Testing::MockCanvas canvas;
+    MockCanvasFunction(canvas);
+    DrawingContext context { canvas, SLIDER_WIDTH, SLIDER_HEIGHT };
+    auto ellipse = AccessibilityManager::DynamicCast<Ellipse>(sliderContentModifier.shape_);
+    ASSERT_NE(ellipse, nullptr);
+    Gradient gradient = CreateLinearGradientBlockColor();
+    std::vector<GradientColor> gradientColors = gradient.GetColors();
+    sliderContentModifier.SetLinearGradientBlockColor(gradient);
+    sliderContentModifier.shapeWidth_->Set(1.0f);
+    sliderContentModifier.shapeHeight_->Set(1.0f);
+    sliderContentModifier.SetBlockSize(BLOCK_SIZE_F);
+    sliderContentModifier.DrawBlockShapeEllipse(context, ellipse);
+    Gradient gradient3 = sliderContentModifier.blockGradientColor_->Get().GetGradient();
+    std::vector<GradientColor> gradientColors3 = gradient3.GetColors();
+    EXPECT_EQ(gradientColors[0].GetLinearColor(), gradientColors3[0].GetLinearColor());
+    EXPECT_EQ(gradientColors[1].GetLinearColor(), gradientColors3[1].GetLinearColor());
+    EXPECT_EQ(gradientColors[2].GetLinearColor(), gradientColors3[2].GetLinearColor());
+    EXPECT_EQ(gradientColors[0].GetDimension(), gradientColors3[0].GetDimension());
+    EXPECT_EQ(gradientColors[1].GetDimension(), gradientColors3[1].GetDimension());
+    EXPECT_EQ(gradientColors[2].GetDimension(), gradientColors3[2].GetDimension());
+}
+
+/**
+ * @tc.name: SliderContentModifierTest046
+ * @tc.desc: TEST slider_content_modifier DrawBlockShapeEllipse
+ * direction = HORIZONTAL, blockType = SHAPE, blockShape = Ellipse, sliderMode = INSET
+ * @tc.type: FUNC
+ */
+HWTEST_F(SliderModifierTestNg, SliderContentModifierTest046, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. create frameNode and sliderContentModifier.
+     */
+    RefPtr<SliderPattern> sliderPattern = AceType::MakeRefPtr<SliderPattern>();
+    ASSERT_NE(sliderPattern, nullptr);
+    auto frameNode = FrameNode::CreateFrameNode(V2::SLIDER_ETS_TAG, -1, sliderPattern);
+    ASSERT_NE(frameNode, nullptr);
+    auto sliderPaintProperty = frameNode->GetPaintProperty<SliderPaintProperty>();
+    ASSERT_NE(sliderPaintProperty, nullptr);
+    SliderContentModifier::Parameters parameters;
+    parameters.selectStart = SELECT_START;
+    parameters.selectEnd = SELECT_END;
+    SliderContentModifier sliderContentModifier(parameters, nullptr);
+    /**
+     * @tc.steps: step2. set sliderContentModifier attribute.
+     */
+    sliderContentModifier.SetDirection(Axis::HORIZONTAL);
+    sliderContentModifier.SetBlockType(SliderModelNG::BlockStyleType::SHAPE);
+    auto basicShape = AceType::MakeRefPtr<Ellipse>();
+    basicShape->SetBasicShapeType(BasicShapeType::ELLIPSE);
+    sliderContentModifier.SetBlockShape(basicShape);
+    sliderContentModifier.SetSliderMode(SliderModelNG::SliderMode::INSET);
+    Testing::MockCanvas canvas;
+    MockCanvasFunction(canvas);
+    DrawingContext context { canvas, SLIDER_WIDTH, SLIDER_HEIGHT };
+    auto ellipse = AccessibilityManager::DynamicCast<Ellipse>(sliderContentModifier.shape_);
+    ASSERT_NE(ellipse, nullptr);
+    Gradient gradient = CreateLinearGradientBlockColor();
+    std::vector<GradientColor> gradientColors = gradient.GetColors();
+    sliderContentModifier.SetLinearGradientBlockColor(gradient);
+    sliderContentModifier.reverse_ = true;
+    sliderContentModifier.shapeWidth_->Set(1.0f);
+    sliderContentModifier.shapeHeight_->Set(1.0f);
+    sliderContentModifier.SetBlockSize(BLOCK_SIZE_F);
+    sliderContentModifier.DrawBlockShapeEllipse(context, ellipse);
+    Gradient gradient3 = sliderContentModifier.blockGradientColor_->Get().GetGradient();
+    std::vector<GradientColor> gradientColors3 = gradient3.GetColors();
+    EXPECT_EQ(gradientColors[0].GetLinearColor(), gradientColors3[0].GetLinearColor());
+    EXPECT_EQ(gradientColors[1].GetLinearColor(), gradientColors3[1].GetLinearColor());
+    EXPECT_EQ(gradientColors[2].GetLinearColor(), gradientColors3[2].GetLinearColor());
+    EXPECT_EQ(gradientColors[0].GetDimension(), gradientColors3[0].GetDimension());
+    EXPECT_EQ(gradientColors[1].GetDimension(), gradientColors3[1].GetDimension());
+    EXPECT_EQ(gradientColors[2].GetDimension(), gradientColors3[2].GetDimension());
+}
+
+/**
+ * @tc.name: SliderContentModifierTest047
+ * @tc.desc: TEST slider_content_modifier DrawBlockShapePath
+ * direction = HORIZONTAL, blockType = SHAPE, blockShape = CIRCLE, sliderMode = INSET
+ * @tc.type: FUNC
+ */
+HWTEST_F(SliderModifierTestNg, SliderContentModifierTest047, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. create frameNode and sliderContentModifier.
+     */
+    RefPtr<SliderPattern> sliderPattern = AceType::MakeRefPtr<SliderPattern>();
+    ASSERT_NE(sliderPattern, nullptr);
+    auto frameNode = FrameNode::CreateFrameNode(V2::SLIDER_ETS_TAG, -1, sliderPattern);
+    ASSERT_NE(frameNode, nullptr);
+    auto sliderPaintProperty = frameNode->GetPaintProperty<SliderPaintProperty>();
+    ASSERT_NE(sliderPaintProperty, nullptr);
+    SliderContentModifier::Parameters parameters;
+    parameters.selectStart = SELECT_START;
+    parameters.selectEnd = SELECT_END;
+    SliderContentModifier sliderContentModifier(parameters, nullptr);
+    /**
+     * @tc.steps: step2. set sliderContentModifier attribute and call onDraw function.
+     */
+    sliderContentModifier.SetDirection(Axis::HORIZONTAL);
+    sliderContentModifier.SetBlockType(SliderModelNG::BlockStyleType::SHAPE);
+    auto basicShape = AceType::MakeRefPtr<Path>();
+    basicShape->SetBasicShapeType(BasicShapeType::PATH);
+    sliderContentModifier.SetBlockShape(basicShape);
+    sliderContentModifier.SetSliderMode(SliderModelNG::SliderMode::INSET);
+
+    Testing::MockCanvas canvas;
+    MockCanvasFunction(canvas);
+    DrawingContext context { canvas, SLIDER_WIDTH, SLIDER_HEIGHT };
+    auto path = AccessibilityManager::DynamicCast<Path>(sliderContentModifier.shape_);
+    ASSERT_NE(path, nullptr);
+    Gradient gradient = CreateLinearGradientBlockColor();
+    std::vector<GradientColor> gradientColors = gradient.GetColors();
+    sliderContentModifier.SetLinearGradientBlockColor(gradient);
+    sliderContentModifier.shapeWidth_->Set(1.0f);
+    sliderContentModifier.shapeHeight_->Set(1.0f);
+    sliderContentModifier.SetBlockSize(BLOCK_SIZE_F);
+    sliderContentModifier.DrawBlockShapePath(context, path);
+
+    Gradient gradient3 = sliderContentModifier.blockGradientColor_->Get().GetGradient();
+    std::vector<GradientColor> gradientColors3 = gradient3.GetColors();
+    EXPECT_EQ(gradientColors[0].GetLinearColor(), gradientColors3[0].GetLinearColor());
+    EXPECT_EQ(gradientColors[1].GetLinearColor(), gradientColors3[1].GetLinearColor());
+    EXPECT_EQ(gradientColors[2].GetLinearColor(), gradientColors3[2].GetLinearColor());
+    EXPECT_EQ(gradientColors[0].GetDimension(), gradientColors3[0].GetDimension());
+    EXPECT_EQ(gradientColors[1].GetDimension(), gradientColors3[1].GetDimension());
+    EXPECT_EQ(gradientColors[2].GetDimension(), gradientColors3[2].GetDimension());
+}
+
+/**
+ * @tc.name: SliderContentModifierTest048
+ * @tc.desc: TEST slider_content_modifier DrawBlockShapePath
+ * direction = HORIZONTAL, blockType = SHAPE, blockShape = CIRCLE, sliderMode = INSET
+ * @tc.type: FUNC
+ */
+HWTEST_F(SliderModifierTestNg, SliderContentModifierTest048, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. create frameNode and sliderContentModifier.
+     */
+    RefPtr<SliderPattern> sliderPattern = AceType::MakeRefPtr<SliderPattern>();
+    ASSERT_NE(sliderPattern, nullptr);
+    auto frameNode = FrameNode::CreateFrameNode(V2::SLIDER_ETS_TAG, -1, sliderPattern);
+    ASSERT_NE(frameNode, nullptr);
+    auto sliderPaintProperty = frameNode->GetPaintProperty<SliderPaintProperty>();
+    ASSERT_NE(sliderPaintProperty, nullptr);
+    SliderContentModifier::Parameters parameters;
+    parameters.selectStart = SELECT_START;
+    parameters.selectEnd = SELECT_END;
+    SliderContentModifier sliderContentModifier(parameters, nullptr);
+    /**
+     * @tc.steps: step2. set sliderContentModifier attribute and call onDraw function.
+     */
+    sliderContentModifier.SetDirection(Axis::HORIZONTAL);
+    sliderContentModifier.SetBlockType(SliderModelNG::BlockStyleType::SHAPE);
+    auto basicShape = AceType::MakeRefPtr<Path>();
+    basicShape->SetBasicShapeType(BasicShapeType::PATH);
+    sliderContentModifier.SetBlockShape(basicShape);
+    sliderContentModifier.SetSliderMode(SliderModelNG::SliderMode::INSET);
+
+    Testing::MockCanvas canvas;
+    MockCanvasFunction(canvas);
+    DrawingContext context { canvas, SLIDER_WIDTH, SLIDER_HEIGHT };
+    auto path = AccessibilityManager::DynamicCast<Path>(sliderContentModifier.shape_);
+    ASSERT_NE(path, nullptr);
+    Gradient gradient = CreateLinearGradientBlockColor();
+    std::vector<GradientColor> gradientColors = gradient.GetColors();
+    sliderContentModifier.SetLinearGradientBlockColor(gradient);
+    sliderContentModifier.reverse_ = true;
+    sliderContentModifier.shapeWidth_->Set(1.0f);
+    sliderContentModifier.shapeHeight_->Set(1.0f);
+    sliderContentModifier.SetBlockSize(BLOCK_SIZE_F);
+    sliderContentModifier.DrawBlockShapePath(context, path);
+
+    Gradient gradient3 = sliderContentModifier.blockGradientColor_->Get().GetGradient();
+    std::vector<GradientColor> gradientColors3 = gradient3.GetColors();
+    EXPECT_EQ(gradientColors[0].GetLinearColor(), gradientColors3[0].GetLinearColor());
+    EXPECT_EQ(gradientColors[1].GetLinearColor(), gradientColors3[1].GetLinearColor());
+    EXPECT_EQ(gradientColors[2].GetLinearColor(), gradientColors3[2].GetLinearColor());
+    EXPECT_EQ(gradientColors[0].GetDimension(), gradientColors3[0].GetDimension());
+    EXPECT_EQ(gradientColors[1].GetDimension(), gradientColors3[1].GetDimension());
+    EXPECT_EQ(gradientColors[2].GetDimension(), gradientColors3[2].GetDimension());
+}
+
+/**
+ * @tc.name: SliderContentModifierTest049
+ * @tc.desc: TEST slider_content_modifier DrawBlockShapeRect
+ * direction = HORIZONTAL, blockType = SHAPE, blockShape = CIRCLE, sliderMode = INSET
+ * @tc.type: FUNC
+ */
+HWTEST_F(SliderModifierTestNg, SliderContentModifierTest049, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. create frameNode and sliderContentModifier.
+     */
+    RefPtr<SliderPattern> sliderPattern = AceType::MakeRefPtr<SliderPattern>();
+    ASSERT_NE(sliderPattern, nullptr);
+    auto frameNode = FrameNode::CreateFrameNode(V2::SLIDER_ETS_TAG, -1, sliderPattern);
+    ASSERT_NE(frameNode, nullptr);
+    auto sliderPaintProperty = frameNode->GetPaintProperty<SliderPaintProperty>();
+    ASSERT_NE(sliderPaintProperty, nullptr);
+    SliderContentModifier::Parameters parameters;
+    parameters.selectStart = SELECT_START;
+    parameters.selectEnd = SELECT_END;
+    SliderContentModifier sliderContentModifier(parameters, nullptr);
+    /**
+     * @tc.steps: step2. set sliderContentModifier attribute and call onDraw function.
+     */
+    sliderContentModifier.SetDirection(Axis::HORIZONTAL);
+    sliderContentModifier.SetBlockType(SliderModelNG::BlockStyleType::SHAPE);
+    auto basicShape = AceType::MakeRefPtr<ShapeRect>();
+    basicShape->SetBasicShapeType(BasicShapeType::RECT);
+    sliderContentModifier.SetBlockShape(basicShape);
+    sliderContentModifier.SetSliderMode(SliderModelNG::SliderMode::INSET);
+
+    Testing::MockCanvas canvas;
+    MockCanvasFunction(canvas);
+    DrawingContext context { canvas, SLIDER_WIDTH, SLIDER_HEIGHT };
+    auto rect = AccessibilityManager::DynamicCast<ShapeRect>(sliderContentModifier.shape_);
+    ASSERT_NE(rect, nullptr);
+    Gradient gradient = CreateLinearGradientBlockColor();
+    std::vector<GradientColor> gradientColors = gradient.GetColors();
+    sliderContentModifier.SetLinearGradientBlockColor(gradient);
+    sliderContentModifier.shapeWidth_->Set(1.0f);
+    sliderContentModifier.shapeHeight_->Set(1.0f);
+    sliderContentModifier.SetBlockSize(BLOCK_SIZE_F);
+    sliderContentModifier.DrawBlockShapeRect(context, rect);
+    Gradient gradient3 = sliderContentModifier.blockGradientColor_->Get().GetGradient();
+    std::vector<GradientColor> gradientColors3 = gradient3.GetColors();
+    EXPECT_EQ(gradientColors[0].GetLinearColor(), gradientColors3[0].GetLinearColor());
+    EXPECT_EQ(gradientColors[1].GetLinearColor(), gradientColors3[1].GetLinearColor());
+    EXPECT_EQ(gradientColors[2].GetLinearColor(), gradientColors3[2].GetLinearColor());
+    EXPECT_EQ(gradientColors[0].GetDimension(), gradientColors3[0].GetDimension());
+    EXPECT_EQ(gradientColors[1].GetDimension(), gradientColors3[1].GetDimension());
+    EXPECT_EQ(gradientColors[2].GetDimension(), gradientColors3[2].GetDimension());
+}
+
+/**
+ * @tc.name: SliderContentModifierTest050
+ * @tc.desc: TEST slider_content_modifier DrawBlockShapeRect
+ * direction = HORIZONTAL, blockType = SHAPE, blockShape = CIRCLE, sliderMode = INSET
+ * @tc.type: FUNC
+ */
+HWTEST_F(SliderModifierTestNg, SliderContentModifierTest050, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. create frameNode and sliderContentModifier.
+     */
+    RefPtr<SliderPattern> sliderPattern = AceType::MakeRefPtr<SliderPattern>();
+    ASSERT_NE(sliderPattern, nullptr);
+    auto frameNode = FrameNode::CreateFrameNode(V2::SLIDER_ETS_TAG, -1, sliderPattern);
+    ASSERT_NE(frameNode, nullptr);
+    auto sliderPaintProperty = frameNode->GetPaintProperty<SliderPaintProperty>();
+    ASSERT_NE(sliderPaintProperty, nullptr);
+    SliderContentModifier::Parameters parameters;
+    parameters.selectStart = SELECT_START;
+    parameters.selectEnd = SELECT_END;
+    SliderContentModifier sliderContentModifier(parameters, nullptr);
+    /**
+     * @tc.steps: step2. set sliderContentModifier attribute and call onDraw function.
+     */
+    sliderContentModifier.SetDirection(Axis::HORIZONTAL);
+    sliderContentModifier.SetBlockType(SliderModelNG::BlockStyleType::SHAPE);
+    auto basicShape = AceType::MakeRefPtr<ShapeRect>();
+    basicShape->SetBasicShapeType(BasicShapeType::RECT);
+    sliderContentModifier.SetBlockShape(basicShape);
+    sliderContentModifier.SetSliderMode(SliderModelNG::SliderMode::INSET);
+
+    Testing::MockCanvas canvas;
+    MockCanvasFunction(canvas);
+    DrawingContext context { canvas, SLIDER_WIDTH, SLIDER_HEIGHT };
+    auto rect = AccessibilityManager::DynamicCast<ShapeRect>(sliderContentModifier.shape_);
+    ASSERT_NE(rect, nullptr);
+    Gradient gradient = CreateLinearGradientBlockColor();
+    std::vector<GradientColor> gradientColors = gradient.GetColors();
+    sliderContentModifier.SetLinearGradientBlockColor(gradient);
+    sliderContentModifier.shapeWidth_->Set(1.0f);
+    sliderContentModifier.shapeHeight_->Set(1.0f);
+    sliderContentModifier.reverse_ = true;
+    sliderContentModifier.SetBlockSize(BLOCK_SIZE_F);
+    sliderContentModifier.DrawBlockShapeRect(context, rect);
+    Gradient gradient3 = sliderContentModifier.blockGradientColor_->Get().GetGradient();
+    std::vector<GradientColor> gradientColors3 = gradient3.GetColors();
+    EXPECT_EQ(gradientColors[0].GetLinearColor(), gradientColors3[0].GetLinearColor());
+    EXPECT_EQ(gradientColors[1].GetLinearColor(), gradientColors3[1].GetLinearColor());
+    EXPECT_EQ(gradientColors[2].GetLinearColor(), gradientColors3[2].GetLinearColor());
+    EXPECT_EQ(gradientColors[0].GetDimension(), gradientColors3[0].GetDimension());
+    EXPECT_EQ(gradientColors[1].GetDimension(), gradientColors3[1].GetDimension());
+    EXPECT_EQ(gradientColors[2].GetDimension(), gradientColors3[2].GetDimension());
+}
+
+/**
+ * @tc.name: SliderContentModifierTest051
+ * @tc.desc: TEST SliderContentModifier DrawDefaultBlock
+ * @tc.type: FUNC
+ */
+HWTEST_F(SliderModifierTestNg, SliderContentModifierTest051, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. create frameNode and sliderContentModifier.
+     */
+    RefPtr<SliderPattern> sliderPattern = AceType::MakeRefPtr<SliderPattern>();
+    ASSERT_NE(sliderPattern, nullptr);
+    auto frameNode = FrameNode::CreateFrameNode(V2::SLIDER_ETS_TAG, -1, sliderPattern);
+    ASSERT_NE(frameNode, nullptr);
+    auto sliderPaintProperty = frameNode->GetPaintProperty<SliderPaintProperty>();
+    ASSERT_NE(sliderPaintProperty, nullptr);
+    SliderContentModifier::Parameters parameters;
+    SliderContentModifier sliderContentModifier(parameters, nullptr);
+    /**
+     * @tc.steps: step2. set sliderContentModifier attribute and call DrawDefaultBlock function.
+     */
+    Gradient gradient = CreateLinearGradientBlockColor();
+    std::vector<GradientColor> gradientColors = gradient.GetColors();
+    sliderContentModifier.SetLinearGradientBlockColor(gradient);
+    Testing::MockCanvas canvas;
+    MockCanvasFunction(canvas);
+    DrawingContext context { canvas, SLIDER_WIDTH, SLIDER_HEIGHT };
+    sliderContentModifier.reverse_ = true;
+    sliderContentModifier.SetBlockSize(BLOCK_SIZE_F);
+    sliderContentModifier.SetBlockBorderWidth(SLIDER_CONTENT_MODIFIER_BLOCK_BORDER_WIDTH_SMALL);
+    sliderContentModifier.DrawDefaultBlock(context);
+
+    Gradient gradient3 = sliderContentModifier.blockGradientColor_->Get().GetGradient();
+    std::vector<GradientColor> gradientColors3 = gradient3.GetColors();
+    EXPECT_EQ(gradientColors[0].GetLinearColor(), gradientColors3[0].GetLinearColor());
+    EXPECT_EQ(gradientColors[1].GetLinearColor(), gradientColors3[1].GetLinearColor());
+    EXPECT_EQ(gradientColors[2].GetLinearColor(), gradientColors3[2].GetLinearColor());
+    EXPECT_EQ(gradientColors[0].GetDimension(), gradientColors3[0].GetDimension());
+    EXPECT_EQ(gradientColors[1].GetDimension(), gradientColors3[1].GetDimension());
+    EXPECT_EQ(gradientColors[2].GetDimension(), gradientColors3[2].GetDimension());
+}
+
+/**
+ * @tc.name: SliderContentModifierTest052
+ * @tc.desc: TEST SliderContentModifier DrawDefaultBlock
+ * @tc.type: FUNC
+ */
+HWTEST_F(SliderModifierTestNg, SliderContentModifierTest052, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. create frameNode and sliderContentModifier.
+     */
+    RefPtr<SliderPattern> sliderPattern = AceType::MakeRefPtr<SliderPattern>();
+    ASSERT_NE(sliderPattern, nullptr);
+    auto frameNode = FrameNode::CreateFrameNode(V2::SLIDER_ETS_TAG, -1, sliderPattern);
+    ASSERT_NE(frameNode, nullptr);
+    auto sliderPaintProperty = frameNode->GetPaintProperty<SliderPaintProperty>();
+    ASSERT_NE(sliderPaintProperty, nullptr);
+    SliderContentModifier::Parameters parameters;
+    SliderContentModifier sliderContentModifier(parameters, nullptr);
+    /**
+     * @tc.steps: step2. set sliderContentModifier attribute and call DrawDefaultBlock function.
+     */
+    Gradient gradient = CreateLinearGradientBlockColor();
+    std::vector<GradientColor> gradientColors = gradient.GetColors();
+    sliderContentModifier.SetLinearGradientBlockColor(gradient);
+    sliderContentModifier.reverse_ = true;
+    Testing::MockCanvas canvas;
+    MockCanvasFunction(canvas);
+    DrawingContext context { canvas, SLIDER_WIDTH, SLIDER_HEIGHT };
+    sliderContentModifier.SetBlockSize(BLOCK_SIZE_F);
+    sliderContentModifier.SetBlockBorderWidth(SLIDER_CONTENT_MODIFIER_BLOCK_BORDER_WIDTH_SMALL);
+    sliderContentModifier.DrawDefaultBlock(context);
+
+    Gradient gradient3 = sliderContentModifier.blockGradientColor_->Get().GetGradient();
+    std::vector<GradientColor> gradientColors3 = gradient3.GetColors();
     EXPECT_EQ(gradientColors[0].GetLinearColor(), gradientColors3[0].GetLinearColor());
     EXPECT_EQ(gradientColors[1].GetLinearColor(), gradientColors3[1].GetLinearColor());
     EXPECT_EQ(gradientColors[2].GetLinearColor(), gradientColors3[2].GetLinearColor());

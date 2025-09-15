@@ -55,6 +55,10 @@ public:
     static void SetContentClip(ContentClipMode mode, const RefPtr<ShapeRect>& rect);
     static void SetMaxFlingSpeed(double max);
     static void SetOnWillStopDragging(OnWillStopDraggingEvent&& onWillStopDragging);
+    static void SetOnWillStartDragging(OnWillStartDraggingEvent&& event) ;
+    static void SetOnDidStopDragging(OnDidStopDraggingEvent&& event);
+    static void SetOnWillStartFling(OnWillStartFlingEvent&& event);
+    static void SetOnDidStopFling(OnDidStopFlingEvent&& event);
 
     static void SetEdgeEffect(
         FrameNode* frameNode, EdgeEffect edgeEffect, bool alwaysEnabled, EffectEdge effectEdge = EffectEdge::ALL);
@@ -84,6 +88,10 @@ public:
     static bool GetFadingEdge(FrameNode* frameNode);
     static float GetFadingEdgeLength(FrameNode* frameNode);
     static void SetOnWillStopDragging(FrameNode* frameNode, OnWillStopDraggingEvent&& onWillStopDragging);
+    static void SetOnWillStartDragging(FrameNode* frameNode, OnWillStartDraggingEvent&& event) ;
+    static void SetOnDidStopDragging(FrameNode* frameNode, OnDidStopDraggingEvent&& event);
+    static void SetOnWillStartFling(FrameNode* frameNode, OnWillStartFlingEvent&& event);
+    static void SetOnDidStopFling(FrameNode* frameNode, OnDidStopFlingEvent&& event);
 
 #ifdef SUPPORT_DIGITAL_CROWN
     static void SetDigitalCrownSensitivity(CrownSensitivity sensitivity);
@@ -104,6 +112,18 @@ public:
     static void SetScrollBarMargin(FrameNode* frameNode, const ScrollBarMargin& scrollBarMargin);
     static void ResetScrollBarMargin(FrameNode* frameNode);
     static void GetScrollBarMargin(FrameNode* frameNode, ScrollBarMargin& scrollBarMargin);
+    static void SetContentStartOffset(float offset);
+    static void SetContentEndOffset(float offset);
+    static void SetContentStartOffset(FrameNode* frameNode, float offset);
+    static void SetContentEndOffset(FrameNode* frameNode, float offset);
+    static void ResetContentStartOffset();
+    static void ResetContentEndOffset();
+    static void ResetContentStartOffset(FrameNode* frameNode);
+    static void ResetContentEndOffset(FrameNode* frameNode);
+    static void CreateWithResourceObjContentStartOffset(const RefPtr<ResourceObject>& resObj);
+    static void CreateWithResourceObjContentEndOffset(const RefPtr<ResourceObject>& resObj);
+    static void CreateWithResourceObjContentStartOffset(FrameNode* frameNode, const RefPtr<ResourceObject>& resObj);
+    static void CreateWithResourceObjContentEndOffset(FrameNode* frameNode, const RefPtr<ResourceObject>& resObj);
 
     static void CreateWithResourceObjScrollBarColor(FrameNode* frameNode, const RefPtr<ResourceObject>& resObj);
 };

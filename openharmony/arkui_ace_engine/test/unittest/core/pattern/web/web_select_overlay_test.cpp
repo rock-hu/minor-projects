@@ -32,7 +32,7 @@
 #include "test/mock/core/pipeline/mock_pipeline_context.h"
 #include "test/unittest/core/pattern/web/mock_web_delegate.h"
 
-#include "base/web/webview/arkweb_utils/arkweb_utils.h"
+#include "arkweb_utils.h"
 #include "core/components/select/select_theme.h"
 #include "core/components/text_field/textfield_theme.h"
 #include "core/components/text_overlay/text_overlay_theme.h"
@@ -6587,8 +6587,8 @@ HWTEST_F(WebSelectOverlayTest, ComputeSelectAreaRectTest001, TestSize.Level1)
     RectF selectArea = data;
     WebSelectOverlay overlay(webPattern);
     auto ret = overlay.ComputeSelectAreaRect(selectArea);
-    bool x = NearEqual(ret.GetX(), selectArea.GetX() + offset.GetX());
-    bool y = NearEqual(ret.GetY(), selectArea.GetY() + offset.GetY());
+    bool x = NearEqual(ret.GetX(), size.Width() + offset.GetX());
+    bool y = NearEqual(ret.GetY(), size.Height() + offset.GetY());
     EXPECT_TRUE(x & y);
 }
 
@@ -6619,8 +6619,8 @@ HWTEST_F(WebSelectOverlayTest, ComputeSelectAreaRectTest002, TestSize.Level1)
     RectF selectArea = data;
     WebSelectOverlay overlay(webPattern);
     auto ret = overlay.ComputeSelectAreaRect(selectArea);
-    bool x = NearEqual(ret.GetX(), selectArea.GetX() + offset.GetX());
-    bool y = NearEqual(ret.GetY(), selectArea.GetY() + offset.GetY());
+    bool x = NearEqual(ret.GetX(), size.Width() + offset.GetX());
+    bool y = NearEqual(ret.GetY(), offset.GetY());
     EXPECT_TRUE(x & y);
 }
 } // namespace OHOS::Ace::NG

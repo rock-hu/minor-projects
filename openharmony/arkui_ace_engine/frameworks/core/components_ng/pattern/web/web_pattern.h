@@ -125,6 +125,11 @@ struct PipInfo {
     int height;
 };
 
+enum class WebWindowMaximizeReason : uint32_t {
+    MAXIMIZE = 0,
+    EXIT_FREE_MULTI_MODE,
+};
+
 using CursorStyleInfo = std::tuple<OHOS::NWeb::CursorType, std::shared_ptr<OHOS::NWeb::NWebCursorInfo>>;
 class WebPattern : public NestableScrollContainer,
                    public TextBase,
@@ -145,6 +150,9 @@ public:
     using WebNodeInfoCallback = const std::function<void(std::shared_ptr<JsonValue>& jsonNodeArray, int32_t webId)>;
     using TextBlurCallback = std::function<void(int64_t, const std::string)>;
     using WebComponentClickCallback = std::function<void(int64_t, const std::string)>;
+    using OnWebNativeMessageConnectCallback = std::function<void(const std::shared_ptr<BaseEventInfo>&)>;
+    using OnWebNativeMessageDisConnectCallback = std::function<void(const std::shared_ptr<BaseEventInfo>&)>;
+
     WebPattern();
     WebPattern(const std::string& webSrc, const RefPtr<WebController>& webController,
                RenderMode type = RenderMode::ASYNC_RENDER, bool incognitoMode = false,
@@ -346,6 +354,25 @@ public:
         return onOpenAppLinkCallback_;
     }
 
+    void SetWebNativeMessageConnectCallback(OnWebNativeMessageConnectCallback &&callback)
+    {
+        onWebNativeMessageConnectCallback_ = std::move(callback);
+    }
+
+    OnWebNativeMessageConnectCallback GetWebNativeMessageConnectCallback() const
+    {
+        return onWebNativeMessageConnectCallback_;
+    }
+
+    void SetWebNativeMessageDisConnectCallback(OnWebNativeMessageDisConnectCallback &&callback)
+    {
+        onWebNativeMessageDisConnectCallback_ = std::move(callback);
+    }
+
+    OnWebNativeMessageDisConnectCallback GetWebNativeMessageDisConnectCallback() const
+    {
+        return onWebNativeMessageDisConnectCallback_;
+    }
     void SetFaviconFunction(SetFaviconCallback&& callback)
     {
         setFaviconCallback_ = std::move(callback);
@@ -904,6 +931,7 @@ public:
     std::string GetAllTextInfo() const;
     void GetHandleInfo(SelectOverlayInfo& infoHandle);
     void HandleOnAIWrite();
+    void WindowMaximize(WebWindowMaximizeReason reason);
 
 protected:
     void ModifyWebSrc(const std::string& webSrc)
@@ -1021,7 +1049,6 @@ private:
     void OnNativeVideoPlayerConfigUpdate(const std::tuple<bool, bool>& config);
     void DragResizeNoMoveTimer();
     void WindowDrag(int32_t width, int32_t height);
-    void WindowMaximize();
     void OnOverlayScrollbarEnabledUpdate(bool enable);
     void OnKeyboardAvoidModeUpdate(const WebKeyboardAvoidMode& mode);
     void OnEnabledHapticFeedbackUpdate(bool enable);
@@ -1244,6 +1271,8 @@ private:
     OnOpenAppLinkCallback onOpenAppLinkCallback_ = nullptr;
     SetFaviconCallback setFaviconCallback_ = nullptr;
     DefaultFileSelectorShowCallback defaultFileSelectorShowCallback_ = nullptr;
+    OnWebNativeMessageConnectCallback onWebNativeMessageConnectCallback_ = nullptr;
+    OnWebNativeMessageDisConnectCallback onWebNativeMessageDisConnectCallback_ = nullptr;
     RenderMode renderMode_;
     bool incognitoMode_ = false;
     SetHapPathCallback setHapPathCallback_ = nullptr;
@@ -1453,6 +1482,7 @@ private:
     int64_t lastDragTime_ = 0L;
     bool dragResizeTimerFlag_ = false;
     int32_t dragResizeTimerCount_ = 0;
+    WeakPtr<PipelineContext> pipeline_;
 
 protected:
     OnCreateMenuCallback onCreateMenuCallback_;

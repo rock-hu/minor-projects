@@ -207,6 +207,9 @@ bool ScrollPattern::SetScrollProperties(const RefPtr<LayoutWrapper>& dirty, cons
     viewPort_ = layoutAlgorithm->GetViewPort();
     viewSize_ = layoutAlgorithm->GetViewSize();
     viewPortExtent_ = layoutAlgorithm->GetViewPortExtent();
+    
+    contentEndOffset_ = layoutAlgorithm->GetContentEndOffset();
+    contentStartOffset_ = layoutAlgorithm->GetContentStartOffset();
     if (IsEnablePagingValid()) {
         SetIntervalSize(Dimension(static_cast<double>(viewPortLength_)));
     }
@@ -221,7 +224,9 @@ bool ScrollPattern::SetScrollProperties(const RefPtr<LayoutWrapper>& dirty, cons
 bool ScrollPattern::ScrollSnapTrigger()
 {
     if (ScrollableIdle() && !AnimateRunning()) {
-        SnapAnimationOptions snapAnimationOptions;
+        SnapAnimationOptions snapAnimationOptions = {
+            .source = SCROLL_FROM_LAYOUT,
+        };
         if (StartSnapAnimation(snapAnimationOptions)) {
             if (!IsScrolling()) {
                 FireOnScrollStart();
@@ -379,7 +384,7 @@ void ScrollPattern::AdjustOffset(float& delta, int32_t source)
 
 double ScrollPattern::ValidateOffset(int32_t source, double willScrollOffset)
 {
-    if (LessOrEqual(scrollableDistance_, 0.0f) || source == SCROLL_FROM_JUMP) {
+    if (LessOrEqual(scrollableDistance_, 0.0) || source == SCROLL_FROM_JUMP) {
         return willScrollOffset;
     }
 
@@ -388,7 +393,7 @@ double ScrollPattern::ValidateOffset(int32_t source, double willScrollOffset)
         source == SCROLL_FROM_ROTATE || source == SCROLL_FROM_AXIS) {
         if (GetAxis() == Axis::HORIZONTAL) {
             if (IsRowReverse()) {
-                willScrollOffset = std::clamp(willScrollOffset, 0.0, scrollableDistance_);
+                willScrollOffset = std::clamp(willScrollOffset, -0.0, scrollableDistance_);
             } else {
                 willScrollOffset = std::clamp(willScrollOffset, -scrollableDistance_, 0.0);
             }
@@ -809,7 +814,8 @@ void ScrollPattern::SetEdgeEffectCallback(const RefPtr<ScrollEdgeEffect>& scroll
     });
     scrollEffect->SetTrailingCallback([weakScroll = AceType::WeakClaim(this)]() -> double {
         auto scroll = weakScroll.Upgrade();
-        if (scroll && (scroll->IsRowReverse() || scroll->IsColReverse())) {
+        CHECK_NULL_RETURN(scroll, 0.0);
+        if (scroll->IsRowReverse() || scroll->IsColReverse()) {
             return scroll->GetScrollableDistance();
         }
         return 0.0;
@@ -823,7 +829,8 @@ void ScrollPattern::SetEdgeEffectCallback(const RefPtr<ScrollEdgeEffect>& scroll
     });
     scrollEffect->SetInitTrailingCallback([weakScroll = AceType::WeakClaim(this)]() -> double {
         auto scroll = weakScroll.Upgrade();
-        if (scroll && (scroll->IsRowReverse() || scroll->IsColReverse())) {
+        CHECK_NULL_RETURN(scroll, 0.0);
+        if (scroll->IsRowReverse() || scroll->IsColReverse()) {
             return scroll->GetScrollableDistance();
         }
         return 0.0;
@@ -853,8 +860,7 @@ void ScrollPattern::UpdateScrollBarOffset()
     auto layoutProperty = host->GetLayoutProperty<ScrollLayoutProperty>();
     CHECK_NULL_VOID(layoutProperty);
     auto padding = layoutProperty->CreatePaddingAndBorder();
-    auto contentEndOffset = layoutProperty->GetScrollContentEndOffsetValue(.0f);
-    Size size(viewSize_.Width(), viewSize_.Height() - contentEndOffset);
+    Size size(viewSize_.Width(), viewSize_.Height() - contentEndOffset_);
     auto viewPortExtent = viewPortExtent_;
     AddPaddingToSize(padding, viewPortExtent);
     auto estimatedHeight = (GetAxis() == Axis::HORIZONTAL) ? viewPortExtent.Width() : viewPortExtent.Height();
@@ -1508,13 +1514,15 @@ bool ScrollPattern::StartSnapAnimation(SnapAnimationOptions snapAnimationOptions
     auto predictSnapOffset = CalcPredictSnapOffset(snapAnimationOptions.snapDelta, snapAnimationOptions.dragDistance,
         snapAnimationOptions.animationVelocity, snapAnimationOptions.snapDirection);
     if (predictSnapOffset.has_value() && !NearZero(predictSnapOffset.value(), SPRING_ACCURACY)) {
-        StartScrollSnapAnimation(predictSnapOffset.value(), snapAnimationOptions.animationVelocity, fromScrollBar);
+        StartScrollSnapAnimation(predictSnapOffset.value(), snapAnimationOptions.animationVelocity, fromScrollBar,
+            snapAnimationOptions.source);
         return true;
     }
     return false;
 }
 
-void ScrollPattern::StartScrollSnapAnimation(float scrollSnapDelta, float scrollSnapVelocity, bool fromScrollBar)
+void ScrollPattern::StartScrollSnapAnimation(
+    float scrollSnapDelta, float scrollSnapVelocity, bool fromScrollBar, int32_t source)
 {
     auto scrollableEvent = GetScrollableEvent();
     CHECK_NULL_VOID(scrollableEvent);
@@ -1524,7 +1532,7 @@ void ScrollPattern::StartScrollSnapAnimation(float scrollSnapDelta, float scroll
         scrollable->UpdateScrollSnapEndWithOffset(
             -(scrollSnapDelta + scrollable->GetCurrentPos() - scrollable->GetSnapFinalPosition()));
     } else {
-        scrollable->StartScrollSnapAnimation(scrollSnapDelta, scrollSnapVelocity, fromScrollBar);
+        scrollable->StartScrollSnapAnimation(scrollSnapDelta, scrollSnapVelocity, fromScrollBar, source);
         if (!IsScrolling()) {
             FireOnScrollStart();
         }

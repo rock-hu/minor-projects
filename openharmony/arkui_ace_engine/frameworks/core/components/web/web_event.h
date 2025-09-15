@@ -791,6 +791,18 @@ public:
     virtual void CancelLoad() = 0;
 };
 
+class ACE_EXPORT WebNativeMessageCallback : public AceType {
+    DECLARE_ACE_TYPE(WebNativeMessageCallback, AceType);
+
+public:
+    WebNativeMessageCallback() = default;
+    ~WebNativeMessageCallback() = default;
+
+    virtual void OnConnect(int32_t pid) = 0;
+    virtual void OnDisconnect(int32_t pid) = 0;
+    virtual void OnFailed(int32_t code) = 0;
+};
+
 class ACE_EXPORT WebCustomKeyboardHandler : public AceType {
     DECLARE_ACE_TYPE(WebCustomKeyboardHandler, AceType);
 
@@ -1113,6 +1125,56 @@ private:
     RefPtr<WebAppLinkCallback> callback_;
 };
 
+class ACE_EXPORT WebNativeMessageEvent : public BaseEventInfo {
+    DECLARE_RELATIONSHIP_OF_CLASSES(WebNativeMessageEvent, BaseEventInfo);
+
+public:
+    WebNativeMessageEvent(const std::string &bundleName, const std::string &extensionOrigin, const int readPipe,
+        const int writePipe, const RefPtr<WebNativeMessageCallback> &callback)
+        : BaseEventInfo("WebNativeMessageEvent"), bundleName_(bundleName), extensionOrigin_(extensionOrigin),
+          readPipe_(readPipe), writePipe_(writePipe), callback_(callback)
+    {}
+    WebNativeMessageEvent(const int connectId) : BaseEventInfo("WebNativeMessageEvent"), connectId_(connectId)
+    {}
+
+    ~WebNativeMessageEvent() = default;
+
+    const RefPtr<WebNativeMessageCallback> &GetCallback() const
+    {
+        return callback_;
+    }
+
+    const std::string &GetBundleName() const
+    {
+        return bundleName_;
+    }
+    const std::string &GetExtensionOrigin() const
+    {
+        return extensionOrigin_;
+    }
+    const int &GetReadPipe() const
+    {
+        return readPipe_;
+    }
+    const int &GetWritePipe() const
+    {
+        return writePipe_;
+    }
+
+    const int &GetConnectId() const
+    {
+        return connectId_;
+    }
+
+private:
+    std::string bundleName_;
+    std::string extensionOrigin_;
+    int readPipe_;
+    int writePipe_;
+    int connectId_ = 0;
+    RefPtr<WebNativeMessageCallback> callback_;
+};
+
 class ACE_EXPORT LoadWebGeolocationHideEvent : public BaseEventInfo {
     DECLARE_RELATIONSHIP_OF_CLASSES(LoadWebGeolocationHideEvent, BaseEventInfo);
 
@@ -1392,8 +1454,9 @@ class ACE_EXPORT RefreshAccessedHistoryEvent : public BaseEventInfo {
     DECLARE_RELATIONSHIP_OF_CLASSES(RefreshAccessedHistoryEvent, BaseEventInfo);
 
 public:
-    RefreshAccessedHistoryEvent(const std::string& url, bool isRefreshed)
-        : BaseEventInfo("RefreshAccessedHistoryEvent"), url_(url), isRefreshed_(isRefreshed)
+    RefreshAccessedHistoryEvent(const std::string& url, bool isRefreshed, bool isMainFrame = false)
+        : BaseEventInfo("RefreshAccessedHistoryEvent"),
+        url_(url), isRefreshed_(isRefreshed), isMainFrame_(isMainFrame)
     {}
 
     ~RefreshAccessedHistoryEvent() = default;
@@ -1408,9 +1471,15 @@ public:
         return isRefreshed_;
     }
 
+    bool IsMainFrame() const
+    {
+        return isMainFrame_;
+    }
+
 private:
     std::string url_;
     bool isRefreshed_;
+    bool isMainFrame_;
 };
 
 class ACE_EXPORT FileSelectorEvent : public BaseEventInfo {

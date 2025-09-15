@@ -164,6 +164,8 @@ const std::string ABILITYNAME_CALENDAR = "MainAbility";
 const std::string ACTION_PARAM = "action";
 constexpr char IS_PREFERRED_LANGUAGE[] = "1";
 constexpr uint64_t DISPLAY_ID_INVALID = -1ULL;
+constexpr float DEFAULT_VIEW_SCALE = 1.0f;
+constexpr float MAX_VIEW_SCALE = 1.0f / 0.85f;
 static std::atomic<bool> g_isDynamicVsync = false;
 static bool g_isDragging = false;
 
@@ -2494,8 +2496,15 @@ UIContentErrorCode UIContentImpl::CommonInitialize(
         }
         auto abilityContext =
             OHOS::AbilityRuntime::Context::ConvertTo<OHOS::AbilityRuntime::AbilityContext>(sharedContext);
-        CHECK_NULL_VOID(abilityContext);
-        abilityContext->StartAbility(want, REQUEST_CODE);
+        if (abilityContext) {
+            abilityContext->StartAbility(want, REQUEST_CODE);
+            return;
+        }
+        auto serviceContext =
+            OHOS::AbilityRuntime::Context::ConvertTo<OHOS::AbilityRuntime::ServiceExtensionContext>(sharedContext);
+        if (serviceContext) {
+            serviceContext->StartAbility(want);
+        }
     });
 
     container->SetAbilityOnCalendar(
@@ -4557,6 +4566,29 @@ void UIContentImpl::UpdateFormSharedImage(const std::map<std::string, sptr<OHOS:
     }
 }
 
+void UIContentImpl::SetFormViewScale(float width, float height, float layoutWidth, float layoutHeight)
+{
+    auto container = Platform::AceContainer::GetContainer(instanceId_);
+    CHECK_NULL_VOID(container);
+    auto pipelineContext = container->GetPipelineContext();
+    CHECK_NULL_VOID(pipelineContext);
+
+    bool isDefaultScale = NearZero(width) || NearZero(height) || NearZero(layoutWidth) || NearZero(layoutHeight);
+    if (isDefaultScale) {
+        pipelineContext->SetViewScale(DEFAULT_VIEW_SCALE);
+        return;
+    }
+    float widthScale = NearEqual(layoutWidth, width) ? DEFAULT_VIEW_SCALE : layoutWidth / width;
+    float heightScale = NearEqual(layoutHeight, height) ?  DEFAULT_VIEW_SCALE : layoutHeight / height;
+    float viewScale = (widthScale >= heightScale) ? widthScale : heightScale;
+    viewScale = (viewScale <= DEFAULT_VIEW_SCALE) ? DEFAULT_VIEW_SCALE :
+        ((viewScale >= MAX_VIEW_SCALE) ? MAX_VIEW_SCALE : viewScale);
+
+    pipelineContext->SetViewScale(viewScale);
+    auto density = pipelineContext->GetDensity();
+    pipelineContext->SetRootSize(density, width, height);
+}
+
 void UIContentImpl::SetActionEventHandler(std::function<void(const std::string& action)>&& actionCallback)
 {
     CHECK_NULL_VOID(actionCallback);
@@ -5574,11 +5606,16 @@ void UIContentImpl::SetForceSplitConfig(const std::string& configJsonStr)
         config.navigationDisablePlaceholder, config.navigationDisableDivider);
     context->SetIsArkUIHookEnabled(config.isArkUIHookEnabled);
     auto navManager = context->GetNavigationManager();
-    CHECK_NULL_VOID(navManager);
-    navManager->SetForceSplitNavigationId(config.navigationId);
-    navManager->SetForceSplitNavigationDepth(config.navigationDepth);
-    navManager->SetPlaceholderDisabled(config.navigationDisablePlaceholder);
-    navManager->SetDividerDisabled(config.navigationDisableDivider);
+    if (navManager) {
+        navManager->SetForceSplitNavigationId(config.navigationId);
+        navManager->SetForceSplitNavigationDepth(config.navigationDepth);
+        navManager->SetPlaceholderDisabled(config.navigationDisablePlaceholder);
+        navManager->SetDividerDisabled(config.navigationDisableDivider);
+    }
+    auto forceSplitMgr = context->GetForceSplitManager();
+    if (forceSplitMgr) {
+        forceSplitMgr->SetFullScreenPages(std::move(config.fullScreenPages));
+    }
 }
 
 void UIContentImpl::ProcessDestructCallbacks()

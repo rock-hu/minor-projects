@@ -28,9 +28,11 @@
 #include "base/memory/referenced.h"
 #include "base/utils/system_properties.h"
 #include "base/utils/utils.h"
-#include "base/web/webview/arkweb_utils/arkweb_utils.h"
 #if defined(ANDROID_PLATFORM) || defined(IOS_PLATFORM)
 #include "base/web/webview/ohos_interface/include/ohos_nweb/nweb.h"
+#include "base/web/webview/arkweb_utils/arkweb_utils.h"
+#else
+#include "arkweb_utils.h"
 #endif
 #include "bridge/common/utils/engine_helper.h"
 #include "bridge/declarative_frontend/engine/functions/js_click_function.h"
@@ -2027,6 +2029,87 @@ private:
     RefPtr<WebAppLinkCallback> callback_;
 };
 
+class JSWebNativeMessageCallback : public Referenced {
+public:
+    static void JSBind(BindingTarget globalObj)
+    {
+        JSClass<JSWebNativeMessageCallback>::Declare("WebNativeMessageCallback");
+        JSClass<JSWebNativeMessageCallback>::CustomMethod("onConnect", &JSWebNativeMessageCallback::OnConnect);
+        JSClass<JSWebNativeMessageCallback>::CustomMethod("onDisconnect", &JSWebNativeMessageCallback::OnDisconnect);
+        JSClass<JSWebNativeMessageCallback>::CustomMethod("onFailed", &JSWebNativeMessageCallback::OnFailed);
+        JSClass<JSWebNativeMessageCallback>::Bind(
+            globalObj, &JSWebNativeMessageCallback::Constructor, &JSWebNativeMessageCallback::Destructor);
+    }
+
+    void SetEvent(const WebNativeMessageEvent &eventInfo)
+    {
+        callback_ = eventInfo.GetCallback();
+    }
+
+    void OnConnect(const JSCallbackInfo &args)
+    {
+        int connectid;
+
+        if ((args.Length() <= 0) || !(args[0]->IsNumber())) {
+            TAG_LOGW(AceLogTag::ACE_WEB, "JSWebNativeMessageCallback OnConnect type error");
+            return;
+        }
+        connectid = args[0]->ToNumber<int32_t>();
+
+        TAG_LOGI(AceLogTag::ACE_WEB, "JSWebNativeMessageCallback OnConnect, connectid=%{public}d", connectid);
+        if (callback_) {
+            callback_->OnConnect(connectid);
+        }
+    }
+
+    void OnDisconnect(const JSCallbackInfo &args)
+    {
+        int connectid;
+
+        if ((args.Length() <= 0) || !(args[0]->IsNumber())) {
+            TAG_LOGW(AceLogTag::ACE_WEB, "JSWebNativeMessageCallback OnDisconnect type error");
+            return;
+        }
+        connectid = args[0]->ToNumber<int32_t>();
+        if (callback_) {
+            callback_->OnDisconnect(connectid);
+        }
+    }
+
+    void OnFailed(const JSCallbackInfo &args)
+    {
+        int failedCode;
+
+        if ((args.Length() <= 0) || !(args[0]->IsNumber())) {
+            TAG_LOGW(AceLogTag::ACE_WEB, "JSWebNativeMessageCallback failedCode type error");
+            return;
+        }
+        failedCode = args[0]->ToNumber<int32_t>();
+
+        TAG_LOGW(AceLogTag::ACE_WEB, "JSWebNativeMessageCallback OnFailed, failedCode is %{public}d", failedCode);
+        if (callback_) {
+            callback_->OnFailed(failedCode);
+        }
+    }
+
+private:
+    static void Constructor(const JSCallbackInfo &args)
+    {
+        auto jsWebNativeMessageCallback = Referenced::MakeRefPtr<JSWebNativeMessageCallback>();
+        jsWebNativeMessageCallback->IncRefCount();
+        args.SetReturnValue(Referenced::RawPtr(jsWebNativeMessageCallback));
+    }
+
+    static void Destructor(JSWebNativeMessageCallback *jsWebNativeMessageCallback)
+    {
+        if (jsWebNativeMessageCallback != nullptr) {
+            jsWebNativeMessageCallback->DecRefCount();
+        }
+    }
+
+    RefPtr<WebNativeMessageCallback> callback_;
+};
+
 void JSWeb::JSBind(BindingTarget globalObj)
 {
     JSClass<JSWeb>::Declare("Web");
@@ -2189,6 +2272,7 @@ void JSWeb::JSBind(BindingTarget globalObj)
     JSClass<JSWeb>::StaticMethod("onPdfScrollAtBottom", &JSWeb::OnPdfScrollAtBottom);
     JSClass<JSWeb>::StaticMethod("onPdfLoadEvent", &JSWeb::OnPdfLoadEvent);
     JSClass<JSWeb>::StaticMethod("forceEnableZoom", &JSWeb::SetForceEnableZoom);
+    JSClass<JSWeb>::StaticMethod("onSafeBrowsingCheckFinish", &JSWeb::OnSafeBrowsingCheckFinish);
     JSClass<JSWeb>::InheritAndBind<JSViewAbstract>(globalObj);
     JSWebDialog::JSBind(globalObj);
     JSWebGeolocation::JSBind(globalObj);
@@ -2213,6 +2297,7 @@ void JSWeb::JSBind(BindingTarget globalObj)
     JSNativeEmbedMouseRequest::JSBind(globalObj);
     JSWebAppLinkCallback::JSBind(globalObj);
     JSWebKeyboardController::JSBind(globalObj);
+    JSWebNativeMessageCallback::JSBind(globalObj);
 }
 
 napi_env GetNapiEnv()
@@ -2861,11 +2946,56 @@ void JSWeb::SetCallbackFromController(const JSRef<JSObject> controller)
             };
     }
 
+    auto innerWebNativeMessageManagerFunction = controller->GetProperty("innerWebNativeMessageManager");
+    std::function<void(const std::shared_ptr<BaseEventInfo>&)> webNativeMessageManagerFunctionCallback = nullptr;
+    if (innerWebNativeMessageManagerFunction->IsFunction()) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "WebDelegate::onNativeMessage connect ");
+        webNativeMessageManagerFunctionCallback = [webviewController = controller,
+            func = JSRef<JSFunc>::Cast(innerWebNativeMessageManagerFunction)]
+            (const std::shared_ptr<BaseEventInfo>& info) {
+                auto* eventInfo = TypeInfoHelper::DynamicCast<WebNativeMessageEvent>(info.get());
+                JSRef<JSObject> obj = JSRef<JSObject>::New();
+                JSRef<JSObject> callbackObj = JSClass<JSWebNativeMessageCallback>::NewInstance();
+                auto callbackEvent = Referenced::Claim(callbackObj->Unwrap<JSWebNativeMessageCallback>());
+                callbackEvent->SetEvent(*eventInfo);
+                
+                obj->SetPropertyObject("result", callbackObj);
+                JSRef<JSVal> bundleName = JSRef<JSVal>::Make(ToJSValue(eventInfo->GetBundleName()));
+                obj->SetPropertyObject("bundleName", bundleName);
+                JSRef<JSVal> extensionOrigin = JSRef<JSVal>::Make(ToJSValue(eventInfo->GetExtensionOrigin()));
+                obj->SetPropertyObject("extensionOrigin", extensionOrigin);
+                JSRef<JSVal> readPipe = JSRef<JSVal>::Make(ToJSValue(eventInfo->GetReadPipe()));
+                obj->SetPropertyObject("readPipe", readPipe);
+                JSRef<JSVal> writePipe = JSRef<JSVal>::Make(ToJSValue(eventInfo->GetWritePipe()));
+                obj->SetPropertyObject("writePipe", writePipe);
+                JSRef<JSVal> argv[] = { JSRef<JSVal>::Cast(obj) };
+                auto result = func->Call(webviewController, 1, argv);
+        };
+    }
+
+    auto innerWebNativeMessageDisconnectFunction = controller->GetProperty("innerNativeMessageDisconnect");
+    std::function<void(const std::shared_ptr<BaseEventInfo>&)> webNativeMessageDisconnectFunctionCallback = nullptr;
+    if (innerWebNativeMessageDisconnectFunction->IsFunction()) {
+        TAG_LOGI(AceLogTag::ACE_WEB, "WebDelegate::onNativeMessage DisconnectFunction");
+        webNativeMessageDisconnectFunctionCallback = [webviewController = controller,
+            func = JSRef<JSFunc>::Cast(innerWebNativeMessageDisconnectFunction)]
+            (const std::shared_ptr<BaseEventInfo>& info) {
+            auto* eventInfo = TypeInfoHelper::DynamicCast<WebNativeMessageEvent>(info.get());
+            JSRef<JSVal> connectId = JSRef<JSVal>::Make(ToJSValue(eventInfo->GetConnectId()));
+            JSRef<JSObject> obj = JSRef<JSObject>::New();
+            obj->SetPropertyObject("connectId", connectId);
+            JSRef<JSVal> argv[] = { JSRef<JSVal>::Cast(obj) };
+            auto result = func->Call(webviewController, 1, argv);
+        };
+    }
     WebModel::GetInstance()->SetDefaultFileSelectorShow(std::move(fileSelectorShowFromUserCallback));
     WebModel::GetInstance()->SetPermissionClipboard(std::move(requestPermissionsFromUserCallback));
     WebModel::GetInstance()->SetOpenAppLinkFunction(std::move(openAppLinkCallback));
     WebModel::GetInstance()->SetWebDetachFunction(std::move(setWebDetachCallback));
     WebModel::GetInstance()->SetFaviconFunction(std::move(setFaviconCallback));
+    WebModel::GetInstance()->SetWebNativeMessageConnectFunction(std::move(webNativeMessageManagerFunctionCallback));
+    WebModel::GetInstance()->SetWebNativeMessageDisconnectFunction(
+        std::move(webNativeMessageDisconnectFunctionCallback));
 }
 
 void JSWeb::Create(const JSCallbackInfo& info)
@@ -4223,6 +4353,7 @@ JSRef<JSVal> RefreshAccessedHistoryEventToJSValue(const RefreshAccessedHistoryEv
     JSRef<JSObject> obj = JSRef<JSObject>::New();
     obj->SetProperty("url", eventInfo.GetVisitedUrl());
     obj->SetProperty("isRefreshed", eventInfo.IsRefreshed());
+    obj->SetProperty("isMainFrame", eventInfo.IsMainFrame());
     return JSRef<JSVal>::Cast(obj);
 }
 
@@ -6655,6 +6786,36 @@ void JSWeb::OnPdfLoadEvent(const JSCallbackInfo& args)
         func->Execute(*eventInfo);
     };
     WebModel::GetInstance()->SetOnPdfLoadEvent(jsCallback);
+}
+
+void JSWeb::OnSafeBrowsingCheckFinish(const JSCallbackInfo& args)
+{
+    if (args.Length() < 1 || !args[0]->IsFunction()) {
+        return;
+    }
+    WeakPtr<NG::FrameNode> frameNode = AceType::WeakClaim(NG::ViewStackProcessor::GetInstance()->GetMainFrameNode());
+    auto jsFunc = AceType::MakeRefPtr<JsEventFunction<SafeBrowsingCheckResultEvent, 1>>(
+        JSRef<JSFunc>::Cast(args[0]), SafeBrowsingCheckResultEventToJSValue);
+
+    auto uiCallback = [execCtx = args.GetExecutionContext(), func = std::move(jsFunc), node = frameNode](
+                          const std::shared_ptr<BaseEventInfo>& info) {
+        auto webNode = node.Upgrade();
+        CHECK_NULL_VOID(webNode);
+        ContainerScope scope(webNode->GetInstanceId());
+        auto context = PipelineBase::GetCurrentContext();
+        if (context) {
+            context->UpdateCurrentActiveNode(node);
+        }
+        auto executor = Container::CurrentTaskExecutorSafely();
+        CHECK_NULL_VOID(executor);
+        executor->PostTask([execCtx, postFunc = func, info]() {
+            JAVASCRIPT_EXECUTION_SCOPE_WITH_CHECK(execCtx);
+            auto* eventInfo = TypeInfoHelper::DynamicCast<SafeBrowsingCheckResultEvent>(info.get());
+            CHECK_NULL_VOID(postFunc);
+            postFunc->Execute(*eventInfo);
+            }, TaskExecutor::TaskType::UI, "ArkUIWebSafeBrowsingCheckResult");
+    };
+    WebModel::GetInstance()->SetSafeBrowsingCheckFinishId(std::move(uiCallback));
 }
 
 ARKWEB_CREATE_JS_OBJECT(WebScreenCaptureRequest, JSScreenCaptureRequest, SetEvent, value)

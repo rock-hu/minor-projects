@@ -2789,7 +2789,7 @@ HWTEST_F(WebPatternTestNg, WindowMaximize_001, TestSize.Level1)
     webPattern->isAttachedToMainTree_ = true;
     webPattern->isVisible_ = true;
     webPattern->renderContextForSurface_ = RenderContext::Create();
-    webPattern->WindowMaximize();
+    webPattern->WindowMaximize(WebWindowMaximizeReason::MAXIMIZE);
 #endif
 }
 
@@ -2814,7 +2814,7 @@ HWTEST_F(WebPatternTestNg, WindowMaximize_002, TestSize.Level1)
     OHOS::Ace::SetReturnStatus("-1");
     auto webInfoType = webPattern->GetWebInfoType();
     EXPECT_EQ(webInfoType, WebInfoType::TYPE_UNKNOWN);
-    webPattern->WindowMaximize();
+    webPattern->WindowMaximize(WebWindowMaximizeReason::MAXIMIZE);
 #endif
 }
 
@@ -2841,7 +2841,7 @@ HWTEST_F(WebPatternTestNg, WindowMaximize_003, TestSize.Level1)
     EXPECT_EQ(webInfoType, WebInfoType::TYPE_2IN1);
     webPattern->layoutMode_ = WebLayoutMode::FIT_CONTENT;
     webPattern->renderMode_ = RenderMode::ASYNC_RENDER;
-    webPattern->WindowMaximize();
+    webPattern->WindowMaximize(WebWindowMaximizeReason::MAXIMIZE);
 #endif
 }
 
@@ -2868,7 +2868,7 @@ HWTEST_F(WebPatternTestNg, WindowMaximize_004, TestSize.Level1)
     EXPECT_EQ(webInfoType, WebInfoType::TYPE_2IN1);
     webPattern->layoutMode_ = WebLayoutMode::NONE;
     webPattern->renderMode_ = RenderMode::SYNC_RENDER;
-    webPattern->WindowMaximize();
+    webPattern->WindowMaximize(WebWindowMaximizeReason::MAXIMIZE);
 #endif
 }
 
@@ -2897,7 +2897,7 @@ HWTEST_F(WebPatternTestNg, WindowMaximize_005, TestSize.Level1)
     webPattern->renderMode_ = RenderMode::ASYNC_RENDER;
     webPattern->isAttachedToMainTree_ = false;
     webPattern->isVisible_ = true;
-    webPattern->WindowMaximize();
+    webPattern->WindowMaximize(WebWindowMaximizeReason::MAXIMIZE);
 #endif
 }
 
@@ -2926,7 +2926,7 @@ HWTEST_F(WebPatternTestNg, WindowMaximize_006, TestSize.Level1)
     webPattern->renderMode_ = RenderMode::ASYNC_RENDER;
     webPattern->isAttachedToMainTree_ = true;
     webPattern->isVisible_ = false;
-    webPattern->WindowMaximize();
+    webPattern->WindowMaximize(WebWindowMaximizeReason::MAXIMIZE);
 #endif
 }
 
@@ -2956,7 +2956,36 @@ HWTEST_F(WebPatternTestNg, WindowMaximize_007, TestSize.Level1)
     webPattern->isAttachedToMainTree_ = true;
     webPattern->isVisible_ = true;
     webPattern->renderContextForSurface_ = nullptr;
-    webPattern->WindowMaximize();
+    webPattern->WindowMaximize(WebWindowMaximizeReason::MAXIMIZE);
+#endif
+}
+
+/**
+ * @tc.name: WindowMaximize_008
+ * @tc.desc: WindowMaximize.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WebPatternTestNg, WindowMaximize_008, TestSize.Level1)
+{
+#ifdef OHOS_STANDARD_SYSTEM
+    auto* stack = ViewStackProcessor::GetInstance();
+    ASSERT_NE(stack, nullptr);
+    auto nodeId = stack->ClaimNodeId();
+    auto frameNode =
+        FrameNode::GetOrCreateFrameNode(V2::WEB_ETS_TAG, nodeId, []() { return AceType::MakeRefPtr<WebPattern>(); });
+    stack->Push(frameNode);
+    auto webPattern = frameNode->GetPattern<WebPattern>();
+    ASSERT_NE(webPattern, nullptr);
+    webPattern->OnModifyDone();
+    ASSERT_NE(webPattern->delegate_, nullptr);
+    OHOS::Ace::SetReturnStatus("4");
+    auto webInfoType = webPattern->GetWebInfoType();
+    EXPECT_EQ(webInfoType, WebInfoType::TYPE_TABLET);
+    webPattern->layoutMode_ = WebLayoutMode::NONE;
+    webPattern->renderMode_ = RenderMode::ASYNC_RENDER;
+    webPattern->isAttachedToMainTree_ = true;
+    webPattern->isVisible_ = true;
+    webPattern->WindowMaximize(WebWindowMaximizeReason::EXIT_FREE_MULTI_MODE);
 #endif
 }
 
@@ -5097,6 +5126,42 @@ HWTEST_F(WebPatternTestNg, UnInitSurfaceDensityCallback_001, TestSize.Level1)
     webPattern->UnInitSurfaceDensityCallback(pipelineContext);
     MockPipelineContext::TearDown();
     EXPECT_EQ(webPattern->densityCallbackId_, 0);
+#endif
+}
+
+/**
+ * @tc.name: OnRootLayerChanged_001
+ * @tc.desc: OnRootLayerChanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(WebPatternTestNg, OnRootLayerChanged_001, TestSize.Level1)
+{
+#ifdef OHOS_STANDARD_SYSTEM
+    auto* stack = ViewStackProcessor::GetInstance();
+    EXPECT_NE(stack, nullptr);
+    auto nodeId = stack->ClaimNodeId();
+    auto frameNode =
+        FrameNode::GetOrCreateFrameNode(V2::WEB_ETS_TAG, nodeId, []() { return AceType::MakeRefPtr<WebPattern>(); });
+    EXPECT_NE(frameNode, nullptr);
+    stack->Push(frameNode);
+    auto webPattern = frameNode->GetPattern<WebPattern>();
+    ASSERT_NE(webPattern, nullptr);
+    webPattern->OnModifyDone();
+    ASSERT_NE(webPattern->delegate_, nullptr);
+
+    webPattern->SetLayoutMode(WebLayoutMode::NONE);
+    webPattern->OnRootLayerChanged(1000, 1000);
+    EXPECT_EQ(webPattern->GetRootLayerWidth(), 1000);
+    EXPECT_EQ(webPattern->GetRootLayerHeight(), 1000);
+    webPattern->OnRootLayerChanged(1000, 2000);
+    EXPECT_EQ(webPattern->GetRootLayerHeight(), 2000);
+    webPattern->OnRootLayerChanged(2000, 2000);
+    EXPECT_EQ(webPattern->GetRootLayerWidth(), 2000);
+    webPattern->OnRootLayerChanged(2000, 2000);
+    webPattern->SetLayoutMode(WebLayoutMode::FIT_CONTENT);
+    webPattern->OnRootLayerChanged(3000, 3000);
+    EXPECT_EQ(webPattern->GetRootLayerWidth(), 3000);
+    EXPECT_EQ(webPattern->GetRootLayerHeight(), 3000);
 #endif
 }
 } // namespace OHOS::Ace::NG

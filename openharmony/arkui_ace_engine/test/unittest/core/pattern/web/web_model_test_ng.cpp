@@ -294,6 +294,13 @@ HWTEST_F(WebModelTestNg, SetOnLoadIntercept005, TestSize.Level1)
     });
     webEventHub->FireOnSafeBrowsingCheckResultEvent(mockEventInfo);
     EXPECT_TRUE(callbackCalled);
+
+    callbackCalled = false;
+    webModelNG.SetSafeBrowsingCheckFinishId([&callbackCalled](const std::shared_ptr<BaseEventInfo> info) {
+        callbackCalled = true;
+    });
+    webEventHub->FireOnSafeBrowsingCheckFinishEvent(mockEventInfo);
+    EXPECT_TRUE(callbackCalled);
     webModelNG.SetHorizontalScrollBarAccessEnabled(true);
     webModelNG.SetVerticalScrollBarAccessEnabled(true);
 #endif
@@ -1666,6 +1673,45 @@ HWTEST_F(WebModelTestNg, JavaScriptOnHeadReady032, TestSize.Level1)
     webModelNG.JavaScriptOnHeadReadyByOrder(scriptItemsEnd, scriptItemsByOrder);
     auto webPattern = ViewStackProcessor::GetInstance()->GetMainFrameNodePattern<WebPattern>();
     EXPECT_NE(webPattern->onHeadReadyScriptItems_, std::nullopt);
+#endif
+}
+
+/**
+ * @tc.name: SetWebNativeMessageConnectFunction033
+ * @tc.desc: Test web_model_ng.cpp
+ * @tc.type: FUNC
+ */
+HWTEST_F(WebModelTestNg, SetWebNativeMessageConnectFunction033, TestSize.Level1)
+{
+#ifdef OHOS_STANDARD_SYSTEM
+    int callCount = 0;
+    WebModelNG webModelNG;
+    auto SetWebNativeMessageConnectFunction = [&callCount](const std::shared_ptr<BaseEventInfo>& info) { callCount++; };
+    auto webPattern = ViewStackProcessor::GetInstance()->GetMainFrameNodePattern<WebPattern>();
+
+    webModelNG.SetWebNativeMessageConnectFunction(std::move(SetWebNativeMessageConnectFunction));
+    webPattern->onWebNativeMessageConnectCallback_(nullptr);
+    EXPECT_NE(callCount, 0);
+#endif
+}
+
+/**
+ * @tc.name: SetWebNativeMessageDisconnectFunction034
+ * @tc.desc: Test web_model_ng.cpp
+ * @tc.type: FUNC
+ */
+HWTEST_F(WebModelTestNg, SetWebNativeMessageDisconnectFunction034, TestSize.Level1)
+{
+#ifdef OHOS_STANDARD_SYSTEM
+    int callCount = 0;
+    WebModelNG webModelNG;
+    auto SetWebNativeMessageDisconnectFunction = [&callCount](
+                                                     const std::shared_ptr<BaseEventInfo>& info) { callCount++; };
+    auto webPattern = ViewStackProcessor::GetInstance()->GetMainFrameNodePattern<WebPattern>();
+
+    webModelNG.SetWebNativeMessageDisconnectFunction(std::move(SetWebNativeMessageDisconnectFunction));
+    webPattern->onWebNativeMessageDisConnectCallback_(nullptr);
+    EXPECT_NE(callCount, 0);
 #endif
 }
 
@@ -3684,6 +3730,12 @@ HWTEST_F(WebModelTestNg, SetOnPageVisible001, TestSize.Level1)
     webModelNG.SetOnSafeBrowsingCheckResult(AccessibilityManager::RawPtr(frameNode), jsCallback);
     ASSERT_NE(webEventHub, nullptr);
     webEventHub->FireOnSafeBrowsingCheckResultEvent(mockEventInfo);
+    EXPECT_TRUE(callbackCalled);
+
+    callbackCalled = false;
+    webModelNG.SetOnSafeBrowsingCheckFinish(AccessibilityManager::RawPtr(frameNode), jsCallback);
+    ASSERT_NE(webEventHub, nullptr);
+    webEventHub->FireOnSafeBrowsingCheckFinishEvent(mockEventInfo);
     EXPECT_TRUE(callbackCalled);
 #endif
 }

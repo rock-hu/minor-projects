@@ -56,6 +56,7 @@ template("ace_base_source_set") {
       "geometry/matrix4.cpp",
       "geometry/quaternion.cpp",
       "geometry/transform_util.cpp",
+      "image/controlled_animator.cpp",
       "image/pixel_map.cpp",
       "json/json_util.cpp",
       "json/node_object.cpp",
@@ -105,6 +106,9 @@ template("ace_base_source_set") {
       ]
     } else {
       external_deps += [ "graphic_2d:librender_service_client" ]
+      if (current_os == "ohos") {
+        external_deps += [ "eventhandler:libeventhandler" ]
+      }
     }
 
     if (is_arkui_x) {

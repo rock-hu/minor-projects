@@ -31,7 +31,6 @@ public:
     void Create(ImageInfoConfig& imageInfoConfig) override;
     void CreateWithResourceObj(ImageResourceType resourceType, const RefPtr<ResourceObject>& resObject) override;
     void ResetImage() override;
-    void CreateAnimation(const std::vector<ImageProperties>& imageList, int32_t duration, int32_t iteration) override;
     bool GetIsAnimation() override;
     void SetAlt(const ImageSourceInfo& src) override;
     void SetBorder(const Border& border) override;
@@ -81,6 +80,7 @@ public:
     void ResetResizableLattice() override;
     void SetImageFillSetByUser(bool value) override;
     void SetSupportSvg2(bool enable) override;
+    void SetContentTransition(ContentTransitionType contentTransition) override;
     static RefPtr<FrameNode> CreateFrameNode(int32_t nodeId, const std::string& src, RefPtr<PixelMap>& pixMap,
         const std::string& bundleName, const std::string& moduleName, bool isUriPureNumber = false);
     static void InitImage(FrameNode* frameNode, std::string& src);
@@ -164,6 +164,8 @@ public:
     static void SetSupportSvg2(FrameNode* frameNode, bool enable);
     static void ResetSupportSvg2(FrameNode* frameNode);
     static bool GetSupportSvg2(FrameNode* frameNode);
+    static void SetContentTransition(FrameNode* frameNode, ContentTransitionType contentTransition);
+    static ContentTransitionType GetContentTransition(FrameNode* frameNode);
 
 private:
     ImagePattern* GetImagePattern();

@@ -722,6 +722,37 @@ void PipelineContext::UpdateDVSyncTime(uint64_t nanoTimestamp, const std::string
     }
 }
 
+void PipelineContext::AddNeedReloadNodes(const WeakPtr<UINode>& node)
+{
+    CHECK_NULL_VOID(node.Upgrade());
+    if (std::find(needReloadNodes_.begin(), needReloadNodes_.end(), node) == needReloadNodes_.end()) {
+        needReloadNodes_.push_back(node);
+    }
+}
+
+void PipelineContext::ReloadNodesResource()
+{
+    if (!SystemProperties::ConfigChangePerform() || !needReloadResource_) {
+        return;
+    }
+
+    auto needReloadNodes = std::move(needReloadNodes_);
+    for (const auto& it : needReloadNodes) {
+        auto needReloadNode = it.Upgrade();
+        auto frameNode = AceType::DynamicCast<FrameNode>(needReloadNode);
+        if (frameNode) {
+            auto pattern = frameNode->GetPattern();
+            if (pattern) {
+                bool forceDarkAllowed = frameNode->GetForceDarkAllowed();
+                ResourceParseUtils::SetIsReloading(forceDarkAllowed);
+                pattern->OnColorModeChange(static_cast<int32_t>(GetColorMode()));
+                ResourceParseUtils::SetIsReloading(false);
+            }
+        }
+    }
+    needReloadResource_ = false;
+}
+
 void PipelineContext::FlushVsync(uint64_t nanoTimestamp, uint64_t frameCount)
 {
     CHECK_RUN_ON(UI);
@@ -749,6 +780,7 @@ void PipelineContext::FlushVsync(uint64_t nanoTimestamp, uint64_t frameCount)
         distributedUI->ApplyOneUpdate();
     } while (false);
 #endif
+    ReloadNodesResource();
     ProcessDelayTasks();
     DispatchDisplaySync(nanoTimestamp);
     FlushAnimation(nanoTimestamp);
@@ -1011,7 +1043,8 @@ void PipelineContext::DispatchDisplaySync(uint64_t nanoTimestamp)
     }
 
     int32_t displaySyncRate = displaySyncManager->GetDisplaySyncRate();
-    frameRateManager_->SetDisplaySyncRate(displaySyncRate);
+    uint32_t displaySyncType = displaySyncManager->GetDisplaySyncType();
+    frameRateManager_->SetDisplaySyncRate(displaySyncRate, displaySyncType);
     auto monitorVsyncRate = displaySyncManager->GetMonitorVsyncRate();
     auto id = GetInstanceId();
     ArkUIPerfMonitor::GetPerfMonitor(id)->RecordDisplaySyncRate(monitorVsyncRate);
@@ -2894,7 +2927,7 @@ bool PipelineContext::OnBackPressed()
 RefPtr<FrameNode> PipelineContext::FindNavigationNodeToHandleBack(const RefPtr<UINode>& node, bool& isEntry)
 {
     CHECK_NULL_RETURN(node, nullptr);
-    const auto& children = node->GetChildren();
+    const auto children = node->GetChildren();
     for (auto iter = children.rbegin(); iter != children.rend(); ++iter) {
         auto& child = *iter;
         auto childNode = AceType::DynamicCast<FrameNode>(child);
@@ -3050,6 +3083,7 @@ void PipelineContext::OnTouchEvent(
         historyPointsById_.erase(scalePoint.id);
     }
     if (scalePoint.type == TouchType::DOWN) {
+        SetTHPNotifyState(ThpNotifyState::DEFAULT);
         DisableNotifyResponseRegionChanged();
         SetUiDvsyncSwitch(false);
         CompensateTouchMoveEventBeforeDown();
@@ -3174,8 +3208,19 @@ void PipelineContext::OnTouchEvent(
         }
 
         hasIdleTasks_ = true;
-        if (ResSchedTouchOptimizer::GetInstance().NeedTpFlushVsync(touchEvents_.back(), GetFrameCount())) {
-            FlushVsync(static_cast<uint64_t>(GetSysTimestamp()), GetFrameCount());
+        if (ResSchedTouchOptimizer::GetInstance().NeedTpFlushVsync(touchEvents_.back(), GetFrameCount()) &&
+            historyPointsById_.find(touchEvents_.back().id) != historyPointsById_.end()) {
+            //Fine-tuning fictional vsync timestamp
+            uint64_t intime = static_cast<uint64_t>(GetSysTimestamp());
+            auto hisAvgPoint = ResampleAlgo::GetAvgPoint(
+                std::vector<PointerEvent>(historyPointsById_[touchEvents_.back().id].begin(),
+                    historyPointsById_[touchEvents_.back().id].end()), CoordinateType::NORMAL);
+            if (hisAvgPoint.time != 0) {
+                uint64_t historyTime = hisAvgPoint.time;
+                uint64_t vsyncPeriod = static_cast<uint64_t>(window_->GetVSyncPeriod());
+                intime = intime - vsyncPeriod + ONE_MS_IN_NS > historyTime ? intime : historyTime + vsyncPeriod;
+            }
+            FlushVsync(intime, GetFrameCount());
             ResSchedTouchOptimizer::GetInstance().SetLastTpFlush(true);
             ResSchedTouchOptimizer::GetInstance().SetLastTpFlushCount(GetFrameCount());
         } else {
@@ -3188,16 +3233,7 @@ void PipelineContext::OnTouchEvent(
     if (scalePoint.type == TouchType::UP) {
         lastTouchTime_ = GetTimeFromExternalTimer();
         CompensateTouchMoveEvent(scalePoint);
-        if (thpExtraMgr_ != nullptr) {
-            const uint32_t delay = 800; // 800: ms
-            taskExecutor_->RemoveTask(TaskExecutor::TaskType::UI, "NotifyResponseRegionChanged");
-            auto task = [weak = WeakClaim(this)]() {
-                auto pipeline = weak.Upgrade();
-                CHECK_NULL_VOID(pipeline);
-                pipeline->NotifyResponseRegionChanged(pipeline->GetRootElement());
-            };
-            taskExecutor_->PostDelayedTask(task, TaskExecutor::TaskType::UI, delay, "NotifyResponseRegionChanged");
-        }
+        PostTaskResponseRegion(DEFAULT_DELAY_THP);
     }
 
     eventManager_->DispatchTouchEvent(scalePoint);
@@ -5786,6 +5822,21 @@ RefPtr<FrameNode> PipelineContext::GetContainerModalNode()
     return AceType::DynamicCast<FrameNode>(rootNode_->GetFirstChild());
 }
 
+bool PipelineContext::CheckNodeOnContainerModalTitle(const RefPtr<FrameNode>& node)
+{
+    CHECK_NULL_RETURN(node, false);
+    auto containerNode = GetContainerModalNode();
+    CHECK_NULL_RETURN(containerNode, false);
+    auto parent = node->GetParent();
+    while (parent) {
+        if (parent->GetTag() == V2::TOOLBARITEM_ETS_TAG) {
+            return true;
+        }
+        parent = parent->GetParent();
+    }
+    return false;
+}
+
 void PipelineContext::DoKeyboardAvoidAnimate(const KeyboardAnimationConfig& keyboardAnimationConfig,
     float keyboardHeight, const std::function<void()>& func)
 {
@@ -6332,10 +6383,8 @@ std::string PipelineContext::GetResponseRegion(const RefPtr<FrameNode>& rootNode
 
 void PipelineContext::NotifyResponseRegionChanged(const RefPtr<FrameNode>& rootNode)
 {
+    CHECK_NULL_VOID(thpExtraMgr_);
     ACE_FUNCTION_TRACE();
-    if (!thpExtraMgr_) {
-        return;
-    }
     std::string responseRegion = GetResponseRegion(rootNode);
     std::string parameters = "thp#Location#" + responseRegion;
     LOGD("THP_UpdateViewsLocation responseRegion = %{public}s", parameters.c_str());
@@ -6353,6 +6402,26 @@ void PipelineContext::DisableNotifyResponseRegionChanged()
 {
     CHECK_NULL_VOID(taskExecutor_);
     taskExecutor_->RemoveTask(TaskExecutor::TaskType::UI, "NotifyResponseRegionChanged");
+}
+
+void PipelineContext::PostTaskResponseRegion(int32_t delay)
+{
+    // Prevent continuous clicks, task is unique.
+    DisableNotifyResponseRegionChanged();
+    CHECK_NULL_VOID(taskExecutor_);
+    CHECK_NULL_VOID(thpExtraMgr_);
+    if (delay < 0) {
+        delay = DEFAULT_DELAY_THP;
+    }
+    auto task = [weak = WeakClaim(this)]() {
+        auto pipeline = weak.Upgrade();
+        CHECK_NULL_VOID(pipeline);
+        if (pipeline->GetTHPNotifyState() != ThpNotifyState::DEFAULT) {
+            return ;
+        }
+        pipeline->NotifyResponseRegionChanged(pipeline->GetRootElement());
+    };
+    taskExecutor_->PostDelayedTask(task, TaskExecutor::TaskType::UI, delay, "NotifyResponseRegionChanged");
 }
 
 #if defined(SUPPORT_TOUCH_TARGET_TEST)

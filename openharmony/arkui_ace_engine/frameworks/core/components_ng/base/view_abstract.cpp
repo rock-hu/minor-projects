@@ -1050,6 +1050,14 @@ void ViewAbstract::SetPixelRound(FrameNode* frameNode, uint16_t value)
     ACE_UPDATE_NODE_LAYOUT_PROPERTY(LayoutProperty, PixelRound, value, frameNode);
 }
 
+uint16_t ViewAbstract::GetPixelRound(FrameNode* frameNode)
+{
+    CHECK_NULL_RETURN(frameNode, 0);
+    auto layoutProperty = frameNode->GetLayoutProperty();
+    CHECK_NULL_RETURN(layoutProperty, 0);
+    return layoutProperty->GetPixelRound();
+}
+
 void ViewAbstract::SetLayoutDirection(TextDirection value)
 {
     if (!ViewStackProcessor::GetInstance()->IsCurrentVisualStateProcess()) {
@@ -2580,6 +2588,34 @@ void ViewAbstract::SetTabStop(bool tabStop)
     auto focusHub = frameNode->GetOrCreateFocusHub();
     CHECK_NULL_VOID(focusHub);
     focusHub->SetTabStop(tabStop);
+}
+
+void ViewAbstract::AllowForceDark(bool forceDarkAllowed)
+{
+    auto node = ViewStackProcessor::GetInstance()->GetMainElementNode();
+    CHECK_NULL_VOID(node);
+    node->AllowForceDark(forceDarkAllowed);
+    node->AllowForceDarkByUser(true);
+}
+
+void ViewAbstract::AllowForceDark(UINode* node, bool forceDarkAllowed)
+{
+    CHECK_NULL_VOID(node);
+    node->AllowForceDark(forceDarkAllowed);
+    node->AllowForceDarkByUser(true);
+}
+
+void ViewAbstract::ResetAllowForceDark(UINode* node)
+{
+    CHECK_NULL_VOID(node);
+    node->AllowForceDark(true);
+    node->AllowForceDarkByUser(false);
+}
+
+bool ViewAbstract::GetAllowForceDark(UINode* node)
+{
+    CHECK_NULL_RETURN(node, true);
+    return node->GetForceDarkAllowed();
 }
 
 void ViewAbstract::SetOnFocus(OnFocusFunc&& onFocusCallback)
@@ -6426,6 +6462,11 @@ void ViewAbstract::SetOverlayNode(FrameNode* frameNode, FrameNode* node, const N
     auto overlayNode = AceType::WeakClaim(node).Upgrade();
     if (overlayNode == nullptr) {
         frameNode->SetOverlayNode(nullptr);
+        auto layoutProperty = frameNode->GetLayoutProperty();
+        CHECK_NULL_VOID(layoutProperty);
+        layoutProperty->UpdatePropertyChangeFlag(PROPERTY_UPDATE_MEASURE);
+        frameNode->MarkNeedSyncRenderTree();
+        frameNode->MarkDirtyNode(PROPERTY_UPDATE_MEASURE);
         return;
     }
     frameNode->SetOverlayNode(overlayNode);

@@ -54,11 +54,10 @@ void JSSecButtonBase::SetIconSize(const JSCallbackInfo& info)
         if (ParseJsDimensionVp(iconSizeObj->GetProperty("height"), heightDimen)) {
             height.emplace(heightDimen);
         }
-        if ((!width.has_value()) && (!height.has_value())) {
+        if (width.has_value() || height.has_value()) {
+            SecurityComponentModelNG::SetIconSize(NG::CalcSize(width, height));
             return;
         }
-        SecurityComponentModelNG::SetIconSize(NG::CalcSize(width, height));
-        return;
     }
 
     CalcDimension value;
@@ -392,7 +391,7 @@ void JSSecButtonBase::SetMaxLines(const JSCallbackInfo& info)
     }
     JSRef<JSVal> args = info[0];
     auto value = Infinity<int32_t>();
-    if (args->IsString() && args->ToString() != "Infinity") {
+    if (args->ToString() != "Infinity") {
         ParseJsInt32(args, value);
     }
     if (value <= 0) {

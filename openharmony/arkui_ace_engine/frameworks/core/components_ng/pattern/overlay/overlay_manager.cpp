@@ -6983,9 +6983,15 @@ void OverlayManager::MountEventToWindowScene(const RefPtr<FrameNode>& columnNode
  * mouse, etc.
  * When isDragPixelMap is false, the pixelMap is saved by pixmapColumnNodeWeak_ used for lifting.
  */
-void OverlayManager::MountPixelMapToRootNode(const RefPtr<FrameNode>& columnNode, bool isDragPixelMap)
+void OverlayManager::MountPixelMapToRootNode(const RefPtr<FrameNode>& columnNode, bool isDragPixelMap,
+    const RefPtr<FrameNode>& hostNode)
 {
     auto rootNode = rootNodeWeak_.Upgrade();
+    auto pipeline = PipelineContext::GetCurrentContext();
+    CHECK_NULL_VOID(pipeline);
+    if (pipeline->CheckNodeOnContainerModalTitle(hostNode)) {
+        rootNode = pipeline->GetContainerModalNode();
+    }
     CHECK_NULL_VOID(rootNode);
     columnNode->MountToParent(rootNode);
     columnNode->OnMountToParentDone();
@@ -7849,7 +7855,7 @@ void OverlayManager::RemoveFrameNodeWithOrder(const RefPtr<NG::FrameNode>& node)
     PopLevelOrder(orderOverlayNode->GetId());
     orderOverlayNode->RemoveChild(node);
     orderOverlayMap_.erase(node->GetId());
-    auto rootNode = rootNodeWeak_.Upgrade();
+    auto rootNode = orderOverlayNode->GetParent();
     CHECK_NULL_VOID(rootNode);
     rootNode->RemoveChild(orderOverlayNode);
     orderOverlayNode.Reset();
@@ -9115,6 +9121,13 @@ void OverlayManager::EraseMenuInfoFromWrapper(const RefPtr<FrameNode>& menuWrapp
     CHECK_NULL_VOID(menuWrapperNode);
     auto pattern = menuWrapperNode->GetPattern<MenuWrapperPattern>();
     CHECK_NULL_VOID(pattern);
-    EraseMenuInfo(pattern->GetTargetId());
+    auto targetId = pattern->GetTargetId();
+    auto currentMenuWrapper = menuMap_[targetId];
+    CHECK_NULL_VOID(currentMenuWrapper);
+    // When a menu is displayed for multiple times, if a menu is squeezed out, it is necessary to check whether the menu
+    // is the current recorded menu
+    if (currentMenuWrapper->GetId() == menuWrapperNode->GetId()) {
+        EraseMenuInfo(targetId);
+    }
 }
 } // namespace OHOS::Ace::NG

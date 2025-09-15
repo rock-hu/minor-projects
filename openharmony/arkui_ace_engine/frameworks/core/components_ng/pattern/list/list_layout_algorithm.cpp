@@ -97,7 +97,7 @@ void ListLayoutAlgorithm::Measure(LayoutWrapper* layoutWrapper)
     const auto& layoutConstraint = layoutConstraintOps.value();
 
     // calculate idealSize and set FrameSize
-    CalcContentOffset(listLayoutProperty);
+    CalcContentOffset(layoutWrapper);
 
     // calculate main size.
     const auto& contentConstraintOps = listLayoutProperty->GetContentLayoutConstraint();
@@ -224,13 +224,32 @@ void ListLayoutAlgorithm::Measure(LayoutWrapper* layoutWrapper)
     isLayouted_ = false;
 }
 
-void ListLayoutAlgorithm::CalcContentOffset(const RefPtr<ListLayoutProperty>& property)
+void ListLayoutAlgorithm::CalcContentOffset(LayoutWrapper* layoutWrapper)
 {
+    CHECK_NULL_VOID(layoutWrapper);
+    auto property = AceType::DynamicCast<ListLayoutProperty>(layoutWrapper->GetLayoutProperty());
     CHECK_NULL_VOID(property);
-    auto startOffset = property->GetContentStartOffset().value_or(0.0f);
-    contentStartOffset_ = std::max(PipelineBase::Vp2PxWithCurrentDensity(startOffset), 0.0);
-    auto endOffset = property->GetContentEndOffset().value_or(0.0f);
-    contentEndOffset_ = std::max(PipelineBase::Vp2PxWithCurrentDensity(endOffset), 0.0);
+    auto startOffset = property->GetContentStartOffset();
+    if (!startOffset.has_value()) {
+        contentStartOffset_ = 0.0f;
+    }
+    auto endOffset = property->GetContentEndOffset();
+    if (!endOffset.has_value()) {
+        contentEndOffset_ = 0.0f;
+    }
+    if (!endOffset && !startOffset) {
+        return;
+    }
+    auto host = layoutWrapper->GetHostNode();
+    CHECK_NULL_VOID(host);
+    auto pipeline = host->GetContext();
+    CHECK_NULL_VOID(pipeline);
+    if (startOffset) {
+        contentStartOffset_ = std::max(pipeline->NormalizeToPx(Dimension(startOffset.value(), DimensionUnit::VP)), 0.0);
+    }
+    if (endOffset) {
+        contentEndOffset_ = std::max(pipeline->NormalizeToPx(Dimension(endOffset.value(), DimensionUnit::VP)), 0.0);
+    }
 }
 
 void ListLayoutAlgorithm::SetCacheCount(LayoutWrapper* layoutWrapper, int32_t cacheCount)
@@ -2545,39 +2564,36 @@ void ListLayoutAlgorithm::FindPredictSnapIndexInItemPositionsStart(
 {
     float stopOnScreen = GetStopOnScreenOffset(ScrollSnapAlign::START);
     float itemHeight = itemPosition_.begin()->second.endPos - itemPosition_.begin()->second.startPos;
-    std::optional<float> threshold;
+    std::optional<float> lastSnapPos;
     if (GetEndIndex() == totalItemCount_ - 1) {
-        // Bottom-aligned threshold
-        threshold = contentStartOffset_ + GetEndPosition() - (contentMainSize_ - contentEndOffset_);
+        // Bottom-aligned position
+        lastSnapPos = contentStartOffset_ + GetEndPosition() - (contentMainSize_ - contentEndOffset_);
     }
     for (const auto& positionInfo : itemPosition_) {
         auto startPos = positionInfo.second.startPos - itemHeight / 2.0f - spaceWidth_;
         itemHeight = positionInfo.second.endPos - positionInfo.second.startPos;
         auto endPos = positionInfo.second.startPos + itemHeight / 2.0f;
-        if (threshold.has_value() && threshold.value() < positionInfo.second.startPos) {
-            // Already bottom aligned
-            if (endIndex < 0) {
-                endIndex = positionInfo.first;
-            }
-            if (currIndex < 0) {
-                currIndex = positionInfo.first;
-            }
-            break;
-        }
-        if (threshold.has_value() && threshold.value() < positionInfo.second.endPos) {
+
+        float lastEndPos = std::numeric_limits<float>::infinity();
+        if (lastSnapPos.has_value() && LessNotEqual(positionInfo.second.startPos, lastSnapPos.value()) &&
+            LessNotEqual(lastSnapPos.value(), positionInfo.second.endPos)) {
             // To calculate whether to align the start position of the item or to the bottom of the list
-            endPos = (threshold.value() + positionInfo.second.startPos) / 2.0f;
-            itemHeight += positionInfo.second.endPos - threshold.value();
-        }
-        if (endIndex < 0 && LessNotEqual(predictEndPos + stopOnScreen, totalOffset_ + startPos)) {
-            break;
+            lastEndPos = (lastSnapPos.value() + positionInfo.second.startPos) / 2.0f;
         }
         if (GreatOrEqual(predictEndPos + stopOnScreen, totalOffset_ + startPos) &&
             LessNotEqual(predictEndPos + stopOnScreen, totalOffset_ + endPos)) {
             endIndex = positionInfo.first;
+            if (GreatNotEqual(predictEndPos + stopOnScreen, totalOffset_ + lastEndPos)) {
+                // Bottom-aligned is closer than start-aligned.
+                endIndex++;
+            }
         }
         if (GreatOrEqual(stopOnScreen, startPos) && LessNotEqual(stopOnScreen, endPos)) {
             currIndex = positionInfo.first;
+            if (GreatNotEqual(stopOnScreen, lastEndPos)) {
+                // Bottom-aligned currently.
+                currIndex++;
+            }
         }
         if (endIndex >= 0 && currIndex >= 0) {
             break;
@@ -2610,39 +2626,36 @@ void ListLayoutAlgorithm::FindPredictSnapIndexInItemPositionsEnd(
 {
     float stopOnScreen = GetStopOnScreenOffset(ScrollSnapAlign::END);
     float itemHeight = itemPosition_.rbegin()->second.endPos - itemPosition_.rbegin()->second.startPos;
-    std::optional<float> threshold;
+    std::optional<float> firstSnapPos;
     if (GetStartIndex() == 0) {
-        // Top-aligned threshold
-        threshold = (contentMainSize_ - contentEndOffset_) + GetStartPosition() - contentStartOffset_;
+        // Top-aligned position
+        firstSnapPos = (contentMainSize_ - contentEndOffset_) + GetStartPosition() - contentStartOffset_;
     }
     for (auto pos = itemPosition_.rbegin(); pos != itemPosition_.rend(); ++pos) {
         auto endPos = pos->second.endPos + itemHeight / 2.0f + spaceWidth_;
         itemHeight = pos->second.endPos - pos->second.startPos;
         auto startPos = pos->second.endPos - itemHeight / 2.0f;
-        if (threshold.has_value() && threshold.value() > pos->second.endPos) {
-            // Already top aligned
-            if (endIndex < 0) {
-                endIndex = pos->first;
-            }
-            if (currIndex < 0) {
-                currIndex = pos->first;
-            }
-            break;
-        }
-        if (threshold.has_value() && threshold.value() > pos->second.startPos) {
+
+        float firstEndPos = -std::numeric_limits<float>::infinity();
+        if (firstSnapPos.has_value() && LessNotEqual(pos->second.startPos, firstSnapPos.value()) &&
+            LessNotEqual(firstSnapPos.value(), pos->second.endPos)) {
             // To calculate whether to align the end position of the item or to the top of the list
-            startPos = (threshold.value() + pos->second.endPos) / 2.0f;
-            itemHeight += pos->second.startPos - threshold.value();
-        }
-        if (endIndex < 0 && GreatOrEqual(predictEndPos + stopOnScreen, totalOffset_ + endPos)) {
-            break;
+            firstEndPos = (firstSnapPos.value() + pos->second.endPos) / 2.0f;
         }
         if (GreatOrEqual(predictEndPos + stopOnScreen, totalOffset_ + startPos) &&
             LessNotEqual(predictEndPos + stopOnScreen, totalOffset_ + endPos)) {
             endIndex = pos->first;
+            if (LessNotEqual(predictEndPos + stopOnScreen, totalOffset_ + firstEndPos)) {
+                // Top-aligned is closer than end-aligned.
+                endIndex--;
+            }
         }
         if (GreatOrEqual(stopOnScreen, startPos) && LessNotEqual(stopOnScreen, endPos)) {
             currIndex = pos->first;
+            if (LessNotEqual(stopOnScreen, firstEndPos)) {
+                // Top-aligned currently.
+                currIndex--;
+            }
         }
         if (endIndex >= 0 && currIndex >= 0) {
             break;

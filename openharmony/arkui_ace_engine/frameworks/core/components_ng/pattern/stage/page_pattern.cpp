@@ -104,6 +104,7 @@ void PagePattern::TriggerPageTransition(const std::function<void()>& onFinish, P
     if (pageTransitionFunc_) {
         pageTransitionFunc_();
     }
+    FirePageTransitionStart();
     pageTransitionFinish_ = std::make_shared<std::function<void()>>(onFinish);
     auto wrappedOnFinish = [weak = WeakClaim(this), sharedFinish = pageTransitionFinish_, type]() {
         auto pattern = weak.Upgrade();
@@ -239,21 +240,6 @@ void PagePattern::OnDetachFromFrameNode(FrameNode* frameNode)
     CHECK_NULL_VOID(pipelineContext);
     pipelineContext->RemoveWindowSizeChangeCallback(frameNode->GetId());
     pipelineContext->GetMemoryManager()->RemoveRecyclePageNode(frameNode->GetId());
-}
-
-void PagePattern::OnWindowSizeChanged(int32_t /*width*/, int32_t /*height*/, WindowSizeChangeReason type)
-{
-    if (type != WindowSizeChangeReason::ROTATION) {
-        return;
-    }
-    if (!isPageInTransition_) {
-        return;
-    }
-    auto page = GetHost();
-    CHECK_NULL_VOID(page);
-    auto renderContext = page->GetRenderContext();
-    CHECK_NULL_VOID(renderContext);
-    renderContext->RemoveClipWithRRect();
 }
 
 void PagePattern::OnShow(bool isFromWindow)
@@ -498,6 +484,15 @@ void PagePattern::SetFirstBuildCallback(std::function<void()>&& buildCallback)
     }
 }
 
+void PagePattern::FirePageTransitionStart()
+{
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto pipeline = host->GetContext();
+    CHECK_NULL_VOID(pipeline);
+    pipeline->SetTHPNotifyState(ThpNotifyState::ROUTER_TRANSITION);
+}
+
 void PagePattern::FirePageTransitionFinish()
 {
     if (pageTransitionFinish_) {
@@ -507,6 +502,12 @@ void PagePattern::FirePageTransitionFinish()
             onFinish();
         }
     }
+    auto host = GetHost();
+    CHECK_NULL_VOID(host);
+    auto pipeline = host->GetContext();
+    CHECK_NULL_VOID(pipeline);
+    pipeline->SetTHPNotifyState(ThpNotifyState::DEFAULT);
+    pipeline->PostTaskResponseRegion(DEFAULT_DELAY_THP);
 }
 
 void PagePattern::StopPageTransition()

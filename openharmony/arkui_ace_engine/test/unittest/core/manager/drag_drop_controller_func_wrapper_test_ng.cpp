@@ -37,6 +37,8 @@ RefPtr<DragWindow> MOCK_DRAG_WINDOW;
 constexpr float WIDTH = 400.0f;
 constexpr float HEIGHT = 400.0f;
 constexpr int32_t RESERVED_DEVICEID = 0xAAAAAAFF;
+constexpr int32_t POINTEREVENT_DEFAULT_X = 100;
+constexpr int32_t POINTEREVENT_DEFAULT_Y = 100;
 const OffsetF COORDINATE_OFFSET(WIDTH, HEIGHT);
 } // namespace
 
@@ -129,8 +131,10 @@ HWTEST_F(DragControllerFuncWrapperTestNg, DragControllerFuncWrapperTest003, Test
      * @tc.steps: step1. Prepare darg data and asyncCtxData.
      */
     int32_t containerId = 100;
+    AceEngine& aceEngine = AceEngine::Get();
+    aceEngine.AddContainer(containerId, MockContainer::container_);
     bool hasTouchPoint = true;
-    DragPointerEvent dragPointerEvent(100, 100);
+    DragPointerEvent dragPointerEvent(100, 100, 0, 0);
     NG::DragPreviewOption previewOption;
     DimensionOffset touchPoint = DimensionOffset(10.0_vp, 10.0_vp);
     std::vector<std::shared_ptr<Media::PixelMap>> pixelMapList;
@@ -154,7 +158,7 @@ HWTEST_F(DragControllerFuncWrapperTestNg, DragControllerFuncWrapperTest003, Test
         NG::DragControllerFuncWrapper::GetPixelMapScaledOffset(pointPosition, data, asyncCtxData);
     EXPECT_EQ(pixelMapScaledOffset, NG::OffsetF(90, 90));
     auto originNodeOffset = NG::DragControllerFuncWrapper::GetOriginNodeOffset(data, asyncCtxData);
-    EXPECT_EQ(originNodeOffset, NG::OffsetF(0, 0));
+    EXPECT_EQ(originNodeOffset, NG::OffsetF(90, 90));
 
     /**
      * @tc.steps: step3. call GetOriginNodeOffset when hasTouchPoint is false.
@@ -167,7 +171,7 @@ HWTEST_F(DragControllerFuncWrapperTestNg, DragControllerFuncWrapperTest003, Test
     pixelMapScaledOffset = NG::DragControllerFuncWrapper::GetPixelMapScaledOffset(pointPosition, data, asyncCtxData);
     EXPECT_EQ(pixelMapScaledOffset, NG::OffsetF(100, 100));
     originNodeOffset = NG::DragControllerFuncWrapper::GetOriginNodeOffset(data, asyncCtxData);
-    EXPECT_EQ(originNodeOffset, NG::OffsetF(0, 0));
+    EXPECT_EQ(originNodeOffset, NG::OffsetF(100, 100));
 }
 
 /**
@@ -860,5 +864,53 @@ HWTEST_F(DragControllerFuncWrapperTestNg, DragControllerFuncWrapperTest021, Test
     NG::DragControllerFuncWrapper::UpdateBadgeTextNodePosition(
         nullptr, data, asyncCtxData, data.dragPreviewOffsetToScreen);
     EXPECT_EQ(data.badgeNumber, 1);
+}
+
+/**
+ * @tc.name: DragControllerFuncWrapperTest022
+ * @tc.desc: Test CreateGatherNode.
+ * @tc.type: FUNC
+ * @tc.author:
+ */
+HWTEST_F(DragControllerFuncWrapperTestNg, DragControllerFuncWrapperTest022, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. Prepare darg data and asyncCtxData.
+     */
+    int32_t containerId = 100;
+    bool hasTouchPoint = true;
+    DragPointerEvent dragPointerEvent(POINTEREVENT_DEFAULT_X, POINTEREVENT_DEFAULT_Y);
+    NG::DragPreviewOption previewOption;
+    previewOption.options.opacity = 0.3f;
+    DimensionOffset touchPoint = DimensionOffset(10.0_vp, 10.0_vp);
+    std::vector<std::shared_ptr<Media::PixelMap>> pixelMapList;
+    std::unique_ptr<char[]> buffer = std::make_unique<char[]>(1);
+    void* voidPtr = buffer.get();
+    RefPtr<PixelMap> refPixelMap = PixelMap::CreatePixelMap(voidPtr);
+
+    NG::PreparedInfoForDrag data = { false, 10, 0.5f, false, NG::OffsetF(),
+        NG::DragControllerFuncWrapper::GetUpdateDragMovePosition(containerId), refPixelMap };
+    NG::PreparedAsyncCtxForAnimate asyncCtxData = { containerId, hasTouchPoint, dragPointerEvent, previewOption,
+        touchPoint, pixelMapList };
+
+    /**
+     * @tc.steps: step2. Call CreateGatherNode function when pixelMapList size <= 1.
+     * @tc.expected: step2. gatherNode is not equal to nullptr and childrenInfo size is equal to 0.
+     */
+    std::vector<GatherNodeChildInfo> childrenInfo;
+    auto gatherNode = NG::DragControllerFuncWrapper::CreateGatherNode(childrenInfo, data, asyncCtxData);
+    EXPECT_NE(gatherNode, nullptr);
+    EXPECT_EQ(childrenInfo.size(), 0);
+
+    /**
+     * @tc.steps: step3. Call CreateGatherNode function when pixelMapList size > 1 and pixelMap is null.
+     * @tc.expected: step3. gatherNode is equal to nullptr and childrenInfo size is equal to 0.
+     */
+    asyncCtxData.pixelMapList.push_back(nullptr);
+    asyncCtxData.pixelMapList.push_back(nullptr);
+    asyncCtxData.pixelMapList.push_back(nullptr);
+    gatherNode = NG::DragControllerFuncWrapper::CreateGatherNode(childrenInfo, data, asyncCtxData);
+    EXPECT_EQ(gatherNode, nullptr);
+    EXPECT_EQ(childrenInfo.size(), 0);
 }
 } // namespace OHOS::Ace::NG

@@ -128,6 +128,10 @@ void JSScrollableBase::JSBind(BindingTarget globalObj)
     JSClass<JSScrollableBase>::StaticMethod("digitalCrownSensitivity", &JSScrollableBase::SetDigitalCrownSensitivity);
     JSClass<JSScrollableBase>::StaticMethod("scrollBarMargin", &JSScrollableBase::SetScrollBarMargin);
     JSClass<JSScrollableBase>::StaticMethod("backToTop", &JSScrollableBase::JSBackToTop);
+    JSClass<JSScrollableBase>::StaticMethod("onWillStartDragging", &JSScrollableBase::JSOnWillStartDragging, opt);
+    JSClass<JSScrollableBase>::StaticMethod("onDidStopDragging", &JSScrollableBase::JSOnDidStopDragging, opt);
+    JSClass<JSScrollableBase>::StaticMethod("onWillStartFling", &JSScrollableBase::JSOnWillStartFling, opt);
+    JSClass<JSScrollableBase>::StaticMethod("onDidStopFling", &JSScrollableBase::JSOnDidStopFling, opt);
     JSClass<JSScrollableBase>::InheritAndBind<JSContainerBase>(globalObj);
 }
 
@@ -196,6 +200,100 @@ void JSScrollableBase::JSBackToTop(const JSCallbackInfo& info)
         NG::ScrollableModelNG::SetBackToTop(info[0]->ToBoolean());
     } else {
         NG::ScrollableModelNG::ResetBackToTop();
+    }
+}
+
+void JSScrollableBase::JSOnWillStartDragging(const JSCallbackInfo& args)
+{
+    if (args.Length() <= 0) {
+        return;
+    }
+    if (args[0]->IsFunction()) {
+        auto onWillStartDragging = [execCtx = args.GetExecutionContext(), func = JSRef<JSFunc>::Cast(args[0])]() {
+            JAVASCRIPT_EXECUTION_SCOPE_WITH_CHECK(execCtx);
+            func->Call(JSRef<JSObject>(), 0, nullptr);
+        };
+        NG::ScrollableModelNG::SetOnWillStartDragging(std::move(onWillStartDragging));
+    } else {
+        NG::ScrollableModelNG::SetOnWillStartDragging(nullptr);
+    }
+}
+
+void JSScrollableBase::JSOnDidStopDragging(const JSCallbackInfo& args)
+{
+    if (args.Length() <= 0) {
+        return;
+    }
+    if (args[0]->IsFunction()) {
+        auto onDidStopDragging = [execCtx = args.GetExecutionContext(), func = JSRef<JSFunc>::Cast(args[0])](
+                            bool hasAnimate) {
+            JAVASCRIPT_EXECUTION_SCOPE_WITH_CHECK(execCtx);
+            auto params = ConvertToJSValues(hasAnimate);
+            func->Call(JSRef<JSObject>(), params.size(), params.data());
+        };
+        NG::ScrollableModelNG::SetOnDidStopDragging(std::move(onDidStopDragging));
+    } else {
+        NG::ScrollableModelNG::SetOnDidStopDragging(nullptr);
+    }
+}
+
+void JSScrollableBase::JSOnWillStartFling(const JSCallbackInfo& args)
+{
+    if (args.Length() <= 0) {
+        return;
+    }
+    if (args[0]->IsFunction()) {
+        auto onWillStartFling = [execCtx = args.GetExecutionContext(), func = JSRef<JSFunc>::Cast(args[0])]() {
+            JAVASCRIPT_EXECUTION_SCOPE_WITH_CHECK(execCtx);
+            func->Call(JSRef<JSObject>(), 0, nullptr);
+        };
+        NG::ScrollableModelNG::SetOnWillStartFling(std::move(onWillStartFling));
+    } else {
+        NG::ScrollableModelNG::SetOnWillStartFling(nullptr);
+    }
+}
+
+void JSScrollableBase::JSOnDidStopFling(const JSCallbackInfo& args)
+{
+    if (args.Length() <= 0) {
+        return;
+    }
+    if (args[0]->IsFunction()) {
+        auto onDidStopFling = [execCtx = args.GetExecutionContext(), func = JSRef<JSFunc>::Cast(args[0])]() {
+            JAVASCRIPT_EXECUTION_SCOPE_WITH_CHECK(execCtx);
+            func->Call(JSRef<JSObject>(), 0, nullptr);
+        };
+        NG::ScrollableModelNG::SetOnDidStopFling(std::move(onDidStopFling));
+    } else {
+        NG::ScrollableModelNG::SetOnDidStopFling(nullptr);
+    }
+}
+
+void JSScrollableBase::SetContentStartOffset(const JSCallbackInfo& info)
+{
+    double offset = 0.0;
+    RefPtr<ResourceObject> resObj;
+    if (JSViewAbstract::ParseJsDouble(info[0], offset, resObj)) {
+        NG::ScrollableModelNG::SetContentStartOffset(offset);
+    } else {
+        NG::ScrollableModelNG::ResetContentStartOffset();
+    }
+    if (SystemProperties::ConfigChangePerform()) {
+        NG::ScrollableModelNG::CreateWithResourceObjContentStartOffset(resObj);
+    }
+}
+
+void JSScrollableBase::SetContentEndOffset(const JSCallbackInfo& info)
+{
+    double offset = 0.0;
+    RefPtr<ResourceObject> resObj;
+    if (JSViewAbstract::ParseJsDouble(info[0], offset, resObj)) {
+        NG::ScrollableModelNG::SetContentEndOffset(offset);
+    } else {
+        NG::ScrollableModelNG::ResetContentEndOffset();
+    }
+    if (SystemProperties::ConfigChangePerform()) {
+        NG::ScrollableModelNG::CreateWithResourceObjContentEndOffset(resObj);
     }
 }
 } // namespace OHOS::Ace::Framework

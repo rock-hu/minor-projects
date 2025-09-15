@@ -108,6 +108,18 @@ struct ArkUI_PositionEdges {
     ArkUI_OptionalFloat right;
 };
 
+struct ArkUI_OptionalCalcPolicy {
+    int32_t isSet;
+    ArkUI_PixelRoundCalcPolicy value;
+};
+
+struct ArkUI_PixelRoundPolicy {
+    ArkUI_OptionalCalcPolicy start;
+    ArkUI_OptionalCalcPolicy top;
+    ArkUI_OptionalCalcPolicy end;
+    ArkUI_OptionalCalcPolicy bottom;
+};
+
 struct ArkUI_SwiperIndicator {
     ArkUI_SwiperIndicatorType type;
     ArkUI_OptionalFloat dimLeft;
@@ -154,8 +166,8 @@ struct ArkUI_DrawableDescriptor {
     OH_PixelmapNativeHandle pixelMap;
     OH_PixelmapNativeHandle* pixelMapArray;
     ArkUI_Int32 size;
+    void* newDrawableDescriptor;
     std::shared_ptr<OHOS::Ace::Napi::DrawableDescriptor> drawableDescriptor;
-    std::shared_ptr<OHOS::Ace::Napi::AnimatedDrawableDescriptor> animatedDrawableDescriptor;
     std::shared_ptr<OHOS::Ace::Napi::LayeredDrawableDescriptor> layeredDrawableDescriptor;
     std::shared_ptr<ArkUI_Resource> resource;
 };
@@ -212,6 +224,10 @@ struct ArkUI_CrossLanguageOption {
 struct ArkUI_VisibleAreaEventOptions {
     std::vector<float> ratios;
     int32_t expectedUpdateInterval;
+};
+
+struct ArkUI_ContentTransitionEffect {
+    int32_t contentTransitionType;
 };
 
 #ifdef __cplusplus

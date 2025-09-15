@@ -127,7 +127,7 @@ public:
         return GetSelectColor().value_or(theme->GetTrackSelectedColor()).ColorToString();
     }
 
-    std::string ToJsonBlockColor() const
+    std::string ToJsonLinearGradientBlockColor() const
     {
         auto host = GetHost();
         CHECK_NULL_RETURN(host, "");
@@ -167,7 +167,9 @@ public:
         jsonConstructor->Put("direction",
             (GetDirection().value_or(Axis::HORIZONTAL)) == Axis::VERTICAL ? "Axis.Vertical" : "Axis.Horizontal");
         json->PutExtAttr("constructor", jsonConstructor, filter);
-        json->PutExtAttr("blockColor", ToJsonBlockColor().c_str(), filter);
+        json->PutExtAttr("blockColor",
+            GetBlockColor().value_or(theme->GetBlockColor()).ColorToString().c_str(), filter);
+        json->PutExtAttr("linerGradientBlockColor", ToJsonLinearGradientBlockColor().c_str(), filter);
         json->PutExtAttr("trackColor", ToJsonTrackBackgroundColor().c_str(), filter);
         json->PutExtAttr("selectedColor", ToJsonSelectColor().c_str(), filter);
         json->PutExtAttr("showSteps", GetShowSteps().value_or(false) ? "true" : "false", filter);
@@ -260,7 +262,6 @@ public:
     ACE_DEFINE_PROPERTY_ITEM_WITH_GROUP(SliderPaintStyle, BlockColor, Color, PROPERTY_UPDATE_RENDER)
     ACE_DEFINE_PROPERTY_ITEM_WITH_GROUP(SliderPaintStyle, BlockColorSetByUser, bool, PROPERTY_UPDATE_RENDER)
     ACE_DEFINE_PROPERTY_ITEM_WITH_GROUP(SliderPaintStyle, BlockGradientColor, Gradient, PROPERTY_UPDATE_RENDER)
-    ACE_DEFINE_PROPERTY_ITEM_WITH_GROUP(SliderPaintStyle, BlockIsResourceColor, bool, PROPERTY_UPDATE_RENDER)
     ACE_DEFINE_PROPERTY_ITEM_WITH_GROUP(SliderPaintStyle, TrackBackgroundColor, Gradient, PROPERTY_UPDATE_RENDER)
     ACE_DEFINE_PROPERTY_ITEM_WITH_GROUP(SliderPaintStyle, TrackBackgroundColorSetByUser, bool, PROPERTY_UPDATE_RENDER)
     ACE_DEFINE_PROPERTY_ITEM_WITH_GROUP(SliderPaintStyle, TrackBackgroundIsResourceColor, bool, PROPERTY_UPDATE_RENDER)

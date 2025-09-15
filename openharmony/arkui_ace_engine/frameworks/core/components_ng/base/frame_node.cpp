@@ -48,6 +48,7 @@
 #include "core/common/container.h"
 #include "core/common/recorder/event_recorder.h"
 #include "core/common/recorder/node_data_cache.h"
+#include "core/common/resource/resource_parse_utils.h"
 #include "core/components_ng/manager/drag_drop/drag_drop_related_configuration.h"
 #include "core/components_ng/pattern/linear_layout/linear_layout_pattern.h"
 #include "core/components_ng/pattern/stage/page_pattern.h"
@@ -479,6 +480,9 @@ void FrameNode::OnDelete()
 {
     frameProxy_.reset();
     nodeAnimatablePropertyMap_.clear();
+    if (kitNode_) {
+        kitNode_->Reset();
+    }
     UINode::OnDelete();
 }
 
@@ -1413,6 +1417,9 @@ void FrameNode::NotifyColorModeChange(uint32_t colorMode)
         SetDarkMode(GetContext()->GetColorMode() == ColorMode::DARK);
     }
 
+    if (!GetForceDarkAllowed()) {
+        ResourceParseUtils::SetIsReloading(false);
+    }
     if (pattern_) {
         pattern_->OnThemeScopeUpdate(GetThemeScopeId());
         pattern_->OnColorConfigurationUpdate();
@@ -1424,6 +1431,9 @@ void FrameNode::NotifyColorModeChange(uint32_t colorMode)
         frameNode->GetOverlayNode()->NotifyColorModeChange(colorMode);
     }
 
+    if (!GetForceDarkAllowed()) {
+        ResourceParseUtils::SetIsReloading(true);
+    }
     UINode::NotifyColorModeChange(colorMode);
 }
 
@@ -4582,7 +4592,6 @@ void FrameNode::AddFRCSceneInfo(const std::string& scene, float speed, SceneStat
     auto frameRateManager = pipelineContext->GetFrameRateManager();
     CHECK_NULL_VOID(frameRateManager);
 
-    frameRateManager->SetDragScene(status == SceneStatus::END ? 0 : 1);
     auto expectedRate = renderContext->CalcExpectedFrameRate(scene, std::abs(speed));
     auto nodeId = nodeId_;
     auto iter = sceneRateMap_.find(scene);
@@ -4592,7 +4601,7 @@ void FrameNode::AddFRCSceneInfo(const std::string& scene, float speed, SceneStat
         case SceneStatus::START: {
             if (iter == sceneRateMap_.end()) {
                 if (sceneRateMap_.empty()) {
-                    frameRateManager->AddNodeRate(nodeId);
+                    frameRateManager->AddNodeRate(nodeId, scene);
                 }
                 sceneRateMap_.emplace(scene, expectedRate);
                 frameRateManager->UpdateNodeRate(nodeId, GetNodeExpectedRate());
@@ -6016,7 +6025,7 @@ void FrameNode::ForceSyncGeometryNode()
 {
     CHECK_NULL_VOID(renderContext_);
     oldGeometryNode_.Reset();
-    renderContext_->SavePaintRect();
+    renderContext_->SavePaintRect(true, layoutProperty_->GetPixelRound());
     renderContext_->SyncGeometryProperties(RawPtr(geometryNode_));
 }
 

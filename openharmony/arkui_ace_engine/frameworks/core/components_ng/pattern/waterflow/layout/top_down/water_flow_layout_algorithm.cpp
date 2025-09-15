@@ -142,6 +142,7 @@ void WaterFlowLayoutAlgorithm::Measure(LayoutWrapper* layoutWrapper)
 
     InitialItemsCrossSize(layoutProperty, idealSize, layoutInfo_->GetChildrenCount());
     mainSize_ = GetMainAxisSize(idealSize, axis);
+    CalcContentOffset(layoutWrapper, layoutInfo_, mainSize_);
     if (layoutInfo_->jumpIndex_ >= 0 && layoutInfo_->jumpIndex_ < layoutInfo_->GetChildrenCount()) {
         auto crossIndex = layoutInfo_->GetCrossIndex(layoutInfo_->jumpIndex_);
         if (crossIndex == -1) {
@@ -149,12 +150,18 @@ void WaterFlowLayoutAlgorithm::Measure(LayoutWrapper* layoutWrapper)
         } else {
             layoutInfo_->JumpTo(layoutInfo_->items_[0][crossIndex][layoutInfo_->jumpIndex_]);
         }
+        if (layoutInfo_->jumpIndex_ == 0) {
+            layoutInfo_->currentOffset_ += layoutInfo_->contentStartOffset_;
+        }
     } else if (layoutInfo_->jumpIndex_ == LAST_ITEM) {
+        layoutInfo_->currentOffset_ -= layoutInfo_->contentEndOffset_;
         // jump to bottom.
     } else {
         layoutInfo_->jumpIndex_ = WaterFlowLayoutInfoBase::EMPTY_JUMP_INDEX;
     }
-
+    if (!pattern->IsInitialized()) {
+        layoutInfo_->currentOffset_ = layoutInfo_->contentStartOffset_;
+    }
     FillViewport(mainSize_, layoutWrapper);
     if (layoutInfo_->targetIndex_.has_value()) {
         MeasureToTarget(layoutWrapper, layoutInfo_->endIndex_, std::nullopt);
@@ -215,12 +222,10 @@ bool WaterFlowLayoutAlgorithm::MeasureToTarget(
             itemWrapper->Measure(WaterFlowLayoutUtils::CreateChildConstraint(
                 { itemCrossSize->second, mainSize_, axis_ }, layoutProperty, itemWrapper));
         } else {
-            auto referencePos = std::max(0.0f,
-                static_cast<float>(position.startMainPos + layoutInfo_->currentOffset_));
             ViewPosReference ref {
                 .viewPosStart = 0,
                 .viewPosEnd = layoutInfo_->duringPositionCalc_ ? LayoutInfinity<float>() : expandMainSize,
-                .referencePos = referencePos,
+                .referencePos = position.startMainPos + layoutInfo_->currentOffset_,
                 .referenceEdge = ReferenceEdge::START,
                 .axis = axis_,
             };
@@ -404,12 +409,10 @@ void WaterFlowLayoutAlgorithm::FillViewport(float mainSize, LayoutWrapper* layou
             itemWrapper->Measure(WaterFlowLayoutUtils::CreateChildConstraint(
                 { itemCrossSize->second, mainSize_, axis_ }, layoutProperty, itemWrapper));
         } else {
-            auto referencePos = std::max(0.0f,
-                static_cast<float>(position.startMainPos + layoutInfo_->currentOffset_));
             ViewPosReference ref {
                 .viewPosStart = 0,
                 .viewPosEnd = layoutInfo_->duringPositionCalc_ ? LayoutInfinity<float>() : expandMainSize,
-                .referencePos = referencePos,
+                .referencePos = position.startMainPos + layoutInfo_->currentOffset_,
                 .referenceEdge = ReferenceEdge::START,
                 .axis = axis_,
             };
@@ -473,6 +476,7 @@ void WaterFlowLayoutAlgorithm::ModifyCurrentOffsetWhenReachEnd(float mainSize, L
         footerMainSize_ = WaterFlowLayoutUtils::MeasureFooter(layoutWrapper, axis_);
         maxItemHeight += footerMainSize_;
     }
+    maxItemHeight += layoutInfo_->contentEndOffset_;
     if (layoutInfo_->jumpIndex_ != WaterFlowLayoutInfoBase::EMPTY_JUMP_INDEX) {
         if (layoutInfo_->extraOffset_.has_value() && Negative(layoutInfo_->extraOffset_.value())) {
             layoutInfo_->extraOffset_.reset();
@@ -482,13 +486,13 @@ void WaterFlowLayoutAlgorithm::ModifyCurrentOffsetWhenReachEnd(float mainSize, L
     }
     layoutInfo_->maxHeight_ = maxItemHeight;
 
-    if (mainSize >= maxItemHeight) {
-        if ((NonNegative(layoutInfo_->currentOffset_) && !canOverScrollStart_) ||
-            (NonPositive(layoutInfo_->currentOffset_) && !canOverScrollEnd_)) {
-            layoutInfo_->currentOffset_ = 0;
+    if (mainSize - layoutInfo_->contentStartOffset_ >= maxItemHeight) {
+        if ((GreatOrEqual(layoutInfo_->currentOffset_, layoutInfo_->contentStartOffset_) && !canOverScrollStart_) ||
+            (LessOrEqual(layoutInfo_->currentOffset_, layoutInfo_->contentStartOffset_) && !canOverScrollEnd_)) {
+            layoutInfo_->currentOffset_ = layoutInfo_->contentStartOffset_;
         }
-        layoutInfo_->itemStart_ = GreatOrEqual(layoutInfo_->currentOffset_, 0.0f);
-        layoutInfo_->offsetEnd_ = LessOrEqual(layoutInfo_->currentOffset_, 0.0f);
+        layoutInfo_->itemStart_ = GreatOrEqual(layoutInfo_->currentOffset_, layoutInfo_->contentStartOffset_);
+        layoutInfo_->offsetEnd_ = LessOrEqual(layoutInfo_->currentOffset_, layoutInfo_->contentStartOffset_);
         return;
     }
 
@@ -498,33 +502,7 @@ void WaterFlowLayoutAlgorithm::ModifyCurrentOffsetWhenReachEnd(float mainSize, L
             layoutInfo_->currentOffset_ = mainSize - maxItemHeight;
         }
 
-        auto oldStart = layoutInfo_->startIndex_;
-        layoutInfo_->UpdateStartIndex();
-        // lazyforeach
-        auto layoutProperty = AceType::DynamicCast<WaterFlowLayoutProperty>(layoutWrapper->GetLayoutProperty());
-        const float expandMainSize = mainSize_ + layoutInfo_->expandHeight_;
-        for (auto i = oldStart; i >= layoutInfo_->startIndex_; i--) {
-            auto itemWrapper = layoutWrapper->GetOrCreateChildByIndex(GetChildIndexWithFooter(i));
-            CHECK_NULL_VOID(itemWrapper);
-            float crossSize = itemsCrossSize_.at(layoutInfo_->GetCrossIndex(i));
-            if (itemsCrossSize_.size() > 1) {
-                itemWrapper->Measure(WaterFlowLayoutUtils::CreateChildConstraint(
-                    { crossSize, mainSize_, axis_ }, layoutProperty, itemWrapper));
-            } else {
-                auto pos = GetItemPosition(i);
-                auto referencePos = std::max(0.0f,
-                    static_cast<float>(pos.startMainPos + layoutInfo_->currentOffset_));
-                ViewPosReference ref {
-                    .viewPosStart = 0,
-                    .viewPosEnd = expandMainSize,
-                    .referencePos = referencePos,
-                    .referenceEdge = ReferenceEdge::START,
-                    .axis = axis_,
-                };
-                itemWrapper->Measure(WaterFlowLayoutUtils::CreateChildConstraint(
-                    { crossSize, mainSize_, axis_ }, ref, layoutProperty, itemWrapper));
-            }
-        }
+        ReMeasureItems(layoutWrapper);
     } else {
         layoutInfo_->offsetEnd_ = false;
     }
@@ -562,12 +540,10 @@ void WaterFlowLayoutAlgorithm::SyncPreloadItem(LayoutWrapper* host, int32_t item
             item->Measure(WaterFlowLayoutUtils::CreateChildConstraint({ itemCrossSize->second, mainSize_, axis_ },
                 DynamicCast<WaterFlowLayoutProperty>(host->GetLayoutProperty()), item));
         } else {
-            auto referencePos = std::max(0.0f,
-                static_cast<float>(pos.startMainPos + layoutInfo_->currentOffset_));
             ViewPosReference ref {
                 .viewPosStart = 0,
                 .viewPosEnd = mainSize_ + layoutInfo_->expandHeight_,
-                .referencePos = referencePos,
+                .referencePos = pos.startMainPos + layoutInfo_->currentOffset_,
                 .referenceEdge = ReferenceEdge::START,
                 .axis = axis_,
             };
@@ -578,6 +554,52 @@ void WaterFlowLayoutAlgorithm::SyncPreloadItem(LayoutWrapper* host, int32_t item
         layoutInfo_->targetIndex_ = itemIdx;
         MeasureToTarget(host, lastItem, std::nullopt);
         layoutInfo_->targetIndex_.reset();
+    }
+}
+
+void WaterFlowLayoutAlgorithm::ReMeasureItems(LayoutWrapper* layoutWrapper)
+{
+    auto layoutProperty = AceType::DynamicCast<WaterFlowLayoutProperty>(layoutWrapper->GetLayoutProperty());
+    bool hasLazyChild = false;
+
+    if (itemsCrossSize_.size() == 1) {
+        for (int32_t i = layoutInfo_->startIndex_; i <= layoutInfo_->endIndex_; i++) {
+            auto itemWrapper = layoutWrapper->GetChildByIndex(GetChildIndexWithFooter(i));
+            if (itemWrapper && itemWrapper->GetLayoutProperty()->GetNeedLazyLayout()) {
+                hasLazyChild = true;
+                break;
+            }
+        }
+    }
+
+    auto oldStart = layoutInfo_->startIndex_;
+    layoutInfo_->UpdateStartIndex();
+    if (!hasLazyChild) {
+        for (auto i = oldStart; i >= layoutInfo_->startIndex_; i--) {
+            auto itemWrapper = layoutWrapper->GetOrCreateChildByIndex(GetChildIndexWithFooter(i));
+            CHECK_NULL_VOID(itemWrapper);
+
+            float crossSize = itemsCrossSize_.at(layoutInfo_->GetCrossIndex(i));
+            itemWrapper->Measure(WaterFlowLayoutUtils::CreateChildConstraint(
+                { crossSize, mainSize_, axis_ }, layoutProperty, itemWrapper));
+        }
+    } else {
+        for (auto i = layoutInfo_->startIndex_; i <= layoutInfo_->endIndex_; i++) {
+            auto itemWrapper = layoutWrapper->GetOrCreateChildByIndex(GetChildIndexWithFooter(i));
+            CHECK_NULL_VOID(itemWrapper);
+
+            auto pos = GetItemPosition(i);
+            float crossSize = itemsCrossSize_.at(layoutInfo_->GetCrossIndex(i));
+            ViewPosReference ref {
+                .viewPosStart = 0,
+                .viewPosEnd = mainSize_ + layoutInfo_->expandHeight_,
+                .referencePos = pos.startMainPos + layoutInfo_->currentOffset_,
+                .referenceEdge = ReferenceEdge::START,
+                .axis = axis_,
+            };
+            itemWrapper->Measure(WaterFlowLayoutUtils::CreateChildConstraint(
+                { crossSize, mainSize_, axis_ }, ref, layoutProperty, itemWrapper));
+        }
     }
 }
 } // namespace OHOS::Ace::NG

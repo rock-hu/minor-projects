@@ -925,6 +925,14 @@ public:
     {
         return scrollBar_;
     }
+
+    static double GetDefaultFriction();
+
+    bool IsInitialized() const
+    {
+        return isInitialized_;
+    }
+
 protected:
     void SuggestOpIncGroup(bool flag);
     void OnAttachToFrameNodeMultiThread();
@@ -1140,6 +1148,10 @@ private:
     void SetGetSnapTypeCallback(const RefPtr<Scrollable>& scrollable);
     void SetPanActionEndEvent(const RefPtr<Scrollable>& scrollable);
     void SetOnWillStopDraggingCallback(const RefPtr<Scrollable>& scrollable);
+    void SetOnWillStartDraggingCallback(const RefPtr<Scrollable>& scrollable);
+    void SetOnDidStopDraggingCallback(const RefPtr<Scrollable>& scrollable);
+    void SetOnWillStartFlingCallback(const RefPtr<Scrollable>& scrollable);
+    void SetOnDidStopFlingCallback(const RefPtr<Scrollable>& scrollable);
     RefPtr<Scrollable> CreateScrollable();
 
     // Scrollable::UpdateScrollPosition
