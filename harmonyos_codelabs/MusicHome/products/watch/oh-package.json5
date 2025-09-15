@@ -1,0 +1,17 @@
+{
+  "name": "watch",
+  "version": "1.0.0",
+  "description": "Please describe the basic information.",
+  "main": "",
+  "author": "",
+  "license": "",
+  "dependencies": {
+    "musicList": "file:../../features/musicList",
+    "@ohos/constantsCommon": "file:../../common/constantsCommon",
+    "@ohos/live": "file:../../features/live",
+    "@ohos/musicComment": "file:../../features/musicComment",
+    "@ohos/musicList": "file:../../features/musicList",
+    "@ohos/mediaCommon": "file:../../common/mediaCommon",
+  }
+}
+

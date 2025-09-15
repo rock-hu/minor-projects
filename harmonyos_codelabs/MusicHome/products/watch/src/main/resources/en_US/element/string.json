@@ -1,0 +1,48 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "WatchAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "WatchAbility_label",
+      "value": "MusicHome"
+    },
+    {
+      "name": "home_hottest_playlists",
+      "value": "hottest Playlists"
+    },
+    {
+      "name": "home_my_favorite",
+      "value": "My Favorite"
+    },
+    {
+      "name": "home_is_playing",
+      "value": "Is Playing"
+    },
+    {
+      "name": "home_setting",
+      "value": "Setting"
+    },
+    {
+      "name": "playlist_name_one",
+      "value": "Popular Playlists "
+    },
+    {
+      "name": "playlist_name_two",
+      "value": "Exercise Music "
+    },
+    {
+      "name": "playlist_title_one",
+      "value": "New independent singer-songwriter"
+    },
+    {
+      "name": "playlist_title_two",
+      "value": "Pleasant jogging "
+    }
+  ]
+}

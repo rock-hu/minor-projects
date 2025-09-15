@@ -14,7 +14,7 @@
   "modules": [
     {
       "name": "phone",
-      "srcPath": "./product/phone",
+      "srcPath": "./products/phone",
       "targets": [
         {
           "name": "default",

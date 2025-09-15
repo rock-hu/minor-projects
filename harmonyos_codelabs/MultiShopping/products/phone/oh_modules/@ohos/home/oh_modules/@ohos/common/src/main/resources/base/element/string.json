@@ -1,0 +1,1344 @@
+{
+  "string": [
+    {
+      "name": "empty_text",
+      "value": "No data"
+    },
+    {
+      "name": "commodity_piece_description",
+      "value": "【%s】%s"
+    },
+    {
+      "name": "commodity_piece",
+      "value": "￥%d"
+    },
+    {
+      "name": "commodity_color_id",
+      "value": "Color"
+    },
+    {
+      "name": "commodity_color_title",
+      "value": "Color"
+    },
+    {
+      "name": "commodity_version_id",
+      "value": "Version"
+    },
+    {
+      "name": "commodity_version_title",
+      "value": "Version"
+    },
+    {
+      "name": "commodity_network_id",
+      "value": "Network Standard"
+    },
+    {
+      "name": "commodity_network_title",
+      "value": "Network Standard"
+    },
+    {
+      "name": "commodity_type_id",
+      "value": "Type"
+    },
+    {
+      "name": "commodity_type_title",
+      "value": "Type"
+    },
+    {
+      "name": "commodity1_color_key1",
+      "value": "Deep Black"
+    },
+    {
+      "name": "commodity1_color_value1",
+      "value": "Deep Black"
+    },
+    {
+      "name": "commodity1_color_key2",
+      "value": "Pearl White"
+    },
+    {
+      "name": "commodity1_color_value2",
+      "value": "Pearl White"
+    },
+    {
+      "name": "commodity1_color_key3",
+      "value": "Sapphire Blue"
+    },
+    {
+      "name": "commodity1_color_value3",
+      "value": "Sapphire Blue"
+    },
+    {
+      "name": "commodity1_version_key1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity1_version_value1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity1_version_key2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity1_version_value2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity1_version_key3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity1_version_value3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity1_network_key1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity1_network_value1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity1_network_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity1_network_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity1_type_key1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity1_type_value1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity1_type_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity1_type_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity1_title",
+      "value": "XXXX40 Pro"
+    },
+    {
+      "name": "commodity1_description",
+      "value": "XXXX Pro 5G mobile phone"
+    },
+    {
+      "name": "commodity1_promotion",
+      "value": "New"
+    },
+    {
+      "name": "commodity2_color_key1",
+      "value": "Deep Black"
+    },
+    {
+      "name": "commodity2_color_value1",
+      "value": "Deep Black"
+    },
+    {
+      "name": "commodity2_color_key2",
+      "value": "Pearl White"
+    },
+    {
+      "name": "commodity2_color_value2",
+      "value": "Pearl White"
+    },
+    {
+      "name": "commodity2_color_key3",
+      "value": "Sapphire Blue"
+    },
+    {
+      "name": "commodity2_color_value3",
+      "value": "Sapphire Blue"
+    },
+    {
+      "name": "commodity2_version_key1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity2_version_value1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity2_version_key2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity2_version_value2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity2_version_key3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity2_version_value3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity2_network_key1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity2_network_value1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity2_network_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity2_network_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity2_type_key1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity2_type_value1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity2_type_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity2_type_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity2_title",
+      "value": "XXXXBook 13"
+    },
+    {
+      "name": "commodity2_description",
+      "value": "XX LapTop XXXXBook 13 Core 11"
+    },
+    {
+      "name": "commodity2_promotion",
+      "value": "New"
+    },
+    {
+      "name": "commodity3_color_key1",
+      "value": "Black"
+    },
+    {
+      "name": "commodity3_color_value1",
+      "value": "Black"
+    },
+    {
+      "name": "commodity3_color_key2",
+      "value": "White"
+    },
+    {
+      "name": "commodity3_color_value2",
+      "value": "White"
+    },
+    {
+      "name": "commodity3_version_key1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity3_version_value1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity3_version_key2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity3_version_value2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity3_version_key3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity3_version_value3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity3_network_key1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity3_network_value1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity3_network_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity3_network_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity3_type_key1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity3_type_value1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity3_type_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity3_type_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity3_title",
+      "value": "PXX40 Pro"
+    },
+    {
+      "name": "commodity3_description",
+      "value": "PXX40 Pro 5G mobile phone XXXOS supported"
+    },
+    {
+      "name": "commodity3_promotion",
+      "value": "Flash Sale"
+    },
+    {
+      "name": "commodity4_color_key1",
+      "value": "Deep Black"
+    },
+    {
+      "name": "commodity4_color_value1",
+      "value": "Deep Black"
+    },
+    {
+      "name": "commodity4_color_key2",
+      "value": "Pearl White"
+    },
+    {
+      "name": "commodity4_color_value2",
+      "value": "Pearl White"
+    },
+    {
+      "name": "commodity4_color_key3",
+      "value": "Sapphire Blue"
+    },
+    {
+      "name": "commodity4_color_value3",
+      "value": "Sapphire Blue"
+    },
+    {
+      "name": "commodity4_version_key1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity4_version_value1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity4_version_key2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity4_version_value2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity4_version_key3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity4_version_value3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity4_network_key1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity4_network_value1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity4_network_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity4_network_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity4_type_key1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity4_type_value1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity4_type_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity4_type_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity4_title",
+      "value": "XXXX30 Pro"
+    },
+    {
+      "name": "commodity4_description",
+      "value": "XXXX30 Pro mobile phone XXXOS supported long battery life"
+    },
+    {
+      "name": "commodity4_promotion",
+      "value": "New"
+    },
+    {
+      "name": "commodity5_color_key1",
+      "value": "Black"
+    },
+    {
+      "name": "commodity5_color_value1",
+      "value": "Black"
+    },
+    {
+      "name": "commodity5_color_key2",
+      "value": "White"
+    },
+    {
+      "name": "commodity5_color_value2",
+      "value": "White"
+    },
+    {
+      "name": "commodity5_version_key1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity5_version_value1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity5_version_key2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity5_version_value2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity5_version_key3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity5_version_value3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity5_network_key1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity5_network_value1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity5_network_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity5_network_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity5_type_key1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity5_type_value1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity5_type_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity5_type_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity5_title",
+      "value": "XX20e"
+    },
+    {
+      "name": "commodity5_description",
+      "value": "XX 5000mAh battery 6.3-inch HD screen"
+    },
+    {
+      "name": "commodity5_promotion",
+      "value": "Bonus Points"
+    },
+    {
+      "name": "commodity6_color_key1",
+      "value": "Deep Black"
+    },
+    {
+      "name": "commodity6_color_value1",
+      "value": "Deep Black"
+    },
+    {
+      "name": "commodity6_color_key2",
+      "value": "Pearl White"
+    },
+    {
+      "name": "commodity6_color_value2",
+      "value": "Pearl White"
+    },
+    {
+      "name": "commodity6_color_key3",
+      "value": "Sapphire Blue"
+    },
+    {
+      "name": "commodity6_color_value3",
+      "value": "Sapphire Blue"
+    },
+    {
+      "name": "commodity6_version_key1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity6_version_value1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity6_version_key2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity6_version_value2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity6_version_key3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity6_version_value3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity6_network_key1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity6_network_value1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity6_network_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity6_network_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity6_type_key1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity6_type_value1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity6_type_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity6_type_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity6_title",
+      "value": "XX20 Plus"
+    },
+    {
+      "name": "commodity6_description",
+      "value": "40W SuperCharge 90Hz high refresh rate"
+    },
+    {
+      "name": "commodity6_promotion",
+      "value": "New"
+    },
+    {
+      "name": "commodity7_color_key1",
+      "value": "Black"
+    },
+    {
+      "name": "commodity7_color_value1",
+      "value": "Black"
+    },
+    {
+      "name": "commodity7_color_key2",
+      "value": "White"
+    },
+    {
+      "name": "commodity7_color_value2",
+      "value": "White"
+    },
+    {
+      "name": "commodity7_version_key1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity7_version_value1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity7_version_key2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity7_version_value2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity7_version_key3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity7_version_value3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity7_network_key1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity7_network_value1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity7_network_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity7_network_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity7_type_key1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity7_type_value1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity7_type_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity7_type_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity7_title",
+      "value": "XXXX7 Pro"
+    },
+    {
+      "name": "commodity7_description",
+      "value": "XX mobile phone 5000W HD rear camera shooting"
+    },
+    {
+      "name": "commodity7_promotion",
+      "value": "Flash Sale"
+    },
+    {
+      "name": "commodity8_color_key1",
+      "value": "Deep Black"
+    },
+    {
+      "name": "commodity8_color_value1",
+      "value": "Deep Black"
+    },
+    {
+      "name": "commodity8_color_key2",
+      "value": "Pearl White"
+    },
+    {
+      "name": "commodity8_color_value2",
+      "value": "Pearl White"
+    },
+    {
+      "name": "commodity8_color_key3",
+      "value": "Sapphire Blue"
+    },
+    {
+      "name": "commodity8_color_value3",
+      "value": "Sapphire Blue"
+    },
+    {
+      "name": "commodity8_version_key1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity8_version_value1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity8_version_key2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity8_version_value2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity8_version_key3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity8_version_value3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity8_network_key1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity8_network_value1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity8_network_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity8_network_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity8_type_key1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity8_type_value1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity8_type_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity8_type_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity8_title",
+      "value": "XXXX xs2"
+    },
+    {
+      "name": "commodity8_description",
+      "value": "XX curved phone inverted hinge"
+    },
+    {
+      "name": "commodity8_promotion",
+      "value": "Bonus Points"
+    },
+    {
+      "name": "commodity9_color_key1",
+      "value": "Black"
+    },
+    {
+      "name": "commodity9_color_value1",
+      "value": "Black"
+    },
+    {
+      "name": "commodity9_color_key2",
+      "value": "White"
+    },
+    {
+      "name": "commodity9_color_value2",
+      "value": "White"
+    },
+    {
+      "name": "commodity9_version_key1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity9_version_value1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity9_version_key2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity9_version_value2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity9_version_key3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity9_version_value3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity9_network_key1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity9_network_value1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity9_network_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity9_network_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity9_type_key1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity9_type_value1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity9_type_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity9_type_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity9_title",
+      "value": "PXX40 Pro"
+    },
+    {
+      "name": "commodity9_description",
+      "value": "PXX40 Pro 5G mobile phone XXXOS supported"
+    },
+    {
+      "name": "commodity9_promotion",
+      "value": "Flash Sale"
+    },
+    {
+      "name": "commodity10_color_key1",
+      "value": "Deep Black"
+    },
+    {
+      "name": "commodity10_color_value1",
+      "value": "Deep Black"
+    },
+    {
+      "name": "commodity10_color_key2",
+      "value": "Pearl White"
+    },
+    {
+      "name": "commodity10_color_value2",
+      "value": "Pearl White"
+    },
+    {
+      "name": "commodity10_color_key3",
+      "value": "Sapphire Blue"
+    },
+    {
+      "name": "commodity10_color_value3",
+      "value": "Sapphire Blue"
+    },
+    {
+      "name": "commodity10_version_key1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity10_version_value1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity10_version_key2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity10_version_value2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity10_version_key3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity10_version_value3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity10_network_key1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity10_network_value1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity10_network_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity10_network_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity10_type_key1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity10_type_value1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity10_type_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity10_type_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity10_title",
+      "value": "XXXX30 Pro"
+    },
+    {
+      "name": "commodity10_description",
+      "value": "XXXX30 Pro long battery life XXXOS supported"
+    },
+    {
+      "name": "commodity10_promotion",
+      "value": "New"
+    },
+    {
+      "name": "commodity11_color_key1",
+      "value": "Black"
+    },
+    {
+      "name": "commodity11_color_value1",
+      "value": "Black"
+    },
+    {
+      "name": "commodity11_color_key2",
+      "value": "White"
+    },
+    {
+      "name": "commodity11_color_value2",
+      "value": "White"
+    },
+    {
+      "name": "commodity11_version_key1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity11_version_value1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity11_version_key2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity11_version_value2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity11_version_key3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity11_version_value3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity11_network_key1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity11_network_value1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity11_network_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity11_network_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity11_type_key1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity11_type_value1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity11_type_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity11_type_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity11_title",
+      "value": "PXX40 Pro"
+    },
+    {
+      "name": "commodity11_description",
+      "value": "PXX40 Pro 5G mobile phone XXXOS supported"
+    },
+    {
+      "name": "commodity11_promotion",
+      "value": "Flash Sale"
+    },
+    {
+      "name": "commodity12_color_key1",
+      "value": "Black"
+    },
+    {
+      "name": "commodity12_color_value1",
+      "value": "Black"
+    },
+    {
+      "name": "commodity12_color_key2",
+      "value": "White"
+    },
+    {
+      "name": "commodity12_color_value2",
+      "value": "White"
+    },
+    {
+      "name": "commodity12_version_key1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity12_version_value1",
+      "value": "8+128G"
+    },
+    {
+      "name": "commodity12_version_key2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity12_version_value2",
+      "value": "8+256G"
+    },
+    {
+      "name": "commodity12_version_key3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity12_version_value3",
+      "value": "12+512G"
+    },
+    {
+      "name": "commodity12_network_key1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity12_network_value1",
+      "value": "4G Full-Frequency"
+    },
+    {
+      "name": "commodity12_network_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity12_network_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity12_type_key1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity12_type_value1",
+      "value": "Official Standard"
+    },
+    {
+      "name": "commodity12_type_key2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity12_type_value2",
+      "value": "5G Full-Frequency"
+    },
+    {
+      "name": "commodity12_title",
+      "value": "XXXX7 Pro"
+    },
+    {
+      "name": "commodity12_description",
+      "value": "XX mobile phone 5000W HD rear camera shooting"
+    },
+    {
+      "name": "commodity12_promotion",
+      "value": "Flash Sale"
+    },
+    {
+      "name": "shopCart1_name",
+      "value": "XXXX40 pro"
+    },
+    {
+      "name": "shopCart1_color_key",
+      "value": "Color"
+    },
+    {
+      "name": "shopCart1_color_value",
+      "value": "Pearl White"
+    },
+    {
+      "name": "shopCart1_version_key",
+      "value": "Version"
+    },
+    {
+      "name": "shopCart1_version_value",
+      "value": "8+256G"
+    },
+    {
+      "name": "shopCart1_description",
+      "value": "XXXX40 Pro 5G mobile phone"
+    },
+    {
+      "name": "shopCart2_name",
+      "value": "PXX40 pro"
+    },
+    {
+      "name": "shopCart2_color_key",
+      "value": "Color"
+    },
+    {
+      "name": "shopCart2_color_value",
+      "value": "Deep Black"
+    },
+    {
+      "name": "shopCart2_version_key",
+      "value": "Version"
+    },
+    {
+      "name": "shopCart2_version_value",
+      "value": "8+128G"
+    },
+    {
+      "name": "shopCart2_description",
+      "value": "PXX40 Pro 5G mobile phone XXXOS supported"
+    },
+    {
+      "name": "order1_title",
+      "value": "PXX40 Pro"
+    },
+    {
+      "name": "order1_color_key",
+      "value": "Color"
+    },
+    {
+      "name": "order1_color_value",
+      "value": "Sapphire Blue"
+    },
+    {
+      "name": "order1_version_key",
+      "value": "Version"
+    },
+    {
+      "name": "order1_version_value",
+      "value": "12+512G"
+    },
+    {
+      "name": "order1_description",
+      "value": "XXX40 Pro 5G mobile phone HarmonyOS supported"
+    },
+    {
+      "name": "order2_title",
+      "value": "XXXX40 Pro"
+    },
+    {
+      "name": "order2_color_key",
+      "value": "Color"
+    },
+    {
+      "name": "order2_color_value",
+      "value": "Sapphire Blue"
+    },
+    {
+      "name": "order2_version_key",
+      "value": "Version"
+    },
+    {
+      "name": "order2_version_value",
+      "value": "12+512G"
+    },
+    {
+      "name": "order2_description",
+      "value": "XXXX40 Pro 5G mobile phone"
+    },
+    {
+      "name": "order3_title",
+      "value": "XXXX40 Pro"
+    },
+    {
+      "name": "order3_color_key",
+      "value": "Color"
+    },
+    {
+      "name": "order3_color_value",
+      "value": "Pearl White"
+    },
+    {
+      "name": "order3_version_key",
+      "value": "Version"
+    },
+    {
+      "name": "order3_version_value",
+      "value": "8+256G"
+    },
+    {
+      "name": "order3_description",
+      "value": "XXXX40 Pro 5G mobile phone"
+    },
+    {
+      "name": "order4_title",
+      "value": "XXXX40 Pro"
+    },
+    {
+      "name": "order4_color_key",
+      "value": "Color"
+    },
+    {
+      "name": "order4_color_value",
+      "value": "Deep Black"
+    },
+    {
+      "name": "order4_version_key",
+      "value": "Version"
+    },
+    {
+      "name": "order4_version_value",
+      "value": "8+256G"
+    },
+    {
+      "name": "order4_description",
+      "value": "XXXX40 Pro 5G mobile phone"
+    },
+    {
+      "name": "order5_title",
+      "value": "XXXBook 13"
+    },
+    {
+      "name": "order5_color_key",
+      "value": "Color"
+    },
+    {
+      "name": "order5_color_value",
+      "value": "Sapphire Blue"
+    },
+    {
+      "name": "order5_version_key",
+      "value": "Version"
+    },
+    {
+      "name": "order5_version_value",
+      "value": "12+512G"
+    },
+    {
+      "name": "order5_description",
+      "value": "xx Laptop XXXXBook 13 Core 11"
+    },
+    {
+      "name": "order6_title",
+      "value": "XXXX40 Pro"
+    },
+    {
+      "name": "order6_color_key",
+      "value": "Color"
+    },
+    {
+      "name": "order6_color_value",
+      "value": "Sapphire Blue"
+    },
+    {
+      "name": "order6_version_key",
+      "value": "Version"
+    },
+    {
+      "name": "order6_version_value",
+      "value": "12+512G"
+    },
+    {
+      "name": "order6_description",
+      "value": "XXXX40 Pro 5G mobile phone"
+    },
+    {
+      "name": "order7_title",
+      "value": "XXXX40 Pro"
+    },
+    {
+      "name": "order7_color_key",
+      "value": "Color"
+    },
+    {
+      "name": "order7_color_value",
+      "value": "Deep Black"
+    },
+    {
+      "name": "order7_version_key",
+      "value": "Version"
+    },
+    {
+      "name": "order7_version_value",
+      "value": "8+256G"
+    },
+    {
+      "name": "order7_description",
+      "value": "XXXX40 Pro 5G mobile phone"
+    },
+    {
+      "name": "order8_title",
+      "value": "XXXXBook 13"
+    },
+    {
+      "name": "order8_color_key",
+      "value": "Color"
+    },
+    {
+      "name": "order8_color_value",
+      "value": "Khaki"
+    },
+    {
+      "name": "order8_version_key",
+      "value": "Version"
+    },
+    {
+      "name": "order8_version_value",
+      "value": "12+512G"
+    },
+    {
+      "name": "order8_description",
+      "value": "XX Laptop XXXXBook 13 Core 11"
+    }
+  ]
+}

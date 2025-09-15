@@ -1,0 +1,40 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "模块描述"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "SplashAdsDemo"
+    },
+    {
+      "name": "ads_demo_title",
+      "value": "SplashAdsDemo"
+    },
+    {
+      "name": "request_splash_full_screen_ad_btn",
+      "value": "开屏全屏广告"
+    },
+    {
+      "name": "request_splash_half_screen_ad_btn",
+      "value": "开屏半屏广告"
+    },
+    {
+      "name": "video",
+      "value": "视频"
+    },
+    {
+      "name": "copyright",
+      "value": "版权所有 © 2022-2025 华为技术有限公司"
+    },
+    {
+      "name": "app_tracking_permission_reason",
+      "value": "应用获知此信息，用于向您推荐可能感兴趣的内容"
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "string": [
+    {
+      "name": "rmb",
+      "value": "￥"
+    },
+    {
+      "name": "quantity",
+      "value": "数量"
+    },
+    {
+      "name": "share",
+      "value": "分享"
+    },
+    {
+      "name": "collection",
+      "value": "收藏"
+    },
+    {
+      "name": "reduction",
+      "value": "降价通知"
+    },
+    {
+      "name": "choice",
+      "value": "已选"
+    },
+    {
+      "name": "send",
+      "value": "送至"
+    },
+    {
+      "name": "send_hint",
+      "value": "请选择您的收货地址"
+    },
+    {
+      "name": "service",
+      "value": "服务"
+    },
+    {
+      "name": "evaluate_favorable",
+      "value": "好评"
+    },
+    {
+      "name": "evaluate_show_more",
+      "value": "查看更多评价"
+    },
+    {
+      "name": "cart",
+      "value": "购物车"
+    },
+    {
+      "name": "index",
+      "value": "首页"
+    },
+    {
+      "name": "insert_cart_success",
+      "value": "加入购物车成功"
+    },
+    {
+      "name": "commodity_desc",
+      "value": "【%s】%s"
+    },
+    {
+      "name": "insert_cart",
+      "value": "加入购物车"
+    },
+    {
+      "name": "buy_now",
+      "value": "立即购买"
+    },
+    {
+      "name": "user_evaluate_title",
+      "value": "用户评价（2000+）"
+    },
+    {
+      "name": "user_evaluate_content1",
+      "value": "和描述相符合，很喜欢，做工精致，颜色好看，原装正品。"
+    },
+    {
+      "name": "user_evaluate_content2",
+      "value": "和描述相符合，很喜欢，做工精致，颜色好看，原装正品。"
+    },
+    {
+      "name": "user_evaluate_content3",
+      "value": "和描述相符合，很喜欢，做工精致，颜色好看，原装正品。"
+    },
+    {
+      "name": "user_evaluate_content4",
+      "value": "和描述相符合，很喜欢，做工精致，颜色好看，原装正品。"
+    },
+    {
+      "name": "user_evaluate_content5",
+      "value": "和描述相符合，很喜欢，做工精致，颜色好看，原装正品。"
+    },
+    {
+      "name": "user_evaluate_content6",
+      "value": "和描述相符合，很喜欢，做工精致，颜色好看，原装正品。"
+    },
+    {
+      "name": "service_content_1",
+      "value": "免运费（请以提交订单时为准）"
+    },
+    {
+      "name": "service_content_2",
+      "value": "店铺发货&售后"
+    },
+    {
+      "name": "service_content_3",
+      "value": "七天无理由退货"
+    },
+    {
+      "name": "case_color",
+      "value": "颜色"
+    },
+    {
+      "name": "case_version",
+      "value": "版本"
+    },
+    {
+      "name": "case_network_standard",
+      "value": "网络制式"
+    },
+    {
+      "name": "case_type",
+      "value": "类型"
+    }
+  ]
+}
