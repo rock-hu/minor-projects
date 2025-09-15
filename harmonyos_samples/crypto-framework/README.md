@@ -98,11 +98,11 @@
 
 1.本示例仅支持标准系统上运行，支持设备：华为手机。
 
-2.HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
+2.HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
 
-3.DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
+3.DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
 
-4.HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK及以上。
+4.HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。
 
 5.本示例所选择文件，用filePicker文件选择器保存的文件，比如新增的密钥，能够实时更新，如直接推送至文件夹，需要重启后刷新显示。
 

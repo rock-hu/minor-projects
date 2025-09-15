@@ -22,7 +22,7 @@ import { VideoList } from '../view/VideoList';
 import { VideoPlayer } from '../view/AVPlayer';
 import { VideoDetails } from '../view/VideoDetails';
 
-const TAG = '[IndexPage]';
+const TAG: string = '[IndexPage]';
 
 // [Start index_page1]
 @Entry
@@ -87,7 +87,7 @@ struct IndexPage {
     return false;
   }
 
-  handleFullScreenExit() {
+  handleFullScreenExit(): void {
     if (this.isFullLandscapeScreen) {
       this.windowUtil.setLandscapeMultiWindow(false);
       this.windowUtil.enableWindowSystemBar();
@@ -220,7 +220,7 @@ struct IndexPage {
       .zIndex(Const.Z_INDEX_RIGHT_SIDE)
   }
 
-  private animateFullscreen() {
+  private animateFullscreen(): void {
     this.getUIContext().animateTo({
       duration: Const.ANIMATE_DURATION
     }, () => {
@@ -231,7 +231,7 @@ struct IndexPage {
   // [Start device_width1]
   // Because the width and height of the floating window are the system default, the value of isFloatWindow (whether to display the floating window or not) is only processed according to the height of the window, which is used to control the display and concealment of the interface components.
   // [EndExclude index_page1]
-  onWindowSizeChange() {
+  onWindowSizeChange(): void {
     // [StartExclude index_page1]
     let deviceWidth = AppStorage.get<number>('deviceWidth') || 0;
     // Judge whether it is a horizontal screen or a vertical screen suspension window.

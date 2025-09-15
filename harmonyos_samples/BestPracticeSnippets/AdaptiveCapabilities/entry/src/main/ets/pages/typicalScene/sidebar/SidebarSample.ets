@@ -17,12 +17,12 @@ import { BreakpointSystem } from '../../../common/BreakpointSystem'
 
 class ImageData {
   label: string = '';
-  imageSrc: Resource = $r("app.media.my_image_moon");
+  imageSrc: Resource = $r('app.media.my_image_moon');
 }
 
 const images: ImageData[] = [
-  { label: 'moon', imageSrc: $r("app.media.my_image_moon") },
-  { label: 'sun', imageSrc: $r("app.media.my_image") }
+  { label: 'moon', imageSrc: $r('app.media.my_image_moon') },
+  { label: 'sun', imageSrc: $r('app.media.my_image') }
 ]
 
 @Entry

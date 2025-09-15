@@ -25,7 +25,7 @@ export struct VideoDetails {
    * @param isAdd
    */
   private changeLikeCount(isAdd: boolean) {
-    let likeCountNum = Number(this.item.likeCount);
+    let likeCountNum: number = Number(this.item.likeCount);
     if (isAdd) {
       likeCountNum++;
     } else {

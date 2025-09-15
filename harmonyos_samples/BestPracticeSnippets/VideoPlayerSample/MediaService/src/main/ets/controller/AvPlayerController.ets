@@ -18,13 +18,14 @@ import { media } from '@kit.MediaKit';
 import { audio } from '@kit.AudioKit';
 import { avSession } from '@kit.AVSessionKit';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { resourceManager } from '@kit.LocalizationKit';
 import { AVPlayerState, CommonConstants } from '../common/CommonConstants';
 import { secondToTime } from '../utils/CommUtils'
 import { VideoData } from '../model/VideoData';
 import { AvSessionController } from './AvSessionController';
 import Logger from '../utils/Logger';
 
-const TAG = '[AvPlayerController]';
+const TAG: string = '[AvPlayerController]';
 
 @Observed
 export class AvPlayerController {
@@ -47,12 +48,13 @@ export class AvPlayerController {
     this.avSessionController = AvSessionController.getInstance();
   }
 
-  public initAVPlayer() {
+  public initAVPlayer(): void {
     media.createAVPlayer().then((player: media.AVPlayer) => {
       if (player !== null) {
         this.avPlayer = player;
         if (this.curSource.video) {
-          let fileDescriptor = this.context?.resourceManager.getRawFdSync(this.curSource.video);
+          let fileDescriptor: resourceManager.RawFileDescriptor | undefined =
+            this.context?.resourceManager.getRawFdSync(this.curSource.video);
           if (fileDescriptor) {
             let avFileDescriptor: media.AVFileDescriptor =
               { fd: fileDescriptor.fd, offset: fileDescriptor.offset, length: fileDescriptor.length };
@@ -75,7 +77,7 @@ export class AvPlayerController {
     });
   }
 
-  private setAVPlayerCallback(avPlayer: media.AVPlayer) {
+  private setAVPlayerCallback(avPlayer: media.AVPlayer): void {
     if (!this.avPlayer) {
       return;
     }
@@ -108,7 +110,7 @@ export class AvPlayerController {
   }
 
   // [Start listener1]
-  public async setAvSessionListener() {
+  public async setAvSessionListener(): Promise<void> {
     if (!this.avSessionController) {
       return;
     }
@@ -124,10 +126,11 @@ export class AvPlayerController {
       Logger.error(TAG, `setAvSessionListener failed, code is ${err.code}, message is ${err.message}`);
     }
   }
+
   // [End listener1]
 
   // [Start set_back1]
-  private setInterruptCallback() {
+  private setInterruptCallback(): void {
     if (!this.avPlayer) {
       return;
     }
@@ -184,9 +187,10 @@ export class AvPlayerController {
       }
     })
   }
+
   // [End set_back1]
 
-  private setStateChangeCallback(avPlayer: media.AVPlayer) {
+  private setStateChangeCallback(avPlayer: media.AVPlayer): void {
     avPlayer.on('stateChange', async (state: string) => {
       switch (state) {
         case 'idle':
@@ -243,7 +247,7 @@ export class AvPlayerController {
     })
   }
 
-  private setOutputDeviceChangeCallback() {
+  private setOutputDeviceChangeCallback(): void {
     if (!this.avPlayer) {
       return;
     }
@@ -265,24 +269,27 @@ export class AvPlayerController {
   }
 
   // [Start update_is_play]
-  private updateIsPlay(isPlay: boolean) {
+  private updateIsPlay(isPlay: boolean): void {
     if (this.curIndex !== this.curSource.index) {
       return;
     }
     this.isPlaying = isPlay;
     this.avSessionController.setAvSessionPlayState({
-      state: isPlay ? avSession.PlaybackState.PLAYBACK_STATE_PLAY : avSession.PlaybackState.PLAYBACK_STATE_PAUSE, //Playback status
-      position: { // Playback position
+      state: isPlay ? avSession.PlaybackState.PLAYBACK_STATE_PLAY :
+      avSession.PlaybackState.PLAYBACK_STATE_PAUSE, //Playback status
+      position: {
+        // Playback position
         elapsedTime: this.currentTime * 1000, // Elapsed time in milliseconds (ms)
         updateTime: new Date().getTime() // Update time, in ms
       },
       duration: this.duration // The duration of the current media resource
     });
   }
+
   // [End update_is_play]
 
   private isCurAvSession(): boolean {
-    let curAvMetadata = this.avSessionController.getAvSessionMetadata();
+    let curAvMetadata: avSession.AVMetadata | undefined = this.avSessionController.getAvSessionMetadata();
     if (!curAvMetadata) {
       Logger.error(TAG, 'playVideo failed, AvMetadata is undefined');
     }
@@ -292,25 +299,25 @@ export class AvPlayerController {
     return false;
   }
 
-  private sessionPlayCallback() {
+  private sessionPlayCallback(): void {
     if (this.isCurAvSession()) {
       this.playVideo();
     }
   }
 
-  private sessionPauseCallback() {
+  private sessionPauseCallback(): void {
     if (this.isCurAvSession()) {
       this.pauseVideo();
     }
   }
 
-  private sessionStopCallback() {
+  private sessionStopCallback(): void {
     if (this.isCurAvSession()) {
       this.stopVideo();
     }
   }
 
-  private sessionFastForwardCallback(time?: number) {
+  private sessionFastForwardCallback(time?: number): void {
     if (this.isCurAvSession()) {
       if (!time) {
         return;
@@ -321,7 +328,7 @@ export class AvPlayerController {
     }
   }
 
-  private sessionRewindCallback(time?: number) {
+  private sessionRewindCallback(time?: number): void {
     if (!time) {
       return;
     }
@@ -330,13 +337,13 @@ export class AvPlayerController {
     }
   }
 
-  private sessionSeekCallback(seekTime: number) {
+  private sessionSeekCallback(seekTime: number): void {
     if (this.isCurAvSession()) {
       this.seek(seekTime);
     }
   }
 
-  public playVideo() {
+  public playVideo(): void {
     if (this.avPlayer) {
       if (this.avPlayer.state !== AVPlayerState.PREPARED && this.avPlayer.state !== AVPlayerState.PAUSED &&
         this.avPlayer.state !== AVPlayerState.COMPLETED) {
@@ -359,7 +366,7 @@ export class AvPlayerController {
     }
   }
 
-  public pauseVideo() {
+  public pauseVideo(): void {
     if (this.avPlayer) {
       Logger.info(TAG, `pauseVideo: state:${this.avPlayer.state} this.curIndex:${this.curIndex}`);
       this.updateIsPlay(false);
@@ -377,7 +384,7 @@ export class AvPlayerController {
     }
   }
 
-  public stopVideo() {
+  public stopVideo(): void {
     if (this.avPlayer) {
       Logger.info(TAG, `stopVideo: state: ${this.avPlayer.state} this.curIndex:${this.curIndex}`);
       if (this.avPlayer.state !== AVPlayerState.PREPARED && this.avPlayer.state !== AVPlayerState.PLAYING &&
@@ -400,7 +407,7 @@ export class AvPlayerController {
   }
 
   // Parameter seekTime unit - milliseconds (ms)
-  public seek(seekTime: number) {
+  public seek(seekTime: number): void {
     if (this.avPlayer) {
       seekTime = Math.max(seekTime, 0);
       seekTime = Math.min(seekTime, this.duration);
@@ -414,31 +421,31 @@ export class AvPlayerController {
     }
   }
 
-  public setCurIndex(curIndex: number) {
+  public setCurIndex(curIndex: number): void {
     this.curIndex = curIndex;
   }
 
-  public setIsPlaying(isPlayer: boolean) {
+  public setIsPlaying(isPlayer: boolean): void {
     this.isPlaying = isPlayer;
   }
 
-  public setDurationTime(durationTime: number) {
+  public setDurationTime(durationTime: number): void {
     this.durationTime = durationTime;
   }
 
-  public setDurationStringTime(durationStringTime: string) {
+  public setDurationStringTime(durationStringTime: string): void {
     this.durationStringTime = durationStringTime;
   }
 
-  public setCurrentStringTime(currentStringTime: string) {
+  public setCurrentStringTime(currentStringTime: string): void {
     this.currentStringTime = currentStringTime;
   }
 
-  public setSurfaceID(surfaceID: string) {
+  public setSurfaceID(surfaceID: string): void {
     this.surfaceID = surfaceID;
   }
 
-  public releaseVideo(index: number) {
+  public releaseVideo(index: number): void {
     if (this.avPlayer) {
       Logger.info(TAG, `releaseVideo: state:${this.avPlayer.state} this.curIndex:${this.curIndex} this.index:${index}`);
       try {

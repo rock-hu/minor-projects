@@ -26,7 +26,7 @@ export struct CustomKeyboard {
   // [StartExclude customKeyboard_start1]
   @Consume isCustomKeyboardAttach: boolean;
   @Consume inputText: string;
-  @Consume keyBoardController: KeyboardController;
+  @Consume keyboardController: KeyboardController;
   @Consume systemKeyboardHeight: number;
   @Consume customKeyboardHeight: number;
   @Consume bottomRectHeight: number;
@@ -37,12 +37,12 @@ export struct CustomKeyboard {
       // [StartExclude avoidHeight_start]
       // [StartExclude customKeyboard_start1]
       NumberKeyboard()
-        .visibility(this.keyBoardController.keyBoardType === Constants.NUMBER_KEYBOARD ? Visibility.Visible :
+        .visibility(this.keyboardController.keyboardType === Constants.NUMBER_KEYBOARD ? Visibility.Visible :
         Visibility.None)
         .margin({ top: $r('app.float.keyboard_margin_top') })
 
       EnglishKeyboard()
-        .visibility(this.keyBoardController.keyBoardType === Constants.ENGLISH_KEYBOARD ? Visibility.Visible :
+        .visibility(this.keyboardController.keyboardType === Constants.ENGLISH_KEYBOARD ? Visibility.Visible :
         Visibility.None)
         .margin({ top: $r('app.float.keyboard_margin_top') })
       // [EndExclude customKeyboard_start1]
@@ -53,12 +53,12 @@ export struct CustomKeyboard {
       this.customKeyboardHeight = Number(newValue.height);
       let avoidHeight: number = (this.isCustomKeyboardAttach ? this.customKeyboardHeight : this.systemKeyboardHeight)
         - this.bottomRectHeight;
-      this.keyBoardController.changeAvoidHeight(avoidHeight);
+      this.keyboardController.changeAvoidHeight(avoidHeight);
     })
     // [StartExclude avoidHeight_start]
     .padding({ left: $r('app.float.keyboard_padding'), right: $r('app.float.keyboard_padding') })
     // [EndExclude customKeyboard_start1]
-    .height($r('app.float.keyboard_total_height'))
+    .height($r('app.float.keyboard_total_height')) // Set the total keyboard height by referencing the definition in the resource file.
     // [StartExclude customKeyboard_start1]
     .width('100%')
     .backgroundColor($r('app.color.keyboard_background_color'))

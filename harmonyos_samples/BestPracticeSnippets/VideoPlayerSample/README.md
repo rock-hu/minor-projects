@@ -33,9 +33,10 @@
 │  │  ├──BasicDataSource.ets            // 懒加载DataSource
 │  │  └──DataModel.ets                  // 数据类
 │  ├──pages                                     
-│  │  └──IndexPage.ets                  // 首页
+│  │  └──IndexPage.ets                  // 首页 
 │  ├──utils                                     
 │  │  └──WindowUtil.ets                 // 窗口工具类
+│  │  └──BreakpointSystem.ets           // 断点工具类 
 │  └──view
 │     ├──AVPlayer.ets                   // 视频组件
 │     ├──VideoList.ets                  // 首页视频列表

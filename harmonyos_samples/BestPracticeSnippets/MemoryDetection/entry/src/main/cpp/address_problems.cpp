@@ -40,6 +40,7 @@ void FunctionThatEscapesLocalObject()
 {
     int local[100];
     ptr = &local[0];
+    printf("address: %p", local);
 }
 
 int StackUseAfterReturn(int argc)
@@ -61,6 +62,7 @@ int HeapBufferOverflow()
     *(buffer + 101) = 'n';
     *(buffer + 102) = 'n';
     free(buffer);
+    printf("address: %p", buffer);
     return buffer[1];
 }
 // [End heap-buffer-overflow]
@@ -87,6 +89,7 @@ int StackBufferOverflow() {
     int subscript = 43;
     char buffer[42];
     buffer[subscript] = 42;
+    printf("address: %p", buffer);
     return 0;
 }
 // [End stack_buffer_overflow]
@@ -101,6 +104,7 @@ int StackBufferUnderflow() {
     int subscript = -1;
     char buffer[42];
     buffer[subscript] = 42;
+    printf("address: %p", buffer);
     return 0;
 }
 // [End stack_buffer_underflow]
@@ -117,6 +121,7 @@ int StackUseAfterScope() {
     if (b) {
         int x[5];
         gp = x + 1;
+        printf("address: %p", gp);
     }
     return *gp;
 }
@@ -130,6 +135,7 @@ int StackUseAfterScope() {
 // [Start attempt_free_nonallocated_memory]
 int AttempFreeNonAllocatedMem() {
     int value = 42;
+    printf("address: %p", &value);
     free(&value);
     return 0;
 }
@@ -143,6 +149,7 @@ int AttempFreeNonAllocatedMem() {
 // [Start double_free]
 int DoubleFree() {
     int *x = new int[42];
+    printf("address: %p", &x);
     delete [] x;
     delete [] x;
     return 0;
@@ -160,6 +167,7 @@ int stackBufferOverflowEx() {
     int subscript = 43;
     char buffer[42];
     buffer[subscript] = 42;
+    printf("address: %p", buffer);
     return 0;
 }
 
@@ -169,6 +177,7 @@ int stackBufferUnderflowEX() {
     int subscript = -1;
     char buffer[42];
     buffer[subscript] = 42;
+    printf("address: %p", buffer);
     return 0;
 }
 
@@ -180,6 +189,7 @@ void FunctionThatEscapesLocalObjectEx()
 {
     int local[100];
     ptrEx = &local[0];
+    printf("address: %p", local);
 }
 
 int Run(int argc)
@@ -202,6 +212,7 @@ void HeapBufferOverflowEx()
     buffer = (char *)malloc(10);
     *(buffer + 11) = 'n';
     *(buffer + 12) = 'n';
+    printf("address: %p", buffer);
     free(buffer);
 }
 
@@ -212,6 +223,7 @@ void HeapBufferUnderflowEx()
     buffer = (char *)malloc(10);
     *(buffer - 11) = 'n';
     *(buffer - 12) = 'n';
+    printf("address: %p", buffer);
     free(buffer);
 }
 // [End hw_heap_buffer_overflow]
@@ -234,6 +246,7 @@ int UseAfterFreeEx(int argc)
 void DoubleFreeEx()
 {
     char *p = (char *)malloc(32 * sizeof(char));
+    printf("address: %p", p);
     free(p);
     free(p);
 }

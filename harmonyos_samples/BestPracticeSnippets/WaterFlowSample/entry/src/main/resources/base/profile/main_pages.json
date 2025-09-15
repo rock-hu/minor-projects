@@ -2,9 +2,9 @@
   "src": [
     "pages/Index",
     "pages/DataLoadMorePage",
-    "pages/FlowItemRmoveAnimationPage",
-    "pages/FlowItemRmovePage",
-    "pages/DataUpadteAndAnimationPage",
+    "pages/FlowItemRemoveAnimationPage",
+    "pages/FlowItemRemovePage",
+    "pages/DataUpdateAndAnimationPage",
     "pages/ElementByOrderPage",
     "pages/FlowItemAutoPlayPage",
     "pages/SectionOptionsUsePage",

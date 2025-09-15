@@ -45,7 +45,7 @@ export class WindowUtil {
       }
       // [EndExclude set_stage1]
       this.mainWindowClass = windowClass;
-      const properties = windowClass.getWindowProperties(); // Get window information
+      const properties: window.WindowProperties = windowClass.getWindowProperties(); // Get window information
       // [StartExclude set_stage1]
       // Get status bar height.
       let area: window.AvoidArea = windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
@@ -67,7 +67,7 @@ export class WindowUtil {
   // [End set_stage1]
 
   // Get status bar height and indicator height.
-  public static setAvoidArea(type: window.AvoidAreaType, area: window.AvoidArea) {
+  public static setAvoidArea(type: window.AvoidAreaType, area: window.AvoidArea): void {
     const uiContext: UIContext = AppStorage.get<UIContext>('uiContext')!;
     if (type === window.AvoidAreaType.TYPE_SYSTEM) {
       AppStorage.setOrCreate('statusBarHeight', uiContext?.px2vp(area.topRect.height));
@@ -119,7 +119,7 @@ export class WindowUtil {
     }
   }
 
-  setLandscapeMultiWindow(enable: boolean) {
+  setLandscapeMultiWindow(enable: boolean): void {
     if (this.mainWindowClass === undefined) {
       Logger.error(`MainWindowClass is undefined`);
       return;
@@ -136,7 +136,7 @@ export class WindowUtil {
   }
   // [Start size_change]
   // [Start about_appear]
-  registerOnWindowSizeChange(callback?: (size: window.Size) => void) {
+  registerOnWindowSizeChange(callback?: (size: window.Size) => void): void {
     // [StartExclude about_appear]
     // [StartExclude size_change]
     if (this.mainWindowClass === undefined) {
@@ -154,7 +154,7 @@ export class WindowUtil {
   // [End about_appear]
   // [End size_change]
 
-  registerOffWindowSizeChange() {
+  registerOffWindowSizeChange(): void {
     if (this.mainWindowClass === undefined) {
       Logger.error(`MainWindowClass is undefined`);
       return;

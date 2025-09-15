@@ -18,7 +18,7 @@ import { backgroundTaskManager } from '@kit.BackgroundTasksKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import Logger from './Logger';
 
-const TAG = '[BackgroundTaskManager]';
+const TAG: string = '[BackgroundTaskManager]';
 
 /**
  * Background task tool class.

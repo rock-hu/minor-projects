@@ -19,7 +19,7 @@ import { CommonConstants } from './CommonConstants';
 
 export class GlobalBuilderContext {
   private static instance: GlobalBuilderContext;
-  private objects = new Map<string, Object>();
+  private objects: Map<string, Object> = new Map<string, Object>();
 
   public static getContext(): GlobalBuilderContext {
     if (!GlobalBuilderContext.instance) {

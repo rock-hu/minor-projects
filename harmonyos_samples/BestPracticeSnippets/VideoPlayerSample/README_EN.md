@@ -35,6 +35,7 @@ This sample demonstrates how to develop a video app using the AVPlayer and AVSes
 │  │  └──IndexPage.ets                  // Home page
 │  ├──utils                                     
 │  │  └──WindowUtil.ets                 // Window utility class
+│  │  └──BreakpointSystem.ets           // Breakpoint utility class
 │  └──view
 │     ├──AVPlayer.ets                   // Video component
 │     ├──VideoList.ets                  // Video list on the home page

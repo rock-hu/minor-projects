@@ -97,7 +97,7 @@ export class BreakpointSystem {
     try {
       const mainWindow: window.WindowProperties = window.getWindowProperties();
       const windowWidth: number = mainWindow.windowRect.width;
-      const windowWidthVp = window.getUIContext().px2vp(windowWidth);
+      const windowWidthVp: number = window.getUIContext().px2vp(windowWidth);
       let widthBp: BreakpointTypeEnum = BreakpointTypeEnum.MD;
       if (windowWidthVp < 320) {
         widthBp = BreakpointTypeEnum.XS;

@@ -23,7 +23,7 @@ import { TabView } from './TabView';
 export struct TextInputComponent {
   @Provide inputText: string = '';
   // [StartExclude TextInputComponent_start]
-  @Provide keyBoardController: KeyboardController = new KeyboardController();
+  @Provide keyboardController: KeyboardController = new KeyboardController();
   @Provide isCustomKeyboardAttach: boolean = true;
   @Provide isTabViewShow: boolean = false;
   @Provide systemKeyboardHeight: number = 0;
@@ -32,7 +32,7 @@ export struct TextInputComponent {
   textInputController: TextInputController = new TextInputController();
 
   aboutToAppear(): void {
-    this.keyBoardController.textInputController = this.textInputController;
+    this.keyboardController.textInputController = this.textInputController;
     window.getLastWindow(this.getUIContext().getHostContext(), (err, data) => {
       let avoidArea = data.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
       this.bottomRectHeight = this.getUIContext().px2vp(avoidArea.bottomRect.height);
@@ -42,7 +42,7 @@ export struct TextInputComponent {
           let avoidHeight: number =
             (this.isCustomKeyboardAttach ? this.customKeyboardHeight : this.systemKeyboardHeight)
               - this.bottomRectHeight;
-          this.keyBoardController.changeAvoidHeight(avoidHeight);
+          this.keyboardController.changeAvoidHeight(avoidHeight);
         }
       })
     })
@@ -74,25 +74,25 @@ export struct TextInputComponent {
           // [StartExclude customKeyboard_start]
           // [EndExclude TextInput_start]
         .onTextSelectionChange((start: number, end: number) => {
-          this.keyBoardController.setCaretPosition(start, end);
+          this.keyboardController.setCaretPosition(start, end);
         })
           // [StartExclude TextInput_start]
         .onBlur(() => {
           this.isTabViewShow = false;
-          this.keyBoardController.changeAvoidHeight(0);
+          this.keyboardController.changeAvoidHeight(0);
         })
         .onFocus(() => {
           this.isTabViewShow = true;
         })
         .onChange((value) => {
           this.inputText = value;
-          this.keyBoardController.onChange(value);
+          this.keyboardController.onChange(value);
         })
         .onCut(() => {
-          this.keyBoardController.onCut();
+          this.keyboardController.onCut();
         })
         .onPaste((value) => {
-          this.keyBoardController.onPaste(value);
+          this.keyboardController.onPaste(value);
         })
         .height($r('app.float.main_page_textInput_height'))
       TabView()

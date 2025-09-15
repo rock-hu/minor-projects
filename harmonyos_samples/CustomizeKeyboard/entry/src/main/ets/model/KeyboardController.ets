@@ -22,12 +22,15 @@ export class KeyboardController {
   leftCaretPos: number = 0;
   rightCaretPos: number = 0;
   targetCaretPos: number = 0;
-  keyBoardType: string = Constants.NUMBER_KEYBOARD;
+  keyboardType: string = Constants.NUMBER_KEYBOARD;
   isUpperCase: boolean = false;
 
   // [Start onInput_start]
   onInput(value: string | Resource): string {
     // [StartExclude onInput_start]
+    if (value === undefined || value === null) {
+      return '';
+    }
     if (typeof value === 'string') {
       this.text = this.text.substring(0, this.leftCaretPos) + value + this.text.substring(this.rightCaretPos);
       this.targetCaretPos = this.leftCaretPos + value.length;
@@ -54,10 +57,10 @@ export class KeyboardController {
         break;
     // [StartExclude onInput_start]
       case $r('app.string.tabButton_english_text').id:
-        this.keyBoardType = Constants.ENGLISH_KEYBOARD;
+        this.keyboardType = Constants.ENGLISH_KEYBOARD;
         break;
       case $r('app.string.tabButton_number_text').id:
-        this.keyBoardType = Constants.NUMBER_KEYBOARD;
+        this.keyboardType = Constants.NUMBER_KEYBOARD;
         break;
       case $r('app.string.keyboardButton_space').id:
         this.text = this.text.substring(0, this.leftCaretPos) + ' ' + this.text.substring(this.rightCaretPos);
@@ -81,7 +84,7 @@ export class KeyboardController {
   // [Start textInputController_start]
   onChange(value: string) {
     this.text = value;
-    if (this.keyBoardType !== 'System') {
+    if (this.keyboardType !== 'System') {
       this.textInputController?.caretPosition(this.targetCaretPos);
     }
   }

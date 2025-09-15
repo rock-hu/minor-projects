@@ -90,7 +90,7 @@ struct TransitionScene {
   // [End Case1]
 
   @Builder
-  typeSwiper() {
+  typeSwiper(): void {
     Row() {
       Swiper() {
         LazyForEach(this.swiperDataSource, (item: ProductIntroductionModel) => {
@@ -118,7 +118,7 @@ struct TransitionScene {
   }
 
   @Builder
-  typeList() {
+  typeList(): void {
     Row() {
       List({ space: this.LIST_SPACE }) {
         LazyForEach(this.midListDataSource, (item: ProductIntroductionModel, index: number) => {
@@ -139,7 +139,7 @@ struct TransitionScene {
   }
 
   @Builder
-  midListItem(item: ProductIntroductionModel, index: number) {
+  midListItem(item: ProductIntroductionModel, index: number): void {
     Row() {
       SymbolGlyph(item.icon)
         .fontSize(16)
@@ -163,7 +163,7 @@ struct TransitionScene {
   }
 
   @Builder
-  typeWaterFlow() {
+  typeWaterFlow(): void {
     WaterFlow() {
       LazyForEach(this.productDetailSource, (item: ProductDetailModel, index: number) => {
         FlowItem() {
@@ -197,7 +197,7 @@ function transitionSceneBuilder(name: string): void {
 }
 
 @Builder
-function title() {
+function title(): void {
   Row() {
     Text($r('app.string.transition'))
       .fontSize(20)

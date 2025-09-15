@@ -21,13 +21,13 @@ import Logger from '../utils/Logger';
 import { ImageUtil } from '../utils/ImageUtil';
 import { BackgroundTaskManager } from '../utils/BackgroundTaskManager';
 
-const TAG = 'AvSessionController';
+const TAG: string = 'AvSessionController';
 
 export class AvSessionController {
   private static instance: AvSessionController | null;
-  private context: common.UIAbilityContext | undefined = undefined;
+  private context?: common.UIAbilityContext;
   private avSession?: avSession.AVSession;
-  private avSessionMetadata: avSession.AVMetadata | undefined = undefined;
+  private avSessionMetadata?: avSession.AVMetadata;
 
   constructor() {
     this.initAvSession();
@@ -40,7 +40,7 @@ export class AvSessionController {
     return AvSessionController.instance;
   }
   // [Start init_session]
-  public initAvSession() {
+  public initAvSession(): void {
     this.context = AppStorage.get('context');
     // [StartExclude init_session]
     if (!this.context) {
@@ -62,16 +62,16 @@ export class AvSessionController {
     }
   }
   // [End init_session]
-  public getAvSession() {
+  public getAvSession(): avSession.AVSession | undefined {
     return this.avSession;
   }
 
-  public getAvSessionMetadata() {
+  public getAvSessionMetadata(): avSession.AVMetadata | undefined {
     return this.avSessionMetadata;
   }
 
   // [Start meta_data]
-  public async setAVMetadata(curSource: VideoData, duration: number) {
+  public async setAVMetadata(curSource: VideoData, duration: number): Promise<void> {
     // [StartExclude meta_data]
     if (curSource === undefined || this.context ===undefined) {
       Logger.error(TAG, 'SetAVMetadata Error, curSource or context is null');
@@ -101,7 +101,7 @@ export class AvSessionController {
   // [End meta_data]
 
   // [Start launch]
-  private setLaunchAbility() {
+  private setLaunchAbility(): void {
     // [StartExclude launch]
     if (!this.context) {
       return;
@@ -129,7 +129,7 @@ export class AvSessionController {
   // [End launch]
 
   // [Start update_is_play]
-  public setAvSessionPlayState(playbackState: avSession.AVPlaybackState) {
+  public setAvSessionPlayState(playbackState: avSession.AVPlaybackState): void {
     if (this.avSession) {
       this.avSession.setAVPlaybackState(playbackState, (err: BusinessError) => {
         if (err) {
@@ -143,7 +143,7 @@ export class AvSessionController {
   // [End update_is_play]
 
   // [Start init_session]
-  async unregisterSessionListener() {
+  async unregisterSessionListener(): Promise<void> {
     // [StartExclude init_session]
     if (!this.avSession) {
       return;

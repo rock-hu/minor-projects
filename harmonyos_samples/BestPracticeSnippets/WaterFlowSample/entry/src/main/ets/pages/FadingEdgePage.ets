@@ -14,9 +14,9 @@
  */
 
 // [Start quick_start]
+import { LengthMetrics } from '@kit.ArkUI';
 import { CommonConstants } from "../common/constants/CommonConstants";
 import { SectionsWaterFlowDataSource } from "../model/SectionsWaterFlowDataSource";
-import { LengthMetrics } from '@kit.ArkUI';
 
 // [StartExclude flow_item_layout]
 @Reusable

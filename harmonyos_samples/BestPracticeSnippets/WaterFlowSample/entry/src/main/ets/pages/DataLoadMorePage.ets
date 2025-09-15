@@ -14,8 +14,11 @@
  */
 
 // [Start quick_start]
+import { hilog } from "@kit.PerformanceAnalysisKit";
 import { CommonConstants } from "../common/constants/CommonConstants";
 import { SectionsWaterFlowDataSource } from "../model/SectionsWaterFlowDataSource";
+
+const TAG = 'DataLoadMorePage';
 
 // [StartExclude flow_item_layout]
 @Reusable
@@ -235,9 +238,13 @@ struct DataLoadMorePage {
                     .fontColor(Color.Red)
                     .backgroundColor(Color.White)
                     .onClick(() => {
-                      this.getUIContext().animateTo({ duration: 300 }, () => {
-                        this.removeItem(item);
-                      });
+                      try {
+                        this.getUIContext().animateTo({ duration: 300 }, () => {
+                          this.removeItem(item);
+                        });
+                      } catch (err) {
+                        hilog.error(0x0000, TAG, `animateTo get exception, error:${JSON.stringify(err)}.`);
+                      }
                     })
                 }
                 .width('100%')

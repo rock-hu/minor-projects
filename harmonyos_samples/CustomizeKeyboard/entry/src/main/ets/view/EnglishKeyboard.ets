@@ -67,10 +67,10 @@ struct EnglishButton {
   @Consume inputText: string;
   // [StartExclude EnglishButton_start]
   @Prop item: Menu;
-  @Consume keyBoardController: KeyboardController;
+  @Consume keyboardController: KeyboardController;
 
   getEnglishText(item: Menu): string | Resource {
-    if (this.keyBoardController.isUpperCase && item.upperText) {
+    if (this.keyboardController.isUpperCase && item.upperText) {
       return item.upperText;
     } else {
       return item.text;
@@ -100,7 +100,7 @@ struct EnglishButton {
     .height(this.item.height)
     // [EndExclude EnglishButton_start]
     .onClick(() => {
-      this.inputText = this.keyBoardController.onInput(this.getEnglishText(this.item));
+      this.inputText = this.keyboardController.onInput(this.getEnglishText(this.item));
     })
   }
 }

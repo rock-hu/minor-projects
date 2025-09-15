@@ -17,11 +17,13 @@ import { image } from '@kit.ImageKit';
 import Logger from './Logger';
 
 export class ImageUtil {
-  public static async getPixmapFromMedia(resource: Resource) {
+  public static async getPixmapFromMedia(resource: Resource): Promise<image.PixelMap | undefined> {
     const uiContext: UIContext | undefined = AppStorage.get('uiContext');
     try {
-      let unit8Array = uiContext?.getHostContext()?.resourceManager?.getMediaContentSync(resource.id);
-      let imageSource = image.createImageSource(unit8Array?.buffer.slice(0, unit8Array?.buffer.byteLength));
+      let unit8Array: Uint8Array | undefined =
+        uiContext?.getHostContext()?.resourceManager?.getMediaContentSync(resource.id);
+      let imageSource: image.ImageSource =
+        image.createImageSource(unit8Array?.buffer.slice(0, unit8Array?.buffer.byteLength));
       let createPixelMap: image.PixelMap = await imageSource.createPixelMap({
         desiredPixelFormat: image.PixelMapFormat.RGBA_8888
       });

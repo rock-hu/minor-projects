@@ -21,7 +21,7 @@ import { Logger, CommonConstants, secondToTime, } from '@ohos/MediaService';
 import { AvPlayerController, VideoData } from '@ohos/MediaService';
 import { FullScreenControl, VideoBottom } from './VideoSide';
 
-const TAG = '[VideoPlayer]';
+const TAG: string = '[VideoPlayer]';
 
 @Preview
 @Component
@@ -92,7 +92,7 @@ export struct VideoPlayer {
     }
 
     let groupId: number = audio.DEFAULT_VOLUME_GROUP_ID;
-    let audioManager = audio.getAudioManager();
+    let audioManager: audio.AudioManager = audio.getAudioManager();
     let audioVolumeManger: audio.AudioVolumeManager = audioManager.getVolumeManager();
 
     audioVolumeManger.getVolumeGroupManager(groupId, (err: BusinessError, value: audio.AudioVolumeGroupManager) => {
@@ -100,7 +100,7 @@ export struct VideoPlayer {
         hilog.error(0x0000, 'AVPlayer', `Failed to obtain the colume group infos list. ${err}`);
         return;
       }
-      let audioVolumeGroupManager = value;
+      let audioVolumeGroupManager: audio.AudioVolumeGroupManager = value;
       hilog.info(0x0000, 'AVPlayer', `Callback invoked to indicate that the volume group infos list is obtained.`);
 
       audioVolumeGroupManager.getVolume(audio.AudioVolumeType.MEDIA, (err: BusinessError, value: number) => {
@@ -130,7 +130,7 @@ export struct VideoPlayer {
     });
   }
 
-  onIndexChange() {
+  onIndexChange(): void {
     this.avPlayerController.setCurIndex(this.curIndex);
     Logger.info(TAG, `enter onIndexChange. ` +
       ` this.curIndex:${this.curIndex} this.index:${this.index}`);
@@ -147,8 +147,8 @@ export struct VideoPlayer {
         this.avPlayerController.setIsPlaying(true);
         this.trackThicknessSize = CommonConstants.TRACK_SIZE_MIN;
       } else {
-        let countNum = 0;
-        let intervalFlag = setInterval(() => {
+        let countNum: number = 0;
+        let intervalFlag: number = setInterval(() => {
           countNum++;
           if (this.curIndex !== this.index) {
             Logger.info(TAG, `[ enter indexChange play error, clearInterval. ` +
@@ -317,7 +317,7 @@ export struct VideoPlayer {
             if (event.fingerList[0].globalX > (820 / 2)) {
               // On the right side of the screen relative to the X-axis coordinate in the upper left corner of the application window, adjust the brightness.
               this.visible = true;
-              let curBrightness = this.screenBrightness - this.getUIContext().vp2px(event.offsetY) / this.getUIContext().vp2px(this.screenHeight);
+              let curBrightness: number = this.screenBrightness - this.getUIContext().vp2px(event.offsetY) / this.getUIContext().vp2px(this.screenHeight);
               curBrightness = Math.max(0, Math.min(1.0, curBrightness));
               this.screenBrightness = curBrightness;
               hilog.info(0x0000, 'AVPlayer', `this brightness is: ` + this.screenBrightness);
@@ -336,7 +336,7 @@ export struct VideoPlayer {
             } else {
               // On the left side of the screen relative to the X-axis coordinate in the upper left corner of the application window, adjust the volume.
               this.visible = false;
-              let curVolume = this.volume - this.getUIContext().vp2px(event.offsetY) / this.screenHeight;
+              let curVolume: number = this.volume - this.getUIContext().vp2px(event.offsetY) / this.screenHeight;
               curVolume = curVolume >= 15.0 ? 15.0 : curVolume;
               curVolume = curVolume <= 0.0 ? 0.0 : curVolume;
               this.volume = curVolume;
@@ -382,7 +382,7 @@ export struct VideoPlayer {
         })
         .onActionUpdate((event: GestureEvent) => {
           this.isSliderGesture = true;
-          let panTime =
+          let panTime: number =
             this.panStartTime +
               (this.panStartX + event.offsetX) / this.slideWidth * this.avPlayerController.durationTime;
           this.panEndTime = Math.min(Math.max(0, panTime), this.avPlayerController.durationTime);
@@ -408,17 +408,17 @@ export struct VideoPlayer {
     .padding({ left: $r('app.float.size_16'), right: $r('app.float.size_16') })
   }
 
-  private showTip(value: number) {
+  private showTip(value: number): void {
     if (value > 0 && this.isFullScreen) {
       this.showTipsTime = this.avPlayerController.currentStringTime;
       this.isShowTips = true;
-      let percent = Number((value / this.avPlayerController.durationTime).toFixed(2));
+      let percent: number = Number((value / this.avPlayerController.durationTime).toFixed(2));
       this.tipsOffset = this.getUIContext().px2vp(this.beginX) + (this.slideWidth - 16) * percent;
       this.hideTip();
     }
   }
 
-  private hideTip() {
+  private hideTip(): void {
     clearTimeout(this.hideTipTask);
     this.hideTipTask = setTimeout(() => {
       this.isShowTips = false;
@@ -560,7 +560,7 @@ export struct VideoPlayer {
 
   // 前台进度条变化接口
   // [Start slider1]
-  sliderOnchange(seconds: number, mode: SliderChangeMode) {
+  sliderOnchange(seconds: number, mode: SliderChangeMode): void {
     let seekTime: number = seconds * this.avPlayerController.duration / this.avPlayerController.durationTime;
     this.currentStringTime = secondToTime(Math.floor(seekTime / CommonConstants.SECOND_TO_MS));
     this.avPlayerController.setCurrentStringTime(this.currentStringTime);
@@ -596,7 +596,7 @@ export struct VideoPlayer {
   }
   // [End slider1]
 
-  async iconOnclick() {
+  async iconOnclick(): Promise<void> {
     if (this.avPlayerController.isPlaying) {
       this.avPlayerController.pauseVideo();
       this.avPlayerController.setIsPlaying(false);
@@ -604,7 +604,7 @@ export struct VideoPlayer {
       this.trackThicknessSize = CommonConstants.TRACK_SIZE_MIN;
       let context: Context =  AppStorage.get('context')!;
       try {
-        let windowClass = await window.getLastWindow(context);
+        let windowClass: window.Window = await window.getLastWindow(context);
         await windowClass.setWindowKeepScreenOn(false);
       } catch (err) {
         Logger.error(TAG, `iconOnclick isPlaying failed, err.code:${err.code}, err.message:${err.message}`);
@@ -617,7 +617,7 @@ export struct VideoPlayer {
       this.isTimeDisplay = 0;
       this.trackThicknessSize = CommonConstants.TRACK_SIZE_MIN;
     } else {
-      let intervalFlag = setInterval(async () => {
+      let intervalFlag: number = setInterval(async () => {
         if (this.avPlayerController.isReady === true) {
           this.avPlayerController.playVideo();
           this.avPlayerController.setIsPlaying(true);
@@ -627,9 +627,9 @@ export struct VideoPlayer {
         }
       }, CommonConstants.TIMER_INTERVAL);
     }
-    let context = this.getUIContext().getHostContext() as Context;
+    let context: Context = this.getUIContext().getHostContext() as Context;
     try {
-      let windowClass = await window.getLastWindow(context);
+      let windowClass: window.Window = await window.getLastWindow(context);
       await windowClass.setWindowKeepScreenOn(true);
     } catch (err) {
       Logger.error(TAG, `iconOnclick failed, err.code:${err.code}, err.message:${err.message}`);

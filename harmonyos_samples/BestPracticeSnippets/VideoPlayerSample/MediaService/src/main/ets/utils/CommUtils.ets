@@ -16,7 +16,7 @@
 import { CommonConstants } from '../common/CommonConstants';
 
 export function secondToTime(seconds: number): string {
-  let hourUnit = CommonConstants.HOUR_UNIT * CommonConstants.HOUR_UNIT;
+  let hourUnit: number = CommonConstants.HOUR_UNIT * CommonConstants.HOUR_UNIT;
   let hour: number = Math.floor(seconds / hourUnit);
   let minute: number = Math.floor((seconds - hour * hourUnit) / CommonConstants.HOUR_UNIT);
   let second: number = seconds - hour * hourUnit - minute * CommonConstants.HOUR_UNIT;

@@ -21,7 +21,7 @@ export struct TabButton {
   @Consume isCustomKeyboardAttach: boolean;
   @Prop text: Resource;
   @Prop type: string;
-  @Consume keyBoardController: KeyboardController;
+  @Consume keyboardController: KeyboardController;
 
   build() {
     Button(this.text, { type: ButtonType.Normal })
@@ -30,12 +30,12 @@ export struct TabButton {
       .borderRadius(Constants.BUTTON_BORDER)
       .fontSize(Constants.KEYBOARD_BUTTON_FONTSIZE_20)
       .margin({ top: $r('app.float.keyboard_padding_top') })
-      .backgroundColor(this.keyBoardController.keyBoardType === this.type ? Color.White :
+      .backgroundColor(this.keyboardController.keyboardType === this.type ? Color.White :
       $r('app.color.keyboard_background_color'))
-      .fontColor(this.keyBoardController.keyBoardType === this.type ? $r('app.color.menu_color_blue') :
+      .fontColor(this.keyboardController.keyboardType === this.type ? $r('app.color.menu_color_blue') :
       Color.Black)
       .onClick(() => {
-        this.keyBoardController.keyBoardType = this.type;
+        this.keyboardController.keyboardType = this.type;
         this.isCustomKeyboardAttach = this.type !== Constants.SYSTEM_KEYBOARD;
       })
   }

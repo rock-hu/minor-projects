@@ -14,7 +14,11 @@
  */
 
 // [Start quick_start]
+import { hilog } from "@kit.PerformanceAnalysisKit";
+import { CommonConstants } from "../common/constants/CommonConstants";
 import { SectionsWaterFlowDataSource } from "../model/SectionsWaterFlowDataSource";
+
+const TAG = 'DataUpdateAndAnimationPage';
 
 // [StartExclude flow_item_layout]
 @Reusable
@@ -77,23 +81,23 @@ struct ReusableFlowItem {
 // [EndExclude flow_item_layout]
 @Entry
 @Component
-struct FlowItemRmoveAnimationPage {
-  // 1、Select the index of the FlowItem.
+struct DataUpdateAndAnimationPage {
+  @State isRefreshing: boolean = false;
   @State currentItem: number = -1;
   // [StartExclude variable_declare]
-  @State isRefreshing: boolean = false;
   @State minSize: number = 80;
   @State maxSize: number = 180;
   scroller: Scroller = new Scroller();
   dataSource: SectionsWaterFlowDataSource = new SectionsWaterFlowDataSource();
   private itemHeightArray: number[] = [];
   @State sections: WaterFlowSections = new WaterFlowSections();
+  @StorageProp(CommonConstants.AS_KEY_STATUS_BAR_HEIGHT) statusBarHeight: number = 0;
   sectionMargin: Margin = {
     top: 8,
-    left: 0,
+    left: 16,
     bottom: 0,
-    right: 0
-  }
+    right: 16
+  };
   oneColumnSection: SectionOptions = {
     itemsCount: 3,
     crossCount: 1,
@@ -103,7 +107,7 @@ struct FlowItemRmoveAnimationPage {
     onGetItemMainSizeByIndex: (index: number) => {
       return 170;
     }
-  }
+  };
   twoColumnSection: SectionOptions = {
     itemsCount: 2,
     crossCount: 2,
@@ -111,7 +115,7 @@ struct FlowItemRmoveAnimationPage {
     onGetItemMainSizeByIndex: (index: number) => {
       return 100;
     }
-  }
+  };
   dataSection: SectionOptions = {
     itemsCount: 20,
     crossCount: 2,
@@ -119,8 +123,10 @@ struct FlowItemRmoveAnimationPage {
     onGetItemMainSizeByIndex: (index: number) => {
       return this.itemHeightArray[index % 100];
     }
-  }
+  };
 
+  // [EndExclude variable_declare]
+  // 1、Refresh Loading Animation Component.
   @Builder
   headerRefresh() {
     Column() {
@@ -133,6 +139,7 @@ struct FlowItemRmoveAnimationPage {
     .justifyContent(FlexAlign.Center)
   }
 
+  // 5、Pull down to refresh the data update logic.
   refresh(): void {
     this.currentItem = -1;
     setTimeout(() => {
@@ -157,6 +164,21 @@ struct FlowItemRmoveAnimationPage {
     }, 2000);
   }
 
+  loadMore(last: number): void {
+    setTimeout(() => {
+      let totalCount = this.dataSource.totalCount();
+      if (last + 20 >= totalCount) {
+        for (let i = 0; i < 20; i++) {
+          this.dataSource.addLastItem();
+        }
+        // Update sections itemsCount.
+        this.dataSection.itemsCount += 20;
+        this.sections.update(2, this.dataSection);
+      }
+    }, 1000);
+  }
+
+  // [StartExclude section_init]
   getSize(): number {
     let ret = Math.floor(Math.random() * this.maxSize);
     return (ret > this.minSize ? ret : this.minSize);
@@ -190,17 +212,9 @@ struct FlowItemRmoveAnimationPage {
     this.sections.splice(0, 0, sectionOptions);
   }
 
-  aboutToAppear() {
-    this.setItemSizeArray();
-    this.initSections();
-  }
-
-  // [EndExclude variable_declare]
   removeItem(item: number): void {
-    // 5、Delete source data.
     let index = this.dataSource.indexOf(item);
     this.dataSource.deleteItem(index);
-    // 6、Update the itemsCount quantity in the group and refresh.
     const sections: Array<SectionOptions> = this.sections.values();
     let newSection: SectionOptions;
     let tmpIndex = 0;
@@ -220,23 +234,41 @@ struct FlowItemRmoveAnimationPage {
     this.sections.update(sectionIndex, newSection);
   }
 
+  aboutToAppear() {
+    this.setItemSizeArray();
+    this.initSections();
+  }
+
+  // [EndExclude section_init]
   build() {
     Column({ space: 0 }) {
+      Row() {
+        Text($r('app.string.pull_down_refresh'))
+          .width('100%')
+          .fontSize(24)
+          .fontWeight(FontWeight.Bold)
+          .margin({ top: '18vp', left: '16vp', bottom: '8vp' })
+      }
+
+      // 2、Pull-to-refresh control.
       Refresh({ refreshing: $$this.isRefreshing, builder: this.headerRefresh() }) {
+        // [StartExclude water_flow_init]
         WaterFlow({ scroller: this.scroller, sections: this.sections }) {
           LazyForEach(this.dataSource, (item: number) => {
             FlowItem() {
               Stack() {
-                // 3、Delete button.
                 Row() {
                   Button('Delete')
                     .fontColor(Color.Red)
                     .backgroundColor(Color.White)
                     .onClick(() => {
-                      this.getUIContext().animateTo({ duration: 300 }, () => {
-                        // 4、Trigger delete operation.
-                        this.removeItem(item);
-                      });
+                      try {
+                        this.getUIContext().animateTo({ duration: 300 }, () => {
+                          this.removeItem(item);
+                        });
+                      } catch (err) {
+                        hilog.error(0x0000, TAG, `animateTo get exception, error:${JSON.stringify(err)}.`);
+                      }
                     })
                 }
                 .width('100%')
@@ -251,7 +283,6 @@ struct FlowItemRmoveAnimationPage {
               }
             }
             .transition({ type: TransitionType.Delete, opacity: 0 })
-            // 2、FlowItem's long press event
             .priorityGesture(LongPressGesture()
               .onAction(() => {
                 this.currentItem = item;
@@ -261,35 +292,28 @@ struct FlowItemRmoveAnimationPage {
             .backgroundColor(Color.Gray)
           }, (item: string) => item)
         }
-        // [StartExclude water_flow_setting]
         .cachedCount(12)
         .columnsGap(8)
         .rowsGap(8)
         .width('100%')
         .height('100%')
         .layoutWeight(1)
+        // [EndExclude water_flow_init]
         // For better experience, pre load data.
         .onScrollIndex((first: number, last: number) => {
-          setTimeout(() => {
-            let totalCount = this.dataSource.totalCount();
-            if (last + 20 >= totalCount) {
-              for (let i = 0; i < 20; i++) {
-                this.dataSource.addLastItem();
-              }
-              // Update sections itemsCount.
-              this.dataSection.itemsCount += 20;
-              this.sections.update(2, this.dataSection);
-            }
-          }, 1000);
+          this.loadMore(last);
         })
       }
+      // 3、Pull down to refresh offset.
       .refreshOffset(56)
       .onRefreshing(() => {
+        // 4、Pull down to refresh, triggering the refresh callback function.
         this.refresh();
       })
-
-      // [EndExclude water_flow_setting]
     }
+    .padding({
+      top: this.statusBarHeight
+    })
   }
 }
 

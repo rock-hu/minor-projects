@@ -3,7 +3,7 @@
     "name": "MediaService",
     "type": "har",
     "deviceTypes": [
-      "default"
+      "phone"
     ],
     "requestPermissions": [
       {

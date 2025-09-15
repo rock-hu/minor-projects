@@ -14,8 +14,10 @@
  */
 
 // [Start quick_start]
-import { CommonConstants } from "../common/constants/CommonConstants";
+import { hilog } from "@kit.PerformanceAnalysisKit";
 import { SectionsWaterFlowDataSource } from "../model/SectionsWaterFlowDataSource";
+
+const TAG = 'FlowItemRemovePage';
 
 // [StartExclude flow_item_layout]
 @Reusable
@@ -78,9 +80,10 @@ struct ReusableFlowItem {
 // [EndExclude flow_item_layout]
 @Entry
 @Component
-struct FlowItemRmoveAnimationPage {
-  // [StartExclude variable_declare]
+struct FlowItemRemovePage {
+  // 1、Select the index of the FlowItem.
   @State currentItem: number = -1;
+  // [StartExclude variable_declare]
   @State isRefreshing: boolean = false;
   @State minSize: number = 80;
   @State maxSize: number = 180;
@@ -88,13 +91,12 @@ struct FlowItemRmoveAnimationPage {
   dataSource: SectionsWaterFlowDataSource = new SectionsWaterFlowDataSource();
   private itemHeightArray: number[] = [];
   @State sections: WaterFlowSections = new WaterFlowSections();
-  @StorageProp(CommonConstants.AS_KEY_STATUS_BAR_HEIGHT) statusBarHeight: number = 0;
   sectionMargin: Margin = {
     top: 8,
-    left: 16,
+    left: 0,
     bottom: 0,
-    right: 16
-  };
+    right: 0
+  }
   oneColumnSection: SectionOptions = {
     itemsCount: 3,
     crossCount: 1,
@@ -196,9 +198,12 @@ struct FlowItemRmoveAnimationPage {
     this.initSections();
   }
 
+  // [EndExclude variable_declare]
   removeItem(item: number): void {
+    // 5、Delete source data.
     let index = this.dataSource.indexOf(item);
     this.dataSource.deleteItem(index);
+    // 6、Update the itemsCount quantity in the group and refresh.
     const sections: Array<SectionOptions> = this.sections.values();
     let newSection: SectionOptions;
     let tmpIndex = 0;
@@ -218,7 +223,6 @@ struct FlowItemRmoveAnimationPage {
     this.sections.update(sectionIndex, newSection);
   }
 
-  // [EndExclude variable_declare]
   build() {
     Column({ space: 0 }) {
       Refresh({ refreshing: $$this.isRefreshing, builder: this.headerRefresh() }) {
@@ -226,18 +230,22 @@ struct FlowItemRmoveAnimationPage {
           LazyForEach(this.dataSource, (item: number) => {
             FlowItem() {
               Stack() {
+                // 3、Delete button.
                 Row() {
-                  Button($r('app.string.delete'))
+                  Button('Delete')
                     .fontColor(Color.Red)
                     .backgroundColor(Color.White)
                     .onClick(() => {
-                      // 2、Execute the animateTo animation when triggering the delete operation.
-                      this.getUIContext().animateTo({ duration: 300 }, () => {
-                        this.removeItem(item);
-                      });
+                      try {
+                        this.getUIContext().animateTo({ duration: 300 }, () => {
+                          // 4、Trigger delete operation.
+                          this.removeItem(item);
+                        });
+                      } catch (err) {
+                        hilog.error(0x0000, TAG, `animateTo get exception, error:${JSON.stringify(err)}.`);
+                      }
                     })
                 }
-                // [StartExclude row_setting]
                 .width('100%')
                 .height('100%')
                 .borderRadius(8)
@@ -247,11 +255,10 @@ struct FlowItemRmoveAnimationPage {
                 .backgroundColor('#33000000')
 
                 ReusableFlowItem({ item: item })
-                // [EndExclude row_setting]
               }
             }
-            // 1、Add a transition property to FlowItem and configure the transition parameters.
             .transition({ type: TransitionType.Delete, opacity: 0 })
+            // 2、FlowItem's long press event
             .priorityGesture(LongPressGesture()
               .onAction(() => {
                 this.currentItem = item;
@@ -282,20 +289,14 @@ struct FlowItemRmoveAnimationPage {
             }
           }, 1000);
         })
-
-        // [EndExclude water_flow_setting]
       }
-      // [StartExclude water_flow_refresh]
       .refreshOffset(56)
       .onRefreshing(() => {
         this.refresh();
       })
 
-      // [EndExclude water_flow_refresh]
+      // [EndExclude water_flow_setting]
     }
-    .padding({
-      top: this.statusBarHeight
-    })
   }
 }
 

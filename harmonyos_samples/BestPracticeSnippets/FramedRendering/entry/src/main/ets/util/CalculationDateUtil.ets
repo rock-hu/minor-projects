@@ -16,7 +16,7 @@
 import { LunarDate, solar2lunar } from 'lunar_lite';
 import hilog from '@ohos.hilog';
 
-const TAG = 'CalculationDateUtil';
+const TAG: string = 'CalculationDateUtil';
 const SATURDAY: number = 6;
 
 export class CalculationDateUtil {

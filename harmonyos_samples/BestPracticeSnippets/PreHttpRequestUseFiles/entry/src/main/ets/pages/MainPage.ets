@@ -21,12 +21,12 @@ import Logger from '../utils/Logger';
 
 // Obtain the path of the application file
 const uiContext: UIContext | undefined = AppStorage.get('uiContext');
-let context = uiContext?.getHostContext() as common.UIAbilityContext;
-let filesDir = context.filesDir;
-let fileUrl = filesDir + '/xxx.png'; // The image's network address suffix needs to be replaced by the real url.
+let context: common.UIAbilityContext = uiContext?.getHostContext() as common.UIAbilityContext;
+let filesDir: string = context.filesDir;
+let fileUrl: string = filesDir + '/xxx.png'; // The image's network address suffix needs to be replaced by the real url.
 let para: Record<string, PixelMap | undefined> = { 'imageData': undefined };
 let localStorage: LocalStorage = new LocalStorage(para);
-const TAG = '[GetPixMapFunc]';
+const TAG: string = '[GetPixMapFunc]';
 
 @Entry(localStorage)
 @Component
@@ -36,7 +36,7 @@ struct MainPage {
 
   getPixMap() { // Read files from the application sandbox
     try {
-      let file = fs.openSync(fileUrl, fs.OpenMode.READ_WRITE); // Open the file in a synchronous manner
+      let file: fs.File = fs.openSync(fileUrl, fs.OpenMode.READ_WRITE); // Open the file in a synchronous manner
       const imageSource: image.ImageSource = image.createImageSource(file.fd);
       const options: image.InitializationOptions = {
         'alphaType': 0, // transparency

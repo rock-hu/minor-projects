@@ -14,8 +14,11 @@
  */
 
 // [Start quick_start]
+import { hilog } from "@kit.PerformanceAnalysisKit";
 import { CommonConstants } from "../common/constants/CommonConstants";
 import { SectionsWaterFlowDataSource } from "../model/SectionsWaterFlowDataSource";
+
+const TAG = 'FlowItemRemoveAnimationPage';
 
 // [StartExclude flow_item_layout]
 @Reusable
@@ -78,10 +81,10 @@ struct ReusableFlowItem {
 // [EndExclude flow_item_layout]
 @Entry
 @Component
-struct DataUpadteAndAnimationPage {
-  @State isRefreshing: boolean = false;
-  @State currentItem: number = -1;
+struct FlowItemRemoveAnimationPage {
   // [StartExclude variable_declare]
+  @State currentItem: number = -1;
+  @State isRefreshing: boolean = false;
   @State minSize: number = 80;
   @State maxSize: number = 180;
   scroller: Scroller = new Scroller();
@@ -104,7 +107,7 @@ struct DataUpadteAndAnimationPage {
     onGetItemMainSizeByIndex: (index: number) => {
       return 170;
     }
-  };
+  }
   twoColumnSection: SectionOptions = {
     itemsCount: 2,
     crossCount: 2,
@@ -112,7 +115,7 @@ struct DataUpadteAndAnimationPage {
     onGetItemMainSizeByIndex: (index: number) => {
       return 100;
     }
-  };
+  }
   dataSection: SectionOptions = {
     itemsCount: 20,
     crossCount: 2,
@@ -120,10 +123,8 @@ struct DataUpadteAndAnimationPage {
     onGetItemMainSizeByIndex: (index: number) => {
       return this.itemHeightArray[index % 100];
     }
-  };
+  }
 
-  // [EndExclude variable_declare]
-  // 1、Refresh Loading Animation Component.
   @Builder
   headerRefresh() {
     Column() {
@@ -136,7 +137,6 @@ struct DataUpadteAndAnimationPage {
     .justifyContent(FlexAlign.Center)
   }
 
-  // 5、Pull down to refresh the data update logic.
   refresh(): void {
     this.currentItem = -1;
     setTimeout(() => {
@@ -161,21 +161,6 @@ struct DataUpadteAndAnimationPage {
     }, 2000);
   }
 
-  loadMore(last: number): void {
-    setTimeout(() => {
-      let totalCount = this.dataSource.totalCount();
-      if (last + 20 >= totalCount) {
-        for (let i = 0; i < 20; i++) {
-          this.dataSource.addLastItem();
-        }
-        // Update sections itemsCount.
-        this.dataSection.itemsCount += 20;
-        this.sections.update(2, this.dataSection);
-      }
-    }, 1000);
-  }
-
-  // [StartExclude section_init]
   getSize(): number {
     let ret = Math.floor(Math.random() * this.maxSize);
     return (ret > this.minSize ? ret : this.minSize);
@@ -209,6 +194,11 @@ struct DataUpadteAndAnimationPage {
     this.sections.splice(0, 0, sectionOptions);
   }
 
+  aboutToAppear() {
+    this.setItemSizeArray();
+    this.initSections();
+  }
+
   removeItem(item: number): void {
     let index = this.dataSource.indexOf(item);
     this.dataSource.deleteItem(index);
@@ -231,39 +221,30 @@ struct DataUpadteAndAnimationPage {
     this.sections.update(sectionIndex, newSection);
   }
 
-  aboutToAppear() {
-    this.setItemSizeArray();
-    this.initSections();
-  }
-
-  // [EndExclude section_init]
+  // [EndExclude variable_declare]
   build() {
     Column({ space: 0 }) {
-      Row() {
-        Text($r('app.string.pull_down_refresh'))
-          .width('100%')
-          .fontSize(24)
-          .fontWeight(FontWeight.Bold)
-          .margin({ top: '18vp', left: '16vp', bottom: '8vp' })
-      }
-
-      // 2、Pull-to-refresh control.
       Refresh({ refreshing: $$this.isRefreshing, builder: this.headerRefresh() }) {
-        // [StartExclude water_flow_init]
         WaterFlow({ scroller: this.scroller, sections: this.sections }) {
           LazyForEach(this.dataSource, (item: number) => {
             FlowItem() {
               Stack() {
                 Row() {
-                  Button('Delete')
+                  Button($r('app.string.delete'))
                     .fontColor(Color.Red)
                     .backgroundColor(Color.White)
                     .onClick(() => {
-                      this.getUIContext().animateTo({ duration: 300 }, () => {
-                        this.removeItem(item);
-                      });
+                      // 2、Execute the animateTo animation when triggering the delete operation.
+                      try {
+                        this.getUIContext().animateTo({ duration: 300 }, () => {
+                          this.removeItem(item);
+                        });
+                      } catch (err) {
+                        hilog.error(0x0000, TAG, `animateTo get exception, error:${JSON.stringify(err)}.`);
+                      }
                     })
                 }
+                // [StartExclude row_setting]
                 .width('100%')
                 .height('100%')
                 .borderRadius(8)
@@ -273,8 +254,10 @@ struct DataUpadteAndAnimationPage {
                 .backgroundColor('#33000000')
 
                 ReusableFlowItem({ item: item })
+                // [EndExclude row_setting]
               }
             }
+            // 1、Add a transition property to FlowItem and configure the transition parameters.
             .transition({ type: TransitionType.Delete, opacity: 0 })
             .priorityGesture(LongPressGesture()
               .onAction(() => {
@@ -285,24 +268,37 @@ struct DataUpadteAndAnimationPage {
             .backgroundColor(Color.Gray)
           }, (item: string) => item)
         }
+        // [StartExclude water_flow_setting]
         .cachedCount(12)
         .columnsGap(8)
         .rowsGap(8)
         .width('100%')
         .height('100%')
         .layoutWeight(1)
-        // [EndExclude water_flow_init]
         // For better experience, pre load data.
         .onScrollIndex((first: number, last: number) => {
-          this.loadMore(last);
+          setTimeout(() => {
+            let totalCount = this.dataSource.totalCount();
+            if (last + 20 >= totalCount) {
+              for (let i = 0; i < 20; i++) {
+                this.dataSource.addLastItem();
+              }
+              // Update sections itemsCount.
+              this.dataSection.itemsCount += 20;
+              this.sections.update(2, this.dataSection);
+            }
+          }, 1000);
         })
+
+        // [EndExclude water_flow_setting]
       }
-      // 3、Pull down to refresh offset.
+      // [StartExclude water_flow_refresh]
       .refreshOffset(56)
       .onRefreshing(() => {
-        // 4、Pull down to refresh, triggering the refresh callback function.
         this.refresh();
       })
+
+      // [EndExclude water_flow_refresh]
     }
     .padding({
       top: this.statusBarHeight

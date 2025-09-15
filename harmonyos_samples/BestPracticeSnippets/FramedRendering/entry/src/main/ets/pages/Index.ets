@@ -73,7 +73,7 @@ struct Index {
   }
 
   @Builder
-  PagesMap(id: string) {
+  PagesMap(id: string): void {
     if (GlobalBuilderContext.getContext().getObject(id)) {
       (GlobalBuilderContext.getContext().getObject(id) as WrappedBuilder<[string]>).builder(id);
     }

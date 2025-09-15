@@ -17,11 +17,12 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 import { common } from '@kit.AbilityKit';
 // [Start session_controller1]
 import { avSession } from '@kit.AVSessionKit';
-const TAG = 'AvSessionController';
+
+const TAG: string = 'AvSessionController';
 
 export class AvSessionController {
   private avSession?: avSession.AVSession;
-  private context: common.UIAbilityContext | undefined = undefined;
+  private context?: common.UIAbilityContext;
   public initAvSession() {
     this.context = AppStorage.get('context');
     if (!this.context) {

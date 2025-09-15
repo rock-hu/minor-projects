@@ -6,7 +6,7 @@ import { ProductDetailSource } from "../model/ProductDetailSource";
 export struct TransitionScene {
   private productData: ProductDetailSource = new ProductDetailSource();
 
-  aboutToAppear() {
+  aboutToAppear(): void {
     this.productData.getProductData();
   }
 

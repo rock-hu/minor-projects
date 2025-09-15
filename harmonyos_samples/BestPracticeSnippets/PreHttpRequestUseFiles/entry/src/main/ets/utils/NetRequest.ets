@@ -20,9 +20,9 @@ import { common } from '@kit.AbilityKit';
 
 // Obtain the path of the application file
 const uiContext: UIContext | undefined = AppStorage.get('uiContext');
-let context = uiContext?.getHostContext() as common.UIAbilityContext;
-let filesDir = context.filesDir;
-let fileUrl = filesDir + '/xxx.png'; // The image's network address suffix needs to be replaced by the real url.
+let context: common.UIAbilityContext = uiContext?.getHostContext() as common.UIAbilityContext;
+let filesDir: string = context.filesDir;
+let fileUrl: string = filesDir + '/xxx.png'; // The image's network address suffix needs to be replaced by the real url.
 
 export async function httpRequest() {
   fs.access(fileUrl, fs.AccessModeType.READ).then((res) => { // Check whether files exist
@@ -50,7 +50,7 @@ export async function httpRequest() {
 
 // Write to the sandbox
 async function readWriteFileWithStream(imageData: ArrayBuffer): Promise<void> {
-  let outputStream = fs.createStreamSync(fileUrl, 'w+');
+  let outputStream: fs.Stream = fs.createStreamSync(fileUrl, 'w+');
   await outputStream.write(imageData);
   outputStream.closeSync();
 }

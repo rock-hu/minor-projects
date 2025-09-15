@@ -19,7 +19,7 @@ import { CommonConstants } from '../common/constants/CommonConstants';
 import MediaItem, { ItemType } from '../model/MediaItem';
 import { StickyWaterFlowDataSource } from '../model/StickyWaterFlowDataSource';
 
-const TAG = 'StickyPage';
+const TAG = 'StickOnTopPage';
 
 // [StartExclude item_layout]
 @Component
@@ -122,7 +122,7 @@ export struct StickyPage {
   // [EndExclude variable_declare]
   // 1、Define the height of the ceiling layout.
   @State scrollOffset: number = 0;
-  private stick_item_height: number = 90;
+  private stickItemHeight: number = 90;
   sectionMargin: Margin = {
     top: 8,
     left: 16,
@@ -136,7 +136,7 @@ export struct StickyPage {
     onGetItemMainSizeByIndex: (index: number) => {
       if (index === 1) {
         // 2、Set the ceiling layout height in the group.
-        return this.stick_item_height;
+        return this.stickItemHeight;
       } else {
         return 200;
       }

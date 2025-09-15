@@ -22,6 +22,8 @@
 ├──entry/src/main/ets
 │  ├──entryability
 │  │  └──EntryAbility.ets                   // 程序入口类
+│  ├──entrybackupability
+│  │  └──EntryBackupAbility.ets             // 应用数据备份恢复类
 │  ├──pages
 │  │  ├──MainPage.ets                       // 视图层-父页面
 │  │  └──PageOne.ets                        // 视图层-子页面

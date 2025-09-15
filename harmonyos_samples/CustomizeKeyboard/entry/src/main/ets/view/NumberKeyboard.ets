@@ -21,7 +21,7 @@ import { Constants } from '../constants/Constants';
 @Component
 export struct NumberKeyboard {
   @Consume inputText: string;
-  @Consume keyBoardController: KeyboardController;
+  @Consume keyboardController: KeyboardController;
   layoutOptions: GridLayoutOptions = {
     regularSize: [1, 1],
     irregularIndexes: [14, 16],
@@ -46,7 +46,7 @@ export struct NumberKeyboard {
             .width(item.width)
             .height(item.height)
             .onClick(() => {
-              this.inputText = this.keyBoardController.onInput(item.text);
+              this.inputText = this.keyboardController.onInput(item.text);
             })
         }
       }, (item: Menu) => JSON.stringify(item))

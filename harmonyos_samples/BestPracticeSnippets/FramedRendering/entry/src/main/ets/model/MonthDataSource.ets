@@ -33,14 +33,14 @@ export class MonthDataSource extends BasicDataSource<Month> {
     this.notifyDataAdd(this.dataArray.length - 1);
   }
 
-  public clearData() {
+  public clearData(): void {
     for (let i = 0; i < this.dataArray.length; i++) {
       this.dataArray.pop();
       this.notifyDataAdd(this.dataArray.length - 1);
     }
   }
 
-  public getDateData(uiContext:UIContext) {
+  public getDateData(uiContext: UIContext): void {
     for (let i = 1; i <= 12; i++) {
       let monthDays: number[] = CalculationDateUtil.getMonthDate(i, this.currentYear);
       let lunarDays: string[] = [];

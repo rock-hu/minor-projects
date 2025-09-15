@@ -35,7 +35,7 @@ export abstract class BasicDataSource implements IDataSource {
 
   // Remove the listener from the data source for the corresponding LazyForEach component.
   unregisterDataChangeListener(listener: DataChangeListener): void {
-    const pos = this.listeners.indexOf(listener);
+    const pos: number = this.listeners.indexOf(listener);
     if (pos >= 0) {
       this.listeners.splice(pos, 1);
     }

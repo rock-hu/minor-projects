@@ -22,7 +22,7 @@ struct ResourceQualifier {
       Text($r('app.string.my_string'))
         .fontSize(60)
         .fontColor($r('app.color.my_color'))
-      Image($r("app.media.my_image"))
+      Image($r('app.media.my_image'))
         .width(100)
         .height(100)
     }

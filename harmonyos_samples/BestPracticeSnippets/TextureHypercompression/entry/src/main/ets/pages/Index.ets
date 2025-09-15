@@ -23,7 +23,7 @@ struct TabsExample {
   private controller: TabsController = new TabsController();
 
   @Builder
-  tabBuilder(index: number, name: string) {
+  tabBuilder(index: number, name: string): void {
     Column() {
       Text(name)
         .fontColor(this.currentIndex === index ? Color.White : this.fontColor)

@@ -14,9 +14,12 @@
  */
 
 // [Start quick_start]
-import { MyDataSource } from '../model/MyDataSource'
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import { image } from '@kit.ImageKit';
 import { CommonConstants } from '../common/constants/CommonConstants';
+import { MyDataSource } from '../model/MyDataSource'
+
+const TAG = 'StickOnTopPage';
 
 // [StartExclude flow_item]
 @Reusable
@@ -200,10 +203,14 @@ struct ZoomChangeColumnPage {
             .onActionEnd((event: GestureEvent) => {
               // 8、Reset the relevant scaling parameters and execute the scaling animation.
               this.gestureEnd = true;
-              this.getUIContext().animateTo({ duration: 300 }, () => {
-                this.itemScale = 1;
-                this.itemOpacity = 1;
-              });
+              try {
+                this.getUIContext().animateTo({ duration: 300 }, () => {
+                  this.itemScale = 1;
+                  this.itemOpacity = 1;
+                });
+              } catch (err) {
+                hilog.error(0x0000, TAG, `animateTo get exception, error:${JSON.stringify(err)}.`);
+              }
               AppStorage.setOrCreate<number>('columnsCount', this.columns);
             })
         )
