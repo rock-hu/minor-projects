@@ -165,5 +165,5 @@ export struct ControlAreaComponent {
 function controlImageBuilder() {
   .aspectRatio(1)
   .opacity(0.86)
-  .objectFit(ImageFit.Contain);
+  .objectFit(ImageFit.Contain)
 }

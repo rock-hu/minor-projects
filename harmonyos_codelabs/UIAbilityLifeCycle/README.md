@@ -22,7 +22,7 @@
 │  ├──entrybackupability
 │  │  └──EntryBackupAbility.ets         // 备份恢复类
 │  ├──model                                  
-│  │  └──DataModel.ets                  // 数据操作类
+│  │  └──ModelData.ets                  // 数据操作类
 │  └──pages                 
 │     └──Index.ets                      // 首页
 └──entry/src/main/resources             // 应用资源目录

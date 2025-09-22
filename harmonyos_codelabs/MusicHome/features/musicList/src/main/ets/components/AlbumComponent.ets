@@ -140,19 +140,19 @@ export struct AlbumComponent {
         GridCol({
           span: { sm: GridConstants.SPAN_FOUR, md: GridConstants.SPAN_TWELVE, lg: GridConstants.SPAN_TWELVE }
         }) {
-          this.CoverImage();
+          this.CoverImage()
         }
 
         GridCol({
           span: { sm: GridConstants.SPAN_EIGHT, md: GridConstants.SPAN_TWELVE, lg: GridConstants.SPAN_TWELVE }
         }) {
-          this.CoverIntroduction();
+          this.CoverIntroduction()
         }
 
         GridCol({
           span: { sm: GridConstants.SPAN_TWELVE, md: GridConstants.SPAN_TWELVE, lg: GridConstants.SPAN_TWELVE }
         }) {
-          this.CoverOptions();
+          this.CoverOptions()
         }
         .padding({
           top: this.currentBreakpoint === BreakpointConstants.BREAKPOINT_SM ? $r('app.float.option_margin') : 0,

@@ -24,7 +24,7 @@ triggered lifecycle on the homepage.
 │  ├──entrybackupability
 │  │  └──EntryBackupAbility.ets         // Backup and restoration
 │  ├──model                                  
-│  │  └──DataModel.ets                  // DataModel operation
+│  │  └──ModelData.ets                  // DataModel operation
 │  └──pages                 
 │     └──Index.ets                      // Home page
 └──entry/src/main/resources             // Application resource directory

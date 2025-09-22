@@ -31,7 +31,7 @@ interface ImageInfo {
 
 // [Start mirco_blog_view]
 @Component
-export struct MircoBlogView {
+export struct MicroBlogView {
   // [StartExclude mirco_blog_view]
   @StorageProp('currentBreakpoint') currentBreakpoint: string = Breakpoint.BREAKPOINT_LG;
   @StorageLink('isDetailPage') isDetailPage: boolean = false;

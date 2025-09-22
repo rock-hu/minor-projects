@@ -24,8 +24,13 @@ export class MediaTools {
 
   static async getPixelMapFromResource(context: common.UIAbilityContext,
       name: resourceManager.Resource): Promise<PixelMap> {
-    let resourceMgr = context.resourceManager;
-    let fileData: Uint8Array = await resourceMgr.getMediaContent(name);
+    let fileData: Uint8Array = new Uint8Array([]);
+    try {
+      let resourceMgr = context.resourceManager;
+      fileData = await resourceMgr.getMediaContent(name.id);
+    } catch (e) {
+      Logger.error(TAG, `getPixelMapFromResource error: ${JSON.stringify(e)}`);
+    }
     return await image.createImageSource(fileData.buffer as ArrayBuffer).createPixelMap();
   }
 

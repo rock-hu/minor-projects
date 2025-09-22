@@ -26,7 +26,7 @@ import {
   ArcSliderValueOptionsConstructorOptions
 } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
-import { MediaService } from '@ohos/mediaCommon';
+import { MediaService } from 'mediacommon';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Preview

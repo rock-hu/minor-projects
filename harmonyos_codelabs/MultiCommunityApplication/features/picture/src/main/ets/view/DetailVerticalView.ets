@@ -15,7 +15,7 @@
 
 import { deviceInfo } from '@kit.BasicServicesKit';
 import { CommonConstants as BaseCommon, BreakpointConstants as Breakpoint } from 'base'
-import { MircoBlogView, CommentListView, CommentBarView, CardArrayViewModel, CardArray } from 'detail';
+import { MicroBlogView, CommentListView, CommentBarView, CardArrayViewModel, CardArray } from 'detail';
 
 @Component
 export struct DetailVertical {
@@ -27,7 +27,7 @@ export struct DetailVertical {
     Column() {
       Scroll() {
         Column() {
-          MircoBlogView({
+          MicroBlogView({
             cardItem: this.cardArrayViewModel.cardArray[this.selectCardIndex],
             index: this.selectCardIndex,
             showPicture: false,

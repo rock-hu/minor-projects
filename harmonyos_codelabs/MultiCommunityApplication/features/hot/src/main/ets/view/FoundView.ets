@@ -14,7 +14,7 @@
  */
 
 import { BreakpointConstants as Breakpoint, CommonConstants as BaseCommon, BreakpointType } from 'base';
-import { CommentBarView, MircoBlogView } from 'detail';
+import { CommentBarView, MicroBlogView } from 'detail';
 import { CardArrayViewModel, CardArray } from 'detail';
 import { CardItem } from 'detail';
 import { CommonConstants as Common } from '../constants/CommonConstants';
@@ -28,7 +28,7 @@ export struct FoundView {
   @State tabIndexSelected: number = 0;
 
   jumpDetail() {
-    this.pageInfos.pushPath({name : 'detailPage'});
+    this.pageInfos.pushPath({ name: 'detailPage' });
   }
 
   @Builder
@@ -104,7 +104,7 @@ export struct FoundView {
           ForEach(this.cardArrayViewModel.cardArray, (item: CardItem, index: number) => {
             FlowItem() {
               Column() {
-                MircoBlogView({
+                MicroBlogView({
                   cardItem: item,
                   // [StartExclude foundView]
                   index: index,
@@ -141,6 +141,7 @@ export struct FoundView {
               .borderRadius(this.currentBreakpoint === 'lg' ? '8vp' : '0vp')
               .backgroundColor('#FFFFFF')
               .margin(this.currentBreakpoint === 'lg' ? '6vp' : '0vp')
+
               // [EndExclude foundView]
             }
           }, (item: CardItem, index: number) => index + JSON.stringify(item))
@@ -148,7 +149,7 @@ export struct FoundView {
         .columnsTemplate(this.currentBreakpoint !== 'lg' ? '1fr' : '1fr 1fr')
         // [End foundView]
         .backgroundColor(this.currentBreakpoint === 'lg' ?
-        $r('app.color.water_flow_bgc_lg') : $r('app.color.water_flow_bgc'))
+          $r('app.color.water_flow_bgc_lg') : $r('app.color.water_flow_bgc'))
         .linearGradient({
           angle: Common.LINEAR_GRADIENT_ANGEL,
           colors: [
@@ -157,18 +158,18 @@ export struct FoundView {
           ]
         })
         .rowsGap(this.currentBreakpoint === 'lg' ?
-        $r('app.float.zero') : $r('app.float.water_flow_rows_gap'))
+          $r('app.float.zero') : $r('app.float.water_flow_rows_gap'))
         .nestedScroll({
           scrollForward: NestedScrollMode.PARENT_FIRST,
           scrollBackward: NestedScrollMode.SELF_FIRST
         })
         .padding({
           left: this.currentBreakpoint === 'lg' ? $r('app.float.water_flow_padding_lg') :
-          $r('app.float.zero'),
+            $r('app.float.zero'),
           right: this.currentBreakpoint === 'lg' ? $r('app.float.water_flow_padding_lg') :
-          $r('app.float.zero'),
+            $r('app.float.zero'),
           top: this.currentBreakpoint === 'lg' ? $r('app.float.water_flow_padding_top_lg') :
-          $r('app.float.zero')
+            $r('app.float.zero')
         })
       }
     }

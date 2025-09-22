@@ -15,7 +15,7 @@
 
 import { BreakpointConstants as Breakpoint, CommonConstants as Common, BreakpointType } from 'base';
 import { DetailTitleView } from './DetailTitleView';
-import { MircoBlogView } from './MircoBlogView';
+import { MicroBlogView } from './MircoBlogView';
 import { CommentListView } from './CommentListView';
 import { CommentBarView } from './CommentBarView';
 import { CommentInputView } from './CommentInputView';
@@ -51,7 +51,7 @@ export struct DetailPage {
             GridCol({ span: { sm: 4, md: this.isFoldHorizontal ? 3 : 5, lg: 12 } }) {
               if ((this.isFoldHorizontal && this.currentBreakpoint === 'md')) {
                 Scroll() {
-                  MircoBlogView({
+                  MicroBlogView({
                     cardItem: this.cardItem,
                     index: this.selectCardIndex
                   })
@@ -65,13 +65,13 @@ export struct DetailPage {
                 .layoutWeight(1)
                 // [EndExclude detail_page]
               } else {
-                MircoBlogView({
+                MicroBlogView({
                   cardItem: this.cardItem,
                   index: this.selectCardIndex
                 })
                 // [StartExclude detail_page]
                   .margin({
-                    top: $r('app.float.mirco_blog_mt')
+                    top: $r('app.float.micro_blog_mt')
                   })
                 // [EndExclude detail_page]
               }
@@ -115,13 +115,13 @@ export struct DetailPage {
 
             Column() {
               Scroll() {
-                MircoBlogView({
+                MicroBlogView({
                   cardItem: this.cardItem,
                   index: this.selectCardIndex
                 })
                 // [StartExclude detail_page]
                   .margin({
-                    top: $r('app.float.mirco_blog_mt')
+                    top: $r('app.float.micro_blog_mt')
                   })
                 // [EndExclude detail_page]
               }

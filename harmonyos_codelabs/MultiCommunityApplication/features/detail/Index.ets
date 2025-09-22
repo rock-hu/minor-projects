@@ -17,7 +17,7 @@ export { DetailPage } from './src/main/ets/view/DetailPage';
 
 export { CommentBarView } from './src/main/ets/view/CommentBarView';
 
-export { MircoBlogView } from './src/main/ets/view/MircoBlogView';
+export { MicroBlogView } from './src/main/ets/view/MircoBlogView';
 
 export { CommentListView } from './src/main/ets/view/CommentListView';
 

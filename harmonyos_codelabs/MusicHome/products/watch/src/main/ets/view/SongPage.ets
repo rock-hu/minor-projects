@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { MediaService, SongItem } from '@ohos/mediaCommon';
+import { MediaService, SongItem } from 'mediacommon';
 import { StyleConstants } from '../constants/StyleConstants';
 import { VolumeSlider } from './VolumeSliderComponent';
 

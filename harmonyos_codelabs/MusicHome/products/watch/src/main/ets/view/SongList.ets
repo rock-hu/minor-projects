@@ -20,7 +20,7 @@ import {
   ArcListAttribute, // The properties of ArcList depend on ArcListAttribute and ArcListItemAttribute objects for import.
   ArcListItemAttribute
 } from '@kit.ArkUI';
-import { MediaService, SongItem } from '@ohos/mediaCommon';
+import { MediaService, SongItem } from 'mediacommon';
 import { StyleConstants } from '../constants/StyleConstants';
 
 @Builder

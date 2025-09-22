@@ -22,8 +22,8 @@ import {
 } from '@kit.ArkUI';
 import { Home } from '../view/Home';
 import { PlayList } from '../view/PlayList';
-import { MediaService } from '@ohos/mediaCommon';
-import { songList } from 'musicList';
+import { MediaService } from 'mediacommon';
+import { songList } from 'musiclist';
 import { StyleConstants } from '../constants/StyleConstants';
 
 @Entry

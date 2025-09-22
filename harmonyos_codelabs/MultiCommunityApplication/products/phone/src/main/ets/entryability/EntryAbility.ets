@@ -20,7 +20,6 @@ import { window, display } from '@kit.ArkUI';
 import { CommonConstants as BaseCommon, BreakpointConstants } from 'base'
 
 export default class EntryAbility extends UIAbility {
-
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onCreate');
   }
@@ -71,16 +70,21 @@ export default class EntryAbility extends UIAbility {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onBackground');
   }
 
-  private updateBreakpoint(windowWidth: number) :void{
-    let windowWidthVp = windowWidth / display.getDefaultDisplaySync().densityPixels;
-    let curBp: string = '';
-    if (windowWidthVp < BreakpointConstants.BREAKPOINT_RANGES[1]) {
-      curBp = BreakpointConstants.BREAKPOINT_SM;
-    } else if (windowWidthVp < BreakpointConstants.BREAKPOINT_RANGES[2]) {
-      curBp = BreakpointConstants.BREAKPOINT_MD;
-    } else {
-      curBp = BreakpointConstants.BREAKPOINT_LG;
+  private updateBreakpoint(windowWidth: number): void {
+    try {
+      let windowWidthVp = windowWidth / display.getDefaultDisplaySync().densityPixels;
+      let curBp: string = '';
+      if (windowWidthVp < BreakpointConstants.BREAKPOINT_RANGES[1]) {
+        curBp = BreakpointConstants.BREAKPOINT_SM;
+      } else if (windowWidthVp < BreakpointConstants.BREAKPOINT_RANGES[2]) {
+        curBp = BreakpointConstants.BREAKPOINT_MD;
+      } else {
+        curBp = BreakpointConstants.BREAKPOINT_LG;
+      }
+      AppStorage.setOrCreate('currentBreakpoint', curBp);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'testTag', `updateBreakpoint failed. code=${err.code}, message=${err.message}`);
     }
-    AppStorage.setOrCreate('currentBreakpoint', curBp);
   }
 }

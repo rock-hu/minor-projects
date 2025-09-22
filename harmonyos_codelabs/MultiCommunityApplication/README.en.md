@@ -1,6 +1,6 @@
 # Community Comments
 
-### Introduction
+## Introduction
 
 Based on the adaptive and responsive layout, implement community comment pages with one-time development for multi-device deployment.
 
@@ -16,7 +16,7 @@ The figure shows the effect on the tablet:
 
 ![](screenshots/device/pad.en.png)
 
-### Concepts
+## Concepts
 
 - One-time development for multi-device deployment: It enables you to develop and release one set of project code for deployment on multiple devices as demanded. This feature enables you to efficiently develop applications that are compatible with multiple devices while providing distributed user experiences for cross-device transferring, migration, and collaboration.
 - Adaptive layout: When the size of an external container changes, elements can automatically change based on the relative relationship to adapt to the external container. Relative relationships include the proportion, fixed aspect ratio, and display priority.
@@ -25,7 +25,7 @@ The figure shows the effect on the tablet:
 - GridCol: It is a container that must be used as a child component of the **<GridRow>** container.
 
 
-### How to Use
+## How to Use
 
 1. Install and open an app on a mobile phone, foldable phone, or tablet. The responsive layout and adaptive layout are used to display different effects on the app pages over different devices.
 2. Tap home, hot topics, message, or mine tab at the bottom to switch to the corresponding tab page. By default, the message tab page is displayed.
@@ -34,11 +34,11 @@ The figure shows the effect on the tablet:
 5. Tap an image on the hot topics page to go to the image details page. Only images are displayed on mobile phones, while the content and comments are displayed with images on foldable phones and tablets. Tap the image or the back button to return to the hot topics page.
 6. Tap the widget body on the hot topics page to go to the details page. The text area on the details page can be zoomed in or out with two fingers. You can tap the button in the upper right corner of the foldable phone to switch between the left-right layout and top-down layout. Tap the back button to return to the hot topics page.
 
-### Permissions
+## Permissions
 
 N/A.
 
-### Constraints
+## Constraints
 
 1. The sample app is supported only on Huawei phones running the standard system.
 2. HarmonyOS: HarmonyOS 5.0.5 Release or later

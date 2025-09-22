@@ -197,15 +197,21 @@ export struct Player {
     .transition(TransitionEffect.translate({ y: 1000 }).animation({ curve: curves.springMotion(0.6, 0.8) }))
     .onAppear(() => {
       window.getLastWindow(this.context).then((windowStage: window.Window) => {
-        let area = windowStage.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
-        this.topArea = this.getUIContext().px2vp(area.topRect.height);
-        let bottomArea = windowStage.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
-        this.bottomArea = this.getUIContext().px2vp(bottomArea.bottomRect.height);
-        Logger.info('bottomArea ' + this.bottomArea)
-        let sysBarProps: window.SystemBarProperties = {
-          statusBarContentColor: '#FFFFFF'
-        };
-        windowStage.setWindowSystemBarProperties(sysBarProps);
+        try {
+          let area = windowStage.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
+          this.topArea = this.getUIContext().px2vp(area.topRect.height);
+          let bottomArea = windowStage.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
+          this.bottomArea = this.getUIContext().px2vp(bottomArea.bottomRect.height);
+          Logger.info('bottomArea ' + this.bottomArea)
+          let sysBarProps: window.SystemBarProperties = {
+            statusBarContentColor: '#FFFFFF'
+          };
+          windowStage.setWindowSystemBarProperties(sysBarProps).catch((error: BusinessError) => {
+            Logger.error(`setWindowSystemBarProperties error ${error.code} + ${error.message}`);
+          });
+        } catch (e) {
+          Logger.error(`getWindowAvoidArea error ${JSON.stringify(e)}`);
+        }
       }).catch((error: BusinessError) => {
         Logger.error(`${error.code} + ${error.message}`);
       });
@@ -217,7 +223,9 @@ export struct Player {
         let sysBarProps: window.SystemBarProperties = {
           statusBarContentColor: '#000000'
         };
-        windowStage.setWindowSystemBarProperties(sysBarProps);
+        windowStage.setWindowSystemBarProperties(sysBarProps).catch((error: BusinessError) => {
+          Logger.error(`setWindowSystemBarProperties error ${error.code} + ${error.message}`);
+        });
       }).catch((error: BusinessError) => {
         Logger.error(`${error.code} + ${error.message}`);
       });

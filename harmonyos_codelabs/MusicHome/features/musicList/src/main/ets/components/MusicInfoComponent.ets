@@ -47,9 +47,13 @@ export struct MusicInfoComponent {
         offset: { md: BreakpointConstants.OFFSET_MD }
       }) {
         Column() {
-          this.CoverInfo();
-          this.MusicInfo();
-          Blank()
+          Column() {
+            this.CoverInfo()
+            this.MusicInfo()
+          }
+          .layoutWeight(1)
+          .justifyContent(FlexAlign.Start)
+
           ControlAreaComponent()
         }
         .height(StyleConstants.FULL_HEIGHT)
@@ -63,7 +67,6 @@ export struct MusicInfoComponent {
   CoverInfo() {
     Row() {
       Image(this.songList[this.selectIndex].label)
-        .width(StyleConstants.FULL_WIDTH)
         .aspectRatio(1)
         .borderRadius($r('app.float.cover_radius_label'))
         .shadow({
@@ -74,6 +77,11 @@ export struct MusicInfoComponent {
         })
         .margin($r('app.float.lyric_margin_right_sm'))
     }
+    .aspectRatio(1)
+    .layoutWeight(1)
+    .constraintSize({
+      maxWidth: '100%'
+    })
   }
 
   @Builder

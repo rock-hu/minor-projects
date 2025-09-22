@@ -6,12 +6,11 @@
   "author": "",
   "license": "",
   "dependencies": {
-    "musicList": "file:../../features/musicList",
-    "@ohos/constantsCommon": "file:../../common/constantsCommon",
-    "@ohos/live": "file:../../features/live",
-    "@ohos/musicComment": "file:../../features/musicComment",
-    "@ohos/musicList": "file:../../features/musicList",
-    "@ohos/mediaCommon": "file:../../common/mediaCommon",
+    "musiclist": "file:../../features/musicList",
+    "constantscommon": "file:../../common/constantsCommon",
+    "live": "file:../../features/live",
+    "musiccomment": "file:../../features/musicComment",
+    "mediacommon": "file:../../common/mediaCommon",
   }
 }
 

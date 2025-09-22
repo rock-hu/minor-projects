@@ -16,6 +16,7 @@
 import { AbilityConstant, ConfigurationConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
+import { BusinessError } from '@kit.BasicServicesKit';
 import { ModelData } from '../model/ModelData';
 
 const DOMAIN = 0x0000;
@@ -25,7 +26,12 @@ let modelDataList: ModelData[] = [];
 export default class EntryAbility extends UIAbility {
   // [Start LifeCycle_Ability_Create]
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
-    this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
+    try {
+      this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(DOMAIN, 'testTag', `Failed to set colorMode. code = ${err.code}, message = ${err.message}`);
+    }
 
     // Get eventHub.
     let eventhub = this.context.eventHub;
