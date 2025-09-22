@@ -69,6 +69,18 @@
       "value": "When loading a list of location information, Allows applications to obtain fuzzy device location information"
     },
     {
+      "name": "permission_read_pasteboard",
+      "value": "Allow the app to read the clipboard"
+    },
+    {
+      "name": "permission_read_imagevideo",
+      "value": "Allow reading of image or video files in the user's public directory"
+    },
+    {
+      "name": "permission_distributed_datasync",
+      "value": "Allow data exchange between different devices"
+    },
+    {
       "name": "copy",
       "value": "Copy"
     },

@@ -22,7 +22,7 @@ class GridItemInfo {
 
 @Entry
 @Component
-export default struct ResponsiveGrid {
+struct ResponsiveGrid {
   private data: Array<GridItemInfo> = [
     { name: $r('app.string.playlist_collection'), image: $r('app.media.1') },
     { name: $r('app.string.playlist_collection'), image: $r('app.media.2') },

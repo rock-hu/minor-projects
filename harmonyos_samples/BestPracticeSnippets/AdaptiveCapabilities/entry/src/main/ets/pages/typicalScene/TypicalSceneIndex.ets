@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { DirectoryItem, DirectoryList } from '../../common/DirectoryList'
+import { DirectoryItem, DirectoryList } from '../../common/DirectoryList';
 
 @Entry
 @Component

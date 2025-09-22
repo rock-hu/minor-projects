@@ -49,14 +49,14 @@ struct FlexibleCapability2 {
       .height(55)
       .borderRadius(12)
       .padding({ left: 13, right: 13 })
-      .backgroundColor('#FFFFFF')
+      .backgroundColor($r('sys.color.comp_background_primary'))
       .width(this.rate * 100 + '%')
 
       this.slider()
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F1F3F5')
+    .backgroundColor($r('sys.color.background_secondary'))
     .alignItems(VerticalAlign.Center)
     .justifyContent(FlexAlign.Center)
   }

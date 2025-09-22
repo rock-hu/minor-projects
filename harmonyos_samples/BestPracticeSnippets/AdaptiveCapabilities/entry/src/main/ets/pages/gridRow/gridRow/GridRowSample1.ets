@@ -21,15 +21,14 @@ struct GridRowSample1 {
   @State currentBreakpoint: string = 'md';
 
   build() {
-    GridRow({ breakpoints: { value: ['600vp', '700vp', '800vp', '900vp', '1000vp'] } }) {
+    GridRow({ breakpoints: { value: ['320vp', '600vp', '840vp', '1440vp'] } }) {
       GridCol({
         span: {
           xs: 12,
           sm: 12,
           md: 12,
           lg: 12,
-          xl: 12,
-          xxl: 12
+          xl: 12
         }
       }) {
         Row() {

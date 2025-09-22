@@ -13,6 +13,9 @@
 * limitations under the License.
 */
 
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+
 @Entry
 @Component
 struct GesturesConflictScene3A {
@@ -34,7 +37,12 @@ struct GesturesConflictScene3A {
               .onAction((event: GestureEvent) => {
               })
               .onActionEnd(() => {
-                this.getUIContext().getPromptAction().showToast({ message: 'Long Press' });
+                try {
+                  this.getUIContext().getPromptAction().showToast({ message: 'Long Press' });
+                } catch (err) {
+                  let error = err as BusinessError;
+                  hilog.error(0x0000, 'testTag', `showToast err, code: ${error.code}, mesage: ${error.message}`);
+                }
               })
             )
           // [End gesture_action]

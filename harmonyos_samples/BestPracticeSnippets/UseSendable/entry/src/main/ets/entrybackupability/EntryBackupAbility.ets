@@ -16,12 +16,16 @@
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { BackupExtensionAbility, BundleVersion } from '@kit.CoreFileKit';
 
+const DOMAIN = 0x0000;
+const TAG = 'EntryBackupAbility';
+const FORMAT = '%{public}s';
+
 export default class EntryBackupAbility extends BackupExtensionAbility {
   async onBackup() {
-    hilog.info(0x0000, 'testTag', 'onBackup ok');
+    hilog.info(DOMAIN, TAG, FORMAT, 'onBackup ok');
   }
 
   async onRestore(bundleVersion: BundleVersion) {
-    hilog.info(0x0000, 'testTag', 'onRestore ok %{public}s', JSON.stringify(bundleVersion));
+    hilog.info(DOMAIN, TAG, FORMAT, 'onRestore, bundleVersion:', JSON.stringify(bundleVersion));
   }
 }

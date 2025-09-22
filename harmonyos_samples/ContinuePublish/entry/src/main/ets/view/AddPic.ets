@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-import { photoAccessHelper } from '@kit.MediaLibraryKit';
-import { BusinessError, pasteboard } from '@kit.BasicServicesKit';
 import { dataSharePredicates, unifiedDataChannel, uniformTypeDescriptor } from '@kit.ArkData';
+import { BusinessError, pasteboard } from '@kit.BasicServicesKit';
+import { photoAccessHelper } from '@kit.MediaLibraryKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { SymbolGlyphModifier } from '@kit.ArkUI';
 import { fileIo as fs } from '@kit.CoreFileKit';
-import { promptAction, SymbolGlyphModifier } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { image } from '@kit.ImageKit';
-import { hilog } from '@kit.PerformanceAnalysisKit';
 import { util } from '@kit.ArkTS';
 import {
   CollaborationServiceFilter,
@@ -31,6 +31,10 @@ import { CommonConstants } from '../constants/CommonConstants';
 import { ImageInfo } from '../model/ContentInfo';
 import { fileSelect } from '../utils/FileUtil';
 import { BreakpointType } from '../utils/BreakpointSystem';
+
+const DOMAIN = 0x0000;
+const TAG = 'AddPic';
+const FORMAT = '%{public}s';
 
 /*
  * Image area.
@@ -52,7 +56,11 @@ export struct AddPic {
     fileSelect().then((uri: Array<ResourceStr>) => {
       if ((this.imageUriArray.length + uri.length) > CommonConstants.MAX_ADD_PIC) {
         uri.length = CommonConstants.MAX_ADD_PIC - this.imageUriArray.length;
-        this.getUIContext().getPromptAction().showToast({ message: $r('app.string.add_picture_prompt') });
+        try {
+          this.getUIContext().getPromptAction().showToast({ message: $r('app.string.add_picture_prompt') });
+        } catch (err) {
+          hilog.error(DOMAIN, TAG, FORMAT, `ShowToast failed. Cause code: ${err.code}, message: ${err.message}`);
+        }
       }
       uri.forEach((item: ResourceStr) => {
         this.getThumbnail(item as string);
@@ -68,19 +76,23 @@ export struct AddPic {
       fetchColumns: [],
       predicates: predicates
     };
-    let fetchResult: photoAccessHelper.FetchResult<photoAccessHelper.PhotoAsset> =
-      await phAccessHelper.getAssets(fetchOption);
-    let asset: photoAccessHelper.PhotoAsset = await fetchResult.getFirstObject();
-    asset.getThumbnail((err, pixelMap) => {
-      if (err === undefined) {
-        hilog.info(0x0000, '[AddPic]', 'getThumbnail successful ' + pixelMap);
-        let imageName = asset.displayName.substring(0, (asset.displayName).indexOf('.'));
-        this.PixelMapToBuffer(pixelMap, imageName);
-        this.imageUriArray.push({ imagePixelMap: pixelMap, imageName: imageName });
-      } else {
-        hilog.error(0x0000, '[AddPic]', `getThumbnail fail with error: ${err.code}, ${err.message}`);
-      }
-    });
+    try {
+      let fetchResult: photoAccessHelper.FetchResult<photoAccessHelper.PhotoAsset> =
+        await phAccessHelper.getAssets(fetchOption);
+      let asset: photoAccessHelper.PhotoAsset = await fetchResult.getFirstObject();
+      asset.getThumbnail((err, pixelMap) => {
+        if (err === undefined) {
+          hilog.info(DOMAIN, TAG, FORMAT, 'getThumbnail successful ' + pixelMap);
+          let imageName = asset.displayName.substring(0, (asset.displayName).indexOf('.'));
+          this.PixelMapToBuffer(pixelMap, imageName);
+          this.imageUriArray.push({ imagePixelMap: pixelMap, imageName: imageName });
+        } else {
+          hilog.error(DOMAIN, TAG, FORMAT, `getThumbnail fail with error: ${err.code}, ${err.message}`);
+        }
+      });
+    } catch (err) {
+      hilog.error(DOMAIN, TAG, FORMAT, `ShowToast failed. Cause code: ${err.code}, message: ${err.message}`);
+    }
   }
 
   PixelMapToBuffer(pixelMap: image.PixelMap, displayName: string): void {
@@ -88,7 +100,9 @@ export struct AddPic {
     let packOpts: image.PackingOption = { format: 'image/jpeg', quality: 100 };
     imagePackerApi.packToData(pixelMap, packOpts).then((data: ArrayBuffer) => {
       this.writeDistributedFile(data, displayName);
-    })
+    }).catch((err: BusinessError) => {
+      hilog.info(DOMAIN, TAG, FORMAT, `PackToData failed. Cause code: ${err.code}, message: ${err.message}`);
+    });
   }
 
   // [Start write]
@@ -102,14 +116,14 @@ export struct AddPic {
     try {
       // Create a file in a distributed directory.
       let file = fs.openSync(filePath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
-      hilog.info(0x0000, '[AddPic]', 'Create file success.');
+      hilog.info(DOMAIN, TAG, FORMAT, 'Create file success.');
       // Write content to a file (if the asset is a picture, the picture can be converted to a buffer to write)
       fs.writeSync(file.fd, buf);
       // closed file.
       fs.closeSync(file.fd);
     } catch (error) {
       let err: BusinessError = error as BusinessError;
-      hilog.info(0x0000, '[AddPic]',
+      hilog.info(DOMAIN, TAG, FORMAT,
         `Failed to openSync / writeSync / closeSync. Code: ${err.code}, message: ${err.message}`);
     }
   }
@@ -130,7 +144,7 @@ export struct AddPic {
       callback(event);
       return true;
     } catch (e) {
-      hilog.info(0x0000, '[AddPic]', "getData failed, code = " + (e as BusinessError).code + ", message = " +
+      hilog.info(DOMAIN, TAG, FORMAT, "getData failed, code = " + (e as BusinessError).code + ", message = " +
       (e as BusinessError).message);
       return false;
     }
@@ -167,31 +181,41 @@ export struct AddPic {
 
   // Uri to pixelMap.
   uri2pixelMap(uri: string): void {
-    let imageUri = uri;
-    let file = fs.openSync(imageUri, fs.OpenMode.READ_ONLY);
-    const imageSource = image.createImageSource(file.fd);
-    fs.closeSync(file);
-    const imagePackApi = image.createImagePacker();
-    let packOpts: image.PackingOption = { format: 'image/png', quality: 100 };
-    imagePackApi.packToData(imageSource, packOpts).then(async readBuffer => {
-      let imageSource: image.ImageSource = image.createImageSource(readBuffer as ArrayBuffer);
-      let option: image.InitializationOptions = {
-        pixelFormat: 3,
-        size: {
-          width: 100,
-          height: 100
-        }
-      };
-      imageSource.createPixelMap(option).then((pixelMap: PixelMap) => {
-        if (this.imageUriArray.length < CommonConstants.MAX_ADD_PIC) {
-          let uuid = util.generateRandomUUID();
-          this.PixelMapToBuffer(pixelMap, uuid);
-          this.imageUriArray.push({ imagePixelMap: pixelMap, imageName: uuid });
-        } else {
-          this.getUIContext().getPromptAction().showToast({ message: $r('app.string.add_picture_prompt') });
-        }
+    try {
+      let imageUri = uri;
+      let file = fs.openSync(imageUri, fs.OpenMode.READ_ONLY);
+      const imageSource = image.createImageSource(file.fd);
+      fs.closeSync(file);
+      const imagePackApi = image.createImagePacker();
+      let packOpts: image.PackingOption = { format: 'image/png', quality: 100 };
+      imagePackApi.packToData(imageSource, packOpts).then(async readBuffer => {
+        let imageSource: image.ImageSource = image.createImageSource(readBuffer as ArrayBuffer);
+        let option: image.InitializationOptions = {
+          pixelFormat: 3,
+          size: {
+            width: 100,
+            height: 100
+          }
+        };
+        imageSource.createPixelMap(option).then((pixelMap: PixelMap) => {
+          if (this.imageUriArray.length < CommonConstants.MAX_ADD_PIC) {
+            let uuid = util.generateRandomUUID();
+            this.PixelMapToBuffer(pixelMap, uuid);
+            this.imageUriArray.push({ imagePixelMap: pixelMap, imageName: uuid });
+          } else {
+            try {
+              this.getUIContext().getPromptAction().showToast({ message: $r('app.string.add_picture_prompt') });
+            } catch (err) {
+              hilog.error(DOMAIN, TAG, FORMAT, `ShowToast failed. Cause code: ${err.code}, message: ${err.message}`);
+            }
+          }
+        });
+      }).catch((err: BusinessError) => {
+        hilog.info(DOMAIN, TAG, FORMAT, `PackToData failed. Cause code: ${err.code}, message: ${err.message}`);
       });
-    })
+    } catch (err) {
+      hilog.error(DOMAIN, TAG, FORMAT, `OpenSync failed. Cause code: ${err.code}, message: ${err.message}`);
+    }
   }
 
   // [Start copy]
@@ -200,7 +224,7 @@ export struct AddPic {
     let pasteData: pasteboard.PasteData = pasteboard.createData(pasteboard.MIMETYPE_PIXELMAP, pixelMap);
     let systemPasteBoard: pasteboard.SystemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteBoard.setData(pasteData).catch((err: BusinessError) => {
-      hilog.error(0x0000, '[AddPic]', `Failed to set pastedata. Code: ${err.code}, message: ${err.message}`);
+      hilog.error(DOMAIN, TAG, FORMAT, `Failed to set pastedata. Code: ${err.code}, message: ${err.message}`);
     });
   }
 
@@ -212,7 +236,7 @@ export struct AddPic {
     let systemPasteBoard: pasteboard.SystemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteBoard.getData((err: BusinessError, data: pasteboard.PasteData) => {
       if (err) {
-        hilog.error(0x0000, '[AddPic]', `Failed to get pastedata. Code: ${err.code}, message: ${err.message}`);
+        hilog.error(DOMAIN, TAG, FORMAT, `Failed to get pastedata. Code: ${err.code}, message: ${err.message}`);
         return;
       }
       // Process pasteData, obtain type, number, etc
@@ -220,7 +244,7 @@ export struct AddPic {
       let recordCount: number = data.getRecordCount();
       // Retrieve the type of data from the clipboard.
       let types: string = data.getPrimaryMimeType();
-      hilog.info(0x0000, '[AddPic]', `recordCount: ${recordCount}, types: ${types}`);
+      hilog.info(DOMAIN, TAG, FORMAT, `recordCount: ${recordCount}, types: ${types}`);
       // Retrieve the content of data from the clipboard.
       if (types === 'pixelMap') {
         let primaryPixelMap: image.PixelMap = data.getPrimaryPixelMap();
@@ -261,42 +285,51 @@ export struct AddPic {
       // The logic behind the image falling in, achieving image writing.
       // [StartExclude onDrop]
       this.getDataFromUdmf((dragEvent as DragEvent), async (event: DragEvent) => {
-        let records: Array<unifiedDataChannel.UnifiedRecord> = event.getData().getRecords();
-        for (let i = 0; i < records.length; i++) {
-          // PixelMap converted from image to pixelMap in the image system.
-          if (records[i].getType() === uniformTypeDescriptor.UniformDataType.OPENHARMONY_PIXEL_MAP) {
-            let pixelMapRecord = records[i] as unifiedDataChannel.SystemDefinedPixelMap;
-            const mWidth: number = (pixelMapRecord.details?.width ?? -1) as number;
-            const mHeight: number = (pixelMapRecord.details?.height ?? -1) as number;
-            const mPixelFormat: image.PixelMapFormat =
-              (pixelMapRecord.details?.['pixel-format'] ?? image.PixelMapFormat.UNKNOWN) as image.PixelMapFormat;
-            const mItemPixelMapData: Uint8Array = pixelMapRecord.rawData;
-            const opts: image.InitializationOptions = {
-              srcPixelFormat: mPixelFormat,
-              pixelFormat: mPixelFormat,
-              size: {
-                width: mWidth,
-                height: mHeight
+        try {
+          let records: Array<unifiedDataChannel.UnifiedRecord> = event.getData().getRecords();
+          for (let i = 0; i < records.length; i++) {
+            // PixelMap converted from image to pixelMap in the image system.
+            if (records[i].getType() === uniformTypeDescriptor.UniformDataType.OPENHARMONY_PIXEL_MAP) {
+              let pixelMapRecord = records[i] as unifiedDataChannel.SystemDefinedPixelMap;
+              const mWidth: number = (pixelMapRecord.details?.width ?? -1) as number;
+              const mHeight: number = (pixelMapRecord.details?.height ?? -1) as number;
+              const mPixelFormat: image.PixelMapFormat =
+                (pixelMapRecord.details?.['pixel-format'] ?? image.PixelMapFormat.UNKNOWN) as image.PixelMapFormat;
+              const mItemPixelMapData: Uint8Array = pixelMapRecord.rawData;
+              const opts: image.InitializationOptions = {
+                srcPixelFormat: mPixelFormat,
+                pixelFormat: mPixelFormat,
+                size: {
+                  width: mWidth,
+                  height: mHeight
+                }
+              };
+              const buffer: ArrayBuffer = mItemPixelMapData.buffer.slice(mItemPixelMapData.byteOffset,
+                mItemPixelMapData.byteOffset + mItemPixelMapData.byteLength);
+              const pixelMap = await image.createPixelMap(buffer, opts);
+              if (this.imageUriArray.length < CommonConstants.MAX_ADD_PIC) {
+                let uuid = util.generateRandomUUID();
+                this.PixelMapToBuffer(pixelMap, uuid);
+                this.imageUriArray.push({ imagePixelMap: pixelMap, imageName: uuid });
+              } else {
+                try {
+                  this.getUIContext().getPromptAction().showToast({ message: $r('app.string.add_picture_prompt') });
+                } catch (err) {
+                  hilog.error(DOMAIN, TAG, FORMAT,
+                    `ShowToast failed. Cause code: ${err.code}, message: ${err.message}`);
+                }
               }
-            };
-            const buffer: ArrayBuffer = mItemPixelMapData.buffer.slice(mItemPixelMapData.byteOffset,
-              mItemPixelMapData.byteOffset + mItemPixelMapData.byteLength);
-            const pixelMap = await image.createPixelMap(buffer, opts);
-            if (this.imageUriArray.length < CommonConstants.MAX_ADD_PIC) {
-              let uuid = util.generateRandomUUID();
-              this.PixelMapToBuffer(pixelMap, uuid);
-              this.imageUriArray.push({ imagePixelMap: pixelMap, imageName: uuid });
             } else {
-              this.getUIContext().getPromptAction().showToast({ message: $r('app.string.add_picture_prompt') });
+              // Convert the image from imageUri to PixelMap.
+              this.uri2pixelMap((records[i] as unifiedDataChannel.Image).imageUri);
             }
-          } else {
-            // Convert the image from imageUri to PixelMap.
-            this.uri2pixelMap((records[i] as unifiedDataChannel.Image).imageUri);
           }
+          event.useCustomDropAnimation = false;
+          // If the result is explicitly set to successful, pass this value to the onDragEnd of the dragging party.
+          event.setResult(DragResult.DRAG_SUCCESSFUL);
+        } catch (err) {
+          hilog.error(DOMAIN, TAG, FORMAT, `GetData failed. Cause code: ${err.code}, message: ${err.message}`);
         }
-        event.useCustomDropAnimation = false;
-        // If the result is explicitly set to successful, pass this value to the onDragEnd of the dragging party.
-        event.setResult(DragResult.DRAG_SUCCESSFUL);
         // [EndExclude onDrop]
       })
     })
@@ -362,7 +395,12 @@ export struct AddPic {
                 // [StartExclude onDrop]
                 // The result value obtained from onDragEnd is set by the recipient onDrop.
                 if (event.getResult() === DragResult.DRAG_FAILED) {
-                  this.getUIContext().getPromptAction().showToast({ duration: 100, message: 'Drag failed' });
+                  try {
+                    this.getUIContext().getPromptAction().showToast({ duration: 100, message: 'Drag failed' });
+                  } catch (err) {
+                    hilog.error(DOMAIN, TAG, FORMAT,
+                      `ShowToast failed. Cause code: ${err.code}, message: ${err.message}`);
+                  }
                 }
                 // [EndExclude onDrop]
               })// [StartExclude onDrop]
@@ -397,7 +435,11 @@ export struct AddPic {
     .bindMenu(this.pasteShow, this.paste(), {
       onDisappear: () => {
         if (this.toastShow) {
-          this.getUIContext().getPromptAction().showToast({ message: $r('app.string.add_picture_prompt') });
+          try {
+            this.getUIContext().getPromptAction().showToast({ message: $r('app.string.add_picture_prompt') });
+          } catch (err) {
+            hilog.error(DOMAIN, TAG, FORMAT, `ShowToast failed. Cause code: ${err.code}, message: ${err.message}`);
+          }
           this.toastShow = false;
         }
       }
@@ -421,7 +463,11 @@ export struct AddPic {
           if (this.imageUriArray.length < CommonConstants.MAX_ADD_PIC) {
             this.selectImage();
           } else {
-            this.getUIContext().getPromptAction().showToast({ message: $r('app.string.add_picture_prompt') });
+            try {
+              this.getUIContext().getPromptAction().showToast({ message: $r('app.string.add_picture_prompt') });
+            } catch (err) {
+              hilog.error(DOMAIN, TAG, FORMAT, `ShowToast failed. Cause code: ${err.code}, message: ${err.message}`);
+            }
           }
         })
       createCollaborationServiceMenuItems([CollaborationServiceFilter.ALL], 9)
@@ -442,7 +488,7 @@ export struct AddPic {
           .fontColor([$r('sys.color.font_primary')])
         Text(this.imageUriArray.length === 0 ? $r('app.string.add_high_img') :
           (this.imageUriArray.length < CommonConstants.MAX_ADD_PIC ? $r('app.string.continue_add') :
-          $r('app.string.image_add')))
+            $r('app.string.image_add')))
           .fontSize($r('app.integer.text_size_body3'))
           .fontColor($r('app.color.add_image_background'))
           .margin({ top: $r('app.integer.comm_padding_margin_mini') })

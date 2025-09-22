@@ -29,6 +29,7 @@ This sample demonstrates how to implement transfer of text and images across app
 │  ├──pages
 │  │  └──Home.ets                             // Homepage      
 │  ├──utils
+│  │  ├──BreakpointSystem.ets                 // A multi-breakpoint tool class
 │  │  ├──FileUtil.ets                         // Image selection utility class
 │  │  └──LocationUtil.ets                     // Local location utility class
 │  └──view

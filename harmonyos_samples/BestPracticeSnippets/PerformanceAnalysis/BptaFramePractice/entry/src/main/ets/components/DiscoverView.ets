@@ -13,10 +13,6 @@
 * limitations under the License.
 */
 
-/*
-* 最佳实践: 分析帧率问题
-*/
-
 // [Start discover_view]
 @Component
 struct DiscoverView {

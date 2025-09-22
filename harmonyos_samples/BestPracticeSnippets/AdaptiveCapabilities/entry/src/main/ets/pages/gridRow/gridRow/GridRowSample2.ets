@@ -26,12 +26,12 @@ struct GridRowSample2 {
       Column() {
       }
       .width('100%')
-      .backgroundColor('#19000000')
+      .backgroundColor($r('sys.color.comp_background_secondary'))
 
-      // Content area, resizable range: [550vp, 50vp].
+       // Content area.
       GridRow({
         breakpoints: {
-          value: ['100vp', '200vp', '300vp', '400vp', '500vp'],
+          value: ['320vp', '600vp', '840vp', '1440vp'],
           reference: BreakpointsReference.ComponentSize
         }
       }) {
@@ -41,8 +41,7 @@ struct GridRowSample2 {
             sm: 12,
             md: 12,
             lg: 12,
-            xl: 12,
-            xxl: 12
+            xl: 12
           }
         }) {
           Row() {
@@ -57,7 +56,7 @@ struct GridRowSample2 {
         }
       }
       .onBreakpointChange((currentBreakpoint: string) => {
-        this.currentBreakpoint = currentBreakpoint
+        this.currentBreakpoint = currentBreakpoint;
       })
       .width('100%')
     }
@@ -70,5 +69,4 @@ struct GridRowSample2 {
     .maxSideBarWidth(600)
   }
 }
-
 // [End GridRowSample2]

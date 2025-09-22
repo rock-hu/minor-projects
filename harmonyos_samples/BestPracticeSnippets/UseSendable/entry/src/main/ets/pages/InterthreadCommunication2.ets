@@ -20,22 +20,29 @@
 // Index.ets
 import { taskpool } from '@kit.ArkTS';
 import singleton from 'libentry.so';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
+// [StartExclude store]
+const DOMAIN = 0x0000;
+const TAG = 'ConcurrencyCapabilitySelection2';
+const FORMAT = '%{public}s';
+// [EndExclude store]
 @Concurrent
 function getAddress() {
   let address = singleton.getAddress();
-  console.info('taskpool:: address is ' + address);
+  hilog.info(0x0000, 'TAG', '%{public}s', 'taskpool:: address is ' + address);
 }
 
 @Concurrent
 function store(a: number, b: number, c: number) {
   let size = singleton.getSetSize();
-  console.info('set size is ' + size + ' before store');
+  hilog.info(0x0000, 'TAG', '%{public}s', 'set size is ' + size + ' before store');
   singleton.store(a);
   singleton.store(b);
   singleton.store(c);
   size = singleton.getSetSize();
-  console.info('set size is ' + size + ' after store');
+  hilog.info(0x0000, 'TAG', '%{public}s', 'set size is ' + size + ' after store');
 }
 
 @Entry
@@ -47,13 +54,24 @@ struct Index {
         Button('TestSingleton')
           .onClick(() => {
             let address = singleton.getAddress();
-            console.info('host thread address is ' + address);
+            hilog.info(DOMAIN, TAG, FORMAT, `host thread address is ${address}`);
             let task1 = new taskpool.Task(getAddress);
-            taskpool.execute(task1);
+            taskpool.execute(task1).catch((err: BusinessError) => {
+              hilog.error(DOMAIN, TAG, FORMAT,
+                `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
+            });
+
             let task2 = new taskpool.Task(store, 1, 2, 3);
-            taskpool.execute(task2);
+            taskpool.execute(task2).catch((err: BusinessError) => {
+              hilog.error(DOMAIN, TAG, FORMAT,
+                `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
+            });
+
             let task3 = new taskpool.Task(store, 4, 5, 6);
-            taskpool.execute(task3);
+            taskpool.execute(task3).catch((err: BusinessError) => {
+              hilog.error(DOMAIN, TAG, FORMAT,
+                `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
+            });
           })
       }
       .width('100%')
@@ -61,5 +79,4 @@ struct Index {
     .height('100%')
   }
 }
-
 // [End store]

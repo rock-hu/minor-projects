@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { mediaquery } from "@kit.ArkUI";
+import { mediaquery } from '@kit.ArkUI';
 
 // [Start MediaQuery]
 export type BreakpointType = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
@@ -70,7 +70,7 @@ export class BreakpointSystem {
         if (mediaQueryResult.matches) {
           this.updateAllState(breakpoint.name);
         }
-      })
+      });
     })
   }
 
@@ -79,7 +79,7 @@ export class BreakpointSystem {
   }
 
   public stop() {
-    this.breakpoints.forEach((breakpoint: Breakpoint, index) => {
+    this.breakpoints.forEach((breakpoint: Breakpoint) => {
       if (breakpoint.mediaQueryListener) {
         breakpoint.mediaQueryListener.off('change');
       }

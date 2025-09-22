@@ -13,12 +13,19 @@
  * limitations under the License.
  */
 
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import { UIAbility } from '@kit.AbilityKit';
 import { window } from '@kit.ArkUI';
-import { hilog } from '@kit.PerformanceAnalysisKit';
 import Logger from '../model/Logger';
 
+const DOMAIN = 0x0000;
+const TAG = 'EntryAbility';
+const FORMAT = '%{public}s';
+
 export default class MainAbility extends UIAbility {
+  windowClass: window.Window | undefined = undefined;
+
   onCreate() {
     Logger.info('[Sample_AdaptiveCapabilities]', 'MainAbility onCreate');
   }
@@ -30,15 +37,51 @@ export default class MainAbility extends UIAbility {
   onWindowStageCreate(windowStage: window.WindowStage) {
     // Main window is created, set main page for this ability
     Logger.info('[Sample_AdaptiveCapabilities]', 'onWindowStageCreate');
-    windowStage.loadContent('pages/Index', (err) => {
-      if (err.code) {
-        hilog.error(0x0000, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err) ?? '');
+
+
+    windowStage.getMainWindow((err: BusinessError, data) => {
+      const errCode: number = err.code;
+      if (errCode) {
+        hilog.error(DOMAIN, TAG, FORMAT,
+          `Failed to obtain the main window. Cause code: ${err.code}, message: ${err.message}`);
         return;
       }
-      hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
-      let windowObj = windowStage.getMainWindowSync();
-      AppStorage.setOrCreate('windowObj', windowObj);
-      AppStorage.setOrCreate('uiContext', windowObj.getUIContext());
+      this.windowClass = data;
+      let isLayoutFullScreen = true;
+      try {
+        let promise = this.windowClass.setWindowLayoutFullScreen(isLayoutFullScreen).catch((err: BusinessError) => {
+          hilog.error(DOMAIN, TAG, FORMAT,
+            `Failed to set the window layout to full-screen mode. Cause code: ${err.code},message: ${err.message}`);
+        });
+        promise.then(() => {
+          hilog.info(DOMAIN, TAG, FORMAT, 'Succeeded in setting the window layout to full-screen mode.');
+        }).catch((err: BusinessError) => {
+          hilog.error(DOMAIN, TAG, FORMAT,
+            `Failed to set the window layout to full-screen mode. Cause code: ${err.code},message: ${err.message}`);
+        });
+      } catch (err) {
+        hilog.error(DOMAIN, TAG, FORMAT,
+          `Failed to set the window layout to full-screen mode. Cause code: ${err.code},message: ${err.message}`);
+      }
+      this.windowClass.setSpecificSystemBarEnabled('navigationIndicator', false).catch((err: BusinessError) => {
+        hilog.error(DOMAIN, TAG, FORMAT,
+          `Failed to set the system bar to be invisible. Cause code: ${err.code},message: ${err.message}`);
+      });
+    });
+
+    windowStage.loadContent('pages/Index', (err) => {
+      if (err.code) {
+        hilog.error(DOMAIN, TAG, FORMAT, 'Failed to load the content. Cause: %{public}s', JSON.stringify(err) ?? '');
+        return;
+      }
+      hilog.info(DOMAIN, TAG, FORMAT, 'Succeeded in loading the content.');
+      try {
+        let windowObj = windowStage.getMainWindowSync();
+        AppStorage.setOrCreate('windowObj', windowObj);
+        AppStorage.setOrCreate('uiContext', windowObj.getUIContext());
+      } catch (err) {
+        hilog.error(DOMAIN, TAG, FORMAT, `Failed. Cause code: ${err.code}, message: ${err.message}`);
+      }
     });
   }
 

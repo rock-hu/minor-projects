@@ -15,6 +15,8 @@
 
 import { promptAction } from '@kit.ArkUI';
 import { ViewCodeText } from '../../../../../commoncomponents/ViewCodeText';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 // The class of an element in an array.
 export class ArrayDataType {
@@ -86,9 +88,14 @@ export struct ArrayTypeCode {
       case 1:
         if (this.arrayTypeData.length === 0) {
           // When there is no data, click the delete button and a pop-up window will appear.
-          this.getUIContext().getPromptAction().showToast({
-            message: $r('app.string.array_type_deletetoast')
-          });
+          try {
+            this.getUIContext().getPromptAction().showToast({
+              message: $r('app.string.array_type_deletetoast')
+            });
+          } catch (error) {
+            let err = error as BusinessError;
+            hilog.error(0x0000, 'ArrayTypeCode', `showToast failed. code=${err.code}, message=${err.message}`);
+          }
         } else {
           // Array deletion element.
           this.arrayTypeData.splice(this.arrayTypeData.length - 1, 1); // 删除最后一个元素
@@ -97,9 +104,14 @@ export struct ArrayTypeCode {
       case 2:
         if (this.arrayTypeData.length === 0) {
           // When there is no data, click the update button and a pop-up window will appear.
-          this.getUIContext().getPromptAction().showToast({
-            message: $r('app.string.array_type_updatetoast')
-          });
+          try {
+            this.getUIContext().getPromptAction().showToast({
+              message: $r('app.string.array_type_updatetoast')
+            });
+          } catch (error) {
+            let err = error as BusinessError;
+            hilog.error(0x0000, 'ArrayTypeCode', `showToast failed. code=${err.code}, message=${err.message}`);
+          }
           break;
         }
       // Update array elements after initializing an object by assigning values to the elements in the array.

@@ -18,7 +18,14 @@
 */
 // [Start updatesab]
 import { taskpool } from '@kit.ArkTS';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
+// [StartExclude updatesab]
+const DOMAIN = 0x0000;
+const TAG = 'ConcurrentTaskManagement2';
+const FORMAT = '%{public}s';
+// [EndExclude updatesab]
 @Concurrent
 function updateSAB(args: Uint32Array) {
   if (args[0] == 0) {
@@ -39,15 +46,28 @@ let typedArray = new Uint32Array(sab);
 let task1 = new taskpool.Task(updateSAB, typedArray);
 let task2 = new taskpool.Task(updateSAB, typedArray);
 let task3 = new taskpool.Task(updateSAB, typedArray);
-task1.addDependency(task2);
-task2.addDependency(task3);
+try {
+  task1.addDependency(task2);
+  task2.addDependency(task3);
+} catch (err) {
+  hilog.error(DOMAIN, TAG, FORMAT, `sendData failed. Cause code: ${err.code},message: ${err.message}`);
+}
+
 taskpool.execute(task1).then((res: object) => {
-  console.info('taskpool:: execute task1 res: ' + res);
-})
+  hilog.info(DOMAIN, TAG, FORMAT, 'taskpool:: execute task1 res: ' + res);
+}).catch((err: BusinessError) => {
+  hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
+});
+
 taskpool.execute(task2).then((res: object) => {
-  console.info('taskpool:: execute task2 res: ' + res);
-})
+  hilog.info(DOMAIN, TAG, FORMAT, 'taskpool:: execute task2 res: ' + res);
+}).catch((err: BusinessError) => {
+  hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
+});
+
 taskpool.execute(task3).then((res: object) => {
-  console.info('taskpool:: execute task3 res: ' + res);
-})
+  hilog.info(DOMAIN, TAG, FORMAT, 'taskpool:: execute task3 res: ' + res);
+}).catch((err: BusinessError) => {
+  hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
+});
 // [End updatesab]

@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
 import { City, getSideBg, MyDataSource, Style } from 'common';
 
 @Entry

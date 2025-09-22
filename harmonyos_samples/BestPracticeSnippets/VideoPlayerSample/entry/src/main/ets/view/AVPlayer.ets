@@ -314,7 +314,7 @@ export struct VideoPlayer {
           .onActionStart(() => {
           })
           .onActionUpdate((event: GestureEvent) => {
-            if (event.fingerList[0].globalX > (820 / 2)) {
+            if (event.fingerList[0].globalX > (CommonConstants.FULL_SCREEN_WIDTH / 2)) {
               // On the right side of the screen relative to the X-axis coordinate in the upper left corner of the application window, adjust the brightness.
               this.visible = true;
               let curBrightness: number = this.screenBrightness - this.getUIContext().vp2px(event.offsetY) / this.getUIContext().vp2px(this.screenHeight);

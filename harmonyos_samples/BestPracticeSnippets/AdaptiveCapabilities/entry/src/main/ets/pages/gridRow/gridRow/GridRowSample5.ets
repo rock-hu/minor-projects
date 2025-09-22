@@ -29,17 +29,19 @@ struct GridRowSample5 {
   ];
 
   build() {
-    GridRow() {
+    GridRow({ columns: { sm: 12, md: 12, lg: 12 } }) {
       ForEach(this.elements, (item: ColorArr) => {
         GridCol({ span: { sm: 6, md: item.index % 3 === 0 ? 0 : 4, lg: 3 } }) {
           Row() {
-            Text(`${item.index}`).fontSize(24)
+            Text(`${item.index}`)
+              .fontSize(24)
           }
           .justifyContent(FlexAlign.Center)
           .backgroundColor(item.color)
           .height(30)
+          .width('100%')
         }
-      }, (item: ColorArr, index: number) => JSON.stringify(item) + index)
+      }, (item: ColorArr, index: number) => (item.index + index).toString())
     }
   }
 }

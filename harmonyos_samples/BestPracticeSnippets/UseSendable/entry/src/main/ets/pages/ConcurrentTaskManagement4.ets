@@ -17,10 +17,19 @@
 * 最佳实践: 应用并发设计 并发任务管理 多任务优先级调度
 */
 // [Start execcolorinfo]
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import { taskpool } from '@kit.ArkTS';
+import { BusinessError } from '@kit.BasicServicesKit';
 
+// [StartExclude execcolorinfo]
+const DOMAIN = 0x0000;
+const TAG = 'ConcurrentTaskManagement4';
+const FORMAT = '%{public}s';
+// [EndExclude execcolorinfo]
 function exec(bufferArray: ArrayBuffer): void {
-  taskpool.execute(execColorInfo, bufferArray, taskpool.Priority.HIGH);
+  taskpool.execute(execColorInfo, bufferArray, taskpool.Priority.HIGH).catch((error: BusinessError) => {
+    hilog.error(DOMAIN, TAG, FORMAT, `taskpool excute error: ${error}`);
+  });
 }
 
 @Concurrent

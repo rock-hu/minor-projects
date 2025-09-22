@@ -28,7 +28,8 @@ struct ScrollToTheBottom {
       // [EndExclude Scroller]
       // [Start initialIndex]
       List({ space: 20, initialIndex: this.arr.length - 1, scroller: this.scroller }) {
-        // [End Scroller]
+        // [StartExclude Scroller]
+
         ForEach(this.arr, (item: number) => {
           ListItem() {
             // [StartExclude initialIndex]
@@ -44,7 +45,9 @@ struct ScrollToTheBottom {
           .borderRadius(16)
           .backgroundColor(0xDCDCDC)
         }, (item: string) => item)
+        // [EndExclude Scroller]
       }
+      // [End Scroller]
       // [End initialIndex]
       .scrollBar(BarState.Off)
       .friction(0.6)

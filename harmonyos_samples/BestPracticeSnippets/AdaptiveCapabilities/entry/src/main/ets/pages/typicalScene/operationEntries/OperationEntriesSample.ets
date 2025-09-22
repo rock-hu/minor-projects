@@ -20,7 +20,7 @@ class OperationItem {
 
 @Entry
 @Component
-export default struct OperationEntries {
+struct OperationEntries {
   private listData: Array<OperationItem> = [
     { name: $r('app.string.operation1'), icon: $r('app.media.self_fm') },
     { name: $r('app.string.operation2'), icon: $r('app.media.singer') },

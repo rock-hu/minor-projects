@@ -15,6 +15,8 @@
 
 import { webview } from '@kit.ArkWeb';
 import { TitleBar } from './TitleBar';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 @Component
 export struct CodeView {
@@ -27,7 +29,12 @@ export struct CodeView {
   private controller: webview.WebviewController = new webview.WebviewController();
 
   webSrcChange():void {
-    this.controller.loadUrl(this.webSrc);
+    try {
+      this.controller.loadUrl(this.webSrc);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'CodeView', `loadUrl failed. code=${err.code}, message=${err.message}`);
+    }
   }
 
   @Builder codeView() {

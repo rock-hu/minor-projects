@@ -17,10 +17,14 @@
 * 最佳实践: 应用并发设计 线程间通信 线程间不可变数据共享
 */
 // [Start globalconfig]
-// xxx.ets
 import { worker } from '@kit.ArkTS';
 import { freezeObj } from './freezeObj';
-
+import { hilog } from '@kit.PerformanceAnalysisKit';
+// [StartExclude globalconfig]
+const DOMAIN = 0x0000;
+const TAG = 'ConcurrencyCapabilitySelection2';
+const FORMAT = '%{public}s';
+// [EndExclude globalconfig]
 @Sendable
 export class GlobalConfig {
   // Some configuration properties and methods
@@ -30,8 +34,12 @@ export class GlobalConfig {
   }
 }
 
-let globalConfig = new GlobalConfig();
-globalConfig.init();
-const workerInstance = new worker.ThreadWorker('entry/ets/workers/Worker.ets`', { name: 'Worker1' });
-workerInstance.postMessage(globalConfig);
+try {
+  let globalConfig = new GlobalConfig();
+  globalConfig.init();
+  const workerInstance = new worker.ThreadWorker('entry/ets/workers/Worker.ets`', { name: 'Worker1' });
+  workerInstance.postMessage(globalConfig);
+} catch (err) {
+  hilog.error(DOMAIN, TAG, FORMAT, `postMessage failed. Cause code: ${err.code},message: ${err.message}`);
+}
 // [End globalconfig]

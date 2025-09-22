@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
 import UpdateTimeDialog from './UpdateTimeDialog';
 import { getMenuInfo, MenuData, Style } from 'common';
 

@@ -19,7 +19,7 @@ import { BreakpointSystem, BreakpointState } from './Breakpoint';
 @Entry
 @Component
 struct BreakpointSample {
-  @State compStr: BreakpointState<string> = BreakpointState.of({ sm: "sm", md: "md", lg: "lg" })
+  @State compStr: BreakpointState<string> = BreakpointState.of({ sm: 'sm', md: 'md', lg: 'lg' })
   @State compImg: BreakpointState<Resource> = BreakpointState.of({
     sm: $r('app.media.sm_new'),
     md: $r('app.media.md_new'),

@@ -1,7 +1,0 @@
-{
-  "src": [
-    "view/Funding",
-    "view/FundingDetail",
-    "view/TrendsPage"
-  ]
-}

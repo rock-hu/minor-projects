@@ -13,40 +13,47 @@
  * limitations under the License.
  */
 
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import { ArticlesData, Articles } from '../../data/home/Home';
+
+const DOMAIN = 0x0000;
+const TAG = 'DirectoryList';
+const FORMAT = '%{public}s';
 
 @Component
 export struct HomePage {
   private swiperController: SwiperController = new SwiperController()
   private bannerArr: Array<Resource> = [
-  $r('app.media.banner1'),
-  $r('app.media.banner2'),
-  $r('app.media.banner3'),
-  $r('app.media.banner4'),
-  $r('app.media.banner5'),
-  $r('app.media.banner6')
-  ]
-  @State imgHeight: number = 0
-  @State textHeight: number = 0
-  @State spaceBottom: number = 0
-  @State currentBreakpoint: string = 'md'
+    $r('app.media.banner1'),
+    $r('app.media.banner2'),
+    $r('app.media.banner3'),
+    $r('app.media.banner4'),
+    $r('app.media.banner5'),
+    $r('app.media.banner6')
+  ];
+  @State imgHeight: number = 0;
+  @State textHeight: number = 0;
+  @State spaceBottom: number = 0;
+  @State currentBreakpoint: string = 'md';
 
   constructor() {
     super()
   }
 
-  @Builder Item(article: Articles) {
+  @Builder
+  Item(article: Articles) {
     Flex() {
       Row() {
         Image(article.icon)
-      }.width(43)
+      }
+      .width(43)
       .height(43)
       .borderRadius(12)
 
       Column() {
         Row() {
           Text(article.title)
-            .fontColor('#182431')
+            .fontColor($r('sys.color.font_primary'))
             .fontSize(20)
         }
         .width('100%')
@@ -54,7 +61,7 @@ export struct HomePage {
         Row() {
           Text(article.disc)
             .fontSize(15)
-            .fontColor('#182431')
+            .fontColor($r('sys.color.font_primary'))
             .opacity(0.4)
         }
         .width('100%')
@@ -63,8 +70,13 @@ export struct HomePage {
       .alignItems(HorizontalAlign.Start)
       .justifyContent(FlexAlign.SpaceAround)
     }
-    .padding({ top: 13, bottom: 13, left: 13, right: 13 })
-    .backgroundColor('#FFFFFF')
+    .padding({
+      top: 13,
+      bottom: 13,
+      left: 13,
+      right: 13
+    })
+    .backgroundColor($r('sys.color.comp_background_primary'))
     .borderRadius(25)
   }
 
@@ -79,7 +91,8 @@ export struct HomePage {
                 ForEach(this.bannerArr, (item: Resource) => {
                   Image(item)
                 })
-              }.width('100%')
+              }
+              .width('100%')
             }
             .width('100%')
             .aspectRatio(1.5)
@@ -89,29 +102,30 @@ export struct HomePage {
           .justifyContent(FlexAlign.Center)
         }
         .onAreaChange((oldArea: Area, newArea: Area) => {
-          this.imgHeight = newArea.height as number
-          console.log(String(this.imgHeight))
+          this.imgHeight = newArea.height as number;
+          hilog.info(DOMAIN, TAG, FORMAT, `oldArea: ${oldArea}, newArea: ${newArea}, newArea: ${this.imgHeight}`);
         })
 
         GridCol({ span: { sm: 12, md: 6, lg: 6 } }) {
           Column() {
             List({ space: 10, initialIndex: 0 }) {
-              ForEach(ArticlesData, (item : Articles) => {
+              ForEach(ArticlesData, (item: Articles) => {
                 ListItem() {
                   this.Item(item)
                 }
               })
             }
-            .listDirection(Axis.Vertical) // 排列方向
-            .edgeEffect(EdgeEffect.Spring) // 滑动到边缘无效果
+            .listDirection(Axis.Vertical) // orientation
+            .edgeEffect(EdgeEffect.Spring) // There is no effect when sliding to the edge.
             .onScrollIndex((firstIndex: number, lastIndex: number) => {
-              console.info('first' + firstIndex)
-              console.info('last' + lastIndex)
+              hilog.info(DOMAIN, TAG, FORMAT, `first: ${firstIndex}`);
+              hilog.info(DOMAIN, TAG, FORMAT, `last: ${lastIndex}`);
             })
             .width('100%')
           }
           .onAreaChange((oldArea: Area, newArea: Area) => {
-            this.textHeight = newArea.height as number
+            hilog.info(DOMAIN, TAG, FORMAT, `oldArea: ${oldArea}, newArea: ${newArea}`);
+            this.textHeight = newArea.height as number;
           })
           .padding({ left: 15, right: 15 })
           .justifyContent(FlexAlign.Center)
@@ -120,14 +134,14 @@ export struct HomePage {
 
       }
       .onBreakpointChange((breakPoint: string) => {
-        this.currentBreakpoint = breakPoint
+        this.currentBreakpoint = breakPoint;
         if (breakPoint === 'sm') {
-          this.spaceBottom = 20
+          this.spaceBottom = 20;
         } else {
-          this.spaceBottom = 0
+          this.spaceBottom = 0;
         }
       })
-
-    }.width('100%')
+    }
+    .width('100%')
   }
 }

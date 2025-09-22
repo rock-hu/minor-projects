@@ -46,7 +46,7 @@ export struct Applications {
         }.width('80%')
       }
       .width('90%')
-      .backgroundColor('#FFFFFF')
+      .backgroundColor($r('sys.color.comp_background_primary'))
       .borderRadius(16)
       .padding({ top: 12 })
     }

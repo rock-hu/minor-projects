@@ -17,7 +17,7 @@ import { BreakpointSystem, BreakPointType } from '../../../common/BreakpointSyst
 
 @Entry
 @Component
-export default struct Banner {
+struct Banner {
   private bannerArr: Array<Resource> = [
     $r('app.media.banner1'),
     $r('app.media.banner2'),

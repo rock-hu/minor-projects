@@ -50,12 +50,12 @@ struct DiversionSample {
   NavigationTitle() {
     Column() {
       Text($r('app.string.multiScene_header_title'))
-        .fontColor('#182431')
+        .fontColor($r('sys.color.font_primary'))
         .fontSize(30)
         .lineHeight(41)
         .fontWeight(700)
       Text($r('app.string.multiScene_header_subtitle'))
-        .fontColor('#182431')
+        .fontColor($r('sys.color.font_primary'))
         .fontSize(14)
         .lineHeight(19)
         .opacity(0.4)
@@ -126,7 +126,7 @@ struct DiversionSample {
         .titleMode(NavigationTitleMode.Full)
       }
       .height('100%')
-      .backgroundColor('#F1F3f5')
+      .backgroundColor($r('sys.color.background_secondary'))
     }
   }
 }

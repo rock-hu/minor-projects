@@ -29,7 +29,7 @@ struct GridRowSample8 {
   ];
 
   build() {
-    GridRow() {
+    GridRow({ columns: { sm: 12, md: 12, lg: 12 } }) {
       ForEach(this.elements, (item: ColorArr) => {
         // If the values of the three parameters are not configured at the md breakpoint, they will inherit the values from the sm breakpoint.
         GridCol({
@@ -44,8 +44,9 @@ struct GridRowSample8 {
           .justifyContent(FlexAlign.Center)
           .backgroundColor(item.color)
           .height(30)
+          .width('100%')
         }
-      }, (item: ColorArr, index: number) => JSON.stringify(item) + index)
+      }, (item: ColorArr, index: number) => (item.index + index).toString())
     }
   }
 }

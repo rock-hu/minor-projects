@@ -13,9 +13,13 @@
  * limitations under the License.
  */
 
+import { BusinessError } from '@kit.BasicServicesKit';
 import { geoLocationManager } from '@kit.LocationKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-import { BusinessError } from '@kit.BasicServicesKit';
+
+const DOMAIN = 0x0000;
+const TAG = 'LocationUtil';
+const FORMAT = '%{public}s';
 
 class LocationUtil {
   geolocationOn(locationChange: (location: geoLocationManager.Location) => void): void {
@@ -29,7 +33,7 @@ class LocationUtil {
     try {
       geoLocationManager.on('locationChange', requestInfo, locationChange);
     } catch (err) {
-      hilog.error(0x0000, '[EntryAbility]', 'locationChange error:' + JSON.stringify(err));
+      hilog.error(DOMAIN, TAG, FORMAT, 'locationChange error:' + JSON.stringify(err));
     }
   }
 
@@ -38,7 +42,11 @@ class LocationUtil {
   }
 
   geolocationOff(): void {
-    geoLocationManager.off('locationChange');
+    try {
+      geoLocationManager.off('locationChange');
+    } catch (err) {
+      hilog.error(DOMAIN, TAG, FORMAT, `Off locationChange failed. Cause code: ${err.code}, message: ${err.message}`);
+    }
   }
 }
 

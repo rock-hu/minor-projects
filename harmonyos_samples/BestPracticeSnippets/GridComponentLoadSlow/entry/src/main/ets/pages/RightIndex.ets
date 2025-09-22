@@ -79,7 +79,10 @@ export struct GridExample2 {
 
   build() {
     Column({ space: 5 }) {
-      Text('使用GridLayoutOptions设置GridItem大小').fontColor(0xCCCCCC).fontSize(9).width('90%')
+      Text('使用GridLayoutOptions设置GridItem大小')
+        .fontColor(0xCCCCCC)
+        .fontSize(9)
+        .width('90%')
       Grid(this.scroller, this.layoutOptions) {
         LazyForEach(this.datasource, (item: string, index: number) => {
           GridItem() {

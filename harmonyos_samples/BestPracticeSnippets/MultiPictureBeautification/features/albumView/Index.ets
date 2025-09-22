@@ -1,1 +1,0 @@
-export { AlbumView } from './src/main/ets/views/AlbumView';

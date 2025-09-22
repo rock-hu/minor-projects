@@ -13,19 +13,35 @@
  * limitations under the License.
  */
 
-import { DirectoryItem, DirectoryList } from '../common/DirectoryList'
+import { DirectoryItem, DirectoryList } from '../common/DirectoryList';
 
 @Entry
 @Component
 struct Index {
   private directory: DirectoryItem[] = [
-    { title: $r('app.string.atomic_capability'), uri: 'pages/atomicLayoutCapability/AtomicLayoutCapabilityIndex', id:'AtomicLayoutCapabilityIndex' },
-    { title: $r('app.string.responsive_layout'), uri: 'pages/responsiveLayout/ResponsiveLayoutIndex', id:'ResponsiveLayoutIndex' },
-    { title: $r('app.string.typical_scenario'), uri: 'pages/typicalScene/TypicalSceneIndex', id:'TypicalSceneIndex' },
-    { title: $r('app.string.resource_qualifier'), uri: 'pages/resourceQualifier/ResourceQualifier', id:'ResourceQualifier' },
-    { title: $r('app.string.interaction_norm_capability'), uri: 'pages/interactionNormCapability/InteractionNormCapability', id:'InteractionNormCapability' }
-  ]
-  @State inSetValue: number = 40
+    {
+      title: $r('app.string.atomic_capability'),
+      uri: 'pages/atomicLayoutCapability/AtomicLayoutCapabilityIndex',
+      id: 'AtomicLayoutCapabilityIndex'
+    },
+    {
+      title: $r('app.string.responsive_layout'),
+      uri: 'pages/responsiveLayout/ResponsiveLayoutIndex',
+      id: 'ResponsiveLayoutIndex'
+    },
+    { title: $r('app.string.typical_scenario'), uri: 'pages/typicalScene/TypicalSceneIndex', id: 'TypicalSceneIndex' },
+    {
+      title: $r('app.string.resource_qualifier'),
+      uri: 'pages/resourceQualifier/ResourceQualifier',
+      id: 'ResourceQualifier'
+    },
+    {
+      title: $r('app.string.interaction_norm_capability'),
+      uri: 'pages/interactionNormCapability/InteractionNormCapability',
+      id: 'InteractionNormCapability'
+    }
+  ];
+  @State inSetValue: number = 40;
 
   build() {
     Column() {

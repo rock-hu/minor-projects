@@ -29,13 +29,13 @@ struct GridRowSample9 {
   ];
 
   build() {
-    GridRow() {
+    GridRow({ columns: { sm: 12, md: 12, lg: 12 } }) {
       GridCol({
         span: { sm: 12, md: 10, lg: 8 },
         offset: { sm: 0, md: 1, lg: 2 }
       }) {
-        GridRow() {
-          ForEach(this.elements, (item : ColorArr) => {
+        GridRow({ columns: { sm: 12, md: 12, lg: 12 } }) {
+          ForEach(this.elements, (item: ColorArr) => {
             GridCol({ span: { sm: 6, md: 4, lg: 3 } }) {
               Row() {
                 Text(`${item.index}`)
@@ -44,10 +44,11 @@ struct GridRowSample9 {
               .justifyContent(FlexAlign.Center)
               .backgroundColor(item.color)
               .height(30)
+              .width('100%')
             }
           }, (item: ColorArr, index: number) => JSON.stringify(item) + index)
         }
-        .backgroundColor('#19000000')
+        .backgroundColor($r('sys.color.comp_background_secondary'))
         .height('100%')
       }
     }

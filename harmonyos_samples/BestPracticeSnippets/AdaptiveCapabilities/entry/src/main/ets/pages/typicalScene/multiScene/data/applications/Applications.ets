@@ -48,4 +48,4 @@ export const ApplicationsData: Resource [] = [
   $r('app.string.multiScene_application'),
   $r('app.string.multiScene_application'),
   $r('app.string.multiScene_application')
-]
+];

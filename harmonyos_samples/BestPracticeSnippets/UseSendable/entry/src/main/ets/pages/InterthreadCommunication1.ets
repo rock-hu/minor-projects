@@ -17,9 +17,13 @@
 * 最佳实践: 应用并发设计 线程间通信 跨语言多线程通信（C++与ArkTS）
 */
 // [Start inter_thread_communication1]
-// xxx.ets
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import nativeModule from 'libentry.so';
-
+// [StartExclude inter_thread_communication1]
+const DOMAIN = 0x0000;
+const TAG = 'InterthreadCommunication1';
+const FORMAT = '%{public}s';
+// [EndExclude inter_thread_communication1]
 @Entry
 @Component
 struct InterthreadCommunication1 {
@@ -27,7 +31,7 @@ struct InterthreadCommunication1 {
     Button('click me')
       .onClick(() => {
         nativeModule.nativeCall((a: number) => {
-          console.log('Received data from thread-function: %{public}d', a);
+          hilog.info(DOMAIN, TAG, FORMAT, 'Received data from thread-function: %{public}d', a);
         })
       })
   }
@@ -42,7 +46,7 @@ struct TestCode {
     Button('click me')
       .onClick(() => {
         nativeModule.nativeCall((a: number) => {
-          console.log('Received data from thread-function: %{public}d', a);
+          hilog.info(DOMAIN, TAG, FORMAT, 'Received data from thread-function: %{public}d', a);
         })
       })
   }

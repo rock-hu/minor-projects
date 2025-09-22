@@ -17,8 +17,14 @@
 * 最佳实践: 应用并发设计 并发任务管理 多任务关联执行（串行顺序依赖）
 */
 // [Start seq_runner]
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import { taskpool } from '@kit.ArkTS';
-
+// [StartExclude seq_runner]
+const DOMAIN = 0x0000;
+const TAG = 'ConcurrentTaskManagement1';
+const FORMAT = '%{public}s';
+// [EndExclude seq_runner]
 @Concurrent
 function additionDelay(delay: number): void {
   let start: number = new Date().getTime();
@@ -42,15 +48,26 @@ async function seqRunner() {
   let runner: taskpool.SequenceRunner = new taskpool.SequenceRunner();
   runner.execute(task1).then(() => {
     result += 'a';
+  }).catch((err: BusinessError) => {
+    hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
   });
+
   runner.execute(task2).then(() => {
     result += 'b';
+  }).catch((err: BusinessError) => {
+    hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
   });
+
   runner.execute(task3).then(() => {
     result += 'c';
+  }).catch((err: BusinessError) => {
+    hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
   });
-  await runner.execute(task4);
-  console.info('SequenceRunner: result is ' + result);
-}
 
+  await runner.execute(task4).catch((err: BusinessError) => {
+    hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
+  });
+  hilog.info(DOMAIN, TAG, FORMAT, 'SequenceRunner: result is ' + result);
+}
 // [End seq_runner]
+seqRunner();

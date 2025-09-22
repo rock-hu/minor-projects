@@ -69,6 +69,18 @@
       "value": "在加载位置信息列表时，允许应用获取设备模糊位置信息"
     },
     {
+      "name": "permission_read_pasteboard",
+      "value": "允许应用读取剪贴板"
+    },
+    {
+      "name": "permission_read_imagevideo",
+      "value": "允许读取用户公共目录的图片或视频文件"
+    },
+    {
+      "name": "permission_distributed_datasync",
+      "value": "允许不同设备间的数据交换。"
+    },
+    {
       "name": "copy",
       "value": "复制"
     },

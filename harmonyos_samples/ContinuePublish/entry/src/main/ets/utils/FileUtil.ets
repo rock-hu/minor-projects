@@ -16,6 +16,10 @@
 import { photoAccessHelper } from '@kit.MediaLibraryKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
+const DOMAIN = 0x0000;
+const TAG = 'FileUtil';
+const FORMAT = '%{public}s';
+
 /*
  * Select a picture from the gallery.
  * @returns uri The uri for the selected file.
@@ -35,7 +39,7 @@ export async function fileSelect(): Promise<Array<string>> {
       return [];
     }
   } catch (error) {
-    hilog.error(0x0000, '[FileUtil]', `PhotoViewPicker failed with err: ${error.code}, ${error.message}`);
+    hilog.error(DOMAIN, TAG, FORMAT, `PhotoViewPicker failed with err: ${error.code}, ${error.message}`);
     return [];
   }
 }

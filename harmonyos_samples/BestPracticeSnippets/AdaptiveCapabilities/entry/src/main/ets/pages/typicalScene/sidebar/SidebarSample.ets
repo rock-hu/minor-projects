@@ -29,7 +29,7 @@ const images: ImageData[] = [
 @Component
 struct SideBarSample {
   @StorageLink('currentBreakpoint')
-  private currentBreakpoint: string = "md"
+  private currentBreakpoint: string = 'md'
   private breakpointSystem: BreakpointSystem = new BreakpointSystem()
   @State showSideBar: boolean = false
   @State selectIndex: number = 0
@@ -54,7 +54,7 @@ struct SideBarSample {
       .fontWeight(FontWeight.Bold)
       .borderRadius(5)
       .margin(20)
-      .backgroundColor('#ffffff')
+      .backgroundColor($r('sys.color.background_secondary'))
       .textAlign(TextAlign.Center)
       .width(180)
       .height(36)
@@ -71,7 +71,8 @@ struct SideBarSample {
       Column() {
         this.itemBuilder(0)
         this.itemBuilder(1)
-      }.backgroundColor('#F1F3F5')
+      }
+      .backgroundColor($r('sys.color.background_secondary'))
       .justifyContent(FlexAlign.Center)
 
       Column() {

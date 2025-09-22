@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 // [Start gestures_conflict_scene3]
 @Entry
@@ -33,9 +35,15 @@ struct GesturesConflictScene3 {
           .gesture(
             LongPressGesture({ repeat: true })
               .onAction((event: GestureEvent) => {
-              })// The long press action ends
+              })
+              // The long press action ends
               .onActionEnd(() => {
-                this.getUIContext().getPromptAction().showToast({ message: 'Long Press' });
+                try {
+                  this.getUIContext().getPromptAction().showToast({ message: 'Long Press' });
+                } catch (err) {
+                  let error = err as BusinessError;
+                  hilog.error(0x0000, 'testTag', `showToast err, code: ${error.code}, mesage: ${error.message}`);
+                }
               })
           )
       }

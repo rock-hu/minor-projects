@@ -46,14 +46,14 @@ struct WrapCapabilitySample {
         justifyContent: FlexAlign.Center,
         wrap: FlexWrap.Wrap
       }) {
-        ForEach(this.imageList, (item: Resource, index: number) => {
+        ForEach(this.imageList, (item: Resource) => {
           Image(item)
             .width(192)
             .height(138)
             .padding(10)
-        }, (item: Resource, index: number) => JSON.stringify(item) + index)
+        }, (item: Resource, index: number) => item.toString() + index)
       }
-      .backgroundColor('#FFFFFF')
+      .backgroundColor($r('sys.color.comp_background_primary'))
       .padding(20)
       .width(this.rate * 100 + '%')
       .borderRadius(16)
@@ -62,10 +62,9 @@ struct WrapCapabilitySample {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F1F3F5')
+    .backgroundColor($r('sys.color.background_secondary'))
     .alignItems(HorizontalAlign.Center)
     .justifyContent(FlexAlign.Center)
   }
 }
-
 // [End WrapCapabilitySample]

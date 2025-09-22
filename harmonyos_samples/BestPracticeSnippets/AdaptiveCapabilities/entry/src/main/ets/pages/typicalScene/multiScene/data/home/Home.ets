@@ -21,31 +21,31 @@ export interface Articles {
 
 export const ArticlesData: Articles[] = [
   {
-    icon: $r("app.media.icon"),
+    icon: $r('app.media.icon'),
     title: $r('app.string.multiScene_title1'),
     disc: $r('app.string.multiScene_title1_disc')
   },
   {
-    icon: $r("app.media.icon"),
+    icon: $r('app.media.icon'),
     title: $r('app.string.multiScene_title2'),
     disc: $r('app.string.multiScene_title2_disc')
   },
   {
-    icon: $r("app.media.icon"),
+    icon: $r('app.media.icon'),
     title: $r('app.string.multiScene_title3'),
     disc: $r('app.string.multiScene_title3_disc')
   },
   {
-    icon: $r("app.media.icon"),
+    icon: $r('app.media.icon'),
     title: $r('app.string.multiScene_title4'),
     disc: $r('app.string.multiScene_title4_disc')
   },
   {
-    icon: $r("app.media.icon"),
+    icon: $r('app.media.icon'),
     title: $r('app.string.multiScene_title5'),
     disc: $r('app.string.multiScene_title5_disc')
   },{
-    icon: $r("app.media.icon"),
+    icon: $r('app.media.icon'),
     title: $r('app.string.multiScene_title5'),
     disc: $r('app.string.multiScene_title5_disc')
   },{
@@ -54,7 +54,7 @@ export const ArticlesData: Articles[] = [
     disc: $r('app.string.multiScene_title6_disc')
   },
   {
-    icon: $r("app.media.icon"),
+    icon: $r('app.media.icon'),
     title: $r('app.string.multiScene_title7'),
     disc: $r('app.string.multiScene_title7_disc')
   },
@@ -73,7 +73,7 @@ export const ArticlesData: Articles[] = [
     title: $r('app.string.multiScene_title10'),
     disc: $r('app.string.multiScene_title10_disc')
   }
-]
+];
 
 
 

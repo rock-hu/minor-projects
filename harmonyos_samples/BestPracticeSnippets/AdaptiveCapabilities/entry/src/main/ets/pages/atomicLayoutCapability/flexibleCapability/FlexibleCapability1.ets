@@ -38,7 +38,7 @@ struct FlexibleCapability1 {
         Row()
           .width(150)
           .height(400)
-          .backgroundColor('#FFFFFF')
+          .backgroundColor($r('sys.color.comp_background_primary'))
           .flexGrow(0)
           .flexShrink(1)
         Image($r('app.media.illustrator'))
@@ -51,7 +51,7 @@ struct FlexibleCapability1 {
         Row()
           .width(150)
           .height(400)
-          .backgroundColor('#FFFFFF')
+          .backgroundColor($r('sys.color.comp_background_primary'))
           .flexGrow(0)
           .flexShrink(1)
       }
@@ -61,7 +61,7 @@ struct FlexibleCapability1 {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F1F3F5')
+    .backgroundColor($r('sys.color.background_secondary'))
     .alignItems(HorizontalAlign.Center)
     .justifyContent(FlexAlign.Center)
   }

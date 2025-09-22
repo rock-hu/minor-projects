@@ -14,6 +14,11 @@
  */
 
 import { window } from '@kit.ArkUI';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+
+const DOMAIN = 0x0000;
+const TAG = 'GetValueOnBreakpoint';
+const FORMAT = '%{public}s';
 
 export class Breakpoints {
   xs: number = 0;
@@ -22,7 +27,7 @@ export class Breakpoints {
   lg: number = 0;
 }
 
-// 全局断点接口
+// Global breakpoint interface
 export default function getValueOnBreakpoint(breakpointsLabels: string[], breakpoints: Breakpoints): string {
   if (breakpointsLabels.length < 4) {
     return '';
@@ -31,17 +36,22 @@ export default function getValueOnBreakpoint(breakpointsLabels: string[], breakp
   if (windowObj == undefined) {
     return '';
   }
-  let uiContext = AppStorage.get('uiContext') as UIContext;
-  let windowWidthVp = uiContext.px2vp(windowObj.getWindowProperties().windowRect.width);
   let newBreakpoint: string = '';
-  if (windowWidthVp < breakpoints.sm) {
-    newBreakpoint = breakpointsLabels[0];
-  } else if (windowWidthVp < breakpoints.md) {
-    newBreakpoint = breakpointsLabels[1];
-  } else if (windowWidthVp < breakpoints.lg) {
-    newBreakpoint = breakpointsLabels[2];
-  } else {
-    newBreakpoint = breakpointsLabels[3];
+  try {
+    let uiContext = AppStorage.get('uiContext') as UIContext;
+    let windowWidthVp = uiContext.px2vp(windowObj.getWindowProperties().windowRect.width);
+    if (windowWidthVp < breakpoints.sm) {
+      newBreakpoint = breakpointsLabels[0];
+    } else if (windowWidthVp < breakpoints.md) {
+      newBreakpoint = breakpointsLabels[1];
+    } else if (windowWidthVp < breakpoints.lg) {
+      newBreakpoint = breakpointsLabels[2];
+    } else {
+      newBreakpoint = breakpointsLabels[3];
+    }
+  } catch (err) {
+    hilog.error(DOMAIN, TAG, FORMAT,
+      `Failed to obtain the window properties. Cause code: ${err.code}, message: ${err.message}`);
   }
   return newBreakpoint;
 }

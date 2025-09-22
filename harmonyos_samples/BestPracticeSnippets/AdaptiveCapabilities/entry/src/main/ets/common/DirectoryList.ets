@@ -13,6 +13,13 @@
  * limitations under the License.
  */
 
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+
+const DOMAIN = 0x0000;
+const TAG = 'DirectoryList';
+const FORMAT = '%{public}s';
+
 class DirectoryItem {
   title: Resource | string = '';
   uri: string = '';
@@ -39,17 +46,23 @@ struct DirectoryList {
             .width('90%')
             .height(55)
             .margin(12)
-            .backgroundColor('#007DFF')
+            .backgroundColor($r('sys.color.brand'))
             .onClick(() => {
               this.getUIContext().getRouter().pushUrl({
                 url: item.uri
+              }).catch((err: BusinessError) => {
+                hilog.error(DOMAIN, TAG, FORMAT, `pushUrl failed, code is ${err.code}, message is ${err.message}`);
               })
             });
         }, (item: DirectoryItem) => JSON.stringify(item));
       }
     }
     .width('100%')
-    .padding({ left: 10, right: 10, bottom: 100 });
+    .padding({
+      left: 10,
+      right: 10,
+      bottom: 100
+    })
   }
 }
 

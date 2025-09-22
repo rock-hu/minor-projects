@@ -17,11 +17,18 @@
 * 最佳实践: 应用并发设计 并发任务管理 任务延时调度
 */
 // [Start quick_start]
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import { taskpool } from '@kit.ArkTS';
+import { BusinessError } from '@kit.BasicServicesKit';
 
+// [StartExclude quick_start]
+const DOMAIN = 0x0000;
+const TAG = 'ConcurrentTaskManagement5';
+const FORMAT = '%{public}s';
+// [EndExclude quick_start]
 @Concurrent
 function concurrentTask(num: number): number {
-  console.log('Add the task that needs to be executed with delay');
+  hilog.info(0x0000, 'TAG', '%{public}s', 'Add the task that needs to be executed with delay');
   return num;
 }
 
@@ -30,6 +37,8 @@ let task: taskpool.Task = new taskpool.Task(concurrentTask, 100);
 // Delayed execution of task
 taskpool.executeDelayed(3000, task, taskpool.Priority.HIGH).then((value: Object) => {
   // Processing delayed task results
-  console.log('taskpool result: ' + value);
+  hilog.info(DOMAIN, TAG, FORMAT, 'taskpool result: ' + value);
+}).catch((err: BusinessError) => {
+  hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
 });
 // [End quick_start]

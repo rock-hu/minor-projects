@@ -15,14 +15,18 @@
 
 import { AbilityConstant, UIAbility, Want, EnvironmentCallback, ConfigurationConstant } from '@kit.AbilityKit';
 import { commonType, distributedDataObject } from '@kit.ArkData';
-import { fileIo as fs, fileUri } from '@kit.CoreFileKit';
 import { display, KeyboardAvoidMode, window } from '@kit.ArkUI';
+import { fileIo as fs, fileUri } from '@kit.CoreFileKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { image } from '@kit.ImageKit';
 import { JSON } from '@kit.ArkTS';
 import { BreakpointConstants } from '../constants/BreakpointConstants';
 import { ContentInfo, ImageInfo } from '../model/ContentInfo';
+
+const DOMAIN = 0x0000;
+const TAG = 'EntryAbility';
+const FORMAT = '%{public}s';
 
 export default class EntryAbility extends UIAbility {
   windowClass: window.Window | undefined = undefined;
@@ -35,32 +39,36 @@ export default class EntryAbility extends UIAbility {
   // [Start distribute]
   // [Start on_create]
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
-    hilog.info(0x0000, '[EntryAbility]', 'Ability onCreate');
+    hilog.info(DOMAIN, TAG, FORMAT, 'Ability onCreate');
     this.restoreDistributedObject(want, launchParam);
     AppStorage.setOrCreate('systemColorMode', this.context.config.colorMode);
-    this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
+    try {
+      this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
+    } catch (err) {
+      hilog.error(DOMAIN, TAG, FORMAT, `SetColorMode failed. Cause code: ${err.code}, message: ${err.message}`);
+    }
     // [StartExclude distribute]
     let environmentCallback: EnvironmentCallback = {
       onConfigurationUpdated(config) {
         AppStorage.setOrCreate('language', config.language);
       },
       onMemoryLevel(level) {
-        hilog.info(0x0000, '[EntryAbility]', `onMemoryLevel level: ${level}`);
+        hilog.info(DOMAIN, TAG, FORMAT, `onMemoryLevel level: ${level}`);
       }
     };
     let applicationContext = this.context.getApplicationContext();
     try {
       this.callbackId = applicationContext.on('environment', environmentCallback);
     } catch (paramError) {
-      hilog.error(0x0000, '[EntryAbility]',
+      hilog.error(DOMAIN, TAG, FORMAT,
         `error: ${(paramError as BusinessError).code}, ${(paramError as BusinessError).message}`);
     }
-    hilog.info(0x0000, '[EntryAbility]', `registerEnvironmentCallback callbackId: ${this.callbackId}`);
+    hilog.info(DOMAIN, TAG, FORMAT, `registerEnvironmentCallback callbackId: ${this.callbackId}`);
     // [EndExclude distribute]
   }
 
   onNewWant(want: Want, launchParam: AbilityConstant.LaunchParam): void {
-    hilog.info(0x0000, '[EntryAbility]', 'Ability onNewWant');
+    hilog.info(DOMAIN, TAG, FORMAT, 'Ability onNewWant');
     this.restoreDistributedObject(want, launchParam);
   }
 
@@ -78,32 +86,43 @@ export default class EntryAbility extends UIAbility {
     let mailInfo: ContentInfo = new ContentInfo(undefined, undefined, [], undefined, undefined, undefined, undefined);
     this.distributedObject = distributedDataObject.create(this.context, mailInfo);
     // Add a data restored listener.
-    this.distributedObject.on('status',
-      (sessionId: string, networkId: string, status: 'online' | 'offline' | 'restored') => {
-        hilog.info(0x0000, '[EntryAbility]', `status changed, sessionId: ${sessionId}`);
-        hilog.info(0x0000, '[EntryAbility]', `status changed, status: ${status}`);
-        hilog.info(0x0000, '[EntryAbility]', `status changed, networkId: ${networkId}`);
-        if (status === 'restored') {
-          if (!this.distributedObject) {
-            return;
+    try {
+      this.distributedObject.on('status',
+        (sessionId: string, networkId: string, status: 'online' | 'offline' | 'restored') => {
+          hilog.info(DOMAIN, TAG, FORMAT, `status changed, sessionId: ${sessionId}`);
+          hilog.info(DOMAIN, TAG, FORMAT, `status changed, status: ${status}`);
+          hilog.info(DOMAIN, TAG, FORMAT, `status changed, networkId: ${networkId}`);
+          if (status === 'restored') {
+            if (!this.distributedObject) {
+              return;
+            }
+            AppStorage.setOrCreate('mainTitle', this.distributedObject['mainTitle']);
+            AppStorage.setOrCreate('textContent', this.distributedObject['textContent']);
+            AppStorage.setOrCreate('isShowLocalInfo', this.distributedObject['isShowLocalInfo']);
+            AppStorage.setOrCreate('isAddLocalInfo', this.distributedObject['isAddLocalInfo']);
+            AppStorage.setOrCreate('selectLocalInfo', this.distributedObject['selectLocalInfo']);
+            AppStorage.setOrCreate('attachments', this.distributedObject['attachments']);
+            let attachments = this.distributedObject['attachments'] as commonType.Assets;
+            hilog.info(DOMAIN, TAG, FORMAT,
+              `attachments: ${JSON.stringify(this.distributedObject['attachments'])}`);
+            for (const attachment of attachments) {
+              this.fileCopy(attachment);
+            }
+            AppStorage.setOrCreate<Array<ImageInfo>>('imageUriArray', this.imageUriArray);
           }
-          AppStorage.setOrCreate('mainTitle', this.distributedObject['mainTitle']);
-          AppStorage.setOrCreate('textContent', this.distributedObject['textContent']);
-          AppStorage.setOrCreate('isShowLocalInfo', this.distributedObject['isShowLocalInfo']);
-          AppStorage.setOrCreate('isAddLocalInfo', this.distributedObject['isAddLocalInfo']);
-          AppStorage.setOrCreate('selectLocalInfo', this.distributedObject['selectLocalInfo']);
-          AppStorage.setOrCreate('attachments', this.distributedObject['attachments']);
-          let attachments = this.distributedObject['attachments'] as commonType.Assets;
-          hilog.info(0x0000, '[EntryAbility]', `attachments: ${JSON.stringify(this.distributedObject['attachments'])}`);
-          for (const attachment of attachments) {
-            this.fileCopy(attachment);
-          }
-          AppStorage.setOrCreate<Array<ImageInfo>>('imageUriArray', this.imageUriArray);
-        }
-      });
+        });
+    } catch (err) {
+      hilog.error(DOMAIN, TAG, FORMAT, `On status failed. Cause code: ${err.code}, message: ${err.message}`);
+    }
     let sessionId: string = want.parameters?.distributedSessionId as string;
-    this.distributedObject.setSessionId(sessionId);
-    this.context.restoreWindowStage(new LocalStorage());
+    this.distributedObject.setSessionId(sessionId).catch((err: BusinessError) => {
+      hilog.info(DOMAIN, TAG, FORMAT, `SetSessionId failed. Cause code: ${err.code}, message: ${err.message}`);
+    });
+    try {
+      this.context.restoreWindowStage(new LocalStorage());
+    } catch (err) {
+      hilog.error(DOMAIN, TAG, FORMAT, `RestoreWindowStage failed. Cause code: ${err.code}, message: ${err.message}`);
+    }
   }
 
   // [End distribute]
@@ -139,12 +158,14 @@ export default class EntryAbility extends UIAbility {
       );
       let source = contentInfo.flatAssets();
       this.distributedObject = distributedDataObject.create(this.context, source);
-      this.distributedObject.setSessionId(sessionId);
+      this.distributedObject.setSessionId(sessionId).catch((err: BusinessError) => {
+        hilog.info(DOMAIN, TAG, FORMAT, `SetSessionId failed. Cause code: ${err.code}, message: ${err.message}`);
+      });
       await this.distributedObject.save(wantParam.targetDevice as string).catch((err: BusinessError) => {
-        hilog.info(0x0000, '[EntryAbility]', `Failed to save. Code: ${err.code}, message: ${err.message}`);
+        hilog.info(DOMAIN, TAG, FORMAT, `Failed to save. Code: ${err.code}, message: ${err.message}`);
       });
     } catch (error) {
-      hilog.error(0x0000, '[EntryAbility]', 'distributedDataObject failed', `code ${(error as BusinessError).code}`);
+      hilog.error(DOMAIN, TAG, FORMAT, 'distributedDataObject failed', `code ${(error as BusinessError).code}`);
     }
     return AbilityConstant.OnContinueResult.AGREE;
   }
@@ -189,11 +210,11 @@ export default class EntryAbility extends UIAbility {
           }
           fs.closeSync(file);
           fs.closeSync(saveFile);
-          hilog.info(0x0000, '[EntryAbility]', attachment.name + 'synchronized successfully.');
+          hilog.info(DOMAIN, TAG, FORMAT, attachment.name + 'synchronized successfully.');
         }
       } catch (error) {
         let err: BusinessError = error as BusinessError;
-        hilog.error(0x0000, '[EntryAbility]', `DocumentViewPicker failed with err: ${JSON.stringify(err)}`);
+        hilog.error(DOMAIN, TAG, FORMAT, `DocumentViewPicker failed with err: ${JSON.stringify(err)}`);
       }
     }
   }
@@ -207,28 +228,33 @@ export default class EntryAbility extends UIAbility {
    */
   private getAssetInfo(append: ImageInfo): commonType.Asset {
     let filePath = this.context.distributedFilesDir + '/' + append.imageName;
-    fs.statSync(filePath);
-    let uri: string = fileUri.getUriFromPath(filePath);
-    let stat = fs.statSync(filePath);
-    let attachment: commonType.Asset = {
-      name: append.imageName,
-      uri: uri,
-      path: filePath,
-      createTime: stat.ctime.toString(),
-      modifyTime: stat.ctime.toString(),
-      size: stat.size.toString()
-    };
-    hilog.info(0x0000, '[EntryAbility]', `[getAssetInfo] attachments: ${JSON.stringify(attachment)}`);
-    return attachment;
+    let attachment: commonType.Asset;
+    try {
+      fs.statSync(filePath);
+      let uri: string = fileUri.getUriFromPath(filePath);
+      let stat = fs.statSync(filePath);
+      attachment = {
+        name: append.imageName,
+        uri: uri,
+        path: filePath,
+        createTime: stat.ctime.toString(),
+        modifyTime: stat.ctime.toString(),
+        size: stat.size.toString()
+      };
+      hilog.info(DOMAIN, TAG, FORMAT, `[getAssetInfo] attachments: ${JSON.stringify(attachment)}`);
+    } catch (err) {
+      hilog.error(DOMAIN, TAG, FORMAT, `StatSync failed. Cause code: ${err.code}, message: ${err.message}`);
+    }
+    return attachment!;
   }
 
   /*
    * Update breakpoints based on the current window size.
    */
   private updateBreakpoint(windowWidth: number): void {
-    // Get the current window object and obtain the current displayId
-    let displayId = this.windowObj?.getWindowProperties().displayId;
     try {
+      // Get the current window object and obtain the current displayId
+      let displayId = this.windowObj?.getWindowProperties().displayId;
       // Convert the unit of length from px to vp.
       let windowWidthVp = windowWidth / display.getDisplayByIdSync(displayId).densityPixels;
       let newBp: string = '';
@@ -247,47 +273,69 @@ export default class EntryAbility extends UIAbility {
         AppStorage.setOrCreate('currentBreakpoint', this.curBp);
       }
     } catch (err) {
-      hilog.info(0x0000, '[EntryAbility]', 'getDisplayByIdSync failed err' + err.code);
+      hilog.error(DOMAIN, TAG, FORMAT,
+        `GetDisplayByIdSync or getWindowProperties failed. Cause code: ${err.code}, message: ${err.message}`);
     }
   }
 
   onWindowStageRestore(windowStage: window.WindowStage): void {
-    hilog.info(0x0000, '[EntryAbility]', 'Ability onWindowStageRestore');
+    hilog.info(DOMAIN, TAG, FORMAT, 'Ability onWindowStageRestore');
     windowStage.loadContent('pages/Home', (err, data) => {
       if (err.code) {
-        hilog.error(0x0000, '[EntryAbility]', 'Failed to load the content, ', `Catch err: ${err}`);
+        hilog.error(DOMAIN, TAG, FORMAT, 'Failed to load the content, ', `Catch err: ${err}`);
         return;
       }
-      windowStage.getMainWindowSync().setWindowLayoutFullScreen(true);
-      windowStage.getMainWindowSync().getUIContext().getKeyboardAvoidMode();
-      windowStage.getMainWindowSync().getUIContext().setKeyboardAvoidMode(KeyboardAvoidMode.RESIZE);
+      try {
+        windowStage.getMainWindowSync().setWindowLayoutFullScreen(true).catch((err: BusinessError) => {
+          hilog.error(DOMAIN, TAG, FORMAT,
+            `SetWindowLayoutFullScreen failed. Cause code: ${err.code}, message: ${err.message}`);
+        });
+        windowStage.getMainWindowSync().getUIContext().getKeyboardAvoidMode();
+        windowStage.getMainWindowSync().getUIContext().setKeyboardAvoidMode(KeyboardAvoidMode.RESIZE);
+      } catch (err) {
+        hilog.error(DOMAIN, TAG, FORMAT, `GetMainWindowSync failed. Cause code: ${err.code}, message: ${err.message}`);
+      }
       this.setImmersion(windowStage);
-      hilog.info(0x0000, '[EntryAbility]', 'Succeeded in loading the content, ', `Data: ${data}`);
+      hilog.info(DOMAIN, TAG, FORMAT, 'Succeeded in loading the content, ', `Data: ${data}`);
     });
   }
 
   onWindowStageCreate(windowStage: window.WindowStage): void {
     // Main window is created, set main page for this ability.
-    hilog.info(0x0000, '[EntryAbility]', 'Ability onWindowStageCreate');
+    hilog.info(DOMAIN, TAG, FORMAT, 'Ability onWindowStageCreate');
     windowStage.getMainWindow().then((windowObj) => {
       this.windowObj = windowObj;
       // Gets the size of the window when the application starts.
-      this.updateBreakpoint(windowObj.getWindowProperties().windowRect.width);
+      try {
+        this.updateBreakpoint(windowObj.getWindowProperties().windowRect.width);
+      } catch (err) {
+        hilog.error(DOMAIN, TAG, FORMAT,
+          `GetWindowProperties failed. Cause code: ${err.code}, message: ${err.message}`);
+      }
       // Register callback functions that listen for window size changes.
       windowObj.on('windowSizeChange', (windowSize) => {
         this.updateBreakpoint(windowSize.width);
       });
+    }).catch((err: BusinessError) => {
+      hilog.info(DOMAIN, TAG, FORMAT, `GetMainWindow failed. Cause code: ${err.code}, message: ${err.message}`);
     });
     windowStage.loadContent('pages/Home', (err, data) => {
       if (err.code) {
-        hilog.error(0x0000, '[EntryAbility]', 'Failed to load the content, ', `Catch err: ${err}`);
+        hilog.error(DOMAIN, TAG, FORMAT, 'Failed to load the content, ', `Catch err: ${err}`);
         return;
       }
-      windowStage.getMainWindowSync().setWindowLayoutFullScreen(true);
-      windowStage.getMainWindowSync().getUIContext().getKeyboardAvoidMode();
-      windowStage.getMainWindowSync().getUIContext().setKeyboardAvoidMode(KeyboardAvoidMode.RESIZE);
+      try {
+        windowStage.getMainWindowSync().setWindowLayoutFullScreen(true).catch((err: BusinessError) => {
+          hilog.error(DOMAIN, TAG, FORMAT,
+            `SetWindowLayoutFullScreen failed. Cause code: ${err.code}, message: ${err.message}`);
+        });
+        windowStage.getMainWindowSync().getUIContext().getKeyboardAvoidMode();
+        windowStage.getMainWindowSync().getUIContext().setKeyboardAvoidMode(KeyboardAvoidMode.RESIZE);
+      } catch (err) {
+        hilog.error(DOMAIN, TAG, FORMAT, `GetMainWindowSync failed. Cause code: ${err.code}, message: ${err.message}`);
+      }
       this.setImmersion(windowStage);
-      hilog.info(0x0000, '[EntryAbility]', 'Succeeded in loading the content, ', `Data: ${data}`);
+      hilog.info(DOMAIN, TAG, FORMAT, 'Succeeded in loading the content, ', `Data: ${data}`);
     });
   }
 
@@ -295,7 +343,7 @@ export default class EntryAbility extends UIAbility {
     windowStage.getMainWindow((err: BusinessError, data) => {
       const errCode: number = err.code;
       if (errCode) {
-        hilog.error(0x0000, '[EntryAbility]', 'Failed to obtain the main window. Cause: ' + JSON.stringify(err));
+        hilog.error(DOMAIN, TAG, FORMAT, 'Failed to obtain the main window. Cause: ' + JSON.stringify(err));
         return;
       }
       this.windowClass = data;
@@ -308,7 +356,7 @@ export default class EntryAbility extends UIAbility {
             .bottomRect
             .height));
       } catch (exception) {
-        hilog.error(0x0000, '[EntryAbility]',
+        hilog.error(DOMAIN, TAG, FORMAT,
           `Failed to set the system bar to be invisible. Cause code: ${exception.code},
         message: ${exception.message}`);
       }
@@ -317,20 +365,20 @@ export default class EntryAbility extends UIAbility {
 
   onWindowStageDestroy(): void {
     // Main window is destroyed, release UI related resources
-    hilog.info(0x0000, '[EntryAbility]', 'Ability onWindowStageDestroy');
+    hilog.info(DOMAIN, TAG, FORMAT, 'Ability onWindowStageDestroy');
   }
 
   onForeground(): void {
     // Ability has brought to foreground
-    hilog.info(0x0000, '[EntryAbility]', 'Ability onForeground');
+    hilog.info(DOMAIN, TAG, FORMAT, 'Ability onForeground');
   }
 
   onBackground(): void {
     // Ability has back to background
-    hilog.info(0x0000, '[EntryAbility]', 'Ability onBackground');
+    hilog.info(DOMAIN, TAG, FORMAT, 'Ability onBackground');
   }
 
   onDestroy(): void {
-    hilog.info(0x0000, '[EntryAbility]', 'Ability onDestroy');
+    hilog.info(DOMAIN, TAG, FORMAT, 'Ability onDestroy');
   }
 }

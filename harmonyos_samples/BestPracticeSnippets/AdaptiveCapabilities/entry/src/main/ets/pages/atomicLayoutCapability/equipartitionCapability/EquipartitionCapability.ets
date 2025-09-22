@@ -58,29 +58,29 @@ struct EquipartitionCapability {
       Column() {
         // Distribute remaining space evenly along the main axis of the parent container.
         Flex({ justifyContent: FlexAlign.SpaceEvenly }) {
-          ForEach(this.list, (item: number) => {
+          ForEach(this.list, () => {
             this.Item();
-          }, (item: number, index: number) => JSON.stringify(item) + index)
+          }, (item: number, index: number) => item.toString() + index)
         }
 
         // Distribute remaining space evenly along the main axis of the parent container.
         Flex({ justifyContent: FlexAlign.SpaceEvenly }) {
-          ForEach(this.list, (item: number) => {
+          ForEach(this.list, () => {
             this.Item();
-          }, (item: number, index: number) => JSON.stringify(item) + index)
+          }, (item: number, index: number) => item.toString() + index)
         }
       }
       .width(this.rate * 100 + '%')
       .height(222)
       .padding({ top: 16 })
-      .backgroundColor('#FFFFFF')
+      .backgroundColor($r('sys.color.font_on_primary'))
       .borderRadius(16)
 
       this.slider()
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F1F3F5')
+    .backgroundColor($r('sys.color.background_secondary'))
     .alignItems(VerticalAlign.Center)
     .justifyContent(FlexAlign.Center)
   }

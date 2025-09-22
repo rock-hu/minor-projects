@@ -19,7 +19,7 @@ struct IndentationSample {
   build() {
     Row() {
       GridRow() {
-        ForEach([0, 1, 2, 4], (item:number, index) => {
+        ForEach([0, 1, 2, 4], (item: number, index) => {
           GridCol({
             span: { sm: 10, md: 8, lg: 8 },
             offset: {
@@ -38,7 +38,7 @@ struct IndentationSample {
     .height('100%')
     .alignItems((VerticalAlign.Center))
     .justifyContent(FlexAlign.Center)
-    .backgroundColor('#F1F3f5')
+    .backgroundColor($r('sys.color.background_secondary'))
   }
 }
 
@@ -73,8 +73,13 @@ struct ItemContent {
     }
     .height(128)
     .borderRadius(24)
-    .backgroundColor('#FFFFFF')
-    .padding({ top: 12, bottom: 12, left: 18, right: 18 })
+    .backgroundColor($r('sys.color.comp_background_primary'))
+    .padding({
+      top: 12,
+      bottom: 12,
+      left: 18,
+      right: 18
+    })
     .margin({ bottom: 12 })
   }
 }

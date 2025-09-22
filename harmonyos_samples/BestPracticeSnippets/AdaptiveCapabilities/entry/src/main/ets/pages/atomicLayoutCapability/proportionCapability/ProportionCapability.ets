@@ -46,7 +46,7 @@ struct ProportionCapability {
         .justifyContent(FlexAlign.Center)
 
         Column() {
-          Image($r("app.media.pause"))
+          Image($r('app.media.pause'))
             .width(48)
             .height(48)
         }
@@ -67,13 +67,13 @@ struct ProportionCapability {
       .width(this.rate * 100 + '%')
       .height(96)
       .borderRadius(16)
-      .backgroundColor('#FFFFFF')
+      .backgroundColor($r('sys.color.comp_background_primary'))
 
       this.slider()
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F1F3F5')
+    .backgroundColor($r('sys.color.background_secondary'))
     .alignItems(VerticalAlign.Center)
     .justifyContent(FlexAlign.Center)
   }

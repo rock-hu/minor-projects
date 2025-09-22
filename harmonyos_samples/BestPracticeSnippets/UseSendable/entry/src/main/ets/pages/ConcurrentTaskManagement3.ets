@@ -18,7 +18,14 @@
 */
 // [Start image_processing]
 import { taskpool } from '@kit.ArkTS';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
+// [StartExclude image_processing]
+const DOMAIN = 0x0000;
+const TAG = 'ConcurrentTaskManagement3';
+const FORMAT = '%{public}s';
+// [EndExclude image_processing]
 // Define asynchronous tasks
 @Concurrent
 function imageProcessing(arrayBuffer: ArrayBuffer): ArrayBuffer {
@@ -37,12 +44,17 @@ function histogramStatistic(pixelBuffer: ArrayBuffer): void {
     let dataSlice: ArrayBuffer = (i === TASK_POOL_CAPACITY - 1) ? pixelBuffer.slice(i * byteLengthOfTask) :
     pixelBuffer.slice(i * byteLengthOfTask, (i + 1) * byteLengthOfTask);
     let task: taskpool.Task = new taskpool.Task(imageProcessing, dataSlice);
-    taskGroup.addTask(task);
+    try {
+      taskGroup.addTask(task);
+    } catch (err) {
+      hilog.error(DOMAIN, TAG, FORMAT, `addTask failed. Cause code: ${err.code},message: ${err.message}`);
+    }
   }
   taskpool.execute(taskGroup, taskpool.Priority.HIGH).then((res: Object[]): void | Promise<void> => {
     // Result data processing
-  }).catch((error: Error) => {
-    console.error(`taskpool excute error: ${error}`);
-  })
+    hilog.info(DOMAIN, TAG, FORMAT, `res:${res}`);
+  }).catch((error: BusinessError) => {
+    hilog.error(DOMAIN, TAG, FORMAT, `taskpool excute error: ${error}`);
+  });
 }
 // [End image_processing]

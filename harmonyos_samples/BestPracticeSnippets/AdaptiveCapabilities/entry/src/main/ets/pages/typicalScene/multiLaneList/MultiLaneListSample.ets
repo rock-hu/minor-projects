@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-import { BreakpointSystem, BreakPointType } from '../../../common/BreakpointSystem'
+import { BreakpointSystem, BreakPointType } from '../../../common/BreakpointSystem';
 
-class ListItemInfo  {
+class ListItemInfo {
   name: Resource = $r('app.string.playlist_collection');
   image: Resource = $r('app.media.1');
 }

@@ -37,19 +37,22 @@ struct GridRowSample4 {
           .height('100%')
           .alignItems(VerticalAlign.Center)
           .justifyContent(FlexAlign.Center)
-          .backgroundColor('#19000000')
+          .backgroundColor($r('sys.color.comp_background_secondary'))
         }
       }
       .height(50)
       .borderWidth(2)
       .borderColor('#F1CCB8')
-      .padding({ left: this.gridMargin, right: this.gridMargin })
+      .padding({
+        left: this.gridMargin,
+        right: this.gridMargin
+      })
       // Configure the left and right spacing values of grid components at different breakpoints using breakpoint change events.
       .onBreakpointChange((currentBreakpoint: string) => {
-        if (currentBreakpoint === 'lg' || currentBreakpoint === 'md') {
-          this.gridMargin = 24;
-        } else {
+        if (currentBreakpoint === 'xs' || currentBreakpoint === 'sm') {
           this.gridMargin = 12;
+        } else {
+          this.gridMargin = 24;
         }
       })
 
@@ -69,13 +72,16 @@ struct GridRowSample4 {
           .height('100%')
           .alignItems(VerticalAlign.Center)
           .justifyContent(FlexAlign.Center)
-          .backgroundColor('#19000000')
+          .backgroundColor($r('sys.color.comp_background_secondary'))
         }
       }
       .height(50)
       .borderWidth(2)
       .borderColor('#F1CCB8')
-      .margin({ left: this.gridMargin, right: this.gridMargin })
+      .margin({
+        left: this.gridMargin,
+        right: this.gridMargin
+      })
     }
   }
 }

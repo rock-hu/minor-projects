@@ -16,6 +16,8 @@
 import { UIAbility , Want ,AbilityConstant } from '@kit.AbilityKit';
 import { window , display } from '@kit.ArkUI';
 import Logger from '../utils/Logger';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 const TAG: string = 'EntryAbility';
 const FONT_SIZE: number = 18;
@@ -39,7 +41,14 @@ export default class EntryAbility extends UIAbility {
   }
 
   updateBreakpoint(windowWidth: number): void {
-    let windowWidthVp: number = windowWidth / (display.getDefaultDisplaySync().densityDPI / DPI);
+    let windowWidthVp: number = 0;
+    try {
+      windowWidthVp = windowWidth / (display.getDefaultDisplaySync().densityDPI / DPI);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'EntryAbility', `updateBreakpoint failed. code=${err.code}, message=${err.message}`);
+      return;
+    }
     let curBp: string;
     // 520 and 840 are the maximum widths for small and medium screens, respectively.
     if (windowWidthVp < SMALL_SCREEN_WIDTH) {

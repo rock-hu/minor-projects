@@ -20,6 +20,7 @@
 import { FrameNode, NodeController, RenderNode } from '@kit.ArkUI';
 import { resourceManager } from '@kit.LocalizationKit';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import { Context } from '@kit.AbilityKit';
 import { image } from '@kit.ImageKit';
 import testNapi from 'libndkDrawing.so';
@@ -27,17 +28,21 @@ import testNapi from 'libndkDrawing.so';
 enum DrawType { NONE, PATH, TEXT, IMAGE };
 
 const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+const DOMAIN = 0x0000;
+const TAG = 'Index';
+const FORMAT = '%{public}s';
 
 // [Start my_render_node]
 // entry\src\main\ets\pages\Index.ets
 // Define a RenderNode self-drawing RenderNode MyRenderNode, so as to draw with the interface of Native
 class MyRenderNode extends RenderNode {
   private drawType: DrawType = DrawType.NONE;
-  private pMap: image.PixelMap | undefined = undefined; // 背景图
+  private pMap: image.PixelMap | undefined = undefined; // background image
 
   draw(context: DrawContext): void {
-    // Call the Native ondraw interface on the native side to draw, and pass in the background image this.pMap and the graphic drawing context as parameters
-    testNapi.nativeOnDraw(666, context, uiContext?.vp2px(this.size.width), uiContext?.vp2px(this.size.height), this.drawType, this.pMap);
+    // Call the Native onDraw interface on the native side to draw, and pass in the background image this.pMap and the graphic drawing context as parameters
+    testNapi.nativeOnDraw(666, context, uiContext?.vp2px(this.size.width), uiContext?.vp2px(this.size.height),
+      this.drawType, this.pMap);
   }
 
   // Set the drawing type
@@ -93,18 +98,22 @@ struct Index {
     const context: Context = this.getUIContext().getHostContext()!;
     const resourceMgr: resourceManager.ResourceManager = context.resourceManager;
     resourceMgr.getRawFileContent('drawImage.jpg').then((fileData: Uint8Array) => {
-      console.info('success in getRawFileContent');
+      hilog.info(DOMAIN, TAG, FORMAT, `success in getRawFileContent`);
       const buffer = fileData.buffer.slice(0);
       const imageSource: image.ImageSource = image.createImageSource(buffer);
       imageSource.createPixelMap().then((pMap: image.PixelMap) => {
         // Self-drawing rendering node background map
         newNode.setPixelMap(pMap);
       }).catch((err: BusinessError) => {
-        console.error(`fail to create PixelMap, err: ${err}`);
+        hilog.error(DOMAIN, TAG, FORMAT, `fail to create PixelMap, error code: ${err.code}, message: ${err.message}.`);
       }).catch((err: BusinessError) => {
-        console.error(`fail to getRawFileContent, err: ${err}`);
-      })
-    })
+        hilog.error(DOMAIN, TAG, FORMAT,
+          `fail to getRawFileContent, error code: ${err.code}, message: ${err.message}.`);
+      });
+    }).catch((err: BusinessError) => {
+      hilog.error(DOMAIN, TAG, FORMAT,
+        `callback getRawFileContent failed, error code: ${err.code}, message: ${err.message}.`);
+    });
   }
 
   build() {

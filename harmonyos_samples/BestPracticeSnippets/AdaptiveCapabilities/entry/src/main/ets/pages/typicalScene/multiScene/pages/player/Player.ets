@@ -24,41 +24,57 @@ export struct Play {
               .width(200)
               .height(200)
               .objectFit(ImageFit.Contain)
-          }.margin({ bottom: 10 })
+          }
+          .margin({ bottom: 10 })
         }
 
         GridCol({ span: { sm: 12, md: 6, lg: 6 } }) {
           Row() {
             Button({ type: ButtonType.Circle, stateEffect: true }) {
-              Image($r('app.media.favorite')).width(48).height(48)}
+              Image($r('app.media.favorite'))
+                .width(48)
+                .height(48)
+            }
             .width(48)
             .height(48)
             .displayPriority(1)
             .backgroundColor('white')
 
             Button({ type: ButtonType.Circle, stateEffect: true }) {
-              Image($r('app.media.down')).width(48).height(48)}
-              .width(48)
-              .height(48)
-              .displayPriority(2)
-              .backgroundColor('white')
-
-            Button({ type: ButtonType.Circle, stateEffect: true }) {
-              Image($r('app.media.pause')).width(48).height(48)}
-            .width(48)
-            .height(48)
-            .displayPriority(3)
-            .backgroundColor('white')
-
-            Button({ type: ButtonType.Circle, stateEffect: true }) {
-              Image($r('app.media.next')).width(48).height(48)}
+              Image($r('app.media.down'))
+                .width(48)
+                .height(48)
+            }
             .width(48)
             .height(48)
             .displayPriority(2)
             .backgroundColor('white')
 
             Button({ type: ButtonType.Circle, stateEffect: true }) {
-              Image($r('app.media.list')).width(48).height(48)}
+              Image($r('app.media.pause'))
+                .width(48)
+                .height(48)
+            }
+            .width(48)
+            .height(48)
+            .displayPriority(3)
+            .backgroundColor('white')
+
+            Button({ type: ButtonType.Circle, stateEffect: true }) {
+              Image($r('app.media.next'))
+                .width(48)
+                .height(48)
+            }
+            .width(48)
+            .height(48)
+            .displayPriority(2)
+            .backgroundColor('white')
+
+            Button({ type: ButtonType.Circle, stateEffect: true }) {
+              Image($r('app.media.list'))
+                .width(48)
+                .height(48)
+            }
             .width(48)
             .height(48)
             .displayPriority(1)
@@ -68,10 +84,11 @@ export struct Play {
           .height('100%')
           .height(90)
           .borderRadius(16)
-          .backgroundColor('#FFFFFF')
+          .backgroundColor($r('sys.color.comp_background_primary'))
           .justifyContent(FlexAlign.Center)
         }
       }
-    }.width('80%')
+    }
+    .width('80%')
   }
 }

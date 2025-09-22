@@ -1,5 +1,6 @@
 // [Start enable_nfc]
 import { nfcController } from '@kit.ConnectivityKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Entry
 @Component

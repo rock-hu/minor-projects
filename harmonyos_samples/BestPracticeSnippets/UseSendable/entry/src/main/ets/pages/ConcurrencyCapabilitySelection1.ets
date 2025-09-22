@@ -17,14 +17,22 @@
 * 最佳实践: 应用并发设计 并发能力选择 耗时任务并发执行场景
 */
 // [Start taskpool]
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import { taskpool } from '@kit.ArkTS';
-
+// [StartExclude taskpool]
+const DOMAIN = 0x0000;
+const TAG = 'ConcurrencyCapabilitySelection2';
+const FORMAT = '%{public}s';
+// [EndExclude taskpool]
 @Concurrent
 async function foo(a: number, b: number) {
   return a + b;
 }
 
 taskpool.execute(foo, 1, 2).then((ret: Object) => { // Result processing
-  console.log('Return:' + ret);
-})
+  hilog.info(DOMAIN, TAG, FORMAT, 'Return:' + ret);
+}).catch((err: BusinessError) => {
+  hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
+});
 // [End taskpool]

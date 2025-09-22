@@ -37,7 +37,7 @@ struct ExtensionCapability2 {
       Row({ space: 10 }) {
         // Implement extension capability through List component.
         List({ space: 10 }) {
-          ForEach(this.appList, (item: number, index: number) => {
+          ForEach(this.appList, () => {
             ListItem() {
               Column() {
                 Image($r('app.media.icon'))
@@ -58,7 +58,7 @@ struct ExtensionCapability2 {
             }
             .width(80)
             .height(102)
-          }, (item: number, index: number) => JSON.stringify(item) + index)
+          }, (item: number, index: number) => item.toString() + index)
         }
         .padding({ top: 16, left: 10 })
         .listDirection(Axis.Horizontal)
@@ -77,5 +77,4 @@ struct ExtensionCapability2 {
     .alignItems(VerticalAlign.Center)
   }
 }
-
 // [End ExtensionCapability2]

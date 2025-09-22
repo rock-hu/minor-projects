@@ -322,4 +322,8 @@ export class CommonConstants {
    *  video aspect
    */
   static readonly ASPECT: number = 16 / 9;
+  /**
+   *  full screen width
+   */
+  static readonly FULL_SCREEN_WIDTH: number = 820;
 }

@@ -21,10 +21,12 @@
 // Worker.ets
 import { MessageEvents, ThreadWorkerGlobalScope, worker } from '@kit.ArkTS';
 import { GlobalConfig } from '../pages/InterthreadCommunication4';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const workerPort: ThreadWorkerGlobalScope = worker.workerPort;
 workerPort.onmessage = (e: MessageEvents) => {
   let globalConfig: GlobalConfig = e.data;
+  hilog.info(0x0000, 'TAG', '%{public}s', `globalConfig: ${globalConfig}`);
   // use the globalConfig object
 }
 // [End workerport]

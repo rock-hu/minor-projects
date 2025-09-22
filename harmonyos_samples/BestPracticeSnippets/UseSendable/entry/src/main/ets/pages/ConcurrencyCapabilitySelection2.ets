@@ -18,22 +18,34 @@
 */
 // [Start execute_taskpool]
 import { taskpool } from '@kit.ArkTS';
-
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+// [StartExclude taskpool]
+const DOMAIN = 0x0000;
+const TAG = 'ConcurrencyCapabilitySelection2';
+const FORMAT = '%{public}s';
+// [EndExclude taskpool]
 @Concurrent
 async function foo() {
-  // Long listening and other tasks
-  taskpool.Task.sendData();
+  try {
+    // Long listening and other tasks
+    taskpool.Task.sendData();
+  } catch (err) {
+    hilog.error(0x0000, 'TAG', '%{public}s', `sendData failed. Cause code: ${err.code},message: ${err.message}`);
+  }
 }
 
 function executeTaskPool() {
   let longTask: taskpool.LongTask = new taskpool.LongTask(foo);
   longTask.onReceiveData((msg: Object) => {
     // Listening callback
-    console.info(`onReceiveData, ${JSON.stringify(msg)}`);
+    hilog.info(DOMAIN, TAG, FORMAT, `onReceiveData, ${JSON.stringify(msg)}`);
   });
 
   taskpool.execute(longTask).then(() => {
-    console.info('execute');
+    hilog.info(DOMAIN, TAG, FORMAT, 'execute');
+  }).catch((err: BusinessError) => {
+    hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
   });
 }
 

@@ -13,12 +13,18 @@
  * limitations under the License.
  */
 
+import { hilog } from '@kit.PerformanceAnalysisKit';
+
+const DOMAIN = 0x0000;
+const TAG = 'DiversionSample';
+const FORMAT = '%{public}s';
+
 @Entry
 @Component
 struct DiversionSample {
-  @State currentBreakpoint: string = 'md'
-  @State imgHeight: number = 0
-  @State textHeight: number = 0
+  @State currentBreakpoint: string = 'md';
+  @State imgHeight: number = 0;
+  @State textHeight: number = 0;
 
   build() {
     Row() {
@@ -35,7 +41,8 @@ struct DiversionSample {
           .justifyContent(FlexAlign.Center)
         }
         .onAreaChange((oldArea: Area, newArea: Area) => {
-          this.imgHeight = newArea.height as number
+          hilog.info(DOMAIN, TAG, FORMAT, `oldArea: ${oldArea}, newArea: ${newArea}, newArea: ${this.imgHeight}`);
+          this.imgHeight = newArea.height as number;
         })
 
         GridCol({ span: { sm: 12, md: 6, lg: 6 } }) {
@@ -50,7 +57,8 @@ struct DiversionSample {
               .fontWeight(FontWeight.Medium)
           }
           .onAreaChange((oldArea: Area, newArea: Area) => {
-            this.textHeight = newArea.height as number
+            hilog.info(DOMAIN, TAG, FORMAT, `oldArea: ${oldArea}, newArea: ${newArea}, newArea: ${this.imgHeight}`);
+            this.textHeight = newArea.height as number;
           })
           .padding({ left: 24, right: 24 })
           .justifyContent(FlexAlign.Center)
@@ -62,6 +70,6 @@ struct DiversionSample {
       })
     }
     .height('100%')
-    .backgroundColor('#F1F3f5')
+    .backgroundColor($r('sys.color.background_secondary'))
   }
 }

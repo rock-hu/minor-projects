@@ -15,9 +15,14 @@
 
 import { unifiedDataChannel, uniformTypeDescriptor } from '@kit.ArkData';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import { BreakpointConstants } from '../constants/BreakpointConstants';
 import { CommonConstants } from '../constants/CommonConstants';
 import { BreakpointType } from '../utils/BreakpointSystem';
+
+const DOMAIN = 0x0000;
+const TAG = 'EditorComponent';
+const FORMAT = '%{public}s';
 
 @Component
 export struct EditorComponent {
@@ -82,9 +87,13 @@ export struct EditorComponent {
           // The logic after the text falls in, realizing the writing of text.
           // [StartExclude onDrop]
           this.getDataFromUdmf((dragEvent as DragEvent), (event: DragEvent) => {
-            let records: Array<unifiedDataChannel.UnifiedRecord> = event.getData().getRecords();
-            let plainText: unifiedDataChannel.PlainText = records[0] as unifiedDataChannel.PlainText;
-            this.mainTitle = plainText.textContent;
+            try {
+              let records: Array<unifiedDataChannel.UnifiedRecord> = event.getData().getRecords();
+              let plainText: unifiedDataChannel.PlainText = records[0] as unifiedDataChannel.PlainText;
+              this.mainTitle = plainText.textContent;
+            } catch (err) {
+              hilog.error(DOMAIN, TAG, FORMAT, `GetData failed. Cause code: ${err.code}, message: ${err.message}`);
+            }
           })
           // [EndExclude onDrop]
         })
@@ -116,9 +125,13 @@ export struct EditorComponent {
           // The logic after the text falls in, realizing the writing of text.
           // [StartExclude onDrop]
           this.getDataFromUdmf((dragEvent as DragEvent), (event: DragEvent) => {
-            let records: Array<unifiedDataChannel.UnifiedRecord> = event.getData().getRecords();
-            let plainText: unifiedDataChannel.PlainText = records[0] as unifiedDataChannel.PlainText;
-            this.textContent = plainText.textContent;
+            try {
+              let records: Array<unifiedDataChannel.UnifiedRecord> = event.getData().getRecords();
+              let plainText: unifiedDataChannel.PlainText = records[0] as unifiedDataChannel.PlainText;
+              this.textContent = plainText.textContent;
+            } catch (err) {
+              hilog.error(DOMAIN, TAG, FORMAT, `GetData failed. Cause code: ${err.code}, message: ${err.message}`);
+            }
           })
           // [EndExclude onDrop]
         })

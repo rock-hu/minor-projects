@@ -15,7 +15,7 @@
 
 @Entry
 @Component
-export default struct Header {
+struct Header {
   @State needWrap: boolean = true
 
   build() {

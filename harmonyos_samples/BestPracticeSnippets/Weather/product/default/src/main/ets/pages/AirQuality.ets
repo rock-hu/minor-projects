@@ -16,7 +16,6 @@
 import { AirData, AirIndex, getAirIndexData, getHeaderDate, Style } from 'common';
 import { initRound } from '../feature/AirQualityFeature';
 
-
 @Preview
 @Component
 export default struct AirQuality {

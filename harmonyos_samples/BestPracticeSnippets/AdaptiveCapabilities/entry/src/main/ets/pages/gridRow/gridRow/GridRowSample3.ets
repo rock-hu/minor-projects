@@ -30,7 +30,10 @@ struct GridRowSample3 {
     // Config the values of columns and gutter at different breakpoints.
     GridRow({
       columns: { sm: 4, md: 8, lg: 12 },
-      gutter: { x: { sm: 8, md: 16, lg: 24 }, y: { sm: 8, md: 16, lg: 24 } }
+      gutter: {
+        x: { sm: 8, md: 16, lg: 24 },
+        y: { sm: 8, md: 16, lg: 24 }
+      }
     }) {
       ForEach(this.bgColors, (bgColor: ResourceColor) => {
         GridCol({ span: { sm: 2, md: 2, lg: 2 } }) {
@@ -39,7 +42,7 @@ struct GridRowSample3 {
             .backgroundColor(bgColor)
             .height(30)
         }
-      })
+      }, (bgColor: ResourceColor) => bgColor.toString())
     }
   }
 }

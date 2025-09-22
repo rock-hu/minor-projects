@@ -58,7 +58,7 @@ struct RepeatSample {
       .scrollBar(BarState.Off)
     }
     .height('100%')
-    .backgroundColor('#F1F3F5')
+    .backgroundColor($r('sys.color.background_secondary'))
     .padding({ left: 30, right: 30 })
   }
 }
@@ -99,7 +99,7 @@ struct RepeatItemContent {
       right: 37
     })
     .height(70)
-    .backgroundColor('#FFFFFF')
+    .backgroundColor($r('sys.color.background_secondary'))
     .margin({ bottom: 12 })
     .borderRadius(24)
   }

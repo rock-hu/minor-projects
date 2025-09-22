@@ -37,7 +37,7 @@ struct ExtensionCapability1 {
       // Implement extension capability through Scroll and Row(or Column) components.
       Scroll() {
         Row({ space: 10 }) {
-          ForEach(this.appList, (item: number, index: number) => {
+          ForEach(this.appList, () => {
             Column() {
               Image($r('app.media.icon'))
                 .width(48)
@@ -54,7 +54,7 @@ struct ExtensionCapability1 {
             }
             .width(80)
             .height(102)
-          }, (item: number, index: number) => JSON.stringify(item) + index)
+          }, (item: number, index: number) => item.toString() + index)
         }
         .padding({ top: 16, left: 10 })
         .height(118)

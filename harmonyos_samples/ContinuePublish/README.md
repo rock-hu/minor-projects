@@ -40,6 +40,7 @@
 │  ├──pages
 │  │  └──Home.ets                             // 主页面       
 │  ├──utils
+│  │  ├──BreakpointSystem.ets                 // 一多断点工具类
 │  │  ├──FileUtil.ets                         // 选择图片工具类
 │  │  └──LocationUtil.ets                     // 本地位置工具类
 │  └──view

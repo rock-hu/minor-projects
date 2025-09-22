@@ -35,10 +35,8 @@ struct GridRowSample10 {
 
   build() {
     Column({ space: 5 }) {
-
       Column() {
         GridRow({ columns: this.layoutColumns, direction: GridRowDirection.Row }) {
-
           // The non-rendering component support the Height attribute of GridRow
           GridCol({ span: 0 })
             .height('100%')
@@ -48,7 +46,8 @@ struct GridRowSample10 {
             Text('1')
               .height('100%')
               .fontSize(24);
-          }.height('33.3%')
+          }
+          .height('33.3%')
           .backgroundColor('#ff00ff94')
           .alignSelf(this.col1Align);
 
@@ -56,17 +55,19 @@ struct GridRowSample10 {
             Text('2')
               .height('100%')
               .fontSize(24);
-          }.height('33.3%')
+          }
+          .height('33.3%')
           .backgroundColor('#ff53e8ff')
           .alignSelf(this.col2Align);
-        }.width('100%')
+        }
+        .width('100%')
         .height('100%');
-      }.width('100%')
+      }
+      .width('100%')
       .height('50%')
       .border({ width: 1, color: '#ff00ffe9' });
 
       Column() {
-
         // Radio Groups
         Row() {
           Text($r('app.string.Radio_GridRow_All_LCR'))
@@ -95,7 +96,8 @@ struct GridRowSample10 {
           }
           .layoutWeight(1)
           .justifyContent(FlexAlign.End);
-        }.width('100%')
+        }
+        .width('100%')
         .height('25%')
         .justifyContent(FlexAlign.SpaceAround)
         .margin({ top: '1%' });
@@ -127,7 +129,8 @@ struct GridRowSample10 {
           }
           .layoutWeight(1)
           .justifyContent(FlexAlign.End);
-        }.width('100%')
+        }
+        .width('100%')
         .height('25%')
         .justifyContent(FlexAlign.SpaceAround)
         .margin({ top: '1%' });
@@ -159,7 +162,8 @@ struct GridRowSample10 {
           }
           .layoutWeight(1)
           .justifyContent(FlexAlign.End);
-        }.width('100%')
+        }
+        .width('100%')
         .height('25%')
         .justifyContent(FlexAlign.SpaceAround)
         .margin({ top: '1%' });
@@ -199,7 +203,7 @@ struct GridRowSample10 {
       }
       .width('100%')
       .height('30%')
-      .padding({left: 10, right: 10});
+      .padding({ left: 10, right: 10 });
     }
     .width('100%')
     .height('100%')
@@ -222,7 +226,6 @@ enum VerDirection {
 const COL1_POSITIONS = [0, 2, 4]; // The values of the first component
 
 class GridColController {
-
   moveAllInHor(pos: HorDirection, inst: GridRowSample10) {
     switch (pos) {
       case HorDirection.LEFT:

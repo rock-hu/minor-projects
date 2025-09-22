@@ -29,7 +29,7 @@ struct GridRowSample6 {
   ];
 
   build() {
-    GridRow() {
+    GridRow({ columns: { sm: 12, md: 12, lg: 12 } }) {
       ForEach(this.elements, (item: ColorArr) => {
         GridCol({
           span: { sm: 6, md: 4, lg: 3 },
@@ -42,8 +42,9 @@ struct GridRowSample6 {
           .justifyContent(FlexAlign.Center)
           .backgroundColor(item.color)
           .height(30)
+          .width('100%')
         }
-      }, (item: ColorArr, index: number) => JSON.stringify(item) + index)
+      }, (item: ColorArr, index: number) => (item.index + index).toString())
     }
   }
 }

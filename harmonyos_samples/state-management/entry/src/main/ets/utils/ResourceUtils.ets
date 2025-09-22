@@ -14,6 +14,8 @@
  */
 
 import { common } from '@kit.AbilityKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 /**
  * getResourceString Converts data of the Resource type to data of the string type
@@ -21,6 +23,12 @@ import { common } from '@kit.AbilityKit';
  * @param ResourceData
  */
 export function getResourceString(context: common.UIAbilityContext, resourceData: Resource): string {
-  let stringData: string = context.resourceManager.getStringSync(resourceData.id);
+  let stringData: string = '';
+  try {
+    stringData = context.resourceManager.getStringSync(resourceData.id);
+  } catch (error) {
+    let err = error as BusinessError;
+    hilog.error(0x0000, 'GetResourceString', `getResourceString failed. code=${err.code}, message=${err.message}`);
+  }
   return stringData;
 }

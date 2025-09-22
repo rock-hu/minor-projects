@@ -1,5 +1,24 @@
+/*
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // [Start glass_cover_view]
-import { hiTraceMeter } from '@kit.PerformanceAnalysisKit';
+import { hilog, hiTraceMeter } from '@kit.PerformanceAnalysisKit';
+
+const DOMAIN = 0x0000;
+const TAG = 'GlassCoverView';
+const FORMAT = '%{public}s';
 
 /**
  * Glass cladding effect
@@ -40,7 +59,7 @@ export default struct GlassCoverView {
     }
     // Hollow transparent circle
     hiTraceMeter.startTrace('slow', 1);
-    console.info('debug: slow start');
+    hilog.info(DOMAIN, TAG, FORMAT, 'debug: slow start');
     // Save drawing context
     canvas.save();
     // Clears the specified pixel within the given rectangle
@@ -58,7 +77,7 @@ export default struct GlassCoverView {
     canvas.fill();
     // Restore the saved drawing context
     canvas.restore();
-    console.info('debug: slow end');
+    hilog.info(DOMAIN, TAG, FORMAT, 'debug: slow end');
     hiTraceMeter.finishTrace('slow', 1);
   }
 

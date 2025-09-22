@@ -17,10 +17,15 @@
 * 最佳实践: 应用并发设计 线程间通信 Sendable实现线程间模块共享（单例模式） （方案二）
 */
 // [Start initsingleton]
-// xxx.ets
-import { Demo } from './demo';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import { taskpool } from '@kit.ArkTS';
-
+import { Demo } from './demo';
+// [StartExclude taskpool]
+const DOMAIN = 0x0000;
+const TAG = 'InterthreadCommunication3';
+const FORMAT = '%{public}s';
+// [EndExclude taskpool]
 @Concurrent
 function initSingleton(): void {
   let demo = Demo.getInstance();
@@ -30,7 +35,9 @@ function initSingleton(): void {
 
 async function executeTaskPool(): Promise<void> {
   let task = new taskpool.Task(initSingleton);
-  await taskpool.execute(task);
+  await taskpool.execute(task).catch((err: BusinessError) => {
+    hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
+  });
 }
 
 executeTaskPool();

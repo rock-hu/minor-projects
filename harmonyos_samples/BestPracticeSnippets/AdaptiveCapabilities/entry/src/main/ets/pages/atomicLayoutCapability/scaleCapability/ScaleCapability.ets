@@ -64,7 +64,7 @@ struct ScaleCapability {
         // Decorative border (purely for visual demonstration purposes).
         .border({ width: 2, color: '#66F1CCB8' })
       }
-      .backgroundColor('#FFFFFF')
+      .backgroundColor($r('sys.color.comp_background_primary'))
       .height(this.sliderHeight)
       .width(this.sliderWidth)
       .alignItems(HorizontalAlign.Center)
@@ -74,10 +74,9 @@ struct ScaleCapability {
     }
     .height('100%')
     .width('100%')
-    .backgroundColor('#F1F3F5')
+    .backgroundColor($r('sys.color.background_secondary'))
     .alignItems(HorizontalAlign.Center)
     .justifyContent(FlexAlign.Center)
   }
 }
-
 // [End ScaleCapability]

@@ -13,9 +13,15 @@
  * limitations under the License.
  */
 
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import { common } from '@kit.AbilityKit';
 import { CommonConstants } from '../constants/CommonConstants';
 import { BreakpointType } from '../utils/BreakpointSystem';
+
+const DOMAIN = 0x0000;
+const TAG = 'TopArea';
+const FORMAT = '%{public}s';
 
 /*
  *  Top area.
@@ -33,7 +39,10 @@ export struct TopArea {
             .fontColor([$r('sys.color.font_primary')])
             .onClick(() => {
               let context = this.getUIContext().getHostContext() as common.UIAbilityContext;
-              context.terminateSelf();
+              context.terminateSelf().catch((err: BusinessError) => {
+                hilog.info(DOMAIN, TAG, FORMAT,
+                  `TerminateSelf failed. Cause code: ${err.code}, message: ${err.message}`);
+              });
             })
         }
         .justifyContent(FlexAlign.Center)
@@ -56,7 +65,11 @@ export struct TopArea {
           .fontSize($r('sys.float.Title_M'))
           .fontColor([$r('sys.color.font_primary')])
           .onClick(() => {
-            this.getUIContext().getPromptAction().showToast({ message: $r('app.string.trigger_event') });
+            try {
+              this.getUIContext().getPromptAction().showToast({ message: $r('app.string.trigger_event') });
+            } catch (err) {
+              hilog.error(DOMAIN, TAG, FORMAT, `ShowToast failed. Cause code: ${err.code}, message: ${err.message}`);
+            }
           })
       }
       .justifyContent(FlexAlign.Center)

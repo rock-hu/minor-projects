@@ -87,14 +87,14 @@ struct HiddenCapability {
       .width(this.rate * 100 + '%')
       .height(96)
       .borderRadius(16)
-      .backgroundColor('#FFFFFF')
+      .backgroundColor($r('sys.color.comp_background_primary'))
       .justifyContent(FlexAlign.Center)
 
       this.slider()
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F1F3F5')
+    .backgroundColor($r('sys.color.background_secondary'))
     .alignItems(HorizontalAlign.Center)
     .justifyContent(FlexAlign.Center)
   }

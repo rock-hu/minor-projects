@@ -23,6 +23,10 @@ import { BreakpointConstants } from '../constants/BreakpointConstants';
 import LocationUtil from '../utils/LocationUtil';
 import { BreakpointType } from '../utils/BreakpointSystem';
 
+const DOMAIN = 0x0000;
+const TAG = 'BottomToolbar';
+const FORMAT = '%{public}s';
+
 @Component
 export struct BottomToolbar {
   @State currentLocalInfo: ResourceStr[] | geoLocationManager.GeoAddress[] = CommonConstants.CURRENT_LOCAL_INFO;
@@ -50,7 +54,7 @@ export struct BottomToolbar {
         'longitude': this.longitude
       };
       geoLocationManager.getAddressesFromLocation(reverseGeocodeRequest).then(data => {
-        hilog.info(0x0000, '[BottomToolbar]', 'GetAddressesFromLocation data :', JSON.stringify(data));
+        hilog.info(DOMAIN, TAG, FORMAT, 'GetAddressesFromLocation data :', JSON.stringify(data));
         if (data.length !== 0) {
           this.currentLocalInfo = [];
           data.forEach((item) => {
@@ -64,11 +68,11 @@ export struct BottomToolbar {
           this.currentLocation = data[0].placeName;
         }
         this.isDefaultLocation = false;
-      }).catch((err: Error) => {
-        hilog.error(0x0000, '[BottomToolbar]', 'GetAddressesFromLocation err:' + JSON.stringify(err));
+      }).catch((err: BusinessError) => {
+        hilog.error(DOMAIN, TAG, FORMAT, 'GetAddressesFromLocation err:' + JSON.stringify(err));
       });
     } catch {
-      hilog.error(0x0000, '[BottomToolbar]', 'GetAddressesFromLocation err:');
+      hilog.error(DOMAIN, TAG, FORMAT, 'GetAddressesFromLocation err:');
     }
   };
 
@@ -78,6 +82,9 @@ export struct BottomToolbar {
     };
   private getGeolocation: (err: BusinessError, location: geoLocationManager.Location) => void =
     (err: BusinessError, location: geoLocationManager.Location) => {
+      if (err) {
+        return;
+      }
       this.location(location);
     };
   changeFocus: (isAllClose: boolean) => void = () => {
@@ -109,9 +116,12 @@ export struct BottomToolbar {
     try {
       atManager.requestPermissionsFromUser(this.context, CommonConstants.REQUEST_PERMISSIONS).then(() => {
         LocationUtil.geolocationOn(this.getGeolocationOn);
+      }).catch((err: BusinessError) => {
+        hilog.info(DOMAIN, TAG, FORMAT,
+          `RequestPermissionsFromUser failed. Cause code: ${err.code}, message: ${err.message}`);
       });
     } catch (err) {
-      hilog.error(0x0000, '[BottomToolbar]', 'requestPermissionsFromUser err' + JSON.stringify(err));
+      hilog.error(DOMAIN, TAG, FORMAT, 'requestPermissionsFromUser err' + JSON.stringify(err));
     }
   }
 
@@ -135,7 +145,7 @@ export struct BottomToolbar {
     try {
       resourceString = this.getUIContext().getHostContext()!.resourceManager.getStringSync(resource.id);
     } catch (error) {
-      hilog.error(0x0000, '[BottomToolbar]', 'getResourceString err:' + JSON.stringify(error));
+      hilog.error(DOMAIN, TAG, FORMAT, 'getResourceString err:' + JSON.stringify(error));
     }
     return resourceString;
   }
@@ -218,7 +228,7 @@ export struct BottomToolbar {
                 })
             }
             .onClick(() => {
-              hilog.info(0x0000, '[BottomToolbar]', `Number of the current picture: ${index}`);
+              hilog.info(DOMAIN, TAG, FORMAT, `Number of the current picture: ${index}`);
               this.isAddLocalInfo = true;
               this.selectLocalInfo = item;
               this.addAppStorage();
@@ -262,7 +272,11 @@ export struct BottomToolbar {
           .fontColor([$r('sys.color.font_primary')])
           .margin({ right: $r('app.integer.comm_padding_margin') })
           .onClick(() => {
-            this.getUIContext().getPromptAction().showToast({ message: $r('app.string.trigger_event') });
+            try {
+              this.getUIContext().getPromptAction().showToast({ message: $r('app.string.trigger_event') });
+            } catch (err) {
+              hilog.error(DOMAIN, TAG, FORMAT, `ShowToast failed. Cause code: ${err.code}, message: ${err.message}`);
+            }
           })
         SymbolGlyph(this.isKeyboard ? $r('sys.symbol.list_bullet') : $r('sys.symbol.keyboard'))
           .fontSize($r('app.integer.bottom_icon_size'))
@@ -279,14 +293,22 @@ export struct BottomToolbar {
           .fontColor([$r('sys.color.font_primary')])
           .margin({ right: $r('app.integer.comm_padding_margin') })
           .onClick(() => {
-            this.getUIContext().getPromptAction().showToast({ message: $r('app.string.trigger_event') });
+            try {
+              this.getUIContext().getPromptAction().showToast({ message: $r('app.string.trigger_event') });
+            } catch (err) {
+              hilog.error(DOMAIN, TAG, FORMAT, `ShowToast failed. Cause code: ${err.code}, message: ${err.message}`);
+            }
           })
         SymbolGlyph($r('sys.symbol.topic'))
           .fontSize($r('app.integer.bottom_icon_size'))
           .fontColor([$r('sys.color.font_primary')])
           .margin({ right: $r('app.integer.comm_padding_margin') })
           .onClick(() => {
-            this.getUIContext().getPromptAction().showToast({ message: $r('app.string.trigger_event') });
+            try {
+              this.getUIContext().getPromptAction().showToast({ message: $r('app.string.trigger_event') });
+            } catch (err) {
+              hilog.error(DOMAIN, TAG, FORMAT, `ShowToast failed. Cause code: ${err.code}, message: ${err.message}`);
+            }
           })
       }
       .backgroundColor($r('sys.color.background_secondary'))
