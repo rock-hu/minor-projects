@@ -48,20 +48,26 @@ export default class EntryAbility extends UIAbility {
       }
     });
 
-    let windowClass: window.Window = windowStage.getMainWindowSync();
-    windowClass.setWindowLayoutFullScreen(true);
-
-    let SystemBarProperties: window.SystemBarProperties = {
-      statusBarContentColor: '#FFFFFF'
-    };
-    let promise = windowClass.setWindowSystemBarProperties(SystemBarProperties);
-    promise.then(() => {
-      hilog.info(0x0000, TAG, 'Succeeded in setting the system bar properties.');
-    }).catch((err: BusinessError) => {
-      hilog.error(0x0000, TAG,
-        `Failed to set the system bar properties. Cause code: ${err.code}, message: ${err.message}`);
-    });
-
+    let windowClass: window.Window;
+    try {
+      windowClass = windowStage.getMainWindowSync();
+      windowClass.setWindowLayoutFullScreen(true).catch((err: BusinessError) => {
+        hilog.error(0x0000, TAG, 'Failed to set window layout full screen. Cause: %{public}s',
+          JSON.stringify(err) ?? '');
+      });
+      let SystemBarProperties: window.SystemBarProperties = {
+        statusBarContentColor: '#FFFFFF'
+      };
+      windowClass.setWindowSystemBarProperties(SystemBarProperties).then(() => {
+        hilog.info(0x0000, TAG, 'Succeeded in setting the system bar properties.');
+      }).catch((err: BusinessError) => {
+        hilog.error(0x0000, TAG,
+          `Failed to set the system bar properties. Cause code: ${err.code}, message: ${err.message}`);
+      });
+    } catch (err) {
+      hilog.error(0x0000, TAG, 'Failed to get main window. Cause: %{public}s',
+        JSON.stringify(err) ?? '');
+    }
 
     windowStage.loadContent('pages/HomePage', (err, data) => {
       if (err.code) {
@@ -69,15 +75,18 @@ export default class EntryAbility extends UIAbility {
           JSON.stringify(err) ?? '');
         return;
       }
-      const uiContext = windowClass.getUIContext();
-      AppStorage.setOrCreate('uiContext', uiContext);
-      let navigationBarArea: window.AvoidArea =
-        windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
-      let area: window.AvoidArea = windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
-      AppStorage.setOrCreate<number>('naviIndicatorHeight', uiContext.px2vp(navigationBarArea.bottomRect.height));
-      AppStorage.setOrCreate<number>('statusBarHeight', uiContext.px2vp(area.topRect.height));
-      hilog.info(0x0000, TAG, 'Succeeded in loading the content. Data: %{public}s',
-        JSON.stringify(data) ?? '');
+      try {
+        const uiContext = windowClass.getUIContext();
+        AppStorage.setOrCreate('uiContext', uiContext);
+        let navigationBarArea: window.AvoidArea =
+          windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
+        let area: window.AvoidArea = windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
+        AppStorage.setOrCreate<number>('naviIndicatorHeight', uiContext.px2vp(navigationBarArea.bottomRect.height));
+        AppStorage.setOrCreate<number>('statusBarHeight', uiContext.px2vp(area.topRect.height));
+      } catch (err) {
+        hilog.error(0x0000, TAG, 'Failed to load the content. Cause: %{public}s',
+          JSON.stringify(err) ?? '');
+      }
     });
   }
 

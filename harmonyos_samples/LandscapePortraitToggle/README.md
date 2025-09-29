@@ -21,9 +21,11 @@
 ### 目录结构
 
 ```
-├──entry/src/main/ets/
+├──entry/src/main/ets
 │  ├──entryability
 │  │  └──EntryAbility.ets          // Ability的生命周期回调内容
+│  ├──entrybackupability
+│  │  └──EntryBackupAbility.ets    // 数据备份恢复类
 │  ├──pages
 │  │  └──VideoDetail.ets           // 视频详情页
 │  ├──util 
@@ -45,7 +47,7 @@
 * 视频播放功能封装在AVPlayerUtil.ets，源码参考：[AVPlayerUtil.ets](entry/src/main/ets/utils/AVPlayerUtil.ets);
 
 * 横竖屏源码参考：[VideoPlayView.ets](entry/src/main/ets/views/VideoPlayView.ets);
-  横竖屏切换使用了window对象的[setPreferredOrientation](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-window#setpreferredorientation9-1)
+  横竖屏切换使用了window对象的[setPreferredOrientation](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/arkts-apis-window-window#setpreferredorientation9-1)
   方法;
 
 ### 相关权限

@@ -41,19 +41,23 @@ export class BackgroundUtil {
       wantAgentFlags: [wantAgent.WantAgentFlags.UPDATE_PRESENT_FLAG]
     };
 
-    wantAgent.getWantAgent(wantAgentInfo).then((wantAgentObj: Object) => {
-      try {
-        backgroundTaskManager.startBackgroundRunning(context,
-          backgroundTaskManager.BackgroundMode.AUDIO_PLAYBACK, wantAgentObj).then(() => {
-          Logger.info('this avPlayer: ', 'startBackgroundRunning succeeded');
-        }).catch((error: BusinessError) => {
-          Logger.error('this avPlayer: ', `startBackgroundRunning failed Cause: code ${error.code}`);
-        });
-      } catch (error) {
-        Logger.error('this avPlayer: ', `startBackgroundRunning failed. code ${(error as BusinessError).code}
+    wantAgent.getWantAgent(wantAgentInfo)
+      .then((wantAgentObj: Object) => {
+        try {
+          backgroundTaskManager.startBackgroundRunning(context,
+            backgroundTaskManager.BackgroundMode.AUDIO_PLAYBACK, wantAgentObj).then(() => {
+            Logger.info('this avPlayer: ', 'startBackgroundRunning succeeded');
+          }).catch((error: BusinessError) => {
+            Logger.error('this avPlayer: ', `startBackgroundRunning failed Cause: code ${error.code}`);
+          });
+        } catch (error) {
+          Logger.error('this avPlayer: ', `startBackgroundRunning failed. code ${(error as BusinessError).code}
          message ${(error as BusinessError).message}`);
-      }
-    });
+        }
+      })
+      .catch((error: BusinessError) => {
+        Logger.error('this avPlayer: ', `getWantAgent failed. code=${error.code}, message=${error.message}`);
+      })
   }
 
   /**

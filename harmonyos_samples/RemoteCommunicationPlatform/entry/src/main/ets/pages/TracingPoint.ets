@@ -17,6 +17,7 @@ import { BusinessError } from '@kit.BasicServicesKit';
 import { rcp } from '@kit.RemoteCommunicationKit';
 import Logger from '../common/Logger';
 import { CommonConstants } from '../common/CommonConstants';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Builder
 export function TracingPointBuilder() {
@@ -65,15 +66,20 @@ export struct TracingPoint {
       }
     };
     // Use the configuration in the session creation
-    const session = rcp.createSession({ requestConfiguration: { tracing: tracingConfig, security: securityConfig } });
-    session.get('http://developer.huawei.com').then((response) => {
-      Logger.info(`Request succeeded, message is ${JSON.stringify(response)}`);
-    }).catch((err: BusinessError) => {
-      Logger.error(`err: err code is ${err.code}, err message is ${JSON.stringify(err)}`);
-    });
-    // [End custom_http_events_handler]
-    this.detailInfo = JSON.stringify(tracingConfig, null, 2);
-    AppStorage.setOrCreate('TracingPoint', this.detailInfo);
+    try {
+      const session = rcp.createSession({ requestConfiguration: { tracing: tracingConfig, security: securityConfig } });
+      session.get('http://developer.huawei.com').then((response) => {
+        Logger.info(`Request succeeded, message is ${JSON.stringify(response)}`);
+      }).catch((err: BusinessError) => {
+        Logger.error(`err: err code is ${err.code}, err message is ${JSON.stringify(err)}`);
+      });
+      // [End custom_http_events_handler]
+      this.detailInfo = JSON.stringify(tracingConfig, null, 2);
+      AppStorage.setOrCreate('TracingPoint', this.detailInfo);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'TracingPoint', `createSession failed. code=${err.code}, message=${err.message}`);
+    }
   }
 
   build() {

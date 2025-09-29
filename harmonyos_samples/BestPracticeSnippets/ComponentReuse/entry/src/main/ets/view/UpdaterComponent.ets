@@ -39,7 +39,7 @@ export class MyTextUpdater extends AttributeUpdater<TextAttribute> {
 // [StartExclude opt_updater]
 @Component
 export struct UpdaterComponent {
-  private colorData: ColorData = new ColorData();
+  private colorData: ColorData = new ColorData(this.getUIContext().getHostContext());
   private readonly LIST_CACHE_COUNT: number = 5;
   private readonly LIST_SPACE: number = 18;
 

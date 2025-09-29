@@ -24,6 +24,7 @@ import DateTimeUtil from '../common/utils/DateTimeUtils';
 import { CommonConstants as Const } from '../common/CommonConstants';
 import { CameraDataModel } from '../model/CameraDateModel';
 import { videoProfileCheck } from '../common/utils/CameraCheck';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 const TAG: string = Const.INDEX_TAG;
 const DATETIME: DateTimeUtil = new DateTimeUtil();
@@ -35,8 +36,18 @@ struct Player {
   @State isShow: boolean = false;
   private cameraData: CameraDataModel = new CameraDataModel();
   private selectFilePath: string | null = null;
-  private display = display.getDefaultDisplaySync();
-  private heightPx = (this.display.width * Const.DEFAULT_HEIGHT / Const.DEFAULT_WIDTH) + Const.PX;
+  private display: display.Display | null = null;
+  private heightPx = '';
+
+  aboutToAppear() {
+    try {
+      this.display = display.getDefaultDisplaySync();
+      this.heightPx = (this.display.width * Const.DEFAULT_HEIGHT / Const.DEFAULT_WIDTH) + Const.PX;
+    } catch (error) {
+      let err = error as BusinessError;
+      Logger.error(`getDefaultDisplaySync failed. code=${err.code}, message=${err.message}`);
+    }
+  }
 
   selectFile() {
     let photoPicker = new photoAccessHelper.PhotoViewPicker();
@@ -51,50 +62,73 @@ struct Player {
             message: $r('app.string.alert'),
             duration: Const.DURATION,
             bottom: Const.BOTTOM
-          });
+          })
+            .catch((err: BusinessError) => {
+              Logger.error(`promptAction openToast failed. code=${err.code}, message=${err.message}`);
+            })
         } else {
           this.play();
           Logger.info(TAG, 'documentViewPicker.select to file succeed and URI is:' + this.selectFilePath);
         }
-      });
+      })
+      .catch((err: BusinessError) => {
+        Logger.error(`photoPicker select failed. code=${err.code}, message=${err.message}`);
+      })
   }
 
   play() {
-    let inputFile = fileIo.openSync(this.selectFilePath, fileIo.OpenMode.READ_ONLY);
-    if (!inputFile) {
-      Logger.error(TAG, 'player inputFile is null');
+    try {
+      let inputFile = fileIo.openSync(this.selectFilePath, fileIo.OpenMode.READ_ONLY);
+      if (!inputFile) {
+        Logger.error(TAG, 'player inputFile is null');
+      }
+      let inputFileState = fileIo.statSync(inputFile.fd);
+      if (inputFileState.size <= 0) {
+        Logger.error(TAG, 'player inputFile size is 0');
+      }
+      this.buttonEnabled = false;
+      player.playNative(inputFile.fd, Const.DEFAULT_VALUE, inputFileState.size, () => {
+        Logger.info(TAG, 'player JSCallback');
+        this.buttonEnabled = true;
+        fileIo.close(inputFile)
+          .catch((err: BusinessError) => {
+            Logger.error(`fileIo close failed. code=${err.code}, message=${err.message}`);
+          })
+      })
+    } catch (err) {
+      let error = err as BusinessError;
+      Logger.error(`fileIo failed. code=${error.code}, message=${error.message}`);
     }
-    let inputFileState = fileIo.statSync(inputFile.fd);
-    if (inputFileState.size <= 0) {
-      Logger.error(TAG, 'player inputFile size is 0');
-    }
-    this.buttonEnabled = false;
-    player.playNative(inputFile.fd, Const.DEFAULT_VALUE, inputFileState.size, () => {
-      Logger.info(TAG, 'player JSCallback');
-      this.buttonEnabled = true;
-      fileIo.close(inputFile);
-    })
   }
 
   async checkIsProfileSupport(): Promise<void> {
     let context = this.getUIContext()?.getHostContext();
-    let cameraManager: camera.CameraManager = camera.getCameraManager(context);
-    if (!cameraManager) {
-      Logger.error(TAG, 'camera.getCameraManager error!');
-    }
+    let cameraManager: camera.CameraManager;
+    try {
+      cameraManager = camera.getCameraManager(context)
+      if (!cameraManager) {
+        Logger.error(TAG, 'camera.getCameraManager error!');
+      }
 
-    let videoProfile: undefined | camera.VideoProfile = videoProfileCheck(cameraManager, this.cameraData);
-    if (!videoProfile) {
-      Logger.error(TAG, 'videoProfile is not found');
-      promptAction.openToast({
-        message: $r('app.string.alert_setting'),
-        duration: Const.DURATION,
-        bottom: Const.BOTTOM,
-        backgroundColor: Color.White,
-        backgroundBlurStyle: BlurStyle.NONE
-      })
-      this.cameraData = new CameraDataModel();
-      return;
+      let videoProfile: undefined | camera.VideoProfile = videoProfileCheck(cameraManager, this.cameraData);
+      if (!videoProfile) {
+        Logger.error(TAG, 'videoProfile is not found');
+        promptAction.openToast({
+          message: $r('app.string.alert_setting'),
+          duration: Const.DURATION,
+          bottom: Const.BOTTOM,
+          backgroundColor: Color.White,
+          backgroundBlurStyle: BlurStyle.NONE
+        })
+          .catch((err: BusinessError) => {
+            Logger.error(`promptAction openToast failed. code=${err.code}, message=${err.message}`);
+          })
+        this.cameraData = new CameraDataModel();
+        return;
+      }
+    } catch (err) {
+      let error = err as BusinessError;
+      Logger.error(`getCameraManager failed. code=${error.code}, message=${error.message}`);
     }
   }
 
@@ -197,27 +231,39 @@ struct Player {
           .onClick(async () => {
             let context = this.getUIContext()?.getHostContext();
             let helper = photoAccessHelper.getPhotoAccessHelper(context);
-            let uri = await helper.createAsset(photoAccessHelper.PhotoType.VIDEO, 'mp4', {
-              title: `AVCodecVideo_${DATETIME.getDate()}_${DATETIME.getTime()}`
-            });
-            let file = await fileIo.open(uri, fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE);
-            this.cameraData.outputfd = file.fd;
-            if (this.cameraData.outputfd !== null) {
-              recorder.initNative(this.cameraData.outputfd, this.cameraData.videoCodecMime, this.cameraData.cameraWidth,
-                this.cameraData.cameraHeight, this.cameraData.frameRate, this.cameraData.isHDRVivid,
-                this.cameraData.bitRate).then((data) => {
-                if (data.surfaceId !== null) {
-                  this.cameraData.surfaceId = data.surfaceId;
-                  let uiContext = this.getUIContext();
-                  let router = uiContext.getRouter();
-                  router.pushUrl({
-                    url: 'pages/Recorder',
-                    params: this.cameraData
-                  });
-                }
-              })
-            } else {
-              Logger.error(TAG, 'get outputfd failed!');
+            try {
+              let uri = await helper.createAsset(photoAccessHelper.PhotoType.VIDEO, 'mp4', {
+                title: `AVCodecVideo_${DATETIME.getDate()}_${DATETIME.getTime()}`
+              });
+              let file = await fileIo.open(uri, fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE);
+              this.cameraData.outputfd = file.fd;
+              if (this.cameraData.outputfd !== null) {
+                recorder.initNative(this.cameraData.outputfd, this.cameraData.videoCodecMime,
+                  this.cameraData.cameraWidth,
+                  this.cameraData.cameraHeight, this.cameraData.frameRate, this.cameraData.isHDRVivid,
+                  this.cameraData.bitRate).then((data) => {
+                  if (data.surfaceId !== null) {
+                    this.cameraData.surfaceId = data.surfaceId;
+                    let uiContext = this.getUIContext();
+                    let router = uiContext.getRouter();
+                    router.pushUrl({
+                      url: 'pages/Recorder',
+                      params: this.cameraData
+                    })
+                      .then(() => {
+                        Logger.info(`router pushUrl success`);
+                      })
+                      .catch((error: BusinessError) => {
+                        Logger.error(`router pushUrl failed. code=${error.code}, message=${error.message}`);
+                      })
+                  }
+                })
+              } else {
+                Logger.error(TAG, 'get outputfd failed!');
+              }
+            } catch (err) {
+              let error = err as BusinessError;
+              Logger.error(`fileIo open failed. code=${error.code}, message=${error.message}`);
             }
           })
           .width('48%')
@@ -230,7 +276,7 @@ struct Player {
       .height('52vp')
     }
     .justifyContent(FlexAlign.End)
-    .padding({left: '16vp', right: '16vp'})
+    .padding({ left: '16vp', right: '16vp' })
     .width('100%')
     .height('100%')
   }
@@ -301,7 +347,7 @@ struct Player {
         'bottom': { 'anchor': '__container__', 'align': VerticalAlign.Bottom },
         'left': { 'anchor': '__container__', 'align': HorizontalAlign.Start }
       })
-      .padding({left: '16vp', right: '16vp', bottom:'16vp'})
+      .padding({ left: '16vp', right: '16vp', bottom: '16vp' })
       .width($r('app.string.full_width'))
       .height($r('app.float.index_column_height'))
       .justifyContent(FlexAlign.End)

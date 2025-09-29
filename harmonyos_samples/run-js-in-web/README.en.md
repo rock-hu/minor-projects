@@ -32,7 +32,7 @@ How to Use
 
 * This sample consists of one module.
   * Use buttons to implement basic control on games, use the **WebViewController** APIs to control behaviors of the **Web** components, and use the WebView to inject JS and execution capabilities.
-  * Source code: [EntryAbility.ets](entry/src/main/ets/entryability/EntryAbility.ets), [Index.ets] (entry/src/main/ets/pages/Index.ets)
+  * Source code: [EntryAbility.ets](entry/src/main/ets/entryability/EntryAbility.ets), [Index.ets](entry/src/main/ets/pages/Index.ets)
   * API reference: @ohos.window, @ohos.web.webview
 
 ### Required Permissions

@@ -47,34 +47,31 @@ struct Index {
       hilog.error(DOMAIN, TAG, 'subWindow is null');
       return;
     }
-    let subwindowRect: window.Rect = this.subWindow.getWindowProperties().windowRect;
-    let newWidth: number = subwindowRect.height;
-    let newHeight: number = subwindowRect.width;
-    let newX: number = subwindowRect.top;
-    let newY: number = subwindowRect.left;
+    let subwindowRect: window.Rect | null = null;
     try {
-      let promise = this.subWindow.resize(newWidth, newHeight);
-      promise.then(() => {
+      subwindowRect = this.subWindow.getWindowProperties().windowRect;
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.warn(0x000, 'testTag', `getWindowProperties failed, code=${err.code}, message=${err.message}`);
+    }
+    let newWidth: number = subwindowRect!.height;
+    let newHeight: number = subwindowRect!.width;
+    let newX: number = subwindowRect!.top;
+    let newY: number = subwindowRect!.left;
+    this.subWindow.resize(newWidth, newHeight)
+      .then(() => {
         hilog.info(DOMAIN, TAG, 'Succeeded in changing the window size')
       }).catch((err: BusinessError) => {
-        hilog.error(DOMAIN, TAG, `Failed to change the window size. Cause code: ${err.code}, message: ${err.message}`);
-      });
-    } catch (exception) {
-      hilog.error(DOMAIN, TAG,
-        `Failed to change the window size. Cause code: ${exception.code}, message: ${exception.message}`);
-    }
+      hilog.error(DOMAIN, TAG, `Failed to change the window size. Cause code: ${err.code}, message: ${err.message}`);
+    });
 
-    try {
-      let promise = this.subWindow.moveWindowTo(newX, newY);
-      promise.then(() => {
+    this.subWindow.moveWindowTo(newX, newY)
+      .then(() => {
         hilog.info(DOMAIN, TAG, 'Succeeded in moving the window');
       }).catch((err: BusinessError) => {
-        hilog.error(DOMAIN, TAG, `Failed to move the window. Cause code: ${err.code}, message: ${err.message}`);
-      });
-    } catch (exception) {
-      hilog.error(DOMAIN, TAG,
-        `Failed to move the window. Cause code: ${exception.code}, message: ${exception.message}`);
-    }
+      hilog.error(DOMAIN, TAG, `Failed to move the window. Cause code: ${err.code}, message: ${err.message}`);
+    });
+
   }
 
   // [StartExclude rotate_sample]
@@ -89,13 +86,31 @@ struct Index {
       if (!this.mainWindow) {
         return;
       }
-      let mainWindowRect: window.Rect = this.mainWindow.getWindowProperties().windowRect;
-      let mainWindowWidth: number = mainWindowRect.width;
-      let mainWindowHeight: number = mainWindowRect.height;
-      this.subWindow.resize(mainWindowWidth - SUB_WINDOW_LEFT_OFFSET, mainWindowHeight - SUB_WINDOW_TOP_OFFSET);
-      this.subWindow.moveWindowTo(SUB_WINDOW_LEFT_OFFSET / 2, SUB_WINDOW_TOP_OFFSET / 2);
+      let mainWindowRect: window.Rect | null = null;
+      try {
+        mainWindowRect = this.mainWindow.getWindowProperties().windowRect;
+      } catch (error) {
+        let err = error as BusinessError;
+        hilog.warn(0x000, 'testTag', `getWindowProperties failed, code=${err.code}, message=${err.message}`);
+      }
+
+      let mainWindowWidth: number = mainWindowRect!.width;
+      let mainWindowHeight: number = mainWindowRect!.height;
+      this.subWindow.resize(mainWindowWidth - SUB_WINDOW_LEFT_OFFSET, mainWindowHeight - SUB_WINDOW_TOP_OFFSET)
+        .catch((err: BusinessError) => {
+          hilog.error(0x000, 'testTag', `resize failed, code=${err.code}, message=${err.message}`);
+        })
+      this.subWindow.moveWindowTo(SUB_WINDOW_LEFT_OFFSET / 2, SUB_WINDOW_TOP_OFFSET / 2)
+        .catch((err: BusinessError) => {
+          hilog.error(0x000, 'testTag', `moveWindowTo failed, code=${err.code}, message=${err.message}`);
+        })
       this.subWindow.setUIContent('pages/Subwindow').then(() => {
-        this.subWindow?.setWindowBackgroundColor('#ff0000');
+        try {
+          this.subWindow?.setWindowBackgroundColor('#ff0000');
+        } catch (error) {
+          let err = error as BusinessError;
+          hilog.warn(0x000, 'testTag', `setWindowBackgroundColor failed, code=${err.code}, message=${err.message}`);
+        }
         this.subWindow?.showWindow().then(() => {
           hilog.info(DOMAIN, TAG, 'Show subwindow success');
         }).catch((error: BusinessError) => {

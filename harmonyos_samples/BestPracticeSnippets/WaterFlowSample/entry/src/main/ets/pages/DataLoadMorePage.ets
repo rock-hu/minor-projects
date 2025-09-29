@@ -18,14 +18,14 @@ import { hilog } from "@kit.PerformanceAnalysisKit";
 import { CommonConstants } from "../common/constants/CommonConstants";
 import { SectionsWaterFlowDataSource } from "../model/SectionsWaterFlowDataSource";
 
-const TAG = 'DataLoadMorePage';
+const TAG: string = 'DataLoadMorePage';
 
-// [StartExclude flow_item_layout]
+// [StartExclude quick_start]
 @Reusable
 struct ReusableFlowItem {
   @State item: number = 0;
 
-  aboutToReuse(params: Record<string, number>) {
+  aboutToReuse(params: Record<string, number>): void {
     this.item = params.item;
   }
 
@@ -81,13 +81,13 @@ struct ReusableFlowItem {
   }
 }
 
-// [EndExclude flow_item_layout]
+// [EndExclude quick_start]
 @Entry
 @Component
 struct DataLoadMorePage {
   @State sections: WaterFlowSections = new WaterFlowSections();
   dataSource: SectionsWaterFlowDataSource = new SectionsWaterFlowDataSource();
-  // [StartExclude variable_declare]
+  // [StartExclude quick_start]
   @State isRefreshing: boolean = false;
   @State currentItem: number = -1;
   @State minSize: number = 80;
@@ -129,7 +129,7 @@ struct DataLoadMorePage {
   }
 
   @Builder
-  headerRefresh() {
+  headerRefresh(): void {
     Column() {
       LoadingProgress()
         .color(Color.Black)
@@ -145,8 +145,8 @@ struct DataLoadMorePage {
     setTimeout(() => {
       // Add new data.
       this.dataSource.dataArray = [];
-      let value = Math.floor(Math.random() * 100);
-      for (let i = 0; i < 100; i++) {
+      let value: number = Math.floor(Math.random() * 100);
+      for (let i: number = 0; i < 100; i++) {
         this.dataSource.dataArray.push(i + value);
         this.dataSource.notifyDataAdd(i);
       }
@@ -165,21 +165,21 @@ struct DataLoadMorePage {
   }
 
   getSize(): number {
-    let ret = Math.floor(Math.random() * this.maxSize);
+    let ret: number = Math.floor(Math.random() * this.maxSize);
     return (ret > this.minSize ? ret : this.minSize);
   }
 
   setItemSizeArray(): void {
-    for (let i = 0; i < 100; i++) {
+    for (let i: number = 0; i < 100; i++) {
       this.itemHeightArray.push(this.getSize());
     }
   }
 
   initSections(): void {
     let sectionOptions: SectionOptions[] = [];
-    let count = 0;
-    let oneOrTwo = 0;
-    let dataCount = this.dataSource.totalCount();
+    let count: number = 0;
+    let oneOrTwo: number = 0;
+    let dataCount: number = this.dataSource.totalCount();
     while (count < dataCount) {
       if (dataCount - count < 96) {
         this.dataSection.itemsCount = dataCount - count;
@@ -198,13 +198,13 @@ struct DataLoadMorePage {
   }
 
   removeItem(item: number): void {
-    let index = this.dataSource.indexOf(item);
+    let index: number = this.dataSource.indexOf(item);
     this.dataSource.deleteItem(index);
     const sections: Array<SectionOptions> = this.sections.values();
     let newSection: SectionOptions;
-    let tmpIndex = 0;
-    let sectionIndex = 0;
-    for (let i = 0; i < sections.length; i++) {
+    let tmpIndex: number = 0;
+    let sectionIndex: number = 0;
+    for (let i: number = 0; i < sections.length; i++) {
       tmpIndex += sections[i].itemsCount;
       if (index < tmpIndex) {
         sectionIndex = i;
@@ -219,17 +219,17 @@ struct DataLoadMorePage {
     this.sections.update(sectionIndex, newSection);
   }
 
-  aboutToAppear() {
+  aboutToAppear(): void {
     this.setItemSizeArray();
     this.initSections();
   }
 
-  // [EndExclude variable_declare]
+  // [EndExclude quick_start]
   build() {
     Column({ space: 0 }) {
       Refresh({ refreshing: $$this.isRefreshing, builder: this.headerRefresh() }) {
         WaterFlow({ scroller: this.scroller, sections: this.sections }) {
-          // [StartExclude water_flow_data]
+          // [StartExclude quick_start]
           LazyForEach(this.dataSource, (item: number) => {
             FlowItem() {
               Stack() {
@@ -267,7 +267,7 @@ struct DataLoadMorePage {
             .borderRadius(8)
             .backgroundColor(Color.Gray)
           }, (item: string) => item)
-          // [EndExclude water_flow_data]
+          // [EndExclude quick_start]
         }
         .cachedCount(12)
         .columnsGap(8)
@@ -278,11 +278,11 @@ struct DataLoadMorePage {
         // For better experience, pre load data.
         .onScrollIndex((first: number, last: number) => {
           // 1、Obtain the total amount of data in the waterfall flow.
-          let totalCount = this.dataSource.totalCount();
+          let totalCount: number = this.dataSource.totalCount();
           // 2、If the index of the last visible area is greater than the total amount of data, it triggers loading more.
           if (last + 20 >= totalCount) {
             // 3、Re-add 20 data entries to the waterfall.
-            for (let i = 0; i < 20; i++) {
+            for (let i: number = 0; i < 20; i++) {
               this.dataSource.addLastItem();
             }
             // 4、Update the itemsCount in the group and refresh the group information.
@@ -291,13 +291,13 @@ struct DataLoadMorePage {
           }
         })
       }
-      // [StartExclude refresh]
+      // [StartExclude quick_start]
       .refreshOffset(56)
       .onRefreshing(() => {
         this.refresh();
       })
 
-      // [EndExclude refresh]
+      // [EndExclude quick_start]
     }
     .padding({
       top: this.statusBarHeight

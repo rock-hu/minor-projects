@@ -30,12 +30,18 @@ struct ApproximatelyLocationDemo {
     // [End request_permission]
     const bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION;
     const bundleInfo = bundleManager.getBundleInfoForSelfSync(bundleFlags);
-    const grantStatus = accessManager.checkAccessTokenSync(bundleInfo.appInfo.accessTokenId, permissions[0]);
-
+    let grantStatus: abilityAccessCtrl.GrantStatus | null = null;
+    try {
+      grantStatus = accessManager.checkAccessTokenSync(bundleInfo.appInfo.accessTokenId, permissions[0]);
+    } catch (error) {
+      let err = error as BusinessError;
+      Logger.error(`showToast failed, code=${err.code}, message=${err.message}`);
+    }
     return new Promise((resolve, reject) => {
       if (grantStatus === abilityAccessCtrl.GrantStatus.PERMISSION_DENIED) {
         // [Start request_permission]
-        accessManager.requestPermissionsFromUser(this.getUIContext().getHostContext(), ['ohos.permission.APPROXIMATELY_LOCATION'])
+        accessManager.requestPermissionsFromUser(this.getUIContext().getHostContext(),
+          ['ohos.permission.APPROXIMATELY_LOCATION'])
           .then((data) => {
             let grantStatus: Array<number> = data.authResults;
             if (grantStatus.length > 0 && grantStatus[0] === 0) {
@@ -48,15 +54,20 @@ struct ApproximatelyLocationDemo {
               // The user rejects the authorization
               Logger.info('request permissions denied');
               // [StartExclude request_permission]
-              this.getUIContext().getPromptAction().showToast({
-                message: 'This function requires the location permission. Go to the settings page to authorize the permission'
-              });
+              try {
+                this.getUIContext().getPromptAction().showToast({
+                  message: 'This function requires the location permission. Go to the settings page to authorize the permission'
+                });
+              } catch (error) {
+                let err = error as BusinessError;
+                Logger.error(`showToast failed, code=${err.code}, message=${err.message}`);
+              }
               resolve(-1);
               // [EndExclude request_permission]
             }
             Logger.info(`request permissions result: ${JSON.stringify(data)}`);
           })
-            // [End request_permission]
+          // [End request_permission]
           .catch((error: BusinessError) => {
             Logger.error(`request permissions exception, Catch error:${JSON.stringify(error)}`);
             reject(error);
@@ -66,7 +77,6 @@ struct ApproximatelyLocationDemo {
       }
     });
   }
-
 
   getLocation() {
 

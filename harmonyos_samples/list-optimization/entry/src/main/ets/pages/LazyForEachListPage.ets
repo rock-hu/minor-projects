@@ -20,6 +20,8 @@ import { ObservedArray } from '../utils/ObservedArray';
 import { ReusableArticleCardView } from '../components/ReusableArticleCardView';
 import Constants from '../constants/Constants';
 import { util } from '@kit.ArkTS';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 
 function bufferToString(buffer: ArrayBufferLike): string {
@@ -65,6 +67,8 @@ export struct LazyForEachListPage {
         resources.push(res);
       });
       this.data = new ArticleListData(resources);
+    }).catch((err: BusinessError) => {
+      hilog.error(0xFF00, 'ListOptimization', `getArticleModelObjFromJSON fail, code = ${err.code}, message = ${err.message}`);
     })
   }
 

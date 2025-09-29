@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
 import { Decrypt } from '../common/Decrypt';
 import { Encrypt } from '../common/Encrypt';
 
@@ -56,9 +55,9 @@ struct Second {
       .constraintSize({ minHeight: 50 })
 
       if (this.flag) {
-        Encrypt();
+        Encrypt()
       } else {
-        Decrypt();
+        Decrypt()
       }
     }
     .width('100%')
@@ -67,6 +66,6 @@ struct Second {
   }
 }
 
-class rouTmp{
+class rouTmp {
   flag: boolean = true;
 }

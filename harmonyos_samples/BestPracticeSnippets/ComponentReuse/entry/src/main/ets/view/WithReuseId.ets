@@ -23,7 +23,7 @@ import { FriendMomentsData } from '../model/FriendMomentData'
 @Component
 struct WithReuseId {
   // [StartExclude opt_reuseId]
-  private momentData: FriendMomentsData = new FriendMomentsData();
+  private momentData: FriendMomentsData = new FriendMomentsData(this.getUIContext().getHostContext());
   private readonly LIST_CACHE_COUNT: number = 5;
   private readonly LIST_SPACE: number = 18;
 

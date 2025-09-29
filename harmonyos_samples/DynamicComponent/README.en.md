@@ -51,10 +51,20 @@ This sample shows how to dynamically create a component in the declarative UI.
     │   ├───model
     │   │   ├───AdParams.ets                             // Ad component parameters
     │   │   └───CardData.ets                             // Card parameters
-    │   └───pages
-    │       ├───Index.ets                                // App entry
-    │       ├───MainPage.ets                             // Main page
-    │       └───TitleBar.ets                             // Title bar
+    │   ├───pages
+    │   │   ├───Index.ets                                // App entry
+    │   │   ├───MainPage.ets                             // Main page
+    │   │   ├───TestCode.ets    
+    │   │   └───TitleBar.ets                             // Title bar
+    │   ├───segment
+    │   │   ├───segment.ets     
+    │   │   ├───segment2.ets     
+    │   │   ├───segment3.ets     
+    │   │   ├───segment4.ets     
+    │   │   ├───segment5.ets     
+    │   │   └───segment6.ets                                                      
+    │   └───view
+    │       └───ImperativeView.ets                      // Case of dynamically generated pages
     └──entry/src/main/resources                         // Static resources of the app
    ```
 

@@ -23,8 +23,8 @@ export class StickyWaterFlowDataSource implements IDataSource {
   private listeners: DataChangeListener[] = [];
 
   constructor() {
-    for (let i = 0; i < 100; i++) {
-      let mediaItem = this.createMediaItem(i);
+    for (let i: number = 0; i < 100; i++) {
+      let mediaItem: MediaItem = this.createMediaItem(i);
       this.dataArray.push(mediaItem);
     }
   }
@@ -72,7 +72,7 @@ export class StickyWaterFlowDataSource implements IDataSource {
    * @param {DataChangeListener} listener  Data change listener
    */
   unregisterDataChangeListener(listener: DataChangeListener): void {
-    let pos = this.listeners.indexOf(listener);
+    let pos: number = this.listeners.indexOf(listener);
     if (pos >= 0) {
       this.listeners.splice(pos, 1);
     }
@@ -89,15 +89,15 @@ export class StickyWaterFlowDataSource implements IDataSource {
    *
    */
   public addLastItem() {
-    let mediaItem = this.createMediaItem(this.dataArray.length);
+    let mediaItem: MediaItem = this.createMediaItem(this.dataArray.length);
     this.dataArray.splice(this.dataArray.length, 0, mediaItem);
     this.notifyDataAdd(this.dataArray.length - 1);
   }
 
   createMediaItem(i: number): MediaItem {
-    let videoName = `video_sample${(i % 5) + 1}`;
-    let imageName = `${(i % 4)}`;
-    let type = (i % 3 === 0) ? ItemType.VIDEO : ItemType.IMAGE;
+    let videoName: string = `video_sample${(i % 5) + 1}`;
+    let imageName: string = `${(i % 4)}`;
+    let type: ItemType = (i % 3 === 0) ? ItemType.VIDEO : ItemType.IMAGE;
     return new MediaItem(i, type,
       $rawfile(`covers/${videoName}.png`), $rawfile(`${videoName}.mp4`),
       $rawfile(`sections/${imageName}.jpg`));

@@ -19,11 +19,15 @@ import CommonConstants from '../constants/CommonConstants';
 import { SignatureItem } from '../viewmodel/SignatureItem';
 import { genRsa2048KeyPairSpec } from '../utils/SignatureUtil';
 import { getResourceString } from '../utils/ResourceString';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Builder
 export function SignatureDetailBuilder() {
   SignatureDetail();
 }
+
+const TAG: string = 'SignatureDetail';
 
 @Component
 export struct SignatureDetail {
@@ -41,105 +45,120 @@ export struct SignatureDetail {
   }
 
   async signMessagePromise() {
-    if (this.SignatureItem.type === 'RSA1024|PKCS1|SHA256' && this.SignatureItem.isSegment) {
-      // PKCS1 segment signature.
-      let signAlg = this.SignatureItem.type;
-      let signer = cryptoFramework.createSign(signAlg);
-      await this.generatorKey();
-      let key = this.keyPair as cryptoFramework.KeyPair;
-      await signer.init(key.priKey);
-      let textSplitLen = 64; // User-defined data splitting length. The value is 64.
-      let plainText = new Uint8Array(buffer.from(this.sign, 'utf8').buffer)
-      for (let i = 0; i < plainText.length; i += textSplitLen) {
-        let updateMessage = plainText.subarray(i, i + textSplitLen);
-        let updateMessageBlob: cryptoFramework.DataBlob = { data: updateMessage };
-        // Segment update.
-        await signer.update(updateMessageBlob);
+    try {
+      if (this.SignatureItem.type === 'RSA1024|PKCS1|SHA256' && this.SignatureItem.isSegment) {
+        // PKCS1 segment signature.
+        let signAlg = this.SignatureItem.type;
+        let signer = cryptoFramework.createSign(signAlg);
+        await this.generatorKey();
+        let key = this.keyPair as cryptoFramework.KeyPair;
+        await signer.init(key.priKey);
+        let textSplitLen = 64; // User-defined data splitting length. The value is 64.
+        let plainText = new Uint8Array(buffer.from(this.sign, 'utf8').buffer)
+        for (let i = 0; i < plainText.length; i += textSplitLen) {
+          let updateMessage = plainText.subarray(i, i + textSplitLen);
+          let updateMessageBlob: cryptoFramework.DataBlob = { data: updateMessage };
+          // Segment update.
+          await signer.update(updateMessageBlob);
+        }
+        let signData = await signer.sign(null);
+        this.signData = signData;
+      } else if (this.SignatureItem.type === 'RSA|PASS|SHA256|MGF1_SHA256') {
+        // Parameters for obtaining an RSA key pair.
+        let rsaKeyPairSpec = genRsa2048KeyPairSpec();
+        // RSA key pair generator.
+        let rsaGeneratorSpec = cryptoFramework.createAsyKeyGeneratorBySpec(rsaKeyPairSpec);
+        // Both sign and verfiy support RSA keys with or without length.
+        let signer = cryptoFramework.createSign('RSA|PSS|SHA256|MGF1_SHA256');
+        let keyPair = await rsaGeneratorSpec.generateKeyPair();
+        await signer.init(keyPair.priKey);
+        // After the signature is initialized,perform the set and get operations on the PSS parameters.
+        let setN = 32;
+        signer.setSignSpec(cryptoFramework.SignSpecItem.PSS_SALT_LEN_NUM, setN);
+        signer.getSignSpec(cryptoFramework.SignSpecItem.PSS_SALT_LEN_NUM);
+        signer.getSignSpec(cryptoFramework.SignSpecItem.PSS_TRAILER_FIELD_NUM);
+        signer.getSignSpec(cryptoFramework.SignSpecItem.PSS_MD_NAME_STR);
+        signer.getSignSpec(cryptoFramework.SignSpecItem.PSS_MGF_NAME_STR);
+        signer.getSignSpec(cryptoFramework.SignSpecItem.PSS_MGF1_MD_STR);
+        await signer.update(this.input);
+        let signData = await signer.sign(null);
+        this.signData = signData;
+      } else {
+        let signAlg = this.SignatureItem.type;
+        let signer = cryptoFramework.createSign(signAlg);
+        await this.generatorKey();
+        let key = this.keyPair as cryptoFramework.KeyPair;
+        await signer.init(key.priKey);
+        await signer.update(this.input);
+        let signData = await signer.sign(null);
+        this.signData = signData;
       }
-      let signData = await signer.sign(null);
-      this.signData = signData;
-    } else if (this.SignatureItem.type === 'RSA|PASS|SHA256|MGF1_SHA256') {
-      // Parameters for obtaining an RSA key pair.
-      let rsaKeyPairSpec = genRsa2048KeyPairSpec();
-      // RSA key pair generator.
-      let rsaGeneratorSpec = cryptoFramework.createAsyKeyGeneratorBySpec(rsaKeyPairSpec);
-      // Both sign and verfiy support RSA keys with or without length.
-      let signer = cryptoFramework.createSign('RSA|PSS|SHA256|MGF1_SHA256');
-      let keyPair = await rsaGeneratorSpec.generateKeyPair();
-      await signer.init(keyPair.priKey);
-      // After the signature is initialized,perform the set and get operations on the PSS parameters.
-      let setN = 32;
-      signer.setSignSpec(cryptoFramework.SignSpecItem.PSS_SALT_LEN_NUM, setN);
-      signer.getSignSpec(cryptoFramework.SignSpecItem.PSS_SALT_LEN_NUM);
-      signer.getSignSpec(cryptoFramework.SignSpecItem.PSS_TRAILER_FIELD_NUM);
-      signer.getSignSpec(cryptoFramework.SignSpecItem.PSS_MD_NAME_STR);
-      signer.getSignSpec(cryptoFramework.SignSpecItem.PSS_MGF_NAME_STR);
-      signer.getSignSpec(cryptoFramework.SignSpecItem.PSS_MGF1_MD_STR);
-      await signer.update(this.input);
-      let signData = await signer.sign(null);
-      this.signData = signData;
-    } else {
-      let signAlg = this.SignatureItem.type;
-      let signer = cryptoFramework.createSign(signAlg);
-      await this.generatorKey();
-      let key = this.keyPair as cryptoFramework.KeyPair;
-      await signer.init(key.priKey);
-      await signer.update(this.input);
-      let signData = await signer.sign(null);
-      this.signData = signData;
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, TAG, `signMessagePromise failed, error code=${err.code}, message=${err.message}`);
     }
   }
 
   async verifyMessagePromise() {
-    if (this.SignatureItem.type === 'RSA1024|PKCS1|SHA256' && this.SignatureItem.isSegment) {
-      let verifyAlg = this.SignatureItem.type;
-      let verifier = cryptoFramework.createVerify(verifyAlg);
-      let key = this.keyPair as cryptoFramework.KeyPair;
-      await verifier.init(key.pubKey);
-      let textSplitLen = 64; // User-defined data splitting length. The value is 64.
-      let plainText = new Uint8Array(buffer.from(this.sign, 'utf8').buffer)
-      for (let i = 0; i < plainText.length; i += textSplitLen) {
-        let updateMessage = plainText.subarray(i, i + textSplitLen);
-        let updateMessageBlob: cryptoFramework.DataBlob = { data: updateMessage };
-        // Segment update.
-        await verifier.update(updateMessageBlob);
+    try {
+      if (this.SignatureItem.type === 'RSA1024|PKCS1|SHA256' && this.SignatureItem.isSegment) {
+        let verifyAlg = this.SignatureItem.type;
+        let verifier = cryptoFramework.createVerify(verifyAlg);
+        let key = this.keyPair as cryptoFramework.KeyPair;
+        await verifier.init(key.pubKey);
+        let textSplitLen = 64; // User-defined data splitting length. The value is 64.
+        let plainText = new Uint8Array(buffer.from(this.sign, 'utf8').buffer)
+        for (let i = 0; i < plainText.length; i += textSplitLen) {
+          let updateMessage = plainText.subarray(i, i + textSplitLen);
+          let updateMessageBlob: cryptoFramework.DataBlob = { data: updateMessage };
+          // Segment update.
+          await verifier.update(updateMessageBlob);
+        }
+        let res = await verifier.verify(null, this.signData);
+        res === true ? this.signResult = 'verify success' : this.signResult = 'verify failed';
+      } else if (this.SignatureItem.type === 'RSA|PASS|SHA256|MGF1_SHA256') {
+        // Parameters for obtaining an RSA key pair.
+        let rsaKeyPairSpec = genRsa2048KeyPairSpec();
+        // RSA key pair generator.
+        let rsaGeneratorSpec = cryptoFramework.createAsyKeyGeneratorBySpec(rsaKeyPairSpec);
+        let verifyer = cryptoFramework.createVerify("RSA2048|PSS|SHA256|MGF1_SHA256");
+        let keyPair = await rsaGeneratorSpec.generateKeyPair();
+        let setN = 32;
+        verifyer.setVerifySpec(cryptoFramework.SignSpecItem.PSS_SALT_LEN_NUM, setN);
+        verifyer.getVerifySpec(cryptoFramework.SignSpecItem.PSS_SALT_LEN_NUM);
+        verifyer.getVerifySpec(cryptoFramework.SignSpecItem.PSS_TRAILER_FIELD_NUM);
+        verifyer.getVerifySpec(cryptoFramework.SignSpecItem.PSS_MD_NAME_STR);
+        verifyer.getVerifySpec(cryptoFramework.SignSpecItem.PSS_MGF_NAME_STR);
+        verifyer.getVerifySpec(cryptoFramework.SignSpecItem.PSS_MGF1_MD_STR);
+        verifyer.initSync(keyPair.pubKey);
+        verifyer.updateSync(this.input);
+        let verifyResult = verifyer.verifySync(null, this.signData);
+        verifyResult === true ? this.signResult = 'verify success' : this.signResult = 'verify failed';
+      } else {
+        let verifyAlg = this.SignatureItem.type;
+        let verifier = cryptoFramework.createVerify(verifyAlg);
+        let key = this.keyPair as cryptoFramework.KeyPair;
+        await verifier.init(key.pubKey);
+        await verifier.update(this.input);
+        let res = await verifier.verify(null, this.signData);
+        res === true ? this.signResult = 'verify success' : this.signResult = 'verify failed';
       }
-      let res = await verifier.verify(null, this.signData);
-      res === true ? this.signResult = 'verify success' : this.signResult = 'verify failed';
-    } else if (this.SignatureItem.type === 'RSA|PASS|SHA256|MGF1_SHA256') {
-      // Parameters for obtaining an RSA key pair.
-      let rsaKeyPairSpec = genRsa2048KeyPairSpec();
-      // RSA key pair generator.
-      let rsaGeneratorSpec = cryptoFramework.createAsyKeyGeneratorBySpec(rsaKeyPairSpec);
-      let verifyer = cryptoFramework.createVerify("RSA2048|PSS|SHA256|MGF1_SHA256");
-      let keyPair = await rsaGeneratorSpec.generateKeyPair();
-      let setN = 32;
-      verifyer.setVerifySpec(cryptoFramework.SignSpecItem.PSS_SALT_LEN_NUM, setN);
-      verifyer.getVerifySpec(cryptoFramework.SignSpecItem.PSS_SALT_LEN_NUM);
-      verifyer.getVerifySpec(cryptoFramework.SignSpecItem.PSS_TRAILER_FIELD_NUM);
-      verifyer.getVerifySpec(cryptoFramework.SignSpecItem.PSS_MD_NAME_STR);
-      verifyer.getVerifySpec(cryptoFramework.SignSpecItem.PSS_MGF_NAME_STR);
-      verifyer.getVerifySpec(cryptoFramework.SignSpecItem.PSS_MGF1_MD_STR);
-      verifyer.initSync(keyPair.pubKey);
-      verifyer.updateSync(this.input);
-      let verifyResult = verifyer.verifySync(null, this.signData);
-      verifyResult === true ? this.signResult = 'verify success' : this.signResult = 'verify failed';
-    } else {
-      let verifyAlg = this.SignatureItem.type;
-      let verifier = cryptoFramework.createVerify(verifyAlg);
-      let key = this.keyPair as cryptoFramework.KeyPair;
-      await verifier.init(key.pubKey);
-      await verifier.update(this.input);
-      let res = await verifier.verify(null, this.signData);
-      res === true ? this.signResult = 'verify success' : this.signResult = 'verify failed';
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, TAG, `verifyMessagePromise failed, error code=${err.code}, message=${err.message}`);
     }
   }
 
   async generatorKey() {
-    let keyGenAlg = this.SignatureItem.keyGenAlg;
-    let generator = cryptoFramework.createAsyKeyGenerator(keyGenAlg);
-    let keyPair = await generator.generateKeyPair();
-    this.keyPair = keyPair;
+    try {
+      let keyGenAlg = this.SignatureItem.keyGenAlg;
+      let generator = cryptoFramework.createAsyKeyGenerator(keyGenAlg);
+      let keyPair = await generator.generateKeyPair();
+      this.keyPair = keyPair;
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, TAG, `generatorKey failed, error code=${err.code}, message=${err.message}`);
+    }
   }
 
   build() {

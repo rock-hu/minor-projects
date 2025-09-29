@@ -10,8 +10,7 @@
 |------------------------------------|------------------------------------|
 | ![](screenshots/devices/page1.png) | ![](screenshots/devices/page2.png) |
 
-
-使用说明：
+### 使用说明
 
 1. 进入首页，点击“跳转到第二页”按钮，进入第二页；
 2. 点击“播放音乐”，播放设置的音频；
@@ -21,24 +20,24 @@
 ### 工程目录
 
 ```
-├──entry/src/main/ets                              // 代码区
+├──entry/src/main/ets                               // 代码区
 │  ├──entryability                                  
-│  │  │──intentHandlers
-│  │  │  ├──AudioPlayHandler.ets 
-│  │  │  ├──PageNavigateHandler.ets
-│  │  │  └──TextGetHandler.ets                   
-│  │  ├──EntryAbility.ets   
-│  │  └──InsightIntentExecutorImpl.ets 
+│  │  │──intentHandlers                             // 意图实现类
+│  │  │  ├──AudioPlayHandler.ets                    // 音频播放实现类
+│  │  │  ├──PageNavigateHandler.ets                 // 页面跳转实现类
+│  │  │  └──TextGetHandler.ets                      // 获取文本实现类                 
+│  │  ├──EntryAbility.ets                           // 程序入口
+│  │  └──InsightIntentExecutorImpl.ets              // 业务逻辑处理
 │  ├──entrybackupability  
 │  │  └──EntryBackupAbility.ets 
 │  ├──models                                   
-│  │  │──MusicData.ets 
-│  │  └──SongItem.ets 
+│  │  │──MusicData.ets                              // 音频播放枚举类                      
+│  │  └──SongItem.ets                               // 音乐信息类
 │  ├──pages
 │  │  ├──MainPage.ets                               // 首页                                
 │  │  └──SecondPage.ets                             // 第二页
 │  └──utils                     
-│     │──audioplayer
+│     │──audioplayer                                // 音频播放工具类
 │     │  ├──BackgroundUtil.ets 
 │     │  ├──MediaService.ets
 │     │  ├──MediaTools.ets

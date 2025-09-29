@@ -128,22 +128,18 @@ export class MediaService {
         break;
     }
   };
-  
   private avSessionPlayCall = () => {
     Logger.info(TAG, `avSessionPlayCall on play , do play task`);
     this.play();
   };
-  
   private avSessionPauseCall = () => {
     Logger.info(TAG, `avSessionPauseCall on pause , do pause task`);
     this.pause();
   };
-  
   private avSessionPlayNextCall = () => {
     Logger.info(TAG, `avSessionPlayNextCall on playNext , do playNext task`);
     this.playNext();
   };
-  
   private avSessionPlayPreviousCall = () => {
     Logger.info(TAG, `avSessionPlayPreviousCall on playPrevious , do playPrevious task`);
     this.playPrevious();
@@ -174,7 +170,7 @@ export class MediaService {
       this.songChangedBack(this.changedData);
     }
   }
-  
+
   public static getInstance(): MediaService {
     if (!MediaService.instance) {
       MediaService.instance = new MediaService();
@@ -206,11 +202,20 @@ export class MediaService {
       this.avPlayer.on('stateChange', this.avPlayerStateChangeCall)
     }
   }
-  
+
   private async createSession(): Promise<void> {
-    this.session = await avSession.createAVSession(this.context, 'SESSION_NAME', 'audio');
-    this.session.activate();
-    Logger.info(TAG, `session create done : sessionId : ${this.session.sessionId}`);
+    try {
+      this.session = await avSession.createAVSession(this.context, 'SESSION_NAME', 'audio');
+      this.session.activate()
+        .then(() => {
+          Logger.info(TAG, `activate succeed.`);
+        })
+        .catch((error: BusinessError) => {
+          Logger.error(TAG, `activate failed. code=${error.code}, message=${error.message}`);
+        })
+      Logger.info(TAG, `session create done : sessionId : ${this.session.sessionId}`);
+    } catch (err) {
+    }
     this.setAVMetadata();
     let wantAgentInfo: wantAgent.WantAgentInfo = {
       wants: [
@@ -223,27 +228,42 @@ export class MediaService {
       requestCode: 0,
       wantAgentFlags: [wantAgent.WantAgentFlags.UPDATE_PRESENT_FLAG]
     }
-    wantAgent.getWantAgent(wantAgentInfo).then((agent) => {
-      this.session?.setLaunchAbility(agent);
-    })
+    wantAgent.getWantAgent(wantAgentInfo)
+      .then((agent) => {
+        this.session?.setLaunchAbility(agent)
+          .catch((error: BusinessError) => {
+            Logger.error(TAG, `setLaunchAbility failed. code=${error.code}, message=${error.message}`);
+          })
+      })
+      .catch((error: BusinessError) => {
+        Logger.error(TAG, `getWantAgent failed. code=${error.code}, message=${error.message}`);
+      })
     this.setListenerForMesFromController();
   }
-  
+
   private setListenerForMesFromController(): void {
     if (this.session) {
-      this.session.on('play', this.avSessionPlayCall);
-      this.session.on('pause', this.avSessionPauseCall);
-      this.session.on('playNext', this.avSessionPlayNextCall);
-      this.session.on('playPrevious', this.avSessionPlayPreviousCall);
+      try {
+        this.session.on('play', this.avSessionPlayCall);
+        this.session.on('pause', this.avSessionPauseCall);
+        this.session.on('playNext', this.avSessionPlayNextCall);
+        this.session.on('playPrevious', this.avSessionPlayPreviousCall);
+      } catch (error) {
+        Logger.error(TAG, `setListenerForMesFromController failed. code=${error.code}, message=${error.message}`);
+      }
     }
   }
-  
+
   private unregisterSessionListener(): void {
     if (this.session) {
-      this.session.off('play');
-      this.session.off('pause');
-      this.session.off('playNext');
-      this.session.off('playPrevious');
+      try {
+        this.session.off('play');
+        this.session.off('pause');
+        this.session.off('playNext');
+        this.session.off('playPrevious');
+      } catch (error) {
+        Logger.error(TAG, `unregisterSessionListener failed. code=${error.code}, message=${error.message}`);
+      }
     }
   }
 
@@ -356,11 +376,17 @@ export class MediaService {
 
   public async release(): Promise<void> {
     if (this.avPlayer && this.session && this.context) {
-      this.avPlayer.release();
+      this.avPlayer.release()
+        .catch((error: BusinessError) => {
+          Logger.error(TAG, `release error, code=${error.code}, message=${error.message}`);
+        })
       this.songItemBuilder.release();
       BackgroundUtil.stopContinuousTask(this.context);
       this.unregisterSessionListener();
-      this.session.destroy();
+      this.session.destroy()
+        .catch((error: BusinessError) => {
+          Logger.error(TAG, `destroy error, code=${error.code}, message=${error.message}`);
+        })
     }
   }
 

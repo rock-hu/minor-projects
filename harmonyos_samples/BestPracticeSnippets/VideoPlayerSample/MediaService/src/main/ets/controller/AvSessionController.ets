@@ -20,6 +20,7 @@ import { VideoData } from '../model/VideoData';
 import Logger from '../utils/Logger';
 import { ImageUtil } from '../utils/ImageUtil';
 import { BackgroundTaskManager } from '../utils/BackgroundTaskManager';
+import { image } from '@kit.ImageKit';
 
 const TAG: string = 'AvSessionController';
 
@@ -39,6 +40,7 @@ export class AvSessionController {
     }
     return AvSessionController.instance;
   }
+
   // [Start init_session]
   public initAvSession(): void {
     this.context = AppStorage.get('context');
@@ -55,12 +57,17 @@ export class AvSessionController {
         // Apply for background long-term tasks
         BackgroundTaskManager.startContinuousTask(this.context);
         this.setLaunchAbility();
-        this.avSession.activate();
+        this.avSession.activate().catch((err: BusinessError) => {
+          Logger.error(TAG, `avSession activate failed: err.code:${err.code}, err.message:${err.message}`);
+        });
+      }).catch((err: BusinessError) => {
+        Logger.error(TAG, `avSession activate failed: err.code:${err.code}, err.message:${err.message}`);
       });
     } catch (err) {
       Logger.error(TAG, `createAVSession failed, err.code:${err.code}, err.message:${err.message}`);
     }
   }
+
   // [End init_session]
   public getAvSession(): avSession.AVSession | undefined {
     return this.avSession;
@@ -73,12 +80,16 @@ export class AvSessionController {
   // [Start meta_data]
   public async setAVMetadata(curSource: VideoData, duration: number): Promise<void> {
     // [StartExclude meta_data]
-    if (curSource === undefined || this.context ===undefined) {
-      Logger.error(TAG, 'SetAVMetadata Error, curSource or context is null');
+    if (curSource === undefined || this.context === undefined) {
+      Logger.error(TAG, 'SetAVMetadata Error, curSource or context is undefined');
       return;
     }
     // [EndExclude meta_data]
-    const imagePixMap = await ImageUtil.getPixmapFromMedia(curSource.head);
+    const imagePixMap: image.PixelMap | undefined = await ImageUtil.getPixmapFromMedia(curSource.head);
+    if (imagePixMap === undefined) {
+      Logger.error(TAG, 'SetAVMetadata Error, imagePixMap is undefined');
+      return;
+    }
     try {
       let metadata: avSession.AVMetadata = {
         assetId: `${curSource.index}`, // Media ID
@@ -98,6 +109,7 @@ export class AvSessionController {
       Logger.error(TAG, `setAVMetadata failed, code: ${err.code}, message: ${err.message}`);
     }
   }
+
   // [End meta_data]
 
   // [Start launch]
@@ -120,12 +132,15 @@ export class AvSessionController {
     };
     wantAgent.getWantAgent(wantAgentInfo).then((agent) => {
       if (this.avSession) {
-        this.avSession.setLaunchAbility(agent);
+        this.avSession.setLaunchAbility(agent).catch((err: BusinessError) => {
+          Logger.error(TAG, `avSession setLaunchAbility failed: code: ${err.code}, message: ${err.message}`);
+        });
       }
     }).catch((err: BusinessError) => {
       Logger.error(TAG, `getWantAgent failed: code: ${err.code}, message: ${err.message}`);
     });
   }
+
   // [End launch]
 
   // [Start update_is_play]
@@ -140,6 +155,7 @@ export class AvSessionController {
       });
     }
   }
+
   // [End update_is_play]
 
   // [Start init_session]
@@ -163,5 +179,6 @@ export class AvSessionController {
     // Destroy background long-term tasks
     BackgroundTaskManager.stopContinuousTask(this.context);
   }
+
   // [End init_session]
 }

@@ -14,9 +14,17 @@
 */
 
 import { BasicDataSource, ColorModel } from './BasicDataSource';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 export class ColorData extends BasicDataSource<ColorModel> {
   textColorData: Array<ColorModel> = [];
+  private context: Context | undefined = undefined;
+
+  constructor(context?: Context) {
+    super();
+    this.context = context;
+  }
 
   public totalCount(): number {
     return this.textColorData.length;
@@ -38,13 +46,19 @@ export class ColorData extends BasicDataSource<ColorModel> {
     let color: Color[] =
       [Color.Black, Color.Blue, Color.Red, Color.Green, Color.Pink, Color.Black, Color.Blue, Color.Red, Color.Green,
         Color.Pink];
-    for (let i = 0; i < 10; i++) {
-      let colorModel: ColorModel = new ColorModel('', '', Color.White);
-      colorModel.id = Math.floor(this.totalCount() / 10) + i.toString();
-      colorModel.text =
-        getContext().resourceManager.getStringSync($r('app.string.update_component_title'), parseInt(colorModel.id) + 1);
-      colorModel.color = color[i];
-      this.pushData(colorModel);
+    try {
+      for (let i = 0; i < 10; i++) {
+        let colorModel: ColorModel = new ColorModel('', '', Color.White);
+        colorModel.id = Math.floor(this.totalCount() / 10) + i.toString();
+        colorModel.text =
+          this.context!.resourceManager.getStringSync($r('app.string.update_component_title').id, parseInt(colorModel.id) + 1);
+        colorModel.color = color[i];
+        this.pushData(colorModel);
+      }
+    } catch (e) {
+      let err = e as BusinessError;
+      hilog.error(0x0000, 'testTag', `failed code=${err.code}, message=${err.message}`);
     }
+
   }
 }

@@ -17,6 +17,24 @@ This sample demonstrates the use of Camera Kit to customize a camera and use the
 3. Touch the start button to start recording the video.
 4. Touch the stop button to finish recording. The home page is displayed. The recorded video is displayed above the **Record video** button, and the video can be manually played.
 
+
+### Project Directory
+```
+├───entry/src/main/ets
+│   ├───common
+│   │   └───CommonConstants.ets            // Constant
+│   ├───entryability                        
+│   │   └───EntryAbility.ets               // Lifecycle callback content of an ability
+│   ├───pages    
+│   │   ├───Index.ets                      // Home page
+│   │   └───Record.ets                     // Record page
+│   └───utils                               
+│       ├───FileUtil.ets                   // File Utility Class
+│       ├───Logger.ets                     // Log Utility Class
+│       └───RouterParams.ets               // Route Parameter Class
+└───entry/src/main/resources                        
+```
+
 ### How to Implement
 
 1. Use **cameraInput** to obtain the data collected by the camera and create a camera input.
@@ -35,8 +53,8 @@ This sample demonstrates the use of Camera Kit to customize a camera and use the
 
 1. The sample app is supported only on Huawei phones running the standard system.
 
-2. The HarmonyOS version must be HarmonyOS 5.0.5 Release or later.
+2. The HarmonyOS version must be HarmonyOS 5.1.0 Release or later.
 
-3. The DevEco Studio version must be DevEco Studio 5.0.5 Release or later.
+3. The DevEco Studio version must be DevEco Studio 5.1.0 Release or later.
 
-4. The HarmonyOS SDK version must be HarmonyOS 5.0.5 Release SDK or later.
+4. The HarmonyOS SDK version must be HarmonyOS 5.1.0 Release SDK or later.

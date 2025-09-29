@@ -19,7 +19,7 @@
 import { BusinessError } from '@kit.BasicServicesKit';
 import { avSession } from '@kit.AVSessionKit';
 
-const TAG = 'TEST';
+const TAG: string = 'TEST';
 
 class avSessionClass {
   castController!: avSession.AVCastController;
@@ -29,7 +29,7 @@ class avSessionClass {
   playStateCallback: (state: avSession.AVPlaybackState) => void = () => {
   }
 
-  create(context: Context, tag: string) {
+  create(context: Context, tag: string): void {
     avSession.createAVSession(context, tag, "audio").then(async (currentAVSession: avSession.AVSession) => {
       this.session = currentAVSession;
       let sessionController = await currentAVSession.getAVCastController();
@@ -46,7 +46,7 @@ class avSessionClass {
     });
   }
 
-  prepare() {
+  prepare(): void {
     let playItem: avSession.AVQueueItem = {
       itemId: 0,
       description: {
@@ -75,7 +75,7 @@ class avSessionClass {
     // [End prepare]
   }
 
-  onPrepare() {
+  onPrepare(): void {
     // [Start on_prepare]
     this.session?.on('pause', async () => {
       console.info(TAG, `on pause , do pause task`);

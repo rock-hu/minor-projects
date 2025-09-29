@@ -38,6 +38,13 @@
 │     └─WindowUtil.ets                       // 窗口工具类
 └─entry/src/main/resources                   // 应用资源目录
 ```
+### 原理
+
+不涉及
+
+### 使用说明
+
+不涉及
 
 ### 相关权限
 

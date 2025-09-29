@@ -17,6 +17,9 @@ import { UIAbility } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { window } from '@kit.ArkUI';
+import Logger from '../utils/Logger';
+
+const TAG = 'EntryAbilityLogTag';
 
 export default class EntryAbility extends UIAbility {
   onCreate(): void {
@@ -31,40 +34,49 @@ export default class EntryAbility extends UIAbility {
     // Main window is created, set main page for this ability
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onWindowStageCreate');
 
-    let windowClass: window.Window = windowStage.getMainWindowSync();
-    windowStage.getMainWindowSync().setWindowLayoutFullScreen(true);
-    let naviBarArea: window.AvoidArea = windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
-    let area: window.AvoidArea = windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
+    try {
+      let windowClass: window.Window = windowStage.getMainWindowSync();
+      windowStage.getMainWindowSync().setWindowLayoutFullScreen(true).catch((error: BusinessError) => {
+        Logger.error(TAG, `setWindowLayoutFullScreen err, errCode: ${error.code}, error mesage: ${error.message}`);
+      });
+      let naviBarArea: window.AvoidArea = windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
+      let area: window.AvoidArea = windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
 
-    let mainWindow = windowStage.getMainWindowSync();
-    let SystemBarProperties: window.SystemBarProperties = {
-      statusBarContentColor: '#ffffff'
-    };
-    mainWindow.setWindowSystemBarProperties(SystemBarProperties);
+      let mainWindow = windowStage.getMainWindowSync();
+      let SystemBarProperties: window.SystemBarProperties = {
+        statusBarContentColor: '#ffffff'
+      };
+      mainWindow.setWindowSystemBarProperties(SystemBarProperties).catch((error: BusinessError) => {
+        Logger.error(TAG, `setWindowSystemBarProperties err, errCode: ${error.code}, error mesage: ${error.message}`);
+      });
 
-    windowStage.loadContent('pages/VideoDetail', (err) => {
-      if (err.code) {
-        hilog.error(0x0000, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err) ?? '');
-        return;
-      }
-
-      windowStage.getMainWindow((err: BusinessError, data) => {
-        let errCode: number = err.code;
-        if (errCode) {
-          console.error(`Failed to obtain the main window. Cause code: ${err.code}, message: ${err.message}`);
+      windowStage.loadContent('pages/VideoDetail', (err) => {
+        if (err.code) {
+          hilog.error(0x0000, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err) ?? '');
           return;
         }
-        windowClass = data;
-        console.info('Succeeded in obtaining the main window. Data: ' + JSON.stringify(data));
-        // 获取UIContext实例。
-        let UIContext: UIContext | null = null;
-        UIContext = windowClass.getUIContext();
 
-        AppStorage.setOrCreate<number>('naviIndicatorHeight', UIContext.px2vp(naviBarArea.bottomRect.height));
-        AppStorage.setOrCreate<number>('statusBarHeight', UIContext.px2vp(area.topRect.height));
+        windowStage.getMainWindow((err: BusinessError, data) => {
+          let errCode: number = err.code;
+          if (errCode) {
+            console.error(`Failed to obtain the main window. Cause code: ${err.code}, message: ${err.message}`);
+            return;
+          }
+          windowClass = data;
+          console.info('Succeeded in obtaining the main window. Data: ' + JSON.stringify(data));
+          // 获取UIContext实例。
+          let UIContext: UIContext | null = null;
+          UIContext = windowClass.getUIContext();
+
+          AppStorage.setOrCreate<number>('naviIndicatorHeight', UIContext.px2vp(naviBarArea.bottomRect.height));
+          AppStorage.setOrCreate<number>('statusBarHeight', UIContext.px2vp(area.topRect.height));
+        });
+        hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
       });
-      hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
-    });
+    } catch (err) {
+      let error = err as BusinessError;
+      Logger.error(TAG, `onWindowStageCreate err, errCode: ${error.code}, error mesage: ${error.message}`);
+    }
   }
 
   onWindowStageDestroy(): void {

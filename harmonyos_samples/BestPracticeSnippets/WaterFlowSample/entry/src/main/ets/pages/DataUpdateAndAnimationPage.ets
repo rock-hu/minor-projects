@@ -18,14 +18,14 @@ import { hilog } from "@kit.PerformanceAnalysisKit";
 import { CommonConstants } from "../common/constants/CommonConstants";
 import { SectionsWaterFlowDataSource } from "../model/SectionsWaterFlowDataSource";
 
-const TAG = 'DataUpdateAndAnimationPage';
+const TAG: string = 'DataUpdateAndAnimationPage';
 
-// [StartExclude flow_item_layout]
+// [StartExclude quick_start]
 @Reusable
 struct ReusableFlowItem {
   @State item: number = 0;
 
-  aboutToReuse(params: Record<string, number>) {
+  aboutToReuse(params: Record<string, number>): void {
     this.item = params.item;
   }
 
@@ -78,13 +78,13 @@ struct ReusableFlowItem {
   }
 }
 
-// [EndExclude flow_item_layout]
+// [EndExclude quick_start]
 @Entry
 @Component
 struct DataUpdateAndAnimationPage {
   @State isRefreshing: boolean = false;
   @State currentItem: number = -1;
-  // [StartExclude variable_declare]
+  // [StartExclude quick_start]
   @State minSize: number = 80;
   @State maxSize: number = 180;
   scroller: Scroller = new Scroller();
@@ -125,10 +125,10 @@ struct DataUpdateAndAnimationPage {
     }
   };
 
-  // [EndExclude variable_declare]
+  // [EndExclude quick_start]
   // 1、Refresh Loading Animation Component.
   @Builder
-  headerRefresh() {
+  headerRefresh(): void {
     Column() {
       LoadingProgress()
         .color(Color.Black)
@@ -145,8 +145,8 @@ struct DataUpdateAndAnimationPage {
     setTimeout(() => {
       // Add new data.
       this.dataSource.dataArray = [];
-      let value = Math.floor(Math.random() * 100);
-      for (let i = 0; i < 100; i++) {
+      let value: number = Math.floor(Math.random() * 100);
+      for (let i: number = 0; i < 100; i++) {
         this.dataSource.dataArray.push(i + value);
         this.dataSource.notifyDataAdd(i);
       }
@@ -166,9 +166,9 @@ struct DataUpdateAndAnimationPage {
 
   loadMore(last: number): void {
     setTimeout(() => {
-      let totalCount = this.dataSource.totalCount();
+      let totalCount: number = this.dataSource.totalCount();
       if (last + 20 >= totalCount) {
-        for (let i = 0; i < 20; i++) {
+        for (let i: number = 0; i < 20; i++) {
           this.dataSource.addLastItem();
         }
         // Update sections itemsCount.
@@ -178,23 +178,23 @@ struct DataUpdateAndAnimationPage {
     }, 1000);
   }
 
-  // [StartExclude section_init]
+  // [StartExclude quick_start]
   getSize(): number {
-    let ret = Math.floor(Math.random() * this.maxSize);
+    let ret: number = Math.floor(Math.random() * this.maxSize);
     return (ret > this.minSize ? ret : this.minSize);
   }
 
   setItemSizeArray(): void {
-    for (let i = 0; i < 100; i++) {
+    for (let i: number = 0; i < 100; i++) {
       this.itemHeightArray.push(this.getSize());
     }
   }
 
   initSections(): void {
     let sectionOptions: SectionOptions[] = [];
-    let count = 0;
-    let oneOrTwo = 0;
-    let dataCount = this.dataSource.totalCount();
+    let count: number = 0;
+    let oneOrTwo: number = 0;
+    let dataCount: number = this.dataSource.totalCount();
     while (count < dataCount) {
       if (dataCount - count < 96) {
         this.dataSection.itemsCount = dataCount - count;
@@ -213,13 +213,13 @@ struct DataUpdateAndAnimationPage {
   }
 
   removeItem(item: number): void {
-    let index = this.dataSource.indexOf(item);
+    let index: number = this.dataSource.indexOf(item);
     this.dataSource.deleteItem(index);
     const sections: Array<SectionOptions> = this.sections.values();
     let newSection: SectionOptions;
-    let tmpIndex = 0;
-    let sectionIndex = 0;
-    for (let i = 0; i < sections.length; i++) {
+    let tmpIndex: number = 0;
+    let sectionIndex: number = 0;
+    for (let i: number = 0; i < sections.length; i++) {
       tmpIndex += sections[i].itemsCount;
       if (index < tmpIndex) {
         sectionIndex = i;
@@ -234,12 +234,12 @@ struct DataUpdateAndAnimationPage {
     this.sections.update(sectionIndex, newSection);
   }
 
-  aboutToAppear() {
+  aboutToAppear(): void {
     this.setItemSizeArray();
     this.initSections();
   }
 
-  // [EndExclude section_init]
+  // [EndExclude quick_start]
   build() {
     Column({ space: 0 }) {
       Row() {
@@ -252,7 +252,7 @@ struct DataUpdateAndAnimationPage {
 
       // 2、Pull-to-refresh control.
       Refresh({ refreshing: $$this.isRefreshing, builder: this.headerRefresh() }) {
-        // [StartExclude water_flow_init]
+        // [StartExclude quick_start]
         WaterFlow({ scroller: this.scroller, sections: this.sections }) {
           LazyForEach(this.dataSource, (item: number) => {
             FlowItem() {
@@ -298,7 +298,7 @@ struct DataUpdateAndAnimationPage {
         .width('100%')
         .height('100%')
         .layoutWeight(1)
-        // [EndExclude water_flow_init]
+        // [EndExclude quick_start]
         // For better experience, pre load data.
         .onScrollIndex((first: number, last: number) => {
           this.loadMore(last);

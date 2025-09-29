@@ -13,12 +13,13 @@ export struct ScrollTest {
       // [StartExclude ScrollTest]
       ForEach(new Array(100).fill(''), () => {
         ListItem() {
-          Text('北京').fontSize(24)
+          Text('北京')
+            .fontSize(24)
         }
       }, (item: string) => item)
       // [EndExclude ScrollTest]
     }
-    .onScrollFrameBegin((offset: number, state: ScrollState) => {
+    .onScrollFrameBegin((offset: number) => {
       this.currentYOffset += Math.abs(offset);
       // Take the Y-axis offset of 100 as an example. When the offset is less than 100, the fixed area is gradually hidden
       if (this.currentYOffset <= 100) {

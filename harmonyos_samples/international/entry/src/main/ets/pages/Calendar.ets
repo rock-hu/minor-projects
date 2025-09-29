@@ -128,7 +128,7 @@ struct CalendarView {
 struct Title {
   @Link currentYear: number;
   @Link currentMonth: number;
-  private goToday: () => void = (): void => {
+  goToday: () => void = (): void => {
   }
 
   build() {

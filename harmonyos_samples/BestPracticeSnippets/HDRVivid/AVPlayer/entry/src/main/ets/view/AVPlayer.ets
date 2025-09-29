@@ -65,27 +65,33 @@ export struct VideoPlayer {
   private screenHeight: number = 0;
   private windowStage: window.WindowStage = AppStorage.get('windowStage') as window.WindowStage;
   // Get the main window.
-  private mainWin: window.Window = this.windowStage.getMainWindowSync();
+  private mainWin: window.Window | null = null;
   uiContext = this.getUIContext()
 
   aboutToAppear(): void {
+    try {
+      this.mainWin = this.windowStage.getMainWindowSync();
+    } catch (error) {
+      hilog.error(0x0000, 'AVPlayer', `getMainWindowSync failed. Cause code: ${error.code}, message: ${error.message}`);
+    }
     const context = this.uiContext.getHostContext() as common.UIAbilityContext;
-    ;
     settings.getValue(context, settings.display.SCREEN_BRIGHTNESS_STATUS, settings.domainName.DEVICE_SHARED)
       .then((value) => {
         hilog.info(0x0000, 'AVPlayer', `Promise:value -> ${JSON.stringify(value)}`);
         this.screenBrightness = Number(value) / 255;
       })
 
-    try {
-      window.getLastWindow(context).then((data) => {
-        this.screenHeight = data?.getWindowProperties().windowRect.height;
-      });
-    } catch (exception) {
-      hilog.error(0x0000, 'AVPlayer',
-        `Failed to obtain the top window. Cause code: ${exception.code}, message: ${exception.message}`);
-    }
-
+    window.getLastWindow(context)
+      .then((data) => {
+        try {
+          this.screenHeight = data?.getWindowProperties().windowRect.height;
+        } catch (exception) {
+          hilog.error(0x0000, 'AVPlayer', `Failed to obtain the top window. Cause code: ${exception.code}, message: ${exception.message}`);
+        }
+      })
+     .catch((error: BusinessError) => {
+        hilog.error(0x0000, 'AVPlayer', `Failed to obtain the top window. Cause code: ${error.code}, message: ${error.message}`);
+     })
     let groupId: number = audio.DEFAULT_VOLUME_GROUP_ID;
     let audioManager = audio.getAudioManager();
     let audioVolumeManger: audio.AudioVolumeManager = audioManager.getVolumeManager();
@@ -308,7 +314,7 @@ export struct VideoPlayer {
               hilog.info(0x0000, 'AVPlayer', `this brightness is: ` + this.screenBrightness);
 
               try {
-                this.mainWin.setWindowBrightness(this.screenBrightness, (err) => {
+                this.mainWin?.setWindowBrightness(this.screenBrightness, (err) => {
                   if (err) {
                     hilog.error(0x0000, 'AVPlayer', `Failed to set the brightness. Cause: ${JSON.stringify(err)}`);
                     return;
@@ -481,10 +487,14 @@ export struct VideoPlayer {
             .selectedBorderRadius(CommonConstants.TRACK_BORDER_RADIUS)
             .zIndex(CommonConstants.SLIDER_INDEX)
             .onAreaChange(() => {
-              let videoSlider: componentUtils.ComponentInfo = this.getUIContext().getComponentUtils().getRectangleById('video_slider');
-              this.slideWidth = this.uiContext.px2vp(videoSlider.size.width);
-              this.offsetY = this.uiContext.px2vp(videoSlider.localOffset.y);
-              this.beginX = this.uiContext.px2vp(videoSlider.localOffset.x);
+              try {
+                let videoSlider: componentUtils.ComponentInfo = this.getUIContext().getComponentUtils().getRectangleById('video_slider');
+                this.slideWidth = this.uiContext.px2vp(videoSlider.size.width);
+                this.offsetY = this.uiContext.px2vp(videoSlider.localOffset.y);
+                this.beginX = this.uiContext.px2vp(videoSlider.localOffset.x);
+              } catch (error) {
+                hilog.error(0x0000, 'testTag',`getRectangleById failed, Code:${error.code}, message:${error.message}`);
+              }
             })
             .onChange((value: number, mode: SliderChangeMode) => {
               this.sliderOnchange(value, mode);
@@ -559,8 +569,16 @@ export struct VideoPlayer {
       this.isTimeDisplay = 0;
       this.trackThicknessSize = CommonConstants.TRACK_SIZE_MIN;
       let context = this.uiContext.getHostContext() as common.UIAbilityContext;
-      let windowClass = await window.getLastWindow(context);
-      await windowClass.setWindowKeepScreenOn(false);
+      await window.getLastWindow(context)
+        .then((windowClass: window.Window) => {
+           windowClass.setWindowKeepScreenOn(false)
+            .catch((err: BusinessError) => {
+              hilog.error(0x0000, 'testTag',`setWindowKeepScreenOn failed, Code:${err.code}, message:${err.message}`);
+            })
+        })
+         .catch((err: BusinessError) => {
+           hilog.error(0x0000, 'testTag',`getLastWindow failed, Code:${err.code}, message:${err.message}`);
+         })
       return;
     }
     if (this.avPlayerController.isReady === true) {
@@ -580,8 +598,16 @@ export struct VideoPlayer {
       }, CommonConstants.TIMER_INTERVAL);
     }
     let context = this.uiContext.getHostContext() as common.UIAbilityContext;
-    let windowClass = await window.getLastWindow(context);
-    await windowClass.setWindowKeepScreenOn(true);
+    await window.getLastWindow(context)
+      .then((windowClass: window.Window) => {
+        windowClass.setWindowKeepScreenOn(true)
+        .catch((err: BusinessError) => {
+          hilog.error(0x0000, 'testTag',`setWindowKeepScreenOn failed, Code:${err.code}, message:${err.message}`);
+        })
+      })
+      .catch((err: BusinessError) => {
+        hilog.error(0x0000, 'testTag',`getLastWindow failed, Code:${err.code}, message:${err.message}`);
+      })
   }
 
   aboutToDisappear(): void {

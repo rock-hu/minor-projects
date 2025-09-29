@@ -16,7 +16,7 @@
 // [Start quick_start]
 import { SectionsWaterFlowDataSource } from "../model/SectionsWaterFlowDataSource";
 
-// [StartExclude flow_item_layout]
+// [StartExclude quick_start]
 @Reusable
 struct ReusableFlowItem {
   @State item: number = 0;
@@ -77,17 +77,17 @@ struct ReusableFlowItem {
   }
 }
 
-// [EndExclude flow_item_layout]
+// [EndExclude quick_start]
 @Entry
 @Component
 export struct CustomItemHeightPage {
-  // [StartExclude variable_declare]
+  // [StartExclude quick_start]
   @State minSize: number = 120;
   @State maxSize: number = 260;
   scroller: Scroller = new Scroller();
   dataSource: SectionsWaterFlowDataSource = new SectionsWaterFlowDataSource();
   private itemHeightArray: number[] = [];
-  // [EndExclude variable_declare]
+  // [EndExclude quick_start]
   // 1、Create group information.
   @State sections: WaterFlowSections = new WaterFlowSections();
   sectionMargin: Margin = {
@@ -107,7 +107,7 @@ export struct CustomItemHeightPage {
       return 120;
     }
   };
-  // [StartExclude method_declare]
+  // [StartExclude quick_start]
   twoColumnSection: SectionOptions = {
     itemsCount: 2,
     crossCount: 2,
@@ -126,12 +126,12 @@ export struct CustomItemHeightPage {
   };
 
   getSize(): number {
-    let ret = Math.floor(Math.random() * this.maxSize);
+    let ret: number = Math.floor(Math.random() * this.maxSize);
     return (ret > this.minSize ? ret : this.minSize);
   }
 
   setItemSizeArray(): void {
-    for (let i = 0; i < 100; i++) {
+    for (let i: number = 0; i < 100; i++) {
       this.itemHeightArray.push(this.getSize());
     }
   }
@@ -143,9 +143,9 @@ export struct CustomItemHeightPage {
 
   initSections(): void {
     let sectionOptions: SectionOptions[] = [];
-    let count = 0;
-    let oneOrTwo = 0;
-    let dataCount = this.dataSource.totalCount();
+    let count: number = 0;
+    let oneOrTwo: number = 0;
+    let dataCount: number = this.dataSource.totalCount();
     while (count < dataCount) {
       if (dataCount - count < 96) {
         this.dataSection.itemsCount = dataCount - count;
@@ -184,7 +184,7 @@ export struct CustomItemHeightPage {
     }
   }
 
-  // [EndExclude method_declare]
+  // [EndExclude quick_start]
 }
 
 // [End quick_start]

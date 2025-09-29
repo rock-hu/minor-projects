@@ -16,14 +16,28 @@
 import { display, window } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 @Entry
 @Component
 struct Index {
+  @State availableHeightVal1: string = '';
+  @State availableHeightVal2: string = '';
+
+  aboutToAppear(): void {
+    try {
+      this.availableHeightVal1 = display.getDisplayByIdSync(0).availableHeight.toString();
+      this.availableHeightVal2 = display.getDisplayByIdSync(999).availableHeight.toString();
+    } catch (err) {
+      let error = err as BusinessError;
+      hilog.error(0x000, 'testTag', `get availableHeight failed. code=${error.code}, message=${error.message}`);
+    }
+  }
+
   build() {
     Column() {
-      Text(display.getDisplayByIdSync(0).availableHeight.toString())
-      Text(display.getDisplayByIdSync(999).availableHeight.toString())
+      Text(this.availableHeightVal1)
+      Text(this.availableHeightVal2)
       Button('remove')
         .onClick(async () => {
           try {
@@ -39,8 +53,14 @@ struct Index {
             let rectWidth = Number(display.getDisplayByIdSync(0).availableWidth);
             let foldCreaseRegion = display.getCurrentFoldCreaseRegion().creaseRects[0].height;
             let rectHeight = Number(display.getDisplayByIdSync(0).availableHeight) +
-              Number(display.getDisplayByIdSync(999).availableHeight) + Number(foldCreaseRegion);
-            mainWindow.resizeAsync(rectWidth, rectHeight);
+            Number(display.getDisplayByIdSync(999).availableHeight) + Number(foldCreaseRegion);
+            mainWindow.resizeAsync(rectWidth, rectHeight)
+              .then(() => {
+                hilog.info(0x000, 'testTag', `resizeAsync succeed.`);
+              })
+              .catch((error: BusinessError) => {
+                hilog.error(0x000, 'testTag', `resizeAsync falied. code=${error.code}, message=${error.message}`);
+              })
             // [End resizeWindow]
           } catch (exception) {
             hilog.error(0x0000, 'test',

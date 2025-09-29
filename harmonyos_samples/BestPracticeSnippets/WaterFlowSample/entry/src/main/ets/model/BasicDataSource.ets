@@ -32,7 +32,7 @@ export class BasicDataSource<T> implements IDataSource {
   }
 
   unregisterDataChangeListener(listener: DataChangeListener): void {
-    const position = this.listeners.indexOf(listener);
+    const position: number = this.listeners.indexOf(listener);
     if (position >= 0) {
       this.listeners.splice(position, 1);
     }

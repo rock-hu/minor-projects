@@ -15,6 +15,9 @@
 
 import { cryptoFramework } from '@kit.CryptoArchitectureKit';
 import { logger } from './Logger';
+import { BusinessError } from '@kit.BasicServicesKit';
+
+const TAG: string = 'CryptoUtil';
 
 export class CryptoUtil {
   /**
@@ -52,15 +55,22 @@ export class CryptoUtil {
    * @param gcmParams cryptoFramework.GcmParamsSpec.
    * @param symKey cryptoFramework.SymKey.
    * @param plainText Character string to be encrypted.
-   * @returns Promise<cryptoFramework.DataBlob>.
+   * @returns Promise<cryptoFramework.DataBlob | undefined>.
    */
   public static async encryptAESGCMMessagePromise(cipherParam: string, gcmParams: cryptoFramework.GcmParamsSpec,
-    symKey: cryptoFramework.SymKey, plainText: cryptoFramework.DataBlob): Promise<cryptoFramework.DataBlob> {
-    let cipher = cryptoFramework.createCipher(cipherParam);
-    await cipher.init(cryptoFramework.CryptoMode.ENCRYPT_MODE, symKey, gcmParams);
-    let encryptUpdate = await cipher.update(plainText);
-    gcmParams.authTag = await cipher.doFinal(null);
-    return encryptUpdate;
+    symKey: cryptoFramework.SymKey,
+    plainText: cryptoFramework.DataBlob): Promise<cryptoFramework.DataBlob | undefined> {
+    try {
+      let cipher = cryptoFramework.createCipher(cipherParam);
+      await cipher.init(cryptoFramework.CryptoMode.ENCRYPT_MODE, symKey, gcmParams);
+      let encryptUpdate = await cipher.update(plainText);
+      gcmParams.authTag = await cipher.doFinal(null);
+      return encryptUpdate;
+    } catch (error) {
+      let err = error as BusinessError;
+      logger.error(TAG, `encryptAESGCMMessagePromise failed, error code=${err.code}, message=${err.message}`);
+      return undefined;
+    }
   }
 
   /**
@@ -70,20 +80,27 @@ export class CryptoUtil {
    * @param gcmParams cryptoFramework.GcmParamsSpec.
    * @param symKey cryptoFramework.SymKey.
    * @param cipherText character string to be decrypted.
-   * @returns Promise<cryptoFramework.DataBlob>.
+   * @returns Promise<cryptoFramework.DataBlob | undefined>.
    */
   public static async decryptAESGCMMessagePromise(cipherParam: string, gcmParams: cryptoFramework.GcmParamsSpec,
-    symKey: cryptoFramework.SymKey, cipherText: cryptoFramework.DataBlob): Promise<cryptoFramework.DataBlob> {
-    let decoder = cryptoFramework.createCipher(cipherParam);
-    await decoder.init(cryptoFramework.CryptoMode.DECRYPT_MODE, symKey, gcmParams);
-    let decryptUpdate = await decoder.update(cipherText);
-    // When doFinal is decrypted in GCM mode, no data is transferred.
-    // The tag data transferred during initialization is verified. If the verification fails, an exception is thrown.
-    let decryptData = await decoder.doFinal(null);
-    if (decryptData === null) {
-      logger.info('GCM decrypt success, decryptData is null');
+    symKey: cryptoFramework.SymKey,
+    cipherText: cryptoFramework.DataBlob): Promise<cryptoFramework.DataBlob | undefined> {
+    try {
+      let decoder = cryptoFramework.createCipher(cipherParam);
+      await decoder.init(cryptoFramework.CryptoMode.DECRYPT_MODE, symKey, gcmParams);
+      let decryptUpdate = await decoder.update(cipherText);
+      // When doFinal is decrypted in GCM mode, no data is transferred.
+      // The tag data transferred during initialization is verified. If the verification fails, an exception is thrown.
+      let decryptData = await decoder.doFinal(null);
+      if (decryptData === null) {
+        logger.info('GCM decrypt success, decryptData is null');
+      }
+      return decryptUpdate;
+    } catch (error) {
+      let err = error as BusinessError;
+      logger.error(TAG, `decryptAESGCMMessagePromise failed, error code=${err.code}, message=${err.message}`);
+      return undefined;
     }
-    return decryptUpdate;
   }
 
   /**
@@ -91,14 +108,20 @@ export class CryptoUtil {
    *
    * @param symKeyData the key data blob.
    * @param algName algorithm name.
-   * @returns cryptoFramework.SymKey
+   * @returns cryptoFramework.SymKey | undefined
    */
-  public static genSymKeyByData(symKeyData: Uint8Array, algName: string): cryptoFramework.SymKey {
-    let symKeyBlob: cryptoFramework.DataBlob = { data: symKeyData };
-    let aesGenerator = cryptoFramework.createSymKeyGenerator(algName);
-    let symKey = aesGenerator.convertKeySync(symKeyBlob);
-    logger.info('convertKey success');
-    return symKey;
+  public static genSymKeyByData(symKeyData: Uint8Array, algName: string): cryptoFramework.SymKey | undefined {
+    try {
+      let symKeyBlob: cryptoFramework.DataBlob = { data: symKeyData };
+      let aesGenerator = cryptoFramework.createSymKeyGenerator(algName);
+      let symKey = aesGenerator.convertKeySync(symKeyBlob);
+      logger.info('convertKey success');
+      return symKey;
+    } catch (error) {
+      let err = error as BusinessError;
+      logger.error(TAG, `genSymKeyByData failed, error code=${err.code}, message=${err.message}`);
+      return undefined;
+    }
   }
 
   /**
@@ -124,14 +147,21 @@ export class CryptoUtil {
    * @param ivParams cryptoFramework.IvParamsSpec.
    * @param symKey cryptoFramework.SymKey.
    * @param plainText character string to be encrypted.
-   * @returns Promise<cryptoFramework.DataBlob>.
+   * @returns Promise<cryptoFramework.DataBlob | undefined>.
    */
   public static async encryptCBCMessagePromise(cipherParam: string, ivParams: cryptoFramework.IvParamsSpec,
-    symKey: cryptoFramework.SymKey, plainText: cryptoFramework.DataBlob): Promise<cryptoFramework.DataBlob> {
-    let cipher = cryptoFramework.createCipher(cipherParam);
-    await cipher.init(cryptoFramework.CryptoMode.ENCRYPT_MODE, symKey, ivParams);
-    let cipherData = await cipher.doFinal(plainText);
-    return cipherData;
+    symKey: cryptoFramework.SymKey,
+    plainText: cryptoFramework.DataBlob): Promise<cryptoFramework.DataBlob | undefined> {
+    try {
+      let cipher = cryptoFramework.createCipher(cipherParam);
+      await cipher.init(cryptoFramework.CryptoMode.ENCRYPT_MODE, symKey, ivParams);
+      let cipherData = await cipher.doFinal(plainText);
+      return cipherData;
+    } catch (error) {
+      let err = error as BusinessError;
+      logger.error(TAG, `encryptCBCMessagePromise failed, error code=${err.code}, message=${err.message}`);
+      return undefined;
+    }
   }
 
   /**
@@ -141,14 +171,21 @@ export class CryptoUtil {
    * @param ivParams cryptoFramework.IvParamsSpec.
    * @param symKey cryptoFramework.SymKey.
    * @param cipherText character string to be encrypted.
-   * @returns Promise<cryptoFramework.DataBlob>.
+   * @returns Promise<cryptoFramework.DataBlob | undefined>.
    */
   public static async decryptCBCMessagePromise(cipherParam: string, ivParams: cryptoFramework.IvParamsSpec,
-    symKey: cryptoFramework.SymKey, cipherText: cryptoFramework.DataBlob): Promise<cryptoFramework.DataBlob> {
-    let decoder = cryptoFramework.createCipher(cipherParam);
-    await decoder.init(cryptoFramework.CryptoMode.DECRYPT_MODE, symKey, ivParams);
-    let decryptData = await decoder.doFinal(cipherText);
-    return decryptData;
+    symKey: cryptoFramework.SymKey,
+    cipherText: cryptoFramework.DataBlob): Promise<cryptoFramework.DataBlob | undefined> {
+    try {
+      let decoder = cryptoFramework.createCipher(cipherParam);
+      await decoder.init(cryptoFramework.CryptoMode.DECRYPT_MODE, symKey, ivParams);
+      let decryptData = await decoder.doFinal(cipherText);
+      return decryptData;
+    } catch (error) {
+      let err = error as BusinessError;
+      logger.error(TAG, `decryptCBCMessagePromise failed, error code=${err.code}, message=${err.message}`);
+      return undefined;
+    }
   }
 
   /**
@@ -157,14 +194,20 @@ export class CryptoUtil {
    * @param cipherParam algorithm name.
    * @param symKey cryptoFramework.SymKey.
    * @param plainText character string to be encrypted.
-   * @returns Promise<cryptoFramework.DataBlob>
+   * @returns Promise<cryptoFramework.DataBlob | undefined>
    */
   public static async encryptMessagePromise(cipherParam: string, symKey: cryptoFramework.SymKey,
-    plainText: cryptoFramework.DataBlob): Promise<cryptoFramework.DataBlob> {
-    let cipher = cryptoFramework.createCipher(cipherParam);
-    await cipher.init(cryptoFramework.CryptoMode.ENCRYPT_MODE, symKey, null);
-    let cipherData = await cipher.doFinal(plainText);
-    return cipherData;
+    plainText: cryptoFramework.DataBlob): Promise<cryptoFramework.DataBlob | undefined> {
+    try {
+      let cipher = cryptoFramework.createCipher(cipherParam);
+      await cipher.init(cryptoFramework.CryptoMode.ENCRYPT_MODE, symKey, null);
+      let cipherData = await cipher.doFinal(plainText);
+      return cipherData;
+    } catch (error) {
+      let err = error as BusinessError;
+      logger.error(TAG, `encryptMessagePromise failed, error code=${err.code}, message=${err.message}`);
+      return undefined;
+    }
   }
 
   /**
@@ -173,14 +216,20 @@ export class CryptoUtil {
    * @param cipherParam algorithm name.
    * @param symKey cryptoFramework.SymKey.
    * @param cipherText character string to be decrypted.
-   * @returns Promise<cryptoFramework.DataBlob>.
+   * @returns Promise<cryptoFramework.DataBlob | undefined>.
    */
   public static async decryptMessagePromise(cipherParam: string, symKey: cryptoFramework.SymKey,
     cipherText: cryptoFramework.DataBlob) {
-    let decoder = cryptoFramework.createCipher(cipherParam);
-    await decoder.init(cryptoFramework.CryptoMode.DECRYPT_MODE, symKey, null);
-    let decryptData = await decoder.doFinal(cipherText);
-    return decryptData;
+    try {
+      let decoder = cryptoFramework.createCipher(cipherParam);
+      await decoder.init(cryptoFramework.CryptoMode.DECRYPT_MODE, symKey, null);
+      let decryptData = await decoder.doFinal(cipherText);
+      return decryptData;
+    } catch (error) {
+      let err = error as BusinessError;
+      logger.error(TAG, `decryptMessagePromise failed, error code=${err.code}, message=${err.message}`);
+      return undefined;
+    }
   }
 
   /**
@@ -189,15 +238,21 @@ export class CryptoUtil {
    * @param algName algorithm name.
    * @param pubKeyData the key data blob.
    * @param priKeyData the key data blob.
-   * @returns cryptoFramework.KeyPair.
+   * @returns cryptoFramework.KeyPair | undefined.
    */
   public static genKeyPairByData(algName: string, pubKeyData: Uint8Array,
-    priKeyData: Uint8Array): cryptoFramework.KeyPair {
-    let pubKeyBlob: cryptoFramework.DataBlob = { data: pubKeyData };
-    let priKeyBlob: cryptoFramework.DataBlob = { data: priKeyData };
-    let rsaGenerator = cryptoFramework.createAsyKeyGenerator(algName);
-    let keyPair = rsaGenerator.convertKeySync(pubKeyBlob, priKeyBlob);
-    return keyPair;
+    priKeyData: Uint8Array): cryptoFramework.KeyPair | undefined {
+    try {
+      let pubKeyBlob: cryptoFramework.DataBlob = { data: pubKeyData };
+      let priKeyBlob: cryptoFramework.DataBlob = { data: priKeyData };
+      let rsaGenerator = cryptoFramework.createAsyKeyGenerator(algName);
+      let keyPair = rsaGenerator.convertKeySync(pubKeyBlob, priKeyBlob);
+      return keyPair;
+    } catch (error) {
+      let err = error as BusinessError;
+      logger.error(TAG, `genKeyPairByData failed, error code=${err.code}, message=${err.message}`);
+      return undefined;
+    }
   }
 
   /**
@@ -206,14 +261,20 @@ export class CryptoUtil {
    * @param cipherParam algorithm name.
    * @param publicKey Provides the public key interface for asymmetric keys.
    * @param plainText character string to be encrypted.
-   * @returns Promise<DataBlob>.
+   * @returns Promise<DataBlob | undefined>.
    */
   public static async encryptPublicKeyMessagePromise(cipherParam: string, publicKey: cryptoFramework.PubKey,
-    plainText: cryptoFramework.DataBlob): Promise<cryptoFramework.DataBlob> {
-    let cipher = cryptoFramework.createCipher(cipherParam);
-    await cipher.init(cryptoFramework.CryptoMode.ENCRYPT_MODE, publicKey, null);
-    let cipherData = await cipher.doFinal(plainText);
-    return cipherData;
+    plainText: cryptoFramework.DataBlob): Promise<cryptoFramework.DataBlob | undefined> {
+    try {
+      let cipher = cryptoFramework.createCipher(cipherParam);
+      await cipher.init(cryptoFramework.CryptoMode.ENCRYPT_MODE, publicKey, null);
+      let cipherData = await cipher.doFinal(plainText);
+      return cipherData;
+    } catch (error) {
+      let err = error as BusinessError;
+      logger.error(TAG, `encryptPublicKeyMessagePromise failed, error code=${err.code}, message=${err.message}`);
+      return undefined;
+    }
   }
 
   /**
@@ -222,14 +283,20 @@ export class CryptoUtil {
    * @param cipherParam algorithm name.
    * @param privateKey provides the private key type.
    * @param cipherText character string to be decrypted.
-   * @returns Promise<DataBlob>.
+   * @returns Promise<DataBlob | undefined>.
    */
   public static async decryptPrivateKeyMessagePromise(cipherParam: string, privateKey: cryptoFramework.PriKey,
-    cipherText: cryptoFramework.DataBlob): Promise<cryptoFramework.DataBlob> {
-    let decoder = cryptoFramework.createCipher(cipherParam);
-    await decoder.init(cryptoFramework.CryptoMode.DECRYPT_MODE, privateKey, null);
-    let decryptData = await decoder.doFinal(cipherText);
-    return decryptData;
+    cipherText: cryptoFramework.DataBlob): Promise<cryptoFramework.DataBlob | undefined> {
+    try {
+      let decoder = cryptoFramework.createCipher(cipherParam);
+      await decoder.init(cryptoFramework.CryptoMode.DECRYPT_MODE, privateKey, null);
+      let decryptData = await decoder.doFinal(cipherText);
+      return decryptData;
+    } catch (error) {
+      let err = error as BusinessError;
+      logger.error(TAG, `decryptPrivateKeyMessagePromise failed, error code=${err.code}, message=${err.message}`);
+      return undefined;
+    }
   }
 
   /**
@@ -263,15 +330,21 @@ export class CryptoUtil {
    * @param publicKey Provides the public key interface for asymmetric keys.
    * @param itemValue the value of the specified parameter.
    * @param plainText character string to be encrypted.
-   * @returns cryptoFramework.DataBlob.
+   * @returns cryptoFramework.DataBlob | undefined.
    */
   public static encryptOAEPPublicKeyMessagePromise(cipherParam: string, publicKey: cryptoFramework.PubKey,
-    itemValue: Uint8Array, plainText: cryptoFramework.DataBlob): cryptoFramework.DataBlob {
-    let cipher = cryptoFramework.createCipher(cipherParam);
-    cipher.initSync(cryptoFramework.CryptoMode.ENCRYPT_MODE, publicKey, null);
-    cipher.setCipherSpec(cryptoFramework.CipherSpecItem.OAEP_MGF1_PSRC_UINT8ARR, itemValue)
-    let cipherData = cipher.doFinalSync(plainText);
-    return cipherData;
+    itemValue: Uint8Array, plainText: cryptoFramework.DataBlob): cryptoFramework.DataBlob | undefined {
+    try {
+      let cipher = cryptoFramework.createCipher(cipherParam);
+      cipher.initSync(cryptoFramework.CryptoMode.ENCRYPT_MODE, publicKey, null);
+      cipher.setCipherSpec(cryptoFramework.CipherSpecItem.OAEP_MGF1_PSRC_UINT8ARR, itemValue)
+      let cipherData = cipher.doFinalSync(plainText);
+      return cipherData;
+    } catch (error) {
+      let err = error as BusinessError;
+      logger.error(TAG, `encryptOAEPPublicKeyMessagePromise failed, error code=${err.code}, message=${err.message}`);
+      return undefined;
+    }
   }
 
   /**
@@ -281,15 +354,21 @@ export class CryptoUtil {
    * @param privateKey Provides the public key interface for asymmetric keys.
    * @param itemValue the value of the specified parameter.
    * @param cipherText character string to be decrypted.
-   * @returns cryptoFramework.DataBlob.
+   * @returns cryptoFramework.DataBlob | undefined.
    */
   public static decryptOAEPPrivateKeyMessagePromise(cipherParam: string, privateKey: cryptoFramework.PriKey,
-    itemValue: Uint8Array, cipherText: cryptoFramework.DataBlob): cryptoFramework.DataBlob {
-    let decoder = cryptoFramework.createCipher(cipherParam);
-    decoder.initSync(cryptoFramework.CryptoMode.DECRYPT_MODE, privateKey, null);
-    decoder.setCipherSpec(cryptoFramework.CipherSpecItem.OAEP_MGF1_PSRC_UINT8ARR, itemValue);
-    let decryptData = decoder.doFinalSync(cipherText);
-    return decryptData;
+    itemValue: Uint8Array, cipherText: cryptoFramework.DataBlob): cryptoFramework.DataBlob | undefined {
+    try {
+      let decoder = cryptoFramework.createCipher(cipherParam);
+      decoder.initSync(cryptoFramework.CryptoMode.DECRYPT_MODE, privateKey, null);
+      decoder.setCipherSpec(cryptoFramework.CipherSpecItem.OAEP_MGF1_PSRC_UINT8ARR, itemValue);
+      let decryptData = decoder.doFinalSync(cipherText);
+      return decryptData;
+    } catch (error) {
+      let err = error as BusinessError;
+      logger.error(TAG, `decryptOAEPPrivateKeyMessagePromise failed, error code=${err.code}, message=${err.message}`);
+      return undefined;
+    }
   }
 
   /**
@@ -298,27 +377,33 @@ export class CryptoUtil {
    * @param cipherParam algorithm name.
    * @param pubKey Provides the public key interface for asymmetric keys.
    * @param plainText character string to be encrypted.
-   * @returns cryptoFramework.DataBlob.
+   * @returns cryptoFramework.DataBlob | undefined.
    */
   public static rsaEncryptBySegment(cipherParam: string, pubKey: cryptoFramework.PubKey,
-    plainText: cryptoFramework.DataBlob): cryptoFramework.DataBlob {
-    let cipher = cryptoFramework.createCipher(cipherParam);
-    cipher.initSync(cryptoFramework.CryptoMode.ENCRYPT_MODE, pubKey, null);
-    let plainTextSplitLen = 64;
-    let cipherText = new Uint8Array();
-    for (let i = 0; i < plainText.data.length; i += plainTextSplitLen) {
-      let updateMessage = plainText.data.subarray(i, i + plainTextSplitLen);
-      let updateMessageBlob: cryptoFramework.DataBlob = { data: updateMessage };
-      // Split the original text by 64 characters and call doFinal to encrypt the text.
-      // When the 1024-bit key is used, a 128-byte ciphertext is generated each time.
-      let updateOutput = cipher.doFinalSync(updateMessageBlob);
-      let mergeText = new Uint8Array(cipherText.length + updateOutput.data.length);
-      mergeText.set(cipherText);
-      mergeText.set(updateOutput.data, cipherText.length);
-      cipherText = mergeText;
+    plainText: cryptoFramework.DataBlob): cryptoFramework.DataBlob | undefined {
+    try {
+      let cipher = cryptoFramework.createCipher(cipherParam);
+      cipher.initSync(cryptoFramework.CryptoMode.ENCRYPT_MODE, pubKey, null);
+      let plainTextSplitLen = 64;
+      let cipherText = new Uint8Array();
+      for (let i = 0; i < plainText.data.length; i += plainTextSplitLen) {
+        let updateMessage = plainText.data.subarray(i, i + plainTextSplitLen);
+        let updateMessageBlob: cryptoFramework.DataBlob = { data: updateMessage };
+        // Split the original text by 64 characters and call doFinal to encrypt the text.
+        // When the 1024-bit key is used, a 128-byte ciphertext is generated each time.
+        let updateOutput = cipher.doFinalSync(updateMessageBlob);
+        let mergeText = new Uint8Array(cipherText.length + updateOutput.data.length);
+        mergeText.set(cipherText);
+        mergeText.set(updateOutput.data, cipherText.length);
+        cipherText = mergeText;
+      }
+      let cipherBlob: cryptoFramework.DataBlob = { data: cipherText };
+      return cipherBlob;
+    } catch (error) {
+      let err = error as BusinessError;
+      logger.error(TAG, `rsaEncryptBySegment failed, error code=${err.code}, message=${err.message}`);
+      return undefined;
     }
-    let cipherBlob: cryptoFramework.DataBlob = { data: cipherText };
-    return cipherBlob;
   }
 
   /**
@@ -327,28 +412,34 @@ export class CryptoUtil {
    * @param cipherParam algorithm name.
    * @param priKey Provides the public key interface for asymmetric keys.
    * @param cipherText character string to be decrypted.
-   * @returns cryptoFramework.DataBlob.
+   * @returns cryptoFramework.DataBlob | undefined.
    */
   public static rsaDecryptBySegment(cipherParam: string, priKey: cryptoFramework.PriKey,
-    cipherText: cryptoFramework.DataBlob): cryptoFramework.DataBlob {
-    let decoder = cryptoFramework.createCipher(cipherParam);
-    decoder.initSync(cryptoFramework.CryptoMode.DECRYPT_MODE, priKey, null);
-    // Length of ciphertext bytes generated by the RSA key during each encryption, which is calculated as follows:\
-    // Length of ciphertext bytes generated by the RSA key during each encryption = Number of key bits/8
-    let cipherTextSplitLen = 128;
-    let decryptText = new Uint8Array();
-    for (let i = 0; i < cipherText.data.length; i += cipherTextSplitLen) {
-      let updateMessage = cipherText.data.subarray(i, i + cipherTextSplitLen);
-      let updateMessageBlob: cryptoFramework.DataBlob = { data: updateMessage };
-      // Split the ciphertext by 128 bytes, decrypt the ciphertext, obtain the original text,
-      // and concatenate the original text.
-      let updateOutput = decoder.doFinalSync(updateMessageBlob);
-      let mergeText = new Uint8Array(decryptText.length + updateOutput.data.length);
-      mergeText.set(decryptText);
-      mergeText.set(updateOutput.data, decryptText.length);
-      decryptText = mergeText;
+    cipherText: cryptoFramework.DataBlob): cryptoFramework.DataBlob | undefined {
+    try {
+      let decoder = cryptoFramework.createCipher(cipherParam);
+      decoder.initSync(cryptoFramework.CryptoMode.DECRYPT_MODE, priKey, null);
+      // Length of ciphertext bytes generated by the RSA key during each encryption, which is calculated as follows:\
+      // Length of ciphertext bytes generated by the RSA key during each encryption = Number of key bits/8
+      let cipherTextSplitLen = 128;
+      let decryptText = new Uint8Array();
+      for (let i = 0; i < cipherText.data.length; i += cipherTextSplitLen) {
+        let updateMessage = cipherText.data.subarray(i, i + cipherTextSplitLen);
+        let updateMessageBlob: cryptoFramework.DataBlob = { data: updateMessage };
+        // Split the ciphertext by 128 bytes, decrypt the ciphertext, obtain the original text,
+        // and concatenate the original text.
+        let updateOutput = decoder.doFinalSync(updateMessageBlob);
+        let mergeText = new Uint8Array(decryptText.length + updateOutput.data.length);
+        mergeText.set(decryptText);
+        mergeText.set(updateOutput.data, decryptText.length);
+        decryptText = mergeText;
+      }
+      let decryptBlob: cryptoFramework.DataBlob = { data: decryptText };
+      return decryptBlob;
+    } catch (error) {
+      let err = error as BusinessError;
+      logger.error(TAG, `rsaEncryptBySegment failed, error code=${err.code}, message=${err.message}`);
+      return undefined;
     }
-    let decryptBlob: cryptoFramework.DataBlob = { data: decryptText };
-    return decryptBlob;
   }
 }

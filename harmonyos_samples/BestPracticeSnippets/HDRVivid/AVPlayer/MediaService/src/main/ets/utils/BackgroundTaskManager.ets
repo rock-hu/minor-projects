@@ -47,7 +47,10 @@ export class BackgroundTaskManager {
       }).catch((err: BusinessError) => {
         Logger.error(TAG, `startBackgroundRunning failed Cause:  ${JSON.stringify(err)}`);
       });
-    });
+    })
+      .catch((err: BusinessError) => {
+        Logger.error(TAG, `getWantAgent failed Cause:  ${JSON.stringify(err)}`);
+      })
   }
 
   // cancel continuous task

@@ -59,7 +59,13 @@ struct Sample4 {
             // [Start sample_5]
             // Sample4.ets
             let task: taskpool.Task = new taskpool.Task(correctConcurrentFunc);
-            taskpool.execute(task);
+            taskpool.execute(task)
+              .then(() => {
+                hilog.info(0xFF00, 'sampleTag', 'receive http msg success.');
+              })
+              .catch((err: BusinessError) => {
+                hilog.error(0x000, 'testTag', `execute failed, code=${err.code}, message=${err.message}`);
+              })
             // [End sample_5]
           })
 
@@ -71,7 +77,13 @@ struct Sample4 {
             // Sample4.ets
             try {
               let foo = new Foo();
-              taskpool.execute(correctConcurrentFunc1, foo);
+              taskpool.execute(correctConcurrentFunc1, foo)
+                .then(() => {
+                  hilog.info(0xFF00, 'sampleTag', 'receive http msg success.');
+                })
+                .catch((err: BusinessError) => {
+                  hilog.error(0x000, 'testTag', `execute failed, code=${err.code}, message=${err.message}`);
+                })
             } catch (e) {
               let error: ErrorEvent = e;
               hilog.error(0xFF00, 'sampleTag', "error info: " + error.message);

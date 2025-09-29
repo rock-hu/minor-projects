@@ -14,6 +14,7 @@
  */
 
 import { CommonConstants as Const, VideoData } from '@ohos/MediaService';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Component
 export struct RightSide {
@@ -91,7 +92,11 @@ export struct RightSide {
           .fillColor(Color.White)
           .margin({ bottom: $r('app.float.fabulous_margin_bottom') })
           .onClick(() => {
-            this.getPromptAction.showToast({ message: $r('app.string.comment'), duration: Const.TOAST_DURATION });
+            try {
+              this.getPromptAction.showToast({ message: $r('app.string.comment'), duration: Const.TOAST_DURATION });
+            } catch (error) {
+              hilog.error(0x0000, 'testTag',`getPromptAction showToast failed, Code:${error.code}, message:${error.message}`);
+            }
           })
         Text(this.item.commentCount)
           .fontSize($r('app.float.fabulous_font_size'))
@@ -114,7 +119,11 @@ export struct RightSide {
       .width($r('app.float.avatar_size'))
       .alignItems(HorizontalAlign.Center)
       .onClick(() => {
-        this.getPromptAction.showToast({ message: $r('app.string.share'), duration: Const.TOAST_DURATION });
+        try {
+          this.getPromptAction.showToast({ message: $r('app.string.share'), duration: Const.TOAST_DURATION });
+        } catch (error) {
+          hilog.error(0x0000, 'testTag',`getPromptAction showToast failed, Code:${error.code}, message:${error.message}`);
+        }
       })
     }
     .margin({ bottom: $r('app.float.video_side_margin_bottom'), right: $r('app.float.right_space') })

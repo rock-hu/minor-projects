@@ -15,32 +15,38 @@
 
 import { hiAppEvent } from '@kit.PerformanceAnalysisKit';
 import { Logger } from '../log/Logger';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 const TAG: string = 'eventSubscription';
 
 export function eventSubscription(): void {
-  // Add application event observer method, which can be used to subscribe to application events
-  hiAppEvent.addWatcher({
-    // Developers can customize observer names, which the system will use to identify different observers
-    name: 'mst',
-    // Developers can subscribe to system events of interest, where they have subscribed to crash events
-    appEventFilters: [
-      {
-        domain: hiAppEvent.domain.OS,
-        names: [hiAppEvent.event.APP_CRASH, hiAppEvent.event.APP_FREEZE]
+  try {
+    // Add application event observer method, which can be used to subscribe to application events
+    hiAppEvent.addWatcher({
+      // Developers can customize observer names, which the system will use to identify different observers
+      name: 'mst',
+      // Developers can subscribe to system events of interest, where they have subscribed to crash events
+      appEventFilters: [
+        {
+          domain: hiAppEvent.domain.OS,
+          names: [hiAppEvent.event.APP_CRASH, hiAppEvent.event.APP_FREEZE]
+        }
+      ],
+      // Knowledge point: Obtain event group information.
+      // Developers can implement subscription callback functions themselves,
+      // and crash and freeze events will be called back to developers the next time the application starts
+      onReceive: async (domain: string, appEventGroups: Array<hiAppEvent.AppEventGroup>) => {
+        Logger.info(TAG, `HiAppEvent onReceive: domain=${domain}`);
+        // Obtain event group information and perform bidirectional data binding with
+        // @StorageLink('faultMessage') faultMessage in the ApplicationException file
+        // Performance concerns: If developers have synchronized code that requires time-consuming operations,
+        // it is recommended to start worker or taskpool threads to handle it.
+        // But if developers use storage and preferences, they can simply call them.
+        AppStorage.setOrCreate('appEventGroups', appEventGroups);
       }
-    ],
-    // Knowledge point: Obtain event group information.
-    // Developers can implement subscription callback functions themselves,
-    // and crash and freeze events will be called back to developers the next time the application starts
-    onReceive: async (domain: string, appEventGroups: Array<hiAppEvent.AppEventGroup>) => {
-      Logger.info(TAG, `HiAppEvent onReceive: domain=${domain}`);
-      // Obtain event group information and perform bidirectional data binding with
-      // @StorageLink('faultMessage') faultMessage in the ApplicationException file
-      // Performance concerns: If developers have synchronized code that requires time-consuming operations,
-      // it is recommended to start worker or taskpool threads to handle it.
-      // But if developers use storage and preferences, they can simply call them.
-      AppStorage.setOrCreate('appEventGroups', appEventGroups);
-    }
-  });
+    });
+  } catch (error) {
+    let err = error as BusinessError;
+    Logger.error(TAG, `addWatcher failed, error code=${err.code}, message=${err.message}`);
+  }
 }

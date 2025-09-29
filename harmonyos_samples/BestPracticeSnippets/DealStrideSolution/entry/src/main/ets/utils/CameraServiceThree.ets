@@ -20,6 +20,7 @@ import { image } from '@kit.ImageKit';
 import { JSON } from '@kit.ArkTS';
 import { photoAccessHelper } from '@kit.MediaLibraryKit';
 import Logger from './Logger';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const TAG: string = 'CameraService';
 
@@ -52,9 +53,9 @@ class CameraService {
         }
         if (nextImage) {
           nextImage.getComponent(image.ComponentType.JPEG, async (_err, component: image.Component) => {
-            let width = 1080; // Application create preview stream resolution corresponding to the width
-            let height = 1080; // Application create preview stream resolution corresponding to the height
-            let pixelMap = await image.createPixelMap(component.byteBuffer, {
+            let width: number = 1080; // Application create preview stream resolution corresponding to the width
+            let height: number = 1080; // Application create preview stream resolution corresponding to the height
+            let pixelMap: image.PixelMap | undefined = await image.createPixelMap(component.byteBuffer, {
               size: {
                 height: height,
                 width: width
@@ -73,11 +74,11 @@ class CameraService {
   }
   // [End onImageArrival_start]
   getPreviewProfile(cameraOutputCapability: camera.CameraOutputCapability): camera.Profile | undefined {
-    let previewProfiles = cameraOutputCapability.previewProfiles;
+    let previewProfiles: Array<camera.Profile> = cameraOutputCapability.previewProfiles;
     if (previewProfiles.length < 1) {
       return undefined;
     }
-    let index = previewProfiles.findIndex((previewProfile: camera.Profile) => {
+    let index: number = previewProfiles.findIndex((previewProfile: camera.Profile) => {
       return previewProfile.size.width === this.previewProfileObj.size.width &&
         previewProfile.size.height === this.previewProfileObj.size.height &&
         previewProfile.format === this.previewProfileObj.format;
@@ -117,7 +118,7 @@ class CameraService {
         return;
       }
       // Turn on the camera
-      let isOpenSuccess = await this.cameraInputOpenFn(this.cameraInput);
+      let isOpenSuccess: boolean = await this.cameraInputOpenFn(this.cameraInput);
       if (!isOpenSuccess) {
         Logger.error(TAG, 'Failed to open the camera.');
         return;
@@ -153,10 +154,15 @@ class CameraService {
     }
   }
 
-  getPreviewRotation() {
+  getPreviewRotation(): void {
     let previewRotation: camera.ImageRotation | undefined = camera.ImageRotation.ROTATION_0;
-    previewRotation = this.previewOutput?.getPreviewRotation(previewRotation);
-    AppStorage.set('previewRotation', previewRotation)
+    try {
+      previewRotation = this.previewOutput?.getPreviewRotation(previewRotation);
+      AppStorage.set('previewRotation', previewRotation);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.warn(0x000, 'testTag', `setColorMode failed, code=${err.code}, message=${err.message}`);
+    }
   }
 
   /**
@@ -259,7 +265,7 @@ class CameraService {
    * Turn on the camera
    */
   async cameraInputOpenFn(cameraInput: camera.CameraInput): Promise<boolean> {
-    let isOpenSuccess = false;
+    let isOpenSuccess: boolean = false;
     try {
       await cameraInput.open();
       isOpenSuccess = true;

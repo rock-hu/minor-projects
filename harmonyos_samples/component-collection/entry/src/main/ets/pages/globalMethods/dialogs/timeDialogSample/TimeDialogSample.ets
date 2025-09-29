@@ -17,6 +17,8 @@ import { IntroductionTitle } from '../../../../common/IntroductionTitle';
 import ShowToast from '../../../../util/ShowToast';
 import { TitleBar } from '../../../../common/TitleBar';
 import { getStringData } from '../../../../data/ResourceDataHandle';
+import Logger from '../../../../util/Logger';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 @Extend(Text)
 function textStyle() {
@@ -130,7 +132,11 @@ struct TimeDialogSample {
     if (value.minute as number < 10) {
       minute = `0${value.minute}`;
     }
-    ShowToast.shortToast(`${this.context.resourceManager.getStringSync($r('app.string.time_picker_toast_time')
-      .id)}${hour}:${minute}`);
+    try {
+      ShowToast.shortToast(`${this.context.resourceManager.getStringSync($r('app.string.time_picker_toast_time')
+        .id)}${hour}:${minute}`);
+    } catch (error) {
+      Logger.error(`callback ShowToastTime failed, error code: ${(error as BusinessError).code}, message: ${(error as BusinessError).message}.`);
+    }
   }
 }

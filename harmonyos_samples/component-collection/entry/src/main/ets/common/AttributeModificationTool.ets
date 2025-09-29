@@ -14,6 +14,8 @@
  */
 
 import { common } from '@kit.AbilityKit';
+import Logger from '../util/Logger';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 const TOOL_WIDTH: SizeOptions = { width: 150, height: 38 };
 
@@ -180,7 +182,12 @@ export struct CommonItemColorSelect {
 
   changeResourceToString(resourceData: Resource) {
     let context = this.getUIContext().getHostContext() as common.UIAbilityContext;
-    return context.resourceManager.getStringSync(resourceData.id);
+    try {
+      return context.resourceManager.getStringSync(resourceData.id);
+    } catch (error) {
+      Logger.error(`callback changeResourceToString failed. code: ${(error as BusinessError).code},  message: ${(error as BusinessError).message}.`)
+      return '';
+    }
   }
 
   build() {

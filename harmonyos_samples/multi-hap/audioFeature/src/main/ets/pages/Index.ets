@@ -13,24 +13,24 @@
  * limitations under the License.
  */
 
-import { media } from '@kit.MediaKit'
-import Logger from '../util/Logger'
 import { common } from '@kit.AbilityKit';
-import { BusinessError } from '@kit.BasicServicesKit'
+import { BusinessError } from '@kit.BasicServicesKit';
+import { media } from '@kit.MediaKit';
+import Logger from '../util/Logger';
 
-const TAG: string = 'Index'
-const FD_PREFIX: string = 'fd://'
+const TAG: string = 'Index';
+const FD_PREFIX: string = 'fd://';
 
 let player: media.AVPlayer;
 media.createAVPlayer().then((video: media.AVPlayer) => {
   if (video != null) {
     player = video;
-    console.info('createAVPlayer success');
+    Logger.info(TAG, 'createAVPlayer success');
   } else {
-    console.error('createAVPlayer fail');
+    Logger.error(TAG, 'createAVPlayer fail');
   }
 }).catch((error: BusinessError) => {
-  console.error(`AVPlayer catchCallback, error message:${error.message}`);
+  Logger.error(TAG, `AVPlayer catchCallback, error message:${error.message}`);
 });
 
 @Entry
@@ -42,27 +42,26 @@ struct Index {
 
   build() {
     Row() {
-      Button({type: ButtonType.Circle, stateEffect: true}) {
-        Image($r("app.media.play")).width(35).height(35)
+      Button({ type: ButtonType.Circle, stateEffect: true }) {
+        Image($r('app.media.play')).width(35).height(35)
       }
-      .onClick((event) => {
-        Logger.info(TAG, "play button clicked, hasInit: " + this.hasInit)
-        console.log("this.hasInit",this.hasInit)
+      .onClick(() => {
+        Logger.info(TAG, 'play button clicked, hasInit: ' + this.hasInit)
         if (this.hasInit) {
-          player.play()
+          player.play();
         } else {
-          this.initAudioPlayer()
+          this.initAudioPlayer();
         }
       })
       .id('btnAudioPlay')
       .backgroundColor(0xFFFFFF)
-      .margin({right: 15})
+      .margin({ right: 15 })
 
-      Button({type: ButtonType.Circle, stateEffect: true}) {
-        Image($r("app.media.pause")).width(35).height(35)
+      Button({ type: ButtonType.Circle, stateEffect: true }) {
+        Image($r('app.media.pause')).width(35).height(35)
       }
       .onClick((event) => {
-        player.pause()
+        player.pause();
       })
       .id('btnAudioStop')
       .backgroundColor(0xFFFFFF)
@@ -73,11 +72,15 @@ struct Index {
   }
 
   initAudioPlayer() {
-    if(this.context){
-      this.setCallback(player)
-      this.context.resourceManager.getRawFd("1.mp3").then(value => {
-        player.fdSrc = value
-      })
+    if (this.context) {
+      this.setCallback(player);
+      this.context.resourceManager.getRawFd('1.mp3')
+        .then(value => {
+          player.fdSrc = value
+        })
+        .catch((error: BusinessError) => {
+          Logger.error(TAG, `getRawFd failed, error code=${error.code}, message=${error.message}`);
+        })
     }
   }
 
@@ -85,20 +88,22 @@ struct Index {
     player.on('stateChange', this.stateChangeCallback = async (state: string, reason: media.StateChangeReason) => {
       switch (state) {
         case 'idle':
-          console.info('state idle called');
+          Logger.info(TAG, 'state idle called');
           break;
         case 'initialized':
-          Logger.info(TAG, 'initialized prepared called')
+          Logger.info(TAG, 'initialized prepared called');
           this.hasInit = true;
           player.prepare().then(() => {
-            player.play()
+            player.play();
+          }).catch((error: BusinessError) => {
+            Logger.error(TAG, `prepare failed, error code=${error.code}, message=${error.message}`);
           })
           break;
         case 'playing':
-          Logger.info(TAG, 'audio play success')
+          Logger.info(TAG, 'audio play success');
           break;
         case 'paused':
-          Logger.info(TAG, 'audio paused success')
+          Logger.info(TAG, 'audio paused success');
           break;
         case 'error':
           Logger.error('state error called');
@@ -107,10 +112,10 @@ struct Index {
           Logger.info('unkown state :' + state);
           break;
       }
-    })
+    });
   }
 
   aboutToAppear() {
-    this.context = this.getUIContext().getHostContext() as common.UIAbilityContext
+    this.context = this.getUIContext().getHostContext() as common.UIAbilityContext;
   }
 }

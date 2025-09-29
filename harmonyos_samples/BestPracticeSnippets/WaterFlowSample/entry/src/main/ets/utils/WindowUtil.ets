@@ -48,13 +48,13 @@ export class WindowUtil {
     }
   }
 
-  private static registerBreakPoint() {
+  private static registerBreakPoint(): void {
     WindowUtil.updateAvoidArea(WindowUtil.windowClass);
     WindowUtil.windowClass.on('avoidAreaChange',
       (avoidAreaOption) => WindowUtil.setAvoidArea(avoidAreaOption.type, avoidAreaOption.area));
   }
 
-  private static updateAvoidArea(windowObj: window.Window) {
+  private static updateAvoidArea(windowObj: window.Window): void {
     try {
       WindowUtil.setAvoidArea(window.AvoidAreaType.TYPE_SYSTEM,
         windowObj.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM));
@@ -66,9 +66,9 @@ export class WindowUtil {
   }
 
   // Get status bar height and indicator height.
-  private static setAvoidArea(type: window.AvoidAreaType, area: window.AvoidArea) {
+  private static setAvoidArea(type: window.AvoidAreaType, area: window.AvoidArea): void {
     try {
-      let uiContext = WindowUtil.windowClass.getUIContext();
+      let uiContext: UIContext = WindowUtil.windowClass.getUIContext();
       if (type === window.AvoidAreaType.TYPE_SYSTEM) {
         AppStorage.setOrCreate(CommonConstants.AS_KEY_STATUS_BAR_HEIGHT, uiContext.px2vp(area.topRect.height));
       } else if (type === window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR) {

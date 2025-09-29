@@ -20,7 +20,7 @@
 // [Start onwindowstagecreate1]
 import { UIAbility } from '@kit.AbilityKit';
 import { window } from '@kit.ArkUI';
-import { deviceInfo } from '@kit.BasicServicesKit';
+import { BusinessError, deviceInfo } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 export default class EntryAbility extends UIAbility {
@@ -35,12 +35,21 @@ export default class EntryAbility extends UIAbility {
     windowStage.getMainWindow().then((data: window.Window) => {
       let deviceTypeInfo: string = deviceInfo.deviceType;
       if (deviceTypeInfo === '2in1') {
-        // Set the title bar of the 2in1 device to be invisible after the loadContent() call takes effect.
-        data.setWindowDecorVisible(false);
-        // When the title bar is invisible, set the height of the title bar and control the height of the three buttons (full screen/restore, maximize, and close) in the upper right corner.
-        data.setWindowDecorHeight(64);
+        try {
+          // Set the title bar of the 2in1 device to be invisible after the loadContent() call takes effect.
+          data.setWindowDecorVisible(false);
+          // When the title bar is invisible, set the height of the title bar and control the height of the three buttons (full screen/restore, maximize, and close) in the upper right corner.
+          data.setWindowDecorHeight(64);
+        } catch (error) {
+          let err = error as BusinessError;
+          hilog.warn(0x000, 'testTag', `set windowDecor size failed, code=${err.code}, message=${err.message}`);
+        }
       }
     })
+      .catch((err: BusinessError) => {
+        hilog.error(0x000, 'testTag', `setWindowLayoutFullScreen failed, code=${err.code}, message=${err.message}`)
+      })
   }
 }
+
 // [End onwindowstagecreate1]

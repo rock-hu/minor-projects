@@ -33,12 +33,19 @@ export default class EntryAbility extends UIAbility {
 
   onWindowStageCreate(windowStage: window.WindowStage): void {
     Logger.info(TAG, 'Ability onWindowStageCreate');
-    windowStage.getMainWindow().then((win: window.Window): void => {
-      if (!win) {
-        return;
-      }
-      win.setWindowLayoutFullScreen(true);
-    });
+    windowStage.getMainWindow()
+      .then((win: window.Window): void => {
+        if (!win) {
+          return;
+        }
+        win.setWindowLayoutFullScreen(true)
+          .catch((err: BusinessError) => {
+            Logger.error(TAG, `Failed to setWindowLayoutFullScreen, code=${err.code}, message=${err.message}`)
+          })
+      })
+      .catch((err: BusinessError) => {
+        Logger.error(TAG, `Failed to getMainWindow, code=${err.code}, message=${err.message}`)
+      })
     this.requestPermissionsFn();
     windowStage.loadContent('pages/IndexPage', (err, data) => {
       if (err.code) {

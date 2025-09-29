@@ -34,7 +34,7 @@ export default class EntryAbility extends UIAbility {
     // Main window is created, set main page for this ability
     hilog.info(DOMAIN, TAG, FORMAT, 'Ability onWindowStageCreate');
 
-    windowStage.loadContent('pages/InterthreadCommunication2', (err) => {
+    windowStage.loadContent('pages/Index', (err) => {
       if (err.code) {
         hilog.error(DOMAIN, TAG, FORMAT, 'Failed to load the content. Cause: %{public}s', JSON.stringify(err) ?? '');
         return;

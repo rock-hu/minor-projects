@@ -15,8 +15,10 @@
 
 import { IntroductionTitle } from '../../../../common/IntroductionTitle';
 import { TitleBar } from '../../../../common/TitleBar';
+import Logger from '../../../../util/Logger';
 import { LEFT_PADDING, RIGHT_PADDING } from '../../ComponentData';
 import { ArgumentsControlPanel, PropertiesControlPanel } from './ListControlPanel';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 @Extend(Column)
 function backgroundStyle() {
@@ -56,6 +58,19 @@ struct ListSample {
   listItemTextDynamicSize(){
     .height(this.listDirection === Axis.Horizontal ? '80%' : '20%')
     .width(this.listDirection === Axis.Vertical ? '80%' : '20%')
+  }
+
+  getStatusBarContext() : string {
+    let context = '';
+    try {
+      context = this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.status_bar_desc1')) +
+      String(this.initIndex) +
+      this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.status_bar_desc2'))
+    } catch (error) {
+      Logger.error(`callback getStatusBarContext failed, error code: ${(error as BusinessError).code}, message: ${(error as BusinessError).message}.`);
+    }
+
+    return context
   }
 
   build() {
@@ -99,7 +114,7 @@ struct ListSample {
       // Status bar
       IntroductionTitle({ introduction: $r('app.string.list_introduction_state') })
       Column() {
-        Text(this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.status_bar_desc1')) + String(this.initIndex) + this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.status_bar_desc2')))
+        Text(this.getStatusBarContext())
           .textAlign(TextAlign.Center)
           .fontColor(Color.Red)
       }

@@ -17,21 +17,25 @@ import { cryptoFramework } from '@kit.CryptoArchitectureKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { buffer, util } from '@kit.ArkTS';
 import { SM2Sequence } from './SM2Sequence';
+import { BusinessError } from '@kit.BasicServicesKit';
+
+const TAG: string = 'DataConversion';
 
 export class DataConversion {
   /**
    * Generate SM2 public key based on key parameters.
    *
    * @param keyStr Hexadecimal public key。
-   * @returns Promise<cryptoFramework.PubKey>.
+   * @returns Promise<cryptoFramework.PubKey | undefined>.
    */
   context: UIContext;
 
   constructor(context: UIContext) {
     this.context = context
   }
+
   // [Start cover_str_pubkey]
-  public static async convertStrToPubKey(keyStr: string): Promise<cryptoFramework.PubKey> {
+  public static async convertStrToPubKey(keyStr: string): Promise<cryptoFramework.PubKey | undefined> {
     const puKeyStr = keyStr.startsWith('04') ? keyStr.slice(2) : keyStr;
     const pkPart1 = puKeyStr.slice(0, puKeyStr.length / 2);
     const pkPart2 = puKeyStr.slice(puKeyStr.length / 2);
@@ -39,37 +43,50 @@ export class DataConversion {
       x: BigInt('0x' + pkPart1),
       y: BigInt('0x' + pkPart2)
     };
-    const pubKeySpec: cryptoFramework.ECCPubKeySpec = {
-      params: cryptoFramework.ECCKeyUtil.genECCCommonParamsSpec('NID_sm2'),
-      pk: pks,
-      algName: 'SM2',
-      specType: cryptoFramework.AsyKeySpecType.PUBLIC_KEY_SPEC
-    };
-    const keypairGenerator = cryptoFramework.createAsyKeyGeneratorBySpec(pubKeySpec);
-    let pksData = keypairGenerator.generatePubKeySync();
-    return pksData;
+    try {
+      const pubKeySpec: cryptoFramework.ECCPubKeySpec = {
+        params: cryptoFramework.ECCKeyUtil.genECCCommonParamsSpec('NID_sm2'),
+        pk: pks,
+        algName: 'SM2',
+        specType: cryptoFramework.AsyKeySpecType.PUBLIC_KEY_SPEC
+      };
+      const keypairGenerator = cryptoFramework.createAsyKeyGeneratorBySpec(pubKeySpec);
+      return keypairGenerator.generatePubKeySync();
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, TAG, `convertStrToPubKey failed, error code=${err.code}, message=${err.message}`);
+      return undefined;
+    }
   }
+
   // [End cover_str_pubkey]
 
   /**
    * Generate SM2 private key based on key parameters.
    *
    * @param keyStr Hexadecimal private key。
-   * @returns Promise<cryptoFramework.PriKey>.
+   * @returns Promise<cryptoFramework.PriKey | undefined>.
    */
   // [Start cover_str_to_prikey]
-  public static async convertStrToPriKey(keyStr: string): Promise<cryptoFramework.PriKey> {
-    const sks = BigInt('0x' + keyStr);
-    const priKeySpec: cryptoFramework.ECCPriKeySpec = {
-      params: cryptoFramework.ECCKeyUtil.genECCCommonParamsSpec('NID_sm2'),
-      sk: sks,
-      algName: 'SM2',
-      specType: cryptoFramework.AsyKeySpecType.PRIVATE_KEY_SPEC
-    };
-    const priKeypairGenerator = cryptoFramework.createAsyKeyGeneratorBySpec(priKeySpec);
-    let sksData = priKeypairGenerator.generatePriKeySync();
-    return sksData;
+  public static async convertStrToPriKey(keyStr: string): Promise<cryptoFramework.PriKey | undefined> {
+    try {
+      const sks = BigInt('0x' + keyStr);
+      const priKeySpec: cryptoFramework.ECCPriKeySpec = {
+        params: cryptoFramework.ECCKeyUtil.genECCCommonParamsSpec('NID_sm2'),
+        sk: sks,
+        algName: 'SM2',
+        specType: cryptoFramework.AsyKeySpecType.PRIVATE_KEY_SPEC
+      };
+      const priKeypairGenerator = cryptoFramework.createAsyKeyGeneratorBySpec(priKeySpec);
+      let sksData = priKeypairGenerator.generatePriKeySync();
+      return sksData;
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, TAG, `convertStrToPriKey failed, error code=${err.code}, message=${err.message}`);
+      return undefined;
+    }
   }
+
   // [End cover_str_to_prikey]
   getLenHex(data: string): string {
     let byte: number = Number.parseInt('0x' + data.slice(0, 2));
@@ -94,8 +111,7 @@ export class DataConversion {
         xy[i] = data.slice(6, 70);
         data = data.slice(70, data.length);
       } else {
-        hilog.error(0, 'd2i_SM2_Ciphertext',
-          this.context.getHostContext()!.resourceManager.getStringSync($r('app.string.format_error').id));
+        hilog.error(0, 'd2i_SM2_Ciphertext', 'Incorrect ciphertext format');
       }
     }
     sm2_sequence.C1x = xy[0];
@@ -109,13 +125,11 @@ export class DataConversion {
       let C2_lenHex = this.getLenHex(data);
       data = data.slice(C2_lenHex.length, data.length);
       if (this.lenHex2number(C2_lenHex) !== data.length / 2) {
-        hilog.error(0, 'd2i_SM2_Ciphertext',
-          this.context.getHostContext()!.resourceManager.getStringSync($r('app.string.format_error').id));
+        hilog.error(0, 'd2i_SM2_Ciphertext', 'Incorrect ciphertext format');
       }
       sm2_sequence.C2 = data;
     } else {
-      hilog.error(0, 'd2i_SM2_Ciphertext',
-        this.context.getHostContext()!.resourceManager.getStringSync($r('app.string.format_error').id));
+      hilog.error(0, 'd2i_SM2_Ciphertext', 'Incorrect ciphertext format');
     }
     return data;
   }
@@ -125,8 +139,7 @@ export class DataConversion {
       sm2_sequence.C3 = data.slice(4, 68);
       data = data.slice(68, data.length);
     } else {
-      hilog.error(0, 'd2i_SM2_Ciphertext',
-        this.context.getHostContext()!.resourceManager.getStringSync($r('app.string.format_error').id));
+      hilog.error(0, 'd2i_SM2_Ciphertext', 'Incorrect ciphertext format');
     }
     return data;
   }
@@ -157,8 +170,7 @@ export class DataConversion {
   d2i_SM2_Ciphertext(standard_data: string): string {
     let message: string = standard_data;
     if (!message.startsWith('30')) {
-      hilog.error(0, 'd2i_SM2_Ciphertext',
-        this.context.getHostContext()!.resourceManager.getStringSync($r('app.string.format_error').id));
+      hilog.error(0, 'd2i_SM2_Ciphertext', 'Incorrect ciphertext format');
     }
     message = message.slice('30'.length, message.length);
 
@@ -168,8 +180,7 @@ export class DataConversion {
     let sequence_len: number = this.lenHex2number(sequence_lexHex);
 
     if (sequence_len !== message.length / 2) {
-      hilog.error(0x0000, 'd2i_SM2_Ciphertext',
-        this.context.getHostContext()!.resourceManager.getStringSync($r('app.string.format_error').id));
+      hilog.error(0x0000, 'd2i_SM2_Ciphertext', 'Incorrect ciphertext format');
     }
 
     let sm2_sequence = new SM2Sequence();
@@ -181,6 +192,7 @@ export class DataConversion {
     let primal_data: string = sm2_sequence.C1x + sm2_sequence.C1y + sm2_sequence.C3 + sm2_sequence.C2;
     return primal_data;
   }
+
   // [End sm2_cipher_text]
 
   /**
@@ -198,7 +210,7 @@ export class DataConversion {
     return result;
   }
 
-  i2dSM2CipherText(primal_data: string): Uint8Array {
+  i2dSM2CipherText(primal_data: string): Uint8Array | undefined {
     // Converting a Hex String to byte array.
     const cipherBytes = DataConversion.hexStrToUint8Array(primal_data);
 
@@ -233,16 +245,23 @@ export class DataConversion {
     // Extract C2 part (middle part).
     const c2Bytes = cipherBytes.slice(c1Length, c3Start);
 
-    let spec : cryptoFramework.SM2CipherTextSpec = {
+    let spec: cryptoFramework.SM2CipherTextSpec = {
       xCoordinate: xBigInt,
       yCoordinate: yBigInt,
       cipherTextData: c2Bytes,
       hashData: c3Bytes
     }
 
-    let data = cryptoFramework.SM2CryptoUtil.genCipherTextBySpec(spec, 'C1C3C2');
-    return data.data;
+    try {
+      let data = cryptoFramework.SM2CryptoUtil.genCipherTextBySpec(spec, 'C1C3C2');
+      return data.data;
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'xxx', ` failed, error code=${err.code}, message=${err.message}`);
+      return undefined;
+    }
   }
+
   // [End i2d_sm2_cipher_text]
   // [Start string_to_unit8array]
   // Convert string to uint8Array.
@@ -256,6 +275,7 @@ export class DataConversion {
     let textDecoder = util.TextDecoder.create('utf-8');
     return textDecoder.decodeToString(input);
   }
+
   // [End string_to_unit8array]
   // [Start base64_unit_array]
   // Convert base64 to uint8Array.
@@ -269,6 +289,7 @@ export class DataConversion {
     let base64Helper = new util.Base64Helper();
     return base64Helper.encodeToStringSync(input);
   }
+
   // [End base64_unit_array]
   // [Start hex_str_to_unit8array]
   // Convert hex to uint8Array.
@@ -285,5 +306,6 @@ export class DataConversion {
     }
     return hexString;
   }
+
   // [End hex_str_to_unit8array]
 }

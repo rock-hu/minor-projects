@@ -1,6 +1,7 @@
 // [Start Case5]
 import { ColorMetrics } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Component
 struct ColorMeasure {
@@ -18,7 +19,12 @@ struct ColorMeasure {
 
   getBlendColor(baseColor: ResourceColor, addColor: ResourceColor): ColorMetrics {
     if (!baseColor || !addColor) {
-      return ColorMetrics.resourceColor(Color.Black);
+      try {
+        return ColorMetrics.resourceColor(Color.Black);
+      } catch (error) {
+        let err = error as BusinessError;
+        hilog.warn(0x000, 'testTag', `showToast failed, code=${err.code}, message=${err.message}`);
+      }
     }
     let sourceColor: ColorMetrics;
     try {
@@ -48,4 +54,5 @@ struct ColorMetricsExample {
     }
   }
 }
+
 // [End Case5]

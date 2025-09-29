@@ -39,19 +39,25 @@ export default class EntryAbility extends UIAbility {
         return;
       }
       Logger.info(TAG, 'testTag', 'Succeeded in loading the content.');
-      let windowClass: window.Window = windowStage.getMainWindowSync();
-      let isLayoutFullScreen = true;
-      let uiContext:  UIContext | undefined = windowStage.getMainWindowSync().getUIContext();
-      AppStorage.setOrCreate('uiContext', uiContext);
-      windowClass.setWindowLayoutFullScreen(isLayoutFullScreen)
-        .then(() => {
-          Logger.info(TAG, 'testTag', 'Succeeded in setting the window layout to full-screen mode. Data: %{public}s',
-            JSON.stringify(data) ?? '');
-        })
-        .catch((err: BusinessError) => {
-          Logger.error(TAG, 'testTag', 'Failed to set the window layout to full-screen mode. Cause: %{public}s',
-            JSON.stringify(err) ?? '');
-        })
+
+      try {
+        let windowClass: window.Window = windowStage.getMainWindowSync();
+        let isLayoutFullScreen = true;
+        let uiContext:  UIContext | undefined = windowStage.getMainWindowSync().getUIContext();
+        AppStorage.setOrCreate('uiContext', uiContext);
+        windowClass.setWindowLayoutFullScreen(isLayoutFullScreen)
+          .then(() => {
+            Logger.info(TAG, 'testTag', 'Succeeded in setting the window layout to full-screen mode. Data: %{public}s',
+              JSON.stringify(data) ?? '');
+          })
+          .catch((err: BusinessError) => {
+            Logger.error(TAG, 'testTag', 'Failed to set the window layout to full-screen mode. Cause: %{public}s',
+              JSON.stringify(err) ?? '');
+          })
+      } catch (error) {
+        let err = error as BusinessError;
+        Logger.error(TAG, `getMainWindowSync or getUIContext failed, code=${err.code}, message=${err.message}`);
+      }
     });
   }
 

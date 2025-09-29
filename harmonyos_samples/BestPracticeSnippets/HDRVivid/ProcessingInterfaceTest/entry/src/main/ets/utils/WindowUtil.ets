@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { deviceInfo } from '@kit.BasicServicesKit';
+import { BusinessError, deviceInfo } from '@kit.BasicServicesKit';
 import { window } from '@kit.ArkUI';
 import { CommonConstants } from '../utils/CommonConstants';
 import Logger from './Logger';
@@ -49,9 +49,15 @@ export class WindowUtil {
         return;
       }
       if (deviceInfo.deviceType !== CommonConstants.DEVICE_TYPES[0] && deviceInfo.deviceType !==
-        CommonConstants.DEVICE_TYPES[1]) {
+      CommonConstants.DEVICE_TYPES[1]) {
         // Set portrait display.
-        this.mainWindowClass.setPreferredOrientation(window.Orientation.PORTRAIT);
+        this.mainWindowClass.setPreferredOrientation(window.Orientation.PORTRAIT)
+          .then(() => {
+            Logger.info('setPreferredOrientation success');
+          })
+          .catch((err: BusinessError) => {
+            Logger.error(`setPreferredOrientation failed, code=${err.code}, message=${err.message}`)
+          })
       }
     });
   }
@@ -62,7 +68,13 @@ export class WindowUtil {
       return;
     }
     // Setting orientation.
-    this.mainWindowClass.setPreferredOrientation(orientation);
+    this.mainWindowClass.setPreferredOrientation(orientation)
+      .then(() => {
+        Logger.info('setPreferredOrientation success');
+      })
+      .catch((err: BusinessError) => {
+        Logger.error(`setPreferredOrientation failed, code=${err.code}, message=${err.message}`)
+      })
   }
 
   disableWindowSystemBar(): void {
@@ -71,7 +83,13 @@ export class WindowUtil {
       return;
     }
     // Set the status bar and navigation bar to be invisible in full-screen mode.
-    this.mainWindowClass.setWindowSystemBarEnable([]);
+    this.mainWindowClass.setWindowSystemBarEnable([])
+      .then(() => {
+        Logger.info('setWindowSystemBarEnable success');
+      })
+      .catch((err: BusinessError) => {
+        Logger.error(`setWindowSystemBarEnable failed, code=${err.code}, message=${err.message}`)
+      })
   }
 
   enableWindowSystemBar(): void {
@@ -79,7 +97,13 @@ export class WindowUtil {
       Logger.error(`MainWindowClass is undefined`);
       return;
     }
-    this.mainWindowClass.setWindowSystemBarEnable(['status', 'navigation']);
+    this.mainWindowClass.setWindowSystemBarEnable(['status', 'navigation'])
+      .then(() => {
+        Logger.info('setWindowSystemBarEnable success');
+      })
+      .catch((err: BusinessError) => {
+        Logger.error(`setWindowSystemBarEnable failed, code=${err.code}, message=${err.message}`)
+      })
   }
 
   setFullScreen(): void {
@@ -88,7 +112,13 @@ export class WindowUtil {
       return;
     }
     // Set full-screen display.
-    this.mainWindowClass.setWindowLayoutFullScreen(true);
+    this.mainWindowClass.setWindowLayoutFullScreen(true)
+      .then(() => {
+        Logger.info('setWindowLayoutFullScreen success');
+      })
+      .catch((err: BusinessError) => {
+        Logger.error(`setWindowLayoutFullScreen failed, code=${err.code}, message=${err.message}`)
+      })
   }
 
   getMainWindow(): window.Window | undefined {

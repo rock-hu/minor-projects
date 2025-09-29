@@ -65,7 +65,7 @@ static napi_value GetArgvDemo1(napi_env env, napi_callback_info info) {
     // Business code
     // ... ...
     // The object created by argv for new is manually released after use
-    delete argv;
+    delete[] argv;
     return nullptr;
 }
 

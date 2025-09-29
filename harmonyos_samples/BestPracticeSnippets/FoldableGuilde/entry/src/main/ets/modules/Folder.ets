@@ -10,8 +10,16 @@ export struct Folder {
       FolderStack({ upperItems: ['upperitemsId'] }) {
         // This Column will automatically move up to the upper half of the screen
         Column() {
-          Text('video zone').height('100%').width('100%').textAlign(TextAlign.Center).fontSize(25)
-        }.backgroundColor(Color.Pink).width('100%').height('100%').id('upperitemsId')
+          Text('video zone')
+            .height('100%')
+            .width('100%')
+            .textAlign(TextAlign.Center)
+            .fontSize(25)
+        }
+        .backgroundColor(Color.Pink)
+        .width('100%')
+        .height('100%')
+        .id('upperitemsId')
 
         // The following two Column are stacked in the lower half screen area
         Column() {
@@ -21,7 +29,10 @@ export struct Folder {
             .textAlign(TextAlign.Center)
             .backgroundColor(Color.Red)
             .fontSize(25)
-        }.width('100%').height('100%').justifyContent(FlexAlign.Start)
+        }
+        .width('100%')
+        .height('100%')
+        .justifyContent(FlexAlign.Start)
 
         Column() {
           Text('video bar')
@@ -30,7 +41,10 @@ export struct Folder {
             .textAlign(TextAlign.Center)
             .backgroundColor(Color.Red)
             .fontSize(25)
-        }.width('100%').height('100%').justifyContent(FlexAlign.End)
+        }
+        .width('100%')
+        .height('100%')
+        .justifyContent(FlexAlign.End)
       }
       .backgroundColor(Color.Yellow)
       // Whether to start the dynamic effect
@@ -53,7 +67,6 @@ export struct Folder {
       .width('100%')
       .borderWidth(1)
       .backgroundColor(Color.Yellow)
-
     }
     .height('100%')
     .width('100%')

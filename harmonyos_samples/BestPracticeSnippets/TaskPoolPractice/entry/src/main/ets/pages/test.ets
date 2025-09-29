@@ -1,7 +1,7 @@
 // [Start abc]
-import { a } from './a'
-import { b } from './b'
-import { c } from './c'
+import { a } from './a';
+import { b } from './b';
+import { c } from './c';
 // [End abc]
 import { hilog } from '@kit.PerformanceAnalysisKit';
 // [Start err]

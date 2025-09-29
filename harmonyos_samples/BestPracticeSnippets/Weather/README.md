@@ -4,7 +4,7 @@
 
 本示例展示一个天气应用界面，包括首页、城市管理、添加城市、更新时间弹窗，体现一次开发，多端部署的能力。
 
-1.本示例参考[一次开发，多端部署](https://gitee.com/openharmony/docs/tree/master/zh-cn/application-dev/key-features/multi-device-app-dev)的指导，主要使用响应式布局的栅格断点系统实现在不同尺寸窗口界面上不同的显示效果。
+1.本示例参考[一次开发，多端部署](https://developer.huawei.com/consumer/cn/doc/best-practices/bpta-multi-device-overview)的指导，主要使用响应式布局的栅格断点系统实现在不同尺寸窗口界面上不同的显示效果。
 
 2.使用[SideBarContainer](https://gitee.com/openharmony/docs/blob/master/zh-cn/application-dev/reference/apis-arkui/arkui-ts/ts-container-sidebarcontainer.md)实现侧边栏功能。
 
@@ -35,25 +35,44 @@
 
 ### 工程目录
 ```
-├──Weather/product/default/src/main/ets  
-│  ├──feature
-│  │  └──AirQualityFeature.ts         // 空气绘画
-│  │    └──SunCanvasFeature.ts        // 晴天绘画
-│  └──pages
-│     ├──AddCity.ets                  // 添加城市
-│     ├──CityList.ets                 // 城市列表
-│     ├──Home.ets                     // 入口
-│     ├──AirQuality.ets               // 空气质量
-│     ├──HomeContent.ets              // 主页面
-│     ├──HoursWeather.ets             // 每小时天气组件
-│     ├──IndexEnd.ets                 // 首页尾 
-│     ├──IndexHeader.ets              // 首页头
-│     ├──IndexTitleBar.ets            // 首页标题
-│     ├──LifeIndex.ets                // 生活建议
-│     ├──MultidayWeather.ets          // 天气组件
-│     ├──SideContent.ets              // 侧边栏
-│     ├──SunCanvas.ets                // 晴天样式
-│     └──UpdateTimeDialog.ets         // 时间更新弹窗                                        
+├───Weather/common/src/main/ets                                                                   
+│   ├───mock                                                                                       
+│   │   ├───CityInfo.ets                                                                           // 城市信息
+│   │   ├───Mock.ets                                                                               
+│   │   └───RequestData.ets                                                                        // 请求数据
+│   │───model                                                                                      
+│   │   ├───BasicDataSource.ets                                                                    // 基本数据源
+│   │   ├───FormDate.ets                                                                           // 格式化数据
+│   │   ├───Main.ets                                                                               // 首页实体类
+│   │   └───MenuData.ets                                                                           // 菜单数据
+│   └───util                                                                                       // 工具类
+│       ├───Logger.ets                                                                             // 日志打印
+│       └───Style.ets                                                                              // 样式常量
+├───Weather/common/src/main/ets/resources                                                          
+├───Weather/product/default/src/main/ets                                                           
+│   ├───entryability                                                                               
+│   │   └───EntryAbility.ets                                                                       
+│   ├───entrybackupability                                                                         
+│   │   └───EntryBackupAbility.ets                                                                 
+│   ├───feature                                                                                    
+│   │   ├───AirQualityFeature.ets                                                                  // 空气绘画
+│   │   └───SunCanvasFeature.ets                                                                   // 晴天绘画
+│   └───pages                                                                                      //
+│       ├───AddCity.ets                                                                            // 添加城市
+│       ├───AirQuality.ets                                                                         // 空气质量
+│       ├───CityList.ets                                                                           // 城市列表
+│       ├───Home.ets                                                                               // 首页
+│       ├───HomeContent.ets                                                                        // 主页面
+│       ├───HoursWeather.ets                                                                       // 每小时天气组件
+│       ├───IndexEnd.ets                                                                           // 首页尾
+│       ├───IndexHeader.ets                                                                        // 首页头
+│       ├───IndexTitleBar.ets                                                                      // 首页标题
+│       ├───LifeIndex.ets                                                                          // 生活建议
+│       ├───MultidayWeather.ets                                                                    // 天气组件
+│       ├───SideContent.ets                                                                        // 侧边栏
+│       ├───SunCanvas.ets                                                                          // 晴天样式
+│       └───UpdateTimeDialog.ets                                                                   // 时间更新弹窗
+└───Weather/product/default/src/main/resources                                                     
 ```
 
 ### 具体实现
@@ -71,13 +90,10 @@
 不涉及。
 
 ## 约束与限制
-* 本示例仅支持标准系统上运行，支持设备：华为手机。
-
-* HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
-
-* DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
-
-* HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。
+1. 本示例仅支持标准系统上运行，支持设备：华为手机、平板、PC/2in1。
+2. HarmonyOS系统：HarmonyOS 5.1.1 Release及以上。
+3. DevEco Studio版本：DevEco Studio 5.1.1 Release及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.1.1 Release SDK及以上。
 
 ### 下载
 

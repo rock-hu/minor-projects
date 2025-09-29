@@ -20,7 +20,7 @@ import { MyDataSource } from '../model/MyDataSource'
 @Entry
 @Component
 struct MergeDoubleWaterFlowPage {
-  // [StartExclude data_init]
+  // [StartExclude quick_start]
   @State minSize: number = 80
   @State maxSize: number = 210;
   @State fontSize: number = 24;
@@ -64,18 +64,18 @@ struct MergeDoubleWaterFlowPage {
   };
 
   getSize(): number {
-    let ret = Math.floor(Math.random() * this.maxSize);
+    let ret: number = Math.floor(Math.random() * this.maxSize);
     return (ret > this.minSize ? ret : this.minSize);
   }
 
   setItemSizeArray(): void {
-    for (let i = 0; i < 100; i++) {
+    for (let i: number = 0; i < 100; i++) {
       this.itemHeightArray.push(this.getSize());
     }
   }
 
   aboutToAppear(): void {
-    for (let i = 0; i < 100; i++) {
+    for (let i: number = 0; i < 100; i++) {
       this.data.pushData(i);
     }
     this.setItemSizeArray();
@@ -86,7 +86,7 @@ struct MergeDoubleWaterFlowPage {
     this.sections.splice(0, 0, sectionOptions);
   }
 
-  // [EndExclude data_init]
+  // [EndExclude quick_start]
   build() {
     Column({ space: 2 }) {
       Row() {

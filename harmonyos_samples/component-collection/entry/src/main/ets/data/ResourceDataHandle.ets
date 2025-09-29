@@ -28,7 +28,7 @@ export function getStringArrayData(resourceArrayData: Resource[]): string[] {
     try {
       resourceStringArrayData.push(context.resourceManager.getStringSync(item.id));
     } catch (error) {
-      Logger.error(`callback getStringValue failed, error code: ${(error as BusinessError).code}, message: ${(error as BusinessError).message}.`);
+      Logger.error(`getStringValue failed, error code: ${(error as BusinessError).code}, message: ${(error as BusinessError).message}.`);
     }
   })
   return resourceStringArrayData;
@@ -38,5 +38,10 @@ export function getStringData(resourceData: Resource): string {
   if (!resourceData) {
     return '';
   }
-  return context.resourceManager.getStringSync(resourceData.id);
+  try {
+    return context.resourceManager.getStringSync(resourceData.id);
+  } catch (error) {
+    Logger.error(`getStringData failed, error code: ${(error as BusinessError).code}, message: ${(error as BusinessError).message}.`);
+    return ''
+  }
 }

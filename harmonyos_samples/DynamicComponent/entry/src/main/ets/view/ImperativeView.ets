@@ -18,6 +18,8 @@ import dataEn from 'resources/rawfile/structure_en.json';
 import { typeNode } from '@ohos.arkui.node';
 import { i18n } from '@kit.LocalizationKit';
 import { common } from '@kit.AbilityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 // [Start VM_start]
 class VM {
@@ -176,6 +178,14 @@ export struct ImperativeViewComponent {
   }
 
   ResourceToString(resource:Resource):string{
-    return this.context.resourceManager.getStringSync(resource.id);
+    try {
+      return this.context.resourceManager.getStringSync(resource.id);
+    } catch (error) {
+      let err = error as BusinessError
+      if (err.code) {
+        hilog.error(0x0000, 'ImperativeView', 'Failed to get resource. Cause: %{public}s', JSON.stringify(err) ?? '');
+      }
+      return '';
+    }
   }
 }

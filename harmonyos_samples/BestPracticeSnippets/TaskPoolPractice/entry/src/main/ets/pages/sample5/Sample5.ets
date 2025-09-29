@@ -1,7 +1,8 @@
-
 // [Start pool_1]
 // Sample5.ets
 import { taskpool } from '@kit.ArkTS';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Concurrent
 function imageProcessing(dataSlice: ArrayBuffer): ArrayBuffer {
@@ -17,14 +18,25 @@ function histogramStatistic(pixelBuffer: ArrayBuffer): void {
   let buffer3: ArrayBuffer = pixelBuffer.slice(number * 2);
 
   let group: taskpool.TaskGroup = new taskpool.TaskGroup();
-  group.addTask(imageProcessing, buffer1);
-  group.addTask(imageProcessing, buffer2);
-  group.addTask(imageProcessing, buffer3);
+  try {
+    group.addTask(imageProcessing, buffer1);
+    group.addTask(imageProcessing, buffer2);
+    group.addTask(imageProcessing, buffer3);
+  } catch (error) {
+    let err = error as BusinessError;
+    hilog.warn(0x000, 'testTag', `addTask failed, code=${err.code}, message=${err.message}`);
+  }
 
-  taskpool.execute(group, taskpool.Priority.HIGH).then((ret: Object) => {
-    // Step 3: Summarize the result array.
-  })
+  taskpool.execute(group, taskpool.Priority.HIGH)
+    .then((ret: Object) => {
+      // Step 3: Summarize the result array.
+    })
+    .catch((err: BusinessError) => {
+      hilog.error(0x000, 'testTag', `execute failed, code=${err.code}, message=${err.message}`);
+    })
+
 }
+
 // [End pool_1]
 
 @Entry

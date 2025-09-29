@@ -47,8 +47,8 @@ N/A
 
 1. This sample is supported only on Huawei phones running the standard system.
 
-2. The HarmonyOS version must be HarmonyOS NEXT Beta 1 or later.
+2. The HarmonyOS version must be HarmonyOS 5.0.5 Release or later.
 
-3. The DevEco Studio version must be DevEco Studio NEXT Beta1 or later.
+3. The DevEco Studio version must be DevEco Studio 5.0.5 Release or later.
 
-4. The HarmonyOS SDK version must be HarmonyOS NEXT Beta1 SDK or later.
+4. The HarmonyOS SDK version must be HarmonyOS 5.0.5 Release SDK or later.

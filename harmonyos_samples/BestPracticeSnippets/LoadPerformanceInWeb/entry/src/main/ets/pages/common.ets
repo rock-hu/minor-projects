@@ -4,6 +4,7 @@
 import { UIContext } from '@kit.ArkUI';
 import { webview } from '@kit.ArkWeb';
 import { NodeController, BuilderNode, Size, FrameNode } from '@kit.ArkUI';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 // Specific component contents of dynamic components in @Builder
 // Data is a parameter encapsulation class.
@@ -41,20 +42,24 @@ export class MyNodeController extends NodeController {
   // //Called when the corresponding NodeContainer is created, or refreshed by calling the rebuild method.
   makeNode(uiContext: UIContext): FrameNode | null {
     console.info(' uicontext is undefined : ' + (uiContext === undefined));
-    if (this.rootNode != null) {
-      const parent = this.rootNode.getFrameNode()?.getParent();
-      if (parent) {
-        console.info(JSON.stringify(parent.getInspectorInfo()));
-        parent.removeChild(this.rootNode.getFrameNode());
-        this.root = null;
+    try {
+      if (this.rootNode != null) {
+        const parent = this.rootNode.getFrameNode()?.getParent();
+        if (parent) {
+          console.info(JSON.stringify(parent.getInspectorInfo()));
+          parent.removeChild(this.rootNode.getFrameNode());
+          this.root = null;
+        }
+        this.root = new FrameNode(uiContext);
+        this.root.appendChild(this.rootNode.getFrameNode());
+        // Returns the FrameNode node
+        return this.root;
       }
-      this.root = new FrameNode(uiContext);
-      this.root.appendChild(this.rootNode.getFrameNode());
-      // Returns the FrameNode node
-      return this.root;
+      // Returns a null node that controls the dynamic component to be unbound.
+      return null;
+    } catch (error) {
+      return null;
     }
-    // Returns a null node that controls the dynamic component to be unbound.
-    return null;
   }
   
   // Callback when layout size changes.
@@ -89,8 +94,12 @@ export class MyNodeController extends NodeController {
   // This function is a user-defined function and can be used as an initialization function.
   loadUrl(url: string) {
     if (this.rootWebviewController !== null) {
-      // Reuse the pre-created components and reload the url.
-      this.rootWebviewController.loadUrl(url);
+      try {
+        // Reuse the pre-created components and reload the url.
+        this.rootWebviewController.loadUrl(url);
+      } catch (error) {
+        hilog.info(0x0000, 'testTag', '%{public}s', 'loadUrl fail');
+      }
     }
   }
 }

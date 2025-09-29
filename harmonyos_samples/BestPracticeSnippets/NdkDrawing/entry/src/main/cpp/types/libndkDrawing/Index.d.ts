@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-import { DrawContext } from '@ohos.arkui.node';
-import image from '@ohos.multimedia.image';
+import { DrawContext } from '@kit.ArkUI';
+import { image } from '@kit.ImageKit';
 
 export const nativeOnDraw: (id: number, context: DrawContext, width: number, height: number, type: number,
   imagePixel: image.PixelMap) => number;

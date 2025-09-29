@@ -16,13 +16,22 @@
 import { image } from '@kit.ImageKit';
 import { common } from '@kit.AbilityKit';
 import { resourceManager } from '@kit.LocalizationKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 export class MediaTools {
   static async getPixelMapFromResource(context: common.UIAbilityContext,
     name: resourceManager.Resource): Promise<PixelMap> {
     let resourceMgr = context.resourceManager;
-    let fileData: Uint8Array = await resourceMgr.getMediaContent(name);
-    return await image.createImageSource(fileData.buffer as ArrayBuffer).createPixelMap();
+    let fileData: Uint8Array | null = null;
+    resourceMgr.getMediaContent(name)
+      .then((data: Uint8Array) => {
+        fileData = data;
+      })
+      .catch((error: BusinessError) => {
+        hilog.error(0x000, 'testTag', `getMediaContent failed. code=${error.code}, message=${error.message}`);
+      })
+    return await image.createImageSource(fileData!.buffer as ArrayBuffer).createPixelMap();
   }
 
   static async getPixelMapFromFile(path: string): Promise<image.PixelMap> {

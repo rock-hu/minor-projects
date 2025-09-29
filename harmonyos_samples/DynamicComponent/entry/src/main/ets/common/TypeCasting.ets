@@ -12,7 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 export async function resourceToString(uiContext: UIContext, source: Resource): Promise<string> {
-  return uiContext.getHostContext()!.resourceManager.getStringValue(source.id);
+  return uiContext.getHostContext()!.resourceManager.getStringValue(source.id).catch((error: Error) => {
+    let err = error as BusinessError
+    if (err.code) {
+      hilog.error(0x0000, 'ImperativeView', 'Failed to get host context. Cause: %{public}s', JSON.stringify(err) ?? '');
+    }
+    return '';
+  });
 }

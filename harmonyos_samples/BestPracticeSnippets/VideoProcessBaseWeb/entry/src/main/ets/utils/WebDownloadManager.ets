@@ -16,6 +16,7 @@
 import { webview } from '@kit.ArkWeb';
 import { fileIo } from '@kit.CoreFileKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 import { Constants } from '../common/Constants';
 
 interface ControllerManager {
@@ -50,6 +51,7 @@ implements ControllerManager {
   // [EndExclude manage]
   // Define the download delegate instance.
   private delegate: webview.WebDownloadDelegate = new webview.WebDownloadDelegate();
+
   // [StartExclude manage]
   private constructor() {
     super()
@@ -61,6 +63,7 @@ implements ControllerManager {
     }
     return WebDownloadManager.instance;
   }
+
   // [EndExclude manage]
   public start(controllerName: string, path: string, url: string): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -98,28 +101,44 @@ implements ControllerManager {
         resolve(this.sourcePath);
       })
       // [End finish1]
-      // [EndExclude manage]
-      // Associate the download delegate with the webview controller.
-      controller?.setDownloadDelegate(this.delegate);
-      // [StartExclude manage]
-      // [Start url2]
-      controller?.startDownload(url);
-      // [End url2]
-      // [EndExclude manage]
+      try {
+        // [EndExclude manage]
+        // Associate the download delegate with the webview controller.
+        controller?.setDownloadDelegate(this.delegate);
+        // [StartExclude manage]
+        // [Start url2]
+        controller?.startDownload(url);
+        // [End url2]
+        // [EndExclude manage]
+      } catch (error) {
+        hilog.error(0x0000, 'testTag', 'Execution failed, code = %{public}d, message = %{public}s',
+          error.code, error.message);
+      }
     });
   }
+
   // [StartExclude manage]
   public pause() {
     const state = this.currentTask.getState();
     if (state === webview.WebDownloadState.IN_PROGRESS) {
-      this.currentTask.pause();
+      try {
+        this.currentTask.pause();
+      } catch (error) {
+        hilog.error(0x0000, 'testTag', 'Execution failed, code = %{public}d, message = %{public}s',
+          error.code, error.message);
+      }
     }
   }
 
   public unpause() {
     const state = this.currentTask.getState();
     if (state === webview.WebDownloadState.PAUSED) {
-      this.currentTask.resume();
+      try {
+        this.currentTask.resume();
+      } catch (error) {
+        hilog.error(0x0000, 'testTag', 'Execution failed, code = %{public}d, message = %{public}s',
+          error.code, error.message);
+      }
     }
   }
   // [Start resume]
@@ -128,7 +147,12 @@ implements ControllerManager {
     const state = this.currentTask.getState();
     if (state === webview.WebDownloadState.CANCELED) {
       webview.WebDownloadManager.setDownloadDelegate(this.delegate);
-      webview.WebDownloadManager.resumeDownload(webview.WebDownloadItem.deserialize(this.failedData));
+      try {
+        webview.WebDownloadManager.resumeDownload(webview.WebDownloadItem.deserialize(this.failedData));
+      } catch (error) {
+        hilog.error(0x0000, 'testTag', 'Execution failed, code = %{public}d, message = %{public}s',
+          error.code, error.message);
+      }
     }
   }
   // [End resume]
@@ -149,8 +173,16 @@ implements ControllerManager {
   }
 
   public deleteFile() {
-    if (fileIo.accessSync(this.sourcePath)) {
-      fileIo.unlink(this.sourcePath);
+    try {
+      if (fileIo.accessSync(this.sourcePath)) {
+        fileIo.unlink(this.sourcePath).catch((error: BusinessError<void>) => {
+          hilog.error(0x0000, 'testTag', 'Execution failed, code = %{public}d, message = %{public}s',
+            error.code, error.message);
+        });
+      }
+    } catch (error) {
+      hilog.error(0x0000, 'testTag', 'Execution failed, code = %{public}d, message = %{public}s',
+        error.code, error.message);
     }
   }
 

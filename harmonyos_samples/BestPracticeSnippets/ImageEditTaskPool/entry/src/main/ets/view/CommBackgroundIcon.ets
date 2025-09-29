@@ -16,7 +16,7 @@
 @Component
 export struct CommBackgroundIcon {
   @Prop icon: Resource;
-  private onClickImage: () => void = () => {
+  onClickImage: () => void = () => {
   };
 
   build() {

@@ -14,23 +14,45 @@
 */
 
 import { common } from '@kit.AbilityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 class ResourceUtil {
   async getString(id: number, context: common.Context): Promise<string> {
     let rscManager = context.resourceManager;
-    let str: string = await rscManager.getStringValue(id);
+    let str: string = '';
+    try {
+      str = rscManager.getStringSync(id);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'ResourceUtil', `getStringSync failed, error code=${err.code}, message=${err.message}`);
+    }
     return str;
   }
 
   async getStringArray(id: number, context: common.Context): Promise<Array<string>> {
     let rscManager = context.resourceManager;
-    let strArray: Array<string> = await rscManager.getStringArrayValue(id);
+    let strArray: Array<string> = [];
+    try {
+      strArray = rscManager.getStringArrayValueSync(id);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'ResourceUtil',
+        `getStringArrayValueSync failed, error code=${err.code}, message=${err.message}`);
+    }
     return strArray;
   }
 
   async getPluralString(id: number, num: number, context: common.Context): Promise<string> {
     let rscManager = context.resourceManager;
-    let plural: string = rscManager.getIntPluralStringValueSync(id, num)
+    let plural: string = '';
+    try {
+      plural = rscManager.getIntPluralStringValueSync(id, num);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'ResourceUtil',
+        `getIntPluralStringValueSync failed, error code=${err.code}, message=${err.message}`);
+    }
     return plural;
   }
 

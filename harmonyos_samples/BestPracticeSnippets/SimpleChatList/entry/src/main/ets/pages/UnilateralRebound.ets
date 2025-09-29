@@ -13,16 +13,15 @@
  * limitations under the License.
  */
 
-@Entry
 @Component
-struct UnilateralRebound {
+export struct UnilateralRebound {
   private arr: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
   private scroller: Scroller = new Scroller();
   private isTop: boolean = true;
   @StorageProp('topRectHeight') topRectHeight: number = 0;
 
   build() {
-    Column() {
+    NavDestination() {
       // [Start UnilateralRebound]
       List({ space: 20, initialIndex: 0, scroller: this.scroller }) {
         // [StartExclude UnilateralRebound]

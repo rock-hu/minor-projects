@@ -12,15 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { MessageEvents, worker } from '@kit.ArkTS';
+import { worker } from '@kit.ArkTS';
 import { taskpool } from '@kit.ArkTS';
 import { image } from '@kit.ImageKit';
 import { adjustIconList, IconStatus } from '../viewModel/IconListViewModel';
 import { adjustImageValue, adjustSaturation } from '../utils/AdjustUtil';
-import { AdjustId, HSVIndex, RGBIndex } from '../viewModel/OptionViewModel';
+import { AdjustId } from '../viewModel/OptionViewModel';
 import { adjustOpacity } from '../utils/OpacityUtil';
 import { MessageItem } from '../viewModel/MessageItem';
-import { CommonConstants } from '../common/constant/CommonConstants';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 @Component
 export default struct AdjustContentView {
@@ -206,9 +207,11 @@ struct SliderCustom {
         const group = splitTask(buffers, type, sliderValue, value);
         // [StartExclude postProcess_start]
         // [Start execute_start]
-        taskpool.execute(group, taskpool.Priority.HIGH).then((ret) => {
+        taskpool.execute(group, taskpool.Priority.HIGH).catch((err: BusinessError) => {
+          hilog.error(0x0000, 'AdjustContentView', 'Failed to execute taskpool: ', JSON.stringify(err) ?? '');
+        }).then((ret) => {
           // Combine the results of each task execution
-          const entireArrayBuffer = mergeArrayBuffers(ret);
+          const entireArrayBuffer = mergeArrayBuffers(ret as Object[]);
           // Update the UI based on the calculation results
           this.updatePixelMap(entireArrayBuffer);
         });
@@ -263,13 +266,17 @@ function splitTask(buffers: ArrayBuffer[], type: AdjustId, sliderValue: number, 
   // Creating a Task Group
   let group: taskpool.TaskGroup = new taskpool.TaskGroup();
   for (const buffer of buffers) {
-    group.addTask(imageProcessing, {
-      // Add a task to a task group
-      type,
-      bufferArray: buffer,
-      sliderValue,
-      value
-    });
+    try {
+      group.addTask(imageProcessing, {
+        // Add a task to a task group
+        type,
+        bufferArray: buffer,
+        sliderValue,
+        value
+      });
+    } catch (err) {
+      hilog.error(0x0000, 'AdjustContentView', 'Failed to add the task: ', JSON.stringify(err) ?? '');
+    }
   }
   return group;
 }

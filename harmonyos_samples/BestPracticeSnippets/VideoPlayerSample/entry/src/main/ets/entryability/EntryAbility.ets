@@ -13,44 +13,51 @@
  * limitations under the License.
  */
 
+import { BusinessError } from '@kit.BasicServicesKit';
 import { UIAbility } from '@kit.AbilityKit';
-import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
 import { WindowUtil } from '../utils/WindowUtil';
+import { Logger } from '@ohos/MediaService';
+
+const TAG: string = '[EntryAbility]';
 
 export default class EntryAbility extends UIAbility {
   onCreate(): void {
     AppStorage.setOrCreate('context', this.context);
-    hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onCreate');
+    Logger.info(TAG, `Ability onCreate`);
   }
 
   onDestroy(): void {
-    hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onDestroy');
+    Logger.info(TAG, `Ability onDestroy`);
   }
 
   // [Start stage_creat]
   onWindowStageCreate(windowStage: window.WindowStage): void {
     // [StartExclude stage_creat]
     // Main window is created, set main page for this ability
-    hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onWindowStageCreate');
+    Logger.info(TAG, `Ability onWindowStageCreate`);
     try {
       let windowClass: window.Window = windowStage.getMainWindowSync();
       AppStorage.setOrCreate('windowStage', windowStage);
-      windowClass.setWindowLayoutFullScreen(true);
+      windowClass.setWindowLayoutFullScreen(true).catch((err: BusinessError) => {
+        Logger.error(TAG, `setWindowLayoutFullScreen failed, err.code:${err.code}, err.message:${err.message}`);
+      });
       windowClass.setWindowSystemBarProperties({
         statusBarContentColor: '#e6ffffff'
+      }).catch((err: BusinessError) => {
+        Logger.error(TAG, `setWindowSystemBarProperties failed, err.code:${err.code}, err.message:${err.message}`);
       });
       windowStage.loadContent('pages/IndexPage', (err) => {
         AppStorage.setOrCreate('uiContext', windowStage.getMainWindowSync().getUIContext());
         WindowUtil.getInstance().setWindowStage(windowStage);
         if (err.code) {
-          hilog.error(0x0000, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err) ?? '');
+          Logger.error(TAG, `failed to load the content, err.code:${err.code}, err.message:${err.message}`);
           return;
         }
-        hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
+        Logger.info(TAG, `Succeeded in loading the content`);
       });
     } catch (err) {
-      hilog.error(0x0000, 'testTag', `onWindowStageCreate failed, err.code:${err.code}, err.message:${err.message}`);
+      Logger.error(TAG, `onWindowStageCreate failed, err.code:${err.code}, err.message:${err.message}`);
     }
     // [EndExclude stage_creat]
   }
@@ -58,16 +65,16 @@ export default class EntryAbility extends UIAbility {
 
   onWindowStageDestroy(): void {
     // Main window is destroyed, release UI related resources
-    hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onWindowStageDestroy');
+    Logger.info(TAG, `Ability onWindowStageDestroy`);
   }
 
   onForeground(): void {
     // Ability has brought to foreground
-    hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onForeground');
+    Logger.info(TAG, `Ability onForeground`);
   }
 
   onBackground(): void {
     // Ability has back to background
-    hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onBackground');
+    Logger.info(TAG, `Ability onBackground`);
   }
 }

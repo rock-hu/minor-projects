@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 
-import { CommonConstants as Const, VideoData } from '@ohos/MediaService';
+import { CommonConstants as Const, Logger, VideoData } from '@ohos/MediaService';
+
+const TAG: string = '[VideoSide]';
 
 @Component
 export struct RightSide {
@@ -25,7 +27,7 @@ export struct RightSide {
    * The callback function for the click event of the like button.
    * @param isAdd
    */
-  private changeLikeCount(isAdd: boolean) {
+  private changeLikeCount(isAdd: boolean): void {
     let likeCountNum: number = Number(this.item.likeCount);
     if (isAdd) {
       likeCountNum++;
@@ -89,7 +91,13 @@ export struct RightSide {
           .fillColor(Color.White)
           .margin({ bottom: $r('app.float.fabulous_margin_bottom') })
           .onClick(() => {
-            this.getUIContext().getPromptAction().showToast({ message: $r('app.string.comment'), duration: Const.TOAST_DURATION });
+            try {
+              this.getUIContext()
+                .getPromptAction()
+                .showToast({ message: $r('app.string.comment'), duration: Const.TOAST_DURATION });
+            } catch (err) {
+              Logger.error(TAG, `video comments click failed, err.code:${err.code}, err.message:${err.message}`);
+            }
           })
         Text(this.item.commentCount)
           .fontSize($r('app.float.fabulous_font_size'))
@@ -112,7 +120,13 @@ export struct RightSide {
       .width($r('app.float.avatar_size'))
       .alignItems(HorizontalAlign.Center)
       .onClick(() => {
-        this.getUIContext().getPromptAction().showToast({ message: $r('app.string.share'), duration: Const.TOAST_DURATION });
+        try {
+          this.getUIContext()
+            .getPromptAction()
+            .showToast({ message: $r('app.string.share'), duration: Const.TOAST_DURATION });
+        } catch (err) {
+          Logger.error(TAG, `video share click failed, err.code:${err.code}, err.message:${err.message}`);
+        }
       })
     }
     .margin({ bottom: $r('app.float.video_side_margin_bottom'), right: $r('app.float.right_space') })

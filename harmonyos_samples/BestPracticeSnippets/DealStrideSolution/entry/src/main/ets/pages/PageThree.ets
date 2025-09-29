@@ -14,9 +14,10 @@
  */
 
 import { image } from '@kit.ImageKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 import CameraService from '../utils/CameraServiceThree';
 import { CommonConstants } from '../common/CommonConstants';
-import { promptAction } from '@kit.ArkUI';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Builder
 export function PageThreeBuilder() {
@@ -78,7 +79,12 @@ export struct PageThree {
         .layoutWeight(1)
 
       this.navDestinationTitleImg($r('app.media.more'), () => {
-        this.getUIContext().getPromptAction().showToast({ message: $r('app.string.only_show_for_ux') })
+        try {
+          this.getUIContext().getPromptAction().showToast({ message: $r('app.string.only_show_for_ux') })
+        } catch (error) {
+          let err = error as BusinessError;
+          hilog.warn(0x000, 'testTag', `showToast failed, code=${err.code}, message=${err.message}`);
+        }
       })
     }
     .width('100%')
@@ -158,7 +164,12 @@ export struct PublishView {
       right: 18
     })
     .onClick(() => {
-      this.getUIContext().getPromptAction().showToast({ message: $r('app.string.only_show_for_ux') });
+      try {
+        this.getUIContext().getPromptAction().showToast({ message: $r('app.string.only_show_for_ux') });
+      } catch (error) {
+        let err = error as BusinessError;
+        hilog.warn(0x000, 'testTag', `showToast failed, code=${err.code}, message=${err.message}`);
+      }
     })
   }
 }

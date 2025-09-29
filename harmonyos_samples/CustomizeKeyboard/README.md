@@ -27,13 +27,17 @@
 │  │  └──Constants.ets                   // 公共常量类
 │  ├──entryability
 │  │  └──EntryAbility.ets                // 程序入口类
+│  ├──entrybackupability
+│  │  └──EntryBackupAbility.ets          // 数据备份
 │  ├──model
 │  │  └──KeyboardController.ets          // 自定义键盘控制类
 │  ├──pages
 │  │  └──MainPage.ets                    // 主页面
 │  ├──view
 │  │  ├──CustomKeyboard.ets              // 自定义键盘入口
+│  │  ├──CustomKeyboardComponent.ets     // 自定义键盘组件
 │  │  ├──EnglishKeyboard.ets             // 英文键盘组件
+│  │  ├──InputTextComponent.ets          // 绑定的TextInput组件
 │  │  ├──NumberKeyboard.ets              // 数字键盘组件
 │  │  ├──TabButton.ets                   // 键盘上方Tab组件Button按钮
 │  │  ├──TabView.ets                     // 键盘上方Tab组件

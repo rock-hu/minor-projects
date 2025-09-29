@@ -14,7 +14,7 @@
  */
 
 import { window } from '@kit.ArkUI';
-import { CommonConstants, Logger } from '@ohos/MediaService';
+import { Logger } from '@ohos/MediaService';
 import { BusinessError } from '@kit.BasicServicesKit';
 
 const TAG: string = '[WindowUtil]';
@@ -40,15 +40,19 @@ export class WindowUtil {
         return;
       }
       this.mainWindowClass = windowClass;
-      const properties = windowClass.getWindowProperties();
-      // Get status bar height.
-      let area: window.AvoidArea = windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
-      let naviBarArea: window.AvoidArea =
-        windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
-      AppStorage.setOrCreate('deviceWidth', properties.windowRect.width);
-      AppStorage.setOrCreate('deviceHeight', properties.windowRect.height);
-      AppStorage.setOrCreate('statusBarHeight', uiContext?.px2vp(area.topRect.height));
-      AppStorage.setOrCreate('navBarHeight', uiContext?.px2vp(naviBarArea.bottomRect.height));
+      try {
+        const properties = windowClass.getWindowProperties();
+        // Get status bar height.
+        let area: window.AvoidArea = windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
+        let naviBarArea: window.AvoidArea =
+          windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
+        AppStorage.setOrCreate('deviceWidth', properties.windowRect.width);
+        AppStorage.setOrCreate('deviceHeight', properties.windowRect.height);
+        AppStorage.setOrCreate('statusBarHeight', uiContext?.px2vp(area.topRect.height));
+        AppStorage.setOrCreate('navBarHeight', uiContext?.px2vp(naviBarArea.bottomRect.height));
+      } catch (error) {
+        Logger.error(`getWindowProperties or getWindowAvoidArea failed, Code:${err.code}, message:${err.message}`);
+      }
     });
   }
 
@@ -71,7 +75,10 @@ export class WindowUtil {
       return;
     }
     // Set the status bar and navigation bar to be invisible in full-screen mode.
-    this.mainWindowClass.setWindowSystemBarEnable([]);
+    this.mainWindowClass.setWindowSystemBarEnable([])
+      .catch((err: BusinessError) => {
+        Logger.error(TAG, `setWindowSystemBarEnable failed, Code:${err.code}, message:${err.message}`);
+      })
   }
 
   enableWindowSystemBar(): void {
@@ -79,7 +86,10 @@ export class WindowUtil {
       Logger.error(`MainWindowClass is undefined`);
       return;
     }
-    this.mainWindowClass.setWindowSystemBarEnable(['status', 'navigation']);
+    this.mainWindowClass.setWindowSystemBarEnable(['status', 'navigation'])
+      .catch((err: BusinessError) => {
+        Logger.error(TAG, `setWindowSystemBarEnable failed, Code:${err.code}, message:${err.message}`);
+      })
   }
 
   setLandscapeMultiWindow(enable: boolean) {
@@ -88,9 +98,15 @@ export class WindowUtil {
       return;
     }
     if (enable) {
-      this.mainWindowClass?.enableLandscapeMultiWindow();
+      this.mainWindowClass?.enableLandscapeMultiWindow()
+        .catch((err: BusinessError) => {
+          Logger.error(TAG, `enableLandscapeMultiWindow failed, Code:${err.code}, message:${err.message}`);
+        })
     } else {
-      this.mainWindowClass?.disableLandscapeMultiWindow();
+      this.mainWindowClass?.disableLandscapeMultiWindow()
+        .catch((err: BusinessError) => {
+          Logger.error(TAG, `disableLandscapeMultiWindow failed, Code:${err.code}, message:${err.message}`);
+        })
     }
   }
 

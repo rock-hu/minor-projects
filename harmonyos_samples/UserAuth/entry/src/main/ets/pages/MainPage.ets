@@ -8,6 +8,8 @@
 import CommonConstants from '../common/constants/CommonConstants'
 import Home from '../view/Home';
 import Setting from '../view/Setting';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 @Entry
 @Component
@@ -49,6 +51,8 @@ struct MainPage {
     if (!this.userLogin) {
       this.getUIContext().getRouter().replaceUrl({
         url: 'pages/LoginPage'
+      }).catch((error: BusinessError) => {
+        hilog.error(0x0000, 'UserAuth', `replaceUrl error ${error.code}`);
       })
     }
   }

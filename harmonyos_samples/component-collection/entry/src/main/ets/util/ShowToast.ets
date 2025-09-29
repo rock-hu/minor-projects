@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { BusinessError } from '@kit.BasicServicesKit';
+import Logger from './Logger';
 
 const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 
@@ -20,7 +22,11 @@ class ShowToast {
   private shortToastTime: number = 1000;
 
   showToast(message: ResourceStr, duration: number) {
-    uiContext?.getPromptAction().showToast({ message: message, duration: duration });
+    try {
+      uiContext?.getPromptAction().showToast({ message: message, duration: duration });
+    } catch (error) {
+      Logger.error(`showToast failed, error code: ${(error as BusinessError).code}, message: ${(error as BusinessError).message}.`);
+    }
   }
 
   shortToast(message: ResourceStr) {

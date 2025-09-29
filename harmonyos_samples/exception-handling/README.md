@@ -16,9 +16,9 @@
 
 ### 实现思路
 
-1. 构建应用异常。源码参考[Index.ets](./entry/src/main/ets/pages/Index.ets)
-2. 应用退出后，进入本页面，等待订阅消息通知，待收到订阅消息后，通过EventSubscription.ets中的onReceive函数，接收到异常信息数据，并通过AppStorage.setOrCreate('appEventGroups',异常信息数据)双向绑定异常信息，源码参考代码可参考[EventSubscription.ets](./entry/src/main/ets/model/EventSubscription.ets)
-3. @StorageLink('appEventGroups')接收订阅事件函数传递的事件组信息，调用getFaultMessage函数对信息进行处理，将处理后的信息通过 this.faultDataSource.pushData(message) 添加到懒加载数据源中，并通过this.faultDataSource.persistenceStorage()执行持久化存储，最后通过使用LazyForEach将数据信息加载到页面上。具体源码参考[Index.ets](./entry/src/main/ets/pages/Index.ets)
+1. 构建应用异常。源码参考[Index.ets](./entry/src/main/ets/pages/Index.ets)。
+2. 应用退出后，进入本页面，等待订阅消息通知，待收到订阅消息后，通过EventSubscription.ets中的onReceive函数，接收到异常信息数据，并通过AppStorage.setOrCreate('appEventGroups',异常信息数据)双向绑定异常信息，源码参考代码可参考[EventSubscription.ets](./entry/src/main/ets/model/EventSubscription.ets)。
+3. @StorageLink('appEventGroups')接收订阅事件函数传递的事件组信息，调用getFaultMessage函数对信息进行处理，将处理后的信息通过 this.faultDataSource.pushData(message) 添加到懒加载数据源中，并通过this.faultDataSource.persistenceStorage()执行持久化存储，最后通过使用LazyForEach将数据信息加载到页面上。具体源码参考[Index.ets](./entry/src/main/ets/pages/Index.ets)。
 4. 以上代码中有引用懒加载数据类和持久化存储类，源码可参考[DataSource.ets](./entry/src/main/ets/model/DataSource.ets)和[PreferencesManager.ets](./entry/src/main/ets/model/PreferencesManager.ets)。
 
 ### 工程结构&模块类型

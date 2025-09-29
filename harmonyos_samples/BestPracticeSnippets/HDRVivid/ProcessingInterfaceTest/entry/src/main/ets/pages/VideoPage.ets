@@ -68,22 +68,30 @@ struct VideoPage {
   controlDst: XComponentController = new XComponentController()
 
   preload() {
-    let inputFile = fileIo.openSync(this.myUris, fileIo.OpenMode.READ_ONLY);
-    let inputFileState = fileIo.statSync(inputFile.fd);
-    let msg: string = player.preload(inputFile.fd, inputFileState.size);
-    this.hdrMode = msg;
-    if (msg.includes('HDRVivid HLG')) {
-      this.canConvertVividPQ = true;
-      this.canConvertSDR = true;
-    } else if (msg.includes('HDRVivid PQ')) {
-      this.canConvertVividHLG = true;
-      this.canConvertSDR = true;
-    } else if (msg.includes('HDR')) {
-      this.canConvertHLG = true;
-    } else if (msg.includes('SDR')) {
-      this.canConvertSDR = true;
+    try {
+      let inputFile = fileIo.openSync(this.myUris, fileIo.OpenMode.READ_ONLY);
+      let inputFileState = fileIo.statSync(inputFile.fd);
+      let msg: string = player.preload(inputFile.fd, inputFileState.size);
+      this.hdrMode = msg;
+      if (msg.includes('HDRVivid HLG')) {
+        this.canConvertVividPQ = true;
+        this.canConvertSDR = true;
+      } else if (msg.includes('HDRVivid PQ')) {
+        this.canConvertVividHLG = true;
+        this.canConvertSDR = true;
+      } else if (msg.includes('HDR')) {
+        this.canConvertHLG = true;
+      } else if (msg.includes('SDR')) {
+        this.canConvertSDR = true;
+      }
+      fileIo.close(inputFile)
+        .catch((err: BusinessError) => {
+          Logger.error(`fileIo close failed, code=${err.code}, message=${err.message}`)
+        })
+    } catch (error) {
+      let err = error as BusinessError;
+      Logger.error(`fileIo openSync or statSync failed, code=${err.code}, message=${err.message}`);
     }
-    fileIo.close(inputFile);
   }
 
   async callFilePickerSelectImage(): Promise<void> {
@@ -134,17 +142,27 @@ struct VideoPage {
   }
 
   play() {
-    let inputFile = fileIo.openSync(this.myUris, fileIo.OpenMode.READ_ONLY);
-    let inputFile2 = fileIo.openSync(this.myUris, fileIo.OpenMode.READ_ONLY);
-
-    let inputFileState = fileIo.statSync(inputFile.fd);
-    let inputFileState2 = fileIo.statSync(inputFile2.fd);
-    player.playNative(inputFile.fd, 0, inputFileState.size, 0, this.targetVal, this.targetMetadata, () => {
-      fileIo.close(inputFile);
-    })
-    player.playNative(inputFile2.fd, 0, inputFileState2.size, 1, this.targetVal, this.targetMetadata, () => {
-      fileIo.close(inputFile2);
-    })
+    try {
+      let inputFile = fileIo.openSync(this.myUris, fileIo.OpenMode.READ_ONLY);
+      let inputFile2 = fileIo.openSync(this.myUris, fileIo.OpenMode.READ_ONLY);
+      let inputFileState = fileIo.statSync(inputFile.fd);
+      let inputFileState2 = fileIo.statSync(inputFile2.fd);
+      player.playNative(inputFile.fd, 0, inputFileState.size, 0, this.targetVal, this.targetMetadata, () => {
+        fileIo.close(inputFile)
+          .catch((err: BusinessError) => {
+            Logger.warn(`fileIo close failed, code=${err.code}, message=${err.message}`)
+          })
+      })
+      player.playNative(inputFile2.fd, 0, inputFileState2.size, 1, this.targetVal, this.targetMetadata, () => {
+        fileIo.close(inputFile2)
+          .catch((err: BusinessError) => {
+            Logger.warn(`fileIo close failed, code=${err.code}, message=${err.message}`)
+          })
+      })
+    } catch (error) {
+      let err = error as BusinessError;
+      Logger.warn(`fileIo openSync or statSync failed, code=${err.code}, message=${err.message}`);
+    }
   }
 
   @Builder

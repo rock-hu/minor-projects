@@ -1,5 +1,6 @@
 // utils/WindowsUtil.ets
 import { window } from '@kit.ArkUI';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 @Observed
 export class WindowUtil {
@@ -19,6 +20,9 @@ export class WindowUtil {
       return;
     }
     this.windowStage.getMainWindow((err, windowClass: window.Window) => {
+      if (err) {
+        console.error(`Failed to get the main window. Cause code: ${err.code}, message: ${err.message}`);
+      }
       this.mainWindowClass = windowClass;
     });
   }
@@ -28,7 +32,9 @@ export class WindowUtil {
       return;
     }
     // 设置传感器自动旋转模式
-    this.mainWindowClass.setPreferredOrientation(window.Orientation.AUTO_ROTATION);
+    this.mainWindowClass.setPreferredOrientation(window.Orientation.AUTO_ROTATION).catch((err: BusinessError) => {
+      console.error(`Failed to set phone's screen auto rotation. Cause code: ${err.code}, message: ${err.message}`);
+    });
   }
 
   setPhoneLandscape(): void {
@@ -36,7 +42,9 @@ export class WindowUtil {
       return;
     }
     // 设置横屏显示模式
-    this.mainWindowClass.setPreferredOrientation(window.Orientation.LANDSCAPE);
+    this.mainWindowClass.setPreferredOrientation(window.Orientation.LANDSCAPE).catch((err: BusinessError) => {
+      console.error(`Failed to set phone's screen landscape. Cause code: ${err.code}, message: ${err.message}`);
+    });
   }
 
   setWindowStage(windowStage: window.WindowStage): void {

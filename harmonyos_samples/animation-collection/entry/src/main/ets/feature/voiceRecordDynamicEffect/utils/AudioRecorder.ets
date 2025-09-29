@@ -159,22 +159,30 @@ export class AVPlayerDemo {
     avPlayer.on('error', (err: BusinessError) => {
       Logger.error(`Invoke avPlayer failed, code is ${err.code}, message is ${err.message}`);
       // 调用reset重置资源，触发idle状态
-      avPlayer.reset();
+      avPlayer.reset().catch((error: BusinessError) => {
+        hilog.error(0x0000, 'animation-collection', `reset error. Cause: ${error.code}`);
+      });
     })
     // 状态机变化回调函数
     avPlayer.on('stateChange', async (state: string, _: media.StateChangeReason) => {
       switch (state) {
         case 'idle':
           Logger.info('AVPlayer state idle called.');
-          avPlayer.release();
+          avPlayer.release().catch((error: BusinessError) => {
+            hilog.error(0x0000, 'animation-collection', `release error. Cause: ${error.code}`);
+          });
           break;
         case 'initialized':
           Logger.info('AVPlayer state initialized called.');
-          avPlayer.prepare();
+          avPlayer.prepare().catch((error: BusinessError) => {
+            hilog.error(0x0000, 'animation-collection', `prepare error. Cause: ${error.code}`);
+          });
           break;
         case 'prepared':
           Logger.info('AVPlayer state prepared called.');
-          avPlayer.play();
+          avPlayer.play().catch((error: BusinessError) => {
+            hilog.error(0x0000, 'animation-collection', `play error. Cause: ${error.code}`);
+          });
           break;
         case 'playing':
           Logger.info('AVPlayer state playing called.');
@@ -182,15 +190,21 @@ export class AVPlayerDemo {
           break;
         case 'paused':
           Logger.info('AVPlayer state paused called.');
-          avPlayer.play();
+          avPlayer.play().catch((error: BusinessError) => {
+            hilog.error(0x0000, 'animation-collection', `play error. Cause: ${error.code}`);
+          });
           break;
         case 'completed':
           Logger.info('AVPlayer state completed called.');
-          avPlayer.stop();
+          avPlayer.stop().catch((error: BusinessError) => {
+            hilog.error(0x0000, 'animation-collection', `stop error. Cause: ${error.code}`);
+          });
           break;
         case 'stopped':
           Logger.info('AVPlayer state stopped called.');
-          avPlayer.reset();
+          avPlayer.reset().catch((error: BusinessError) => {
+            hilog.error(0x0000, 'animation-collection', `reset error. Cause: ${error.code}`);
+          });
           break;
         case 'released':
           Logger.info('AVPlayer state released called.');

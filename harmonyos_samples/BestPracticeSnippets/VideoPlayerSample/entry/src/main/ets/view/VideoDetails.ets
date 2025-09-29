@@ -12,7 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CommonConstants as Const, VideoData } from '@ohos/MediaService';
+import { CommonConstants as Const, Logger, VideoData } from '@ohos/MediaService';
+
+const TAG: string = '[VideoDetails]';
 
 @Component({ freezeWhenInactive: true })
 export struct VideoDetails {
@@ -24,7 +26,7 @@ export struct VideoDetails {
    * The callback function for the click event of the like button.
    * @param isAdd
    */
-  private changeLikeCount(isAdd: boolean) {
+  private changeLikeCount(isAdd: boolean): void {
     let likeCountNum: number = Number(this.item.likeCount);
     if (isAdd) {
       likeCountNum++;
@@ -127,7 +129,13 @@ export struct VideoDetails {
             .opacity($r('app.float.opacity_4'))
         }
         .onClick(() => {
-          this.getUIContext().getPromptAction().showToast({ message: $r('app.string.comment'), duration: Const.TOAST_DURATION });
+          try {
+            this.getUIContext()
+              .getPromptAction()
+              .showToast({ message: $r('app.string.comment'), duration: Const.TOAST_DURATION });
+          } catch (err) {
+            Logger.error(TAG, `detail comments click failed, err.code:${err.code}, err.message:${err.message}`);
+          }
         })
 
         Column() {
@@ -141,7 +149,13 @@ export struct VideoDetails {
             .opacity($r('app.float.opacity_4'))
         }
         .onClick(() => {
-          this.getUIContext().getPromptAction().showToast({ message: $r('app.string.share'), duration: Const.TOAST_DURATION });
+          try {
+            this.getUIContext()
+              .getPromptAction()
+              .showToast({ message: $r('app.string.share'), duration: Const.TOAST_DURATION });
+          } catch (err) {
+            Logger.error(TAG, `detail share click failed, err.code:${err.code}, err.message:${err.message}`);
+          }
         })
       }
       .width(Const.FULL_SIZE)

@@ -17,6 +17,8 @@ import { ArrayList } from '@kit.ArkTS';
 import { getAdNodeController } from '../components/AdController';
 import { CardComponent } from '../components/CardComponent';
 import { CardData, CardDataSource } from '../model/CardData';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Builder
 export function MainPageBuilder() {
@@ -38,7 +40,14 @@ export struct MainPage {
       if (i % 7 === 6) {
         // Node where the advertisement is located
         this.data.pushData(new CardData(true, id));
-        this.idList.add(id);
+        try {
+          this.idList.add(id);
+        } catch (error) {
+          let err = error as BusinessError
+          if (err.code) {
+            hilog.error(0x0000, 'ImperativeView', 'Failed to add id. Cause: %{public}s', JSON.stringify(err) ?? '');
+          }
+        }
       } else {
         this.data.pushData(new CardData(false, id));
       }
@@ -77,6 +86,14 @@ export struct MainPage {
   }
 
   ResourceToString(resource:Resource):string{
-    return this.getUIContext().getHostContext()!.resourceManager.getStringSync(resource.id);
+    try {
+      return this.getUIContext().getHostContext()!.resourceManager.getStringSync(resource.id);
+    } catch (error) {
+      let err = error as BusinessError
+      if (err.code) {
+        hilog.error(0x0000, 'ImperativeView', 'Failed to get resource. Cause: %{public}s', JSON.stringify(err) ?? '');
+      }
+      return '';
+    }
   }
 }

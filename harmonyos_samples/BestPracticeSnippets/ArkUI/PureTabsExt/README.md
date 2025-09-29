@@ -8,22 +8,22 @@
 | ![image](screenshots/device/tab_ext_1.png) | ![image](screenshots/device/tab_ext_2.png) | ![image](screenshots/device/tab_ext_3.png) | ![image](screenshots/device/tab_ext_4.png) |
 ### 工程目录
 ```
-├──entry/src/main/ets
+├──entry/src/main/ets                    // 代码区
 │  ├──common
 │  │  └──constant
-│  │     └──Constants.ets
-│  ├──entryability
-│  │  └──EntryAbility.ets
+│  │     └──Constants.ets                // 常量类
+│  ├──entryability  
+│  │  └──EntryAbility.ets                // 程序入口类
 │  ├──entrybackupability
 │  │  └──EntryBackupAbility.ets
 │  ├──pages
-│  │  └──Index.ets
+│  │  └──Index.ets                       // 入口页
 │  └──view
-│     ├──InTabComponent.ets
-│     ├──OutTabComponent.ets
-│     ├──SearchBarComponent.ets
-│     └──SwitchTabComponent.ets
-└──entry/src/main/resources
+│     ├──InTabComponent.ets              // 设置TabBar偏移量及透明度
+│     ├──OutTabComponent.ets             // 页签超出TabBar区域显示
+│     ├──SearchBarComponent.ets          // 搜索框
+│     └──SwitchTabComponent.ets          // 切换至指定页签
+└──entry/src/main/resources              // 应用资源目录
 ```
 ### 具体实现
 - TabBar背景模糊效果  

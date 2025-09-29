@@ -14,7 +14,6 @@
  */
 
 import { common, Want } from '@kit.AbilityKit';
-import { promptAction } from '@kit.ArkUI';
 import { pasteboard } from '@kit.BasicServicesKit';
 import { fileIo as fs, picker } from '@kit.CoreFileKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
@@ -64,27 +63,32 @@ export async function saveVideoToGallery(
   documentSaveOptions.newFileNames = ['video.mp4'];
   let documentPicker = new picker.DocumentViewPicker(context);
   documentPicker.save(documentSaveOptions).then(async (uris: Array<string>) => {
-    if (uris.length === 0) {
-      context1.showToast({ message: $r('app.string.user_cancelled_authorization') })
-      return;
-    }
-    openDownloadDialog(); // open dialog
-    const path = await webDownloadManager.start(Constants.INDEX_WEB_CONTROLLER, context.filesDir, uri);
-    closeDownloadDialog(); // close dialog
-    webDownloadManager.clearProgress();
-    context1.showToast({ message: $r('app.string.download_success') })
-    const targetFile = fs.openSync(uris[0], fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
-    const sourceFile = fs.openSync(path, fs.OpenMode.READ_ONLY);
-    let buf = new ArrayBuffer(1024);
-    while (true) {
-      const len = fs.readSync(sourceFile.fd, buf);
-      if (0 === len) {
-        break;
+    try {
+      if (uris.length === 0) {
+        context1.showToast({ message: $r('app.string.user_cancelled_authorization') })
+        return;
       }
-      fs.writeSync(targetFile.fd, buf);
+      openDownloadDialog(); // open dialog
+      const path = await webDownloadManager.start(Constants.INDEX_WEB_CONTROLLER, context.filesDir, uri);
+      closeDownloadDialog(); // close dialog
+      webDownloadManager.clearProgress();
+      context1.showToast({ message: $r('app.string.download_success') })
+      const targetFile = fs.openSync(uris[0], fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
+      const sourceFile = fs.openSync(path, fs.OpenMode.READ_ONLY);
+      let buf = new ArrayBuffer(1024);
+      while (true) {
+        const len = fs.readSync(sourceFile.fd, buf);
+        if (0 === len) {
+          break;
+        }
+        fs.writeSync(targetFile.fd, buf);
+      }
+      fs.closeSync(sourceFile);
+      fs.closeSync(targetFile);
+    } catch (error) {
+      hilog.error(0x0000, 'testTag', 'Execution failed, code = %{public}d, message = %{public}s',
+        error.code, error.message);
     }
-    fs.closeSync(sourceFile);
-    fs.closeSync(targetFile);
   }).finally(() => {
     webDownloadManager.deleteFile();
   })

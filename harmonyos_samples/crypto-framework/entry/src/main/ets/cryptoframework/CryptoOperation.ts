@@ -64,7 +64,12 @@ function genGcmParamsSpec(): cryptoFramework.GcmParamsSpec {
   // The authTag of GCM is taken from the doFinal result at encryption time and filled into the params parameter of the init function at decryption time.
   let tagBlob = { data: dataTag };
 
-  let gcmParamsSpec = { iv: ivBlob, aad: aadBlob, authTag: tagBlob, algName: 'GcmParamsSpec' };
+  let gcmParamsSpec = {
+    iv: ivBlob,
+    aad: aadBlob,
+    authTag: tagBlob,
+    algName: 'GcmParamsSpec'
+  };
   return gcmParamsSpec;
 }
 
@@ -97,11 +102,11 @@ export class CryptoOperation {
   }
 
   async convertAesKey(aesKeyBlobString: string): Promise<cryptoFramework.SymKey> {
-    let symKeyGenerator = cryptoFramework.createSymKeyGenerator('AES256');
-    Logger.info(TAG, 'success, read key string' + aesKeyBlobString);
-    Logger.info(TAG, 'success, blob key ' + fromHexString(aesKeyBlobString));
-    let symKeyBlob = { data: fromHexString(aesKeyBlobString) };
     try {
+      let symKeyGenerator = cryptoFramework.createSymKeyGenerator('AES256');
+      Logger.info(TAG, 'success, read key string' + aesKeyBlobString);
+      Logger.info(TAG, 'success, blob key ' + fromHexString(aesKeyBlobString));
+      let symKeyBlob = { data: fromHexString(aesKeyBlobString) };
       let key = await symKeyGenerator.convertKey(symKeyBlob);
       let aesKey: cryptoFramework.SymKey = key;
       return aesKey;
@@ -200,7 +205,7 @@ export class CryptoOperation {
       return null;
     }
     try {
-      let finalOut = await decode.doFinal(null);
+      await decode.doFinal(null);
     } catch (error) {
       Logger.error(TAG, `doFinal decode failed, ${error.code}, ${error.message}`);
       return null;
@@ -271,10 +276,11 @@ export class CryptoOperation {
   }
 
   async convertRsaKey(rsaJsonString: string): Promise<cryptoFramework.KeyPair> {
-    let rsaKeyGenerator = cryptoFramework.createAsyKeyGenerator('RSA3072');
-    Logger.info(TAG, 'success, read key string' + rsaJsonString.length);
+    let rsaKeyGenerator;
     let jsonRsaKeyBlob;
     try {
+      rsaKeyGenerator = cryptoFramework.createAsyKeyGenerator('RSA3072');
+      Logger.info(TAG, 'success, read key string' + rsaJsonString.length);
       jsonRsaKeyBlob = JSON.parse(rsaJsonString);
     } catch (error) {
       Logger.error(TAG, `trans from json string failed, ${error.code}, ${error.message}`);
@@ -291,7 +297,6 @@ export class CryptoOperation {
     try {
       let key: cryptoFramework.KeyPair = await rsaKeyGenerator.convertKey({ data: pubKeyBlob }, { data: priKeyBlob });
       return key;
-      Logger.info(TAG, 'success, read and convert key');
     } catch (error) {
       Logger.error(TAG, `convert rsa key failed, ${error.code}, ${error.message}`);
       return null;
@@ -299,9 +304,9 @@ export class CryptoOperation {
   }
 
   async rsaSign(globalKey, textString: string): Promise<string> {
-    let signer = cryptoFramework.createSign('RSA3072|PKCS1|SHA256');
-    let keyPair = globalKey;
     try {
+      let signer = cryptoFramework.createSign('RSA3072|PKCS1|SHA256');
+      let keyPair = globalKey;
       await signer.init(keyPair.priKey);
       let signBlob = stringToUint8Array(textString);
       try {
@@ -322,18 +327,17 @@ export class CryptoOperation {
   }
 
   async rsaVerify(globalKey, textString: string, rsaSignedText: string): Promise<Boolean> {
-    let verifyer = cryptoFramework.createVerify('RSA3072|PKCS1|SHA256');
-    let keyPair = globalKey;
-    let signBlob = stringToUint8Array(textString);
-    let signedBlob = fromHexString(rsaSignedText);
-    Logger.info('success,RSA sign input is ' + signBlob);
-    Logger.info('success,RSA signed file length ' + signedBlob.length);
     try {
+      let verifyer = cryptoFramework.createVerify('RSA3072|PKCS1|SHA256');
+      let keyPair = globalKey;
+      let signBlob = stringToUint8Array(textString);
+      let signedBlob = fromHexString(rsaSignedText);
+      Logger.info('success,RSA sign input is ' + signBlob);
+      Logger.info('success,RSA signed file length ' + signedBlob.length);
       await verifyer.init(keyPair.pubKey);
       try {
         let result: Boolean = await verifyer.verify({ data: signBlob }, { data: signedBlob });
         if (result === false) {
-          // flag = false;
           Logger.error(TAG, 'RSA Verify result = fail');
         } else {
           Logger.info(TAG, 'success, RSA Verify result = success');

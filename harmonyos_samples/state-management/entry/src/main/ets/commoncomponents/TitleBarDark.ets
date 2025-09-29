@@ -13,14 +13,13 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { startSpecifiedAbility } from '../utils/StartAbilityUtils';
 
 @Component
 export struct TitleBarDark {
   @Link title: Resource;
-  private isAbility: boolean = false;
+  isAbility: boolean = false;
 
   build() {
     Column() {

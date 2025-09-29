@@ -26,34 +26,48 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 @Observed
 export class WindowUtil {
   private mainWindowClass?: window.Window;
+
   // [StartExclude recover]
   maximize(): void {
-    if (this.mainWindowClass!.getWindowStatus() === window.WindowStatusType.FLOATING) {
-      this.mainWindowClass!.maximize()
-        .then(() => {
-          hilog.info(0x0000, 'testTag', '%{public}s', `Succeed in maximizing the window.`);
-        })
-        .catch((err: BusinessError) => {
-          hilog.error(0x0000, 'testTag', `Failed to maximize the window. Code: ${err.code}, message: ${err.message}`,
-            JSON.stringify(err) ?? '');
-        });
+    try {
+      if (this.mainWindowClass!.getWindowStatus() === window.WindowStatusType.FLOATING) {
+        this.mainWindowClass!.maximize()
+          .then(() => {
+            hilog.info(0x0000, 'testTag', '%{public}s', `Succeed in maximizing the window.`);
+          })
+          .catch((err: BusinessError) => {
+            hilog.error(0x0000, 'testTag', `Failed to maximize the window. Code: ${err.code}, message: ${err.message}`,
+              JSON.stringify(err) ?? '');
+          });
+      }
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.warn(0x000, 'testTag', `getWindowStatus failed, code=${err.code}, message=${err.message}`);
     }
   }
+
   // [EndExclude recover]
   // [StartExclude maximize]
   recover(): void {
-    if (this.mainWindowClass!.getWindowStatus() === window.WindowStatusType.FULL_SCREEN) {
-      this.mainWindowClass!.recover()
-        .then(() => {
-          hilog.info(0x0000, 'testTag', '%{public}s', `Succeed in recovering the window.`);
-        })
-        .catch((err: BusinessError) => {
-          hilog.error(0x0000, 'testTag', `Failed to recover the window. Code: ${err.code}, message: ${err.message}`,
-            JSON.stringify(err) ?? '');
-        });
+    try {
+      if (this.mainWindowClass!.getWindowStatus() === window.WindowStatusType.FULL_SCREEN) {
+        this.mainWindowClass!.recover()
+          .then(() => {
+            hilog.info(0x0000, 'testTag', '%{public}s', `Succeed in recovering the window.`);
+          })
+          .catch((err: BusinessError) => {
+            hilog.error(0x0000, 'testTag', `Failed to recover the window. Code: ${err.code}, message: ${err.message}`,
+              JSON.stringify(err) ?? '');
+          });
+      }
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.warn(0x000, 'testTag', `getWindowStatus failed, code=${err.code}, message=${err.message}`);
     }
   }
+
   // [EndExclude maximize]
 }
+
 // [End maximize]
 // [End recover]

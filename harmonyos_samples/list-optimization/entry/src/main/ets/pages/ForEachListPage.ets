@@ -19,6 +19,8 @@ import { ObservedArray } from '../utils/ObservedArray';
 import { ArticleCardView } from '../components/ArticleCardView';
 import Constants from '../constants/Constants';
 import { util } from '@kit.ArkTS';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 function bufferToString(buffer: ArrayBufferLike): string {
   let textDecoder = util.TextDecoder.create('utf-8', {
@@ -59,6 +61,8 @@ export struct ForEachListPage {
         resources.push(res);
       });
       this.articleList = resources;
+    }).catch((err: BusinessError) => {
+      hilog.error(0xFF00, 'ListOptimization', `getArticleModelObjFromJSON fail, code = ${err.code}, message = ${err.message}`);
     })
   }
 

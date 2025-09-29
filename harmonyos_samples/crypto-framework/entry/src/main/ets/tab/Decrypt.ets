@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { promptAction } from '@kit.ArkUI';
 import Logger from '../util/Logger';
 import { picker } from '@kit.CoreFileKit';
 import { CryptoOperation } from '../cryptoframework/CryptoOperation';
@@ -196,9 +195,13 @@ export struct Decrypt {
                 .backgroundColor('#007DFF')
                 .onClick(() => {
                   if (this.textFileUri === '' || this.keyFileUri === '') {
-                    this.getUIContext().getPromptAction().showToast({
-                      message: $r('app.string.null_message')
-                    });
+                    try {
+                      this.getUIContext().getPromptAction().showToast({
+                        message: $r('app.string.null_message')
+                      });
+                    } catch (err) {
+                      console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+                    }
                   } else {
                     this.decryptFunc();
                   }
@@ -260,24 +263,36 @@ export struct Decrypt {
 
   async decryptFunc() {
     if (this.cipherText === '' || this.keyFileUri === '') {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.null_message')
-      });
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.null_message')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
       return;
     }
     try {
       this.plainText = await this.CryptoOperation.aesConvertAndDecrypt(this.keyString, this.cipherText);
     } catch (error) {
       Logger.error(TAG, `decrypt failed, ${error}`);
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.decrypt_fail')
-      });
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.decrypt_fail')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
       return;
     }
     if (this.plainText === '' || this.plainText === null || this.plainText === undefined) {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.decrypt_fail')
-      });
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.decrypt_fail')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
       return;
     } else {
       try {
@@ -287,13 +302,21 @@ export struct Decrypt {
       }
     }
     if (this.decryptedFileUri === '' || typeof (this.decryptedFileUri) == 'undefined') {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.decrypt_fail')
-      });
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.decrypt_fail')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
     } else {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.decrypt_success')
-      });
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.decrypt_success')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
     }
   }
 }

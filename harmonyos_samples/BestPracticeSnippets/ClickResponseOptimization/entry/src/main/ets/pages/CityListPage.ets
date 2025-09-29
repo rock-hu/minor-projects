@@ -20,7 +20,10 @@ import taskpool from '@ohos.taskpool';
 import hiTraceMeter from '@ohos.hiTraceMeter';
 import { AppConstant } from '../common/constants/AppConstant';
 import router from '@ohos.router';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
+const DOMAIN = 0x0000;
 const alphabets = ['#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
   'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 
@@ -52,9 +55,15 @@ struct CityList {
   // asynchronous thread
   computeTaskAsync() {
     let task: taskpool.Task = new taskpool.Task(computeTask);
-    taskpool.execute(task).then((res) => {
-      this.citys = res as string[]
-    })
+    try {
+      taskpool.execute(task).then((res) => {
+        this.citys = res as string[]
+      });
+    } catch (e) {
+      let err = e as BusinessError;
+      hilog.error(DOMAIN, 'testTag', `failed code=${err.code}, message=${err.message}`);
+    }
+
   }
 
   // [StartExclude onpage_show]

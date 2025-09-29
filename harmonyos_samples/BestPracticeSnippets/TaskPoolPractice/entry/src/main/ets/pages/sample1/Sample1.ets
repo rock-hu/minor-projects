@@ -1,4 +1,3 @@
-
 // [Start bar]
 // Sample1.ets
 import { Bar } from './wrong/a';
@@ -6,6 +5,7 @@ import { BusinessError } from '@ohos.base';
 import { taskpool } from '@kit.ArkTS';
 import { Foo } from './correct/b';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+
 // [End bar]
 
 // [Start wrong]
@@ -19,6 +19,7 @@ function wrongConcurrentFunc() {
     hilog.error(0xFF00, 'sampleTag', 'error occur: ' + error.message);
   }
 }
+
 // [End wrong]
 
 // [Start sample_fun]
@@ -27,6 +28,7 @@ function wrongConcurrentFunc() {
 function correctConcurrentFunc() {
   let foo: Foo = new Foo;
 }
+
 // [End sample_fun]
 
 @Entry
@@ -44,7 +46,13 @@ struct Sample1 {
           .onClick(() => {
             // [Start task_pool]
             // Sample1.ets
-            taskpool.execute(wrongConcurrentFunc);
+            taskpool.execute(wrongConcurrentFunc)
+              .then(() => {
+                hilog.info(0x000, 'testTag', 'execute success');
+              })
+              .catch((err: BusinessError) => {
+                hilog.error(0x000, 'testTag', `execute failed, code=${err.code}, message=${err.message}`);
+              })
             // [End task_pool]
           })
 
@@ -54,7 +62,13 @@ struct Sample1 {
           .onClick(() => {
             // [Start correct_fun]
             // Sample1.ets
-            taskpool.execute(correctConcurrentFunc);
+            taskpool.execute(correctConcurrentFunc)
+              .then(() => {
+                hilog.info(0x000, 'testTag', 'execute success');
+              })
+              .catch((err: BusinessError) => {
+                hilog.error(0x000, 'testTag', `execute failed, code=${err.code}, message=${err.message}`);
+              })
             // [End correct_fun]
           })
       }

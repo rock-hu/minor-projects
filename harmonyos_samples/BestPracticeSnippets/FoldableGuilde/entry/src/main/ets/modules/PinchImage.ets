@@ -1,9 +1,9 @@
 // [Start PinchImage]
 @Component
 export struct PinchImage {
-  list: string[] = ['image1', 'image2', 'image3', 'image4', 'image5', 'image6']
-  @State GridColumn: string = '1fr 1fr 1fr'
-  @State GridRow: string = '1fr 1fr'
+  list: string[] = ['image1', 'image2', 'image3', 'image4', 'image5', 'image6'];
+  @State GridColumn: string = '1fr 1fr 1fr';
+  @State GridRow: string = '1fr 1fr';
 
   build() {
     Column() {

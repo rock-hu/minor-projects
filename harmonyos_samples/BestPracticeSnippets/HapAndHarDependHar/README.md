@@ -4,14 +4,31 @@
 
 本示例是《模块化设计》最佳实践中的代码示例片段。
 
-##### 使用说明
+### 使用说明
 
-进入首面，点击按钮，分别进入示例页面。
+进入首面，加载示例逻辑。
+
+### 工程目录
+```
+├──entry/src/main/ets
+│  ├──entryability
+│  │  └──EntryAbility.ets                   // Ability入口类
+│  └──pages
+│     └──Index.ets                          // 首页
+├──har_common/src/main/ets
+│  ├──components
+│  │  └──MainPage.ets                       // common模块中MainPage
+│  └──utils
+│     └──Utils.ets                          // 工具类
+└──har_library/src/main/ets
+   └──components/mainpage
+      └──MainPage.ets                       // library模块中MainPage
+```
 
 
 ### 具体实现
 
-1. 分别包括三个模块：主业务模块entry，公共模块har_commont，库模块har_library
+1. 分别包括三个模块：主业务模块entry，公共模块har_common，库模块har_library
 
 ### 相关权限
 

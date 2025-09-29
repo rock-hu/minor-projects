@@ -16,6 +16,8 @@
 // [Start color_picker]
 import { image } from '@kit.ImageKit';
 import { effectKit } from '@kit.ArkGraphics2D';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 @Component
 export struct ColorPickerMode {
@@ -31,11 +33,18 @@ export struct ColorPickerMode {
 
   async blurPix(resource: Resource) {
     const context = this.getUIContext().getHostContext()!;
-    const resourceMgr = context.resourceManager
-    const fileData = await resourceMgr.getMediaContent(resource)
-    const buffer = fileData.buffer
-    let imageSource = image.createImageSource(buffer as ArrayBuffer)
-    this.pixMap = await imageSource.createPixelMap();
+    const resourceMgr = context.resourceManager;
+    let imageSource: image.ImageSource | null = null;
+    // const fileData = await resourceMgr.getMediaContent(resource)
+    resourceMgr.getMediaContent(resource)
+      .then((fileData: Uint8Array) => {
+        const buffer = fileData.buffer
+        imageSource = image.createImageSource(buffer as ArrayBuffer)
+      })
+      .catch((err: BusinessError) => {
+        hilog.error(0x000, 'testTag', `setPreferredOrientation failed, code=${err.code}, message=${err.message}`)
+      })
+    this.pixMap = await imageSource!.createPixelMap();
     // create a color picker for color extraction
     this.kitColor = (await effectKit.createColorPicker(this.pixMap, [0, 0, 1, 1])).getAverageColor();
     // convert to the format of the blur interface color parameter
@@ -72,4 +81,5 @@ export struct ColorPickerMode {
     .hideTitleBar(true)
   }
 }
+
 // [End color_picker]

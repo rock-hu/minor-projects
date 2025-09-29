@@ -17,6 +17,7 @@ import { UIAbility , Want ,AbilityConstant } from '@kit.AbilityKit';
 import { window  } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit'
 import { Logger } from '../utils/Logger';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const TAG: string = 'EntryAbility';
 
@@ -105,5 +106,7 @@ function getDeviceSize(UIContext: UIContext, area: window.AvoidArea): void {
     }
     AppStorage.setOrCreate<number>('deviceHeight', UIContext.px2vp(properties.windowRect.height));
     AppStorage.setOrCreate<number>('deviceWidth', UIContext.px2vp(properties.windowRect.width));
+  }).catch((err: BusinessError) => {
+    hilog.error(0xFF00, 'ListOptimization', `getLastWindow fail, code = ${err.code}, message = ${err.message}`);
   });
 }

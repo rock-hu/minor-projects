@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { promptAction } from '@kit.ArkUI';
 import Logger from '../util/Logger';
 import { picker } from '@kit.CoreFileKit';
 import { CryptoOperation } from '../cryptoframework/CryptoOperation';
@@ -176,9 +175,13 @@ export struct Sign {
                 .backgroundColor('#007DFF')
                 .onClick(() => {
                   if (this.textFileUri === '' || this.keyFileUri === '') {
-                    this.getUIContext().getPromptAction().showToast({
-                      message: $r('app.string.null_message')
-                    });
+                    try {
+                      this.getUIContext().getPromptAction().showToast({
+                        message: $r('app.string.null_message')
+                      });
+                    } catch (err) {
+                      console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+                    }
                   } else {
                     this.signFunc();
                   }
@@ -257,51 +260,75 @@ export struct Sign {
 
   async signFunc() {
     if (this.plainText === '' || this.keyFileUri === '') {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.null_message')
-      });
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.null_message')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
       return;
     }
     try {
       this.cipherText = await this.CryptoOperation.rsaConvertAndSign(this.keyString, this.plainText);
     } catch (error) {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.sign_fail')
-      });
       Logger.error(TAG, `sign failed, ${error}`);
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.sign_fail')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
     }
     if (this.cipherText === '' || this.cipherText === null || this.cipherText === undefined) {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.sign_fail')
-      });
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.sign_fail')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
       return;
     } else {
       await this.createTextFileAndWrite();
     }
-    if (this.signFileUri === '' || typeof (this.signFileUri) == 'undefined') {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.sign_fail')
-      });
+    if (this.signFileUri === '' || typeof (this.signFileUri) === 'undefined') {
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.sign_fail')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
     } else {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.sign_success')
-      });
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.sign_success')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
     }
   }
 
   async genRsaKey() {
-    this.getUIContext().getPromptAction().showToast({
-      message: $r('app.string.slow_rsa_key_gen')
-    });
     try {
+      this.getUIContext().getPromptAction().showToast({
+        message: $r('app.string.slow_rsa_key_gen')
+      });
       this.keyString = await this.CryptoOperation.generateRsaKey();
     } catch (error) {
       Logger.error(TAG, `gen rsa key failed, ${error}`);
     }
-    if (this.keyString === '' || typeof (this.keyString) == 'undefined') {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.gen_key_fail')
-      });
+    if (this.keyString === '' || typeof (this.keyString) === 'undefined') {
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.gen_key_fail')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
       return;
     } else {
       try {
@@ -310,15 +337,22 @@ export struct Sign {
         Logger.error(TAG, `write rsa key failed, ${error}`);
       }
     }
-    if (this.createKeyUri === '' || typeof (this.createKeyUri) == 'undefined') {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.gen_key_fail')
-      });
+    if (this.createKeyUri === '' || typeof (this.createKeyUri) === 'undefined') {
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.gen_key_fail')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
     } else {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.gen_key_success')
-      });
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.gen_key_success')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
     }
-
   }
 }

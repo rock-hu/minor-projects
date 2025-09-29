@@ -19,6 +19,7 @@ import Logger from '../common/Logger';
 import { CommonConstants } from '../common/CommonConstants';
 import { SegmentButtonOptions } from '@kit.ArkUI';
 import { ItemRestriction, SegmentButton, SegmentButtonTextItem } from '@ohos.arkui.advanced.SegmentButton';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Builder
 export function MultipartFormBuilder() {
@@ -98,21 +99,26 @@ export struct MultipartForm {
       }
     };
     // Create a communication session object session
-    const session = rcp.createSession({ requestConfiguration: { security: securityConfig } });
-    // Define the request object req
-    let req =
-      new rcp.Request('https://www.example.com', 'POST', headers, multiForm, cookies, transferRange, configuration);
-    req.content = multiForm;
+    try {
+      const session = rcp.createSession({ requestConfiguration: { security: securityConfig } });
+      // Define the request object req
+      let req =
+        new rcp.Request('https://www.example.com', 'POST', headers, multiForm, cookies, transferRange, configuration);
+      req.content = multiForm;
 
-    // Initiate a request
-    session.fetch(req).then((response) => {
-      Logger.info(`Request succeeded, message is ${JSON.stringify(response)}`);
-    }).catch((err: BusinessError) => {
-      Logger.error(`err: err code is ${err.code}, err message is ${JSON.stringify(err)}`);
-    });
-    // [End upload_form]
-    this.multipartFormHeaders = JSON.stringify(multiForm, null, 2);
-    AppStorage.setOrCreate('MultipartFormHeaders', this.multipartFormHeaders);
+      // Initiate a request
+      session.fetch(req).then((response) => {
+        Logger.info(`Request succeeded, message is ${JSON.stringify(response)}`);
+      }).catch((err: BusinessError) => {
+        Logger.error(`err: err code is ${err.code}, err message is ${JSON.stringify(err)}`);
+      });
+      // [End upload_form]
+      this.multipartFormHeaders = JSON.stringify(multiForm, null, 2);
+      AppStorage.setOrCreate('MultipartFormHeaders', this.multipartFormHeaders);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'MultipartForm', `createSession failed. code=${err.code}, message=${err.message}`);
+    }
   }
 
   build() {

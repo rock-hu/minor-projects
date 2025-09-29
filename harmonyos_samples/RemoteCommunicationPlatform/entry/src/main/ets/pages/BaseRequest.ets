@@ -18,6 +18,7 @@ import { rcp } from '@kit.RemoteCommunicationKit';
 import { url } from '@kit.ArkTS';
 import Logger from '../common/Logger';
 import { CommonConstants } from '../common/CommonConstants';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 interface UserInfo {
   userName: string;
@@ -51,18 +52,23 @@ export struct BaseRequest {
       }
     };
     // Create the communication session object session
-    const session = rcp.createSession({ requestConfiguration: { security: securityConfig } });
-    // Define the request object rep
-    let req = new rcp.Request('http://example.com/fetch', 'PATCH', headers, modifiedContent);
-    // Initiate a request
-    session.fetch(req).then((response) => {
-      Logger.info(`Request succeeded, message is ${JSON.stringify(response)}`);
-    }).catch((err: BusinessError) => {
-      Logger.error(`err: err code is ${err.code}, err message is ${JSON.stringify(err)}`);
-    });
-    // [End session_fetch]
-    this.patchHeaders = JSON.stringify(req, null, 2);
-    AppStorage.setOrCreate('PatchHeaders', this.patchHeaders);
+    try {
+      const session = rcp.createSession({ requestConfiguration: { security: securityConfig } });
+      // Define the request object rep
+      let req = new rcp.Request('http://example.com/fetch', 'PATCH', headers, modifiedContent);
+      // Initiate a request
+      session.fetch(req).then((response) => {
+        Logger.info(`Request succeeded, message is ${JSON.stringify(response)}`);
+      }).catch((err: BusinessError) => {
+        Logger.error(`err: err code is ${err.code}, err message is ${JSON.stringify(err)}`);
+      });
+      // [End session_fetch]
+      this.patchHeaders = JSON.stringify(req, null, 2);
+      AppStorage.setOrCreate('PatchHeaders', this.patchHeaders);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'BaseRequest', `createSession failed. code=${err.code}, message=${err.message}`);
+    }
   }
 
   setBaseAddress() {
@@ -83,16 +89,21 @@ export struct BaseRequest {
       }
     };
     // Create the communication session object session and input sessionConfig
-    const session = rcp.createSession(sessionConfig);
+    try {
+      const session = rcp.createSession(sessionConfig);
+      let req = new rcp.Request('http://example.com', 'GET');
+      session.fetch(req).then((response) => {
+        Logger.info(`Request succeeded, message is ${JSON.stringify(response)}`);
+      }).catch((err: BusinessError) => {
+        Logger.error(`err: err code is ${err.code}, err message is ${JSON.stringify(err)}`);
+      });
+      this.baseAddress = sessionConfig.baseAddress;
+      AppStorage.setOrCreate('BaseAddress', this.baseAddress);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'BaseRequest', `createSession failed. code=${err.code}, message=${err.message}`);
+    }
     // [End session_config]
-    let req = new rcp.Request('http://example.com', 'GET');
-    session.fetch(req).then((response) => {
-      Logger.info(`Request succeeded, message is ${JSON.stringify(response)}`);
-    }).catch((err: BusinessError) => {
-      Logger.error(`err: err code is ${err.code}, err message is ${JSON.stringify(err)}`);
-    });
-    this.baseAddress = sessionConfig.baseAddress;
-    AppStorage.setOrCreate('BaseAddress', this.baseAddress);
   }
 
   build() {

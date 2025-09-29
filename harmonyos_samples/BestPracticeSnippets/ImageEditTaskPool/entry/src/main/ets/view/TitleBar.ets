@@ -17,11 +17,11 @@ import { CommBackgroundIcon } from './CommBackgroundIcon';
 
 @Component
 export default struct TitleBar {
-  private onBack: () => void = () => {
+  onBack: () => void = () => {
   };
-  private onReset: () => void = () => {
+  onReset: () => void = () => {
   };
-  private onSave: () => void = () => {
+  onSave: () => void = () => {
   };
 
   build() {

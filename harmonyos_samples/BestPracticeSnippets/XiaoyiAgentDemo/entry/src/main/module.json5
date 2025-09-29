@@ -24,8 +24,12 @@
         // [Start module]
         "skills": [
           {
-            "entities": ["entity.system.browsable"],
+            "entities": [
+              "entity.system.home",
+              "entity.system.browsable"
+            ],
             "actions": [
+              "ohos.want.action.home",
               "ohos.want.action.viewData"
             ],
             "uris": [

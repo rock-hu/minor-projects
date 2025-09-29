@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,68 +13,125 @@
  * limitations under the License.
  */
 
-import { curves } from '@kit.ArkUI';
+import { EdgeBlur } from '../pages/EdgeBlur';
+import { LoopScrolling } from '../pages/LoopScrolling';
+import { MaintainVisibleAreaContent } from '../pages/MaintainVisibleAreaContent';
+import { PullUpLoading } from '../pages/PullUpLoading';
+import { RollingMonitoring } from '../pages/RollingMonitoring';
+import { ScrollLeftAndRightToRefresh } from '../pages/ScrollLeftAndRightToRefresh';
+import { ScrollToTheBottom } from '../pages/ScrollToTheBottom';
+import { UnilateralRebound } from '../pages/UnilateralRebound';
 
 @Entry
 @Component
 struct Index {
-  @State arr: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-  private scroller: Scroller = new Scroller();
-  @StorageProp('topRectHeight') topRectHeight: number = 0;
+  @Provide('pageInfos') pageInfos: NavPathStack = new NavPathStack();
+
+  @Builder
+  PageMap(name: string, param: string) {
+    if (name === 'EdgeBlur') {
+      EdgeBlur()
+    } else if (name === 'LoopScrolling') {
+      LoopScrolling()
+    } else if (name === 'MaintainVisibleAreaContent') {
+      MaintainVisibleAreaContent()
+    } else if (name === 'PullUpLoading') {
+      PullUpLoading()
+    } else if (name === 'RollingMonitoring') {
+      RollingMonitoring()
+    } else if (name === 'ScrollLeftAndRightToRefresh') {
+      ScrollLeftAndRightToRefresh()
+    } else if (name === 'ScrollToTheBottom') {
+      ScrollToTheBottom()
+    } else if (name === 'UnilateralRebound') {
+      UnilateralRebound()
+    }
+  }
 
   build() {
-    Column() {
-      // [Start Specify_Offset_Scrolling]
-      Button('scroll 200')
-        .height('5%')
-        .onClick(() => {
-          let curve = curves.interpolatingSpring(10, 1, 228, 30);
-          const yOffset: number = this.scroller.currentOffset().yOffset;
-          this.scroller.scrollTo({ xOffset: 0, yOffset: yOffset + 200, animation: { duration: 1000, curve: curve } })
-        })
-      // [End Specify_Offset_Scrolling]
+    Navigation(this.pageInfos) {
+      Column() {
+        Column({ space: 12 }) {
+          Button('EdgeBlur')
+            .width('100%')
+            .borderRadius(20)
+            .backgroundColor('#0A59F7')
+            .onClick(() => {
+              this.pageInfos.pushPathByName('EdgeBlur', '');
+            })
 
-      // [Start Partial_Refresh]
-      Button('Partial_Refresh')
-        .height('5%')
-        .margin({ top: 8, bottom: 8 })
-        .onClick(() => {
-          this.arr[0] += 10;
-        })
-      // [End Partial_Refresh]
+          Button('LoopScrolling')
+            .width('100%')
+            .borderRadius(20)
+            .backgroundColor('#0A59F7')
+            .onClick(() => {
+              this.pageInfos.pushPathByName('LoopScrolling', '');
+            })
 
-      List({ space: 20, initialIndex: 0, scroller: this.scroller }) {
-        ForEach(this.arr, (item: number) => {
-          ListItem() {
-            Text('' + item)
-              .width('100%')
-              .height(100)
-              .fontSize(16)
-              .textAlign(TextAlign.Center)
-              .borderRadius(16)
-              .backgroundColor(0xDCDCDC)
-          }
-          .borderRadius(16)
-          .backgroundColor(0xDCDCDC)
-        }, (item: string) => item)
+          Button('MaintainVisibleAreaContent')
+            .width('100%')
+            .borderRadius(20)
+            .backgroundColor('#0A59F7')
+            .onClick(() => {
+              this.pageInfos.pushPathByName('MaintainVisibleAreaContent', '');
+            })
+
+          Button('PullUpLoading')
+            .width('100%')
+            .borderRadius(20)
+            .backgroundColor('#0A59F7')
+            .onClick(() => {
+              this.pageInfos.pushPathByName('PullUpLoading', '');
+            })
+
+          Button('RollingMonitoring')
+            .width('100%')
+            .borderRadius(20)
+            .backgroundColor('#0A59F7')
+            .onClick(() => {
+              this.pageInfos.pushPathByName('RollingMonitoring', '');
+            })
+
+          Button('ScrollLeftAndRightToRefresh')
+            .width('100%')
+            .borderRadius(20)
+            .backgroundColor('#0A59F7')
+            .onClick(() => {
+              this.pageInfos.pushPathByName('ScrollLeftAndRightToRefresh', '');
+            })
+
+          Button('ScrollToTheBottom')
+            .width('100%')
+            .borderRadius(20)
+            .backgroundColor('#0A59F7')
+            .onClick(() => {
+              this.pageInfos.pushPathByName('ScrollToTheBottom', '');
+            })
+
+          Button('UnilateralRebound')
+            .width('100%')
+            .borderRadius(20)
+            .backgroundColor('#0A59F7')
+            .margin({ bottom: 16 })
+            .onClick(() => {
+              this.pageInfos.pushPathByName('UnilateralRebound', '');
+            })
+        }
+        .width('100%')
+        .justifyContent(FlexAlign.End)
       }
-      .scrollBar(BarState.Off)
-      .friction(0.6)
-      .contentEndOffset(60)
-      // [Start Rolling_Monitoring]
-      .onWillScroll(() => {
-        // Trigger before scrolling component scrolling.
-        console.info('currentOffset:' + this.scroller.currentOffset().yOffset)
+      .width('100%')
+      .height('100%')
+      .padding({
+        left: 16,
+        right: 16
       })
-      .onDidScroll(() => {
-        // Triggered when scrolling components scroll.
-        console.info('currentOffset:' + this.scroller.currentOffset().yOffset)
-      })
-      // [End Rolling_Monitoring]
-      .width('90%')
+      .justifyContent(FlexAlign.End)
     }
-    .width('100%')
+    .title('Simple ChatList')
     .height('100%')
-    .padding({ top: this.getUIContext().px2vp(this.topRectHeight) })
+    .width('100%')
+    .backgroundColor('#F1F3F5')
+    .navDestination(this.PageMap)
   }
 }

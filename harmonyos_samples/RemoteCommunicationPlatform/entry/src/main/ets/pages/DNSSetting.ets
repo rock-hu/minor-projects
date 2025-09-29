@@ -17,6 +17,7 @@ import { BusinessError } from '@kit.BasicServicesKit';
 import { rcp } from '@kit.RemoteCommunicationKit';
 import Logger from '../common/Logger';
 import { CommonConstants } from '../common/CommonConstants';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Builder
 export function DNSSettingBuilder() {
@@ -42,28 +43,33 @@ export struct DNSSetting {
       { ip: '8.8.4.4', port: 53 }
     ];
     // Creating a Communication Session Object
-    const sessionWithCustomDns = rcp.createSession({
-      requestConfiguration: {
-        dns: {
-          dnsRules: customDnsServers
-        },
-        security: {
-          tlsOptions: {
-            tlsVersion: 'TlsV1.3'
+    try {
+      const sessionWithCustomDns = rcp.createSession({
+        requestConfiguration: {
+          dns: {
+            dnsRules: customDnsServers
+          },
+          security: {
+            tlsOptions: {
+              tlsVersion: 'TlsV1.3'
+            }
           }
         }
-      }
-    });
-    // Initiate a request
-    sessionWithCustomDns.get('http://www.example.com').then((response) => {
-      Logger.info(`Request succeeded, message is ${JSON.stringify(response)}`);
-    }).catch((err: BusinessError) => {
-      Logger.error(`err: err code is ${err.code}, err message is ${JSON.stringify(err)}`);
-    });
-    // [End session_with_custom_dns]
-    this.customizingDNS = JSON.stringify(customDnsServers, null, 2);
-    this.textArea = this.customizingDNS;
-    AppStorage.setOrCreate('CustomizingDNS', this.customizingDNS);
+      });
+      // Initiate a request
+      sessionWithCustomDns.get('http://www.example.com').then((response) => {
+        Logger.info(`Request succeeded, message is ${JSON.stringify(response)}`);
+      }).catch((err: BusinessError) => {
+        Logger.error(`err: err code is ${err.code}, err message is ${JSON.stringify(err)}`);
+      });
+      // [End session_with_custom_dns]
+      this.customizingDNS = JSON.stringify(customDnsServers, null, 2);
+      this.textArea = this.customizingDNS;
+      AppStorage.setOrCreate('CustomizingDNS', this.customizingDNS);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'DNSSetting', `createSession failed. code=${err.code}, message=${err.message}`);
+    }
   }
 
   setStaticDnsRules() {
@@ -77,28 +83,33 @@ export struct DNSSetting {
       }
     ];
     // Creating a Communication Session Object
-    const sessionWithCustomDns = rcp.createSession({
-      requestConfiguration: {
-        dns: {
-          dnsRules: staticDnsRules
-        },
-        security: {
-          tlsOptions: {
-            tlsVersion: 'TlsV1.3'
+    try {
+      const sessionWithCustomDns = rcp.createSession({
+        requestConfiguration: {
+          dns: {
+            dnsRules: staticDnsRules
+          },
+          security: {
+            tlsOptions: {
+              tlsVersion: 'TlsV1.3'
+            }
           }
         }
-      }
-    });
-    // Initiate a request
-    sessionWithCustomDns.get('http://www.example.com').then((response) => {
-      Logger.info(`Request succeeded, message is ${JSON.stringify(response)}`);
-    }).catch((err: BusinessError) => {
-      Logger.error(`err: err code is ${err.code}, err message is ${JSON.stringify(err)}`);
-    });
-    // [End custom_static_dns]
-    this.staticDNS = JSON.stringify(staticDnsRules, null, 2);
-    this.textArea = this.staticDNS;
-    AppStorage.setOrCreate('StaticDNS', this.staticDNS);
+      });
+      // Initiate a request
+      sessionWithCustomDns.get('http://www.example.com').then((response) => {
+        Logger.info(`Request succeeded, message is ${JSON.stringify(response)}`);
+      }).catch((err: BusinessError) => {
+        Logger.error(`err: err code is ${err.code}, err message is ${JSON.stringify(err)}`);
+      });
+      // [End custom_static_dns]
+      this.staticDNS = JSON.stringify(staticDnsRules, null, 2);
+      this.textArea = this.staticDNS;
+      AppStorage.setOrCreate('StaticDNS', this.staticDNS);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'DNSSetting', `createSession failed. code=${err.code}, message=${err.message}`);
+    }
   }
 
   setDnsOverHttps() {
@@ -109,28 +120,33 @@ export struct DNSSetting {
       skipCertificatesValidation: true
     };
     // Creating a Communication Session Object
-    const sessionWithCustomDns = rcp.createSession({
-      requestConfiguration: {
-        dns: {
-          dnsOverHttps: dohConfig
-        },
-        security: {
-          tlsOptions: {
-            tlsVersion: 'TlsV1.3'
+    try {
+      const sessionWithCustomDns = rcp.createSession({
+        requestConfiguration: {
+          dns: {
+            dnsOverHttps: dohConfig
+          },
+          security: {
+            tlsOptions: {
+              tlsVersion: 'TlsV1.3'
+            }
           }
         }
-      }
-    });
-    // Initiate a request
-    sessionWithCustomDns.get('http://www.example.com').then((response) => {
-      Logger.info(`Request succeeded, message is ${JSON.stringify(response)}`);
-    }).catch((err: BusinessError) => {
-      Logger.error(`err: err code is ${err.code}, err message is ${JSON.stringify(err)}`);
-    });
-    // [End config_dns_on_https]
-    this.dnsOverHttp = JSON.stringify(dohConfig, null, 2);
-    this.textArea = this.dnsOverHttp;
-    AppStorage.setOrCreate('DnsOverHttp', this.dnsOverHttp);
+      });
+      // Initiate a request
+      sessionWithCustomDns.get('http://www.example.com').then((response) => {
+        Logger.info(`Request succeeded, message is ${JSON.stringify(response)}`);
+      }).catch((err: BusinessError) => {
+        Logger.error(`err: err code is ${err.code}, err message is ${JSON.stringify(err)}`);
+      });
+      // [End config_dns_on_https]
+      this.dnsOverHttp = JSON.stringify(dohConfig, null, 2);
+      this.textArea = this.dnsOverHttp;
+      AppStorage.setOrCreate('DnsOverHttp', this.dnsOverHttp);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'DNSSetting', `createSession failed. code=${err.code}, message=${err.message}`);
+    }
   }
 
   build() {

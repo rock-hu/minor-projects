@@ -13,15 +13,16 @@
  * limitations under the License.
  */
 
-import { abilityAccessCtrl,common } from '@kit.AbilityKit'
+import { abilityAccessCtrl, common } from '@kit.AbilityKit';
 import { promptAction, UIContext } from '@kit.ArkUI';
-import Logger from '../util/Logger'
+import Logger from '../util/Logger';
+import { BusinessError } from '@kit.BasicServicesKit';
 
-const TAG: string = 'AbilityContextController'
-const accountId = 100
-const resultCode = 100
-const connectionNumber = 0
-const permissions = ['']
+const TAG: string = 'AbilityContextController';
+const accountId = 100;
+const resultCode = 100;
+const connectionNumber = 0;
+const permissions = [''];
 
 let want = {
   bundleName: 'ohos.samples.stagemodel',
@@ -36,29 +37,29 @@ let serviceWant = {
 };
 
 export default class AbilityContextController {
-  private context: common.UIAbilityContext
-  private UIContext: UIContext
+  private context: common.UIAbilityContext;
+  private UIContext: UIContext;
 
   constructor(context: common.UIAbilityContext, UIContext: UIContext) {
-    this.context = context
-    this.UIContext = UIContext
+    this.context = context;
+    this.UIContext = UIContext;
   }
 
   private regOnRelease(caller) {
     try {
       caller.onRelease((msg) => {
-        Logger.info(TAG, `caller onRelease is called ${msg}`)
+        Logger.info(TAG, `caller onRelease is called ${msg}`);
       })
-      Logger.info(TAG, 'caller register OnRelease succeed')
+      Logger.info(TAG, 'caller register OnRelease succeed');
     } catch (error) {
-      Logger.error(TAG, `caller register OnRelease failed with ${error}`)
+      Logger.error(TAG, `caller register OnRelease failed with ${error}`);
     }
   }
 
   // Enables the Ability, which corresponds to the StartServiceAbility of the FA.
   startAbility() {
     this.context.startAbility(want, (error) => {
-      Logger.info(TAG, `error.code: ${JSON.stringify(error.code)}`)
+      Logger.info(TAG, `error.code: ${JSON.stringify(error.code)}`);
     })
   }
 
@@ -70,8 +71,9 @@ export default class AbilityContextController {
         deviceId: '', bundleName: 'ohos.samples.stagemodel', abilityName: 'JumpAbility'
       },
       (error, result) => {
-        Logger.info(TAG, `startAbilityForResult AsyncCallback is called, error.code: ${JSON.stringify(error)}`)
-        Logger.info(TAG, `startAbilityForResult AsyncCallback is called, result.resultCode: ${JSON.stringify(result.resultCode)}`)
+        Logger.info(TAG, `startAbilityForResult AsyncCallback is called, error.code: ${JSON.stringify(error)}`);
+        Logger.info(TAG,
+          `startAbilityForResult AsyncCallback is called, result.resultCode: ${JSON.stringify(result.resultCode)}`);
       }
     );
   }
@@ -79,7 +81,7 @@ export default class AbilityContextController {
   // This field is used to stop the capability itself, which corresponds to terminateSelf of the FA.
   terminateSelf() {
     this.context.terminateSelf((error) => {
-      Logger.info(TAG, `terminateSelf result: ${JSON.stringify(error)}`)
+      Logger.info(TAG, `terminateSelf result: ${JSON.stringify(error)}`);
     })
   }
 
@@ -90,41 +92,42 @@ export default class AbilityContextController {
     const abilityResult = {
       want,
       resultCode
-    }
+    };
     this.context.terminateSelfWithResult(abilityResult, (error) => {
       Logger.info(TAG, `terminateSelfWithResult is called: ${JSON.stringify(error.code)}`)
     }
-    )
+    );
   }
 
   // Disconnection, corresponding to disconnectService of the FA model.
   disconnectAbility() {
     this.context.disconnectServiceExtensionAbility(connectionNumber).then((data) => {
-      Logger.info(TAG, `disconnectAbility success, data: ${JSON.stringify(data)}`)
+      Logger.info(TAG, `disconnectAbility success, data: ${JSON.stringify(data)}`);
       this.UIContext.getPromptAction().showToast({
         message: 'disconnectAbility success'
-      })
+      });
     }).catch((error) => {
-      Logger.error(TAG, `disconnectAbility fail, error: ${JSON.stringify(error)}`)
+      Logger.error(TAG, `disconnectAbility fail, error: ${JSON.stringify(error)}`);
       this.UIContext.getPromptAction().showToast({
         message: 'disconnectAbility'
-      })
+      });
     })
   }
 
   // Start a pop-up window to request user authorization,
   // corresponding to requestPermissionsFromUser in AppContext of the FA model.
   requestPermissionsFromUser() {
-    let atManager: abilityAccessCtrl.AtManager = abilityAccessCtrl.createAtManager()
+    let atManager: abilityAccessCtrl.AtManager = abilityAccessCtrl.createAtManager();
     try {
-      atManager.requestPermissionsFromUser(this.context, ['ohos.permission.ABILITY_BACKGROUND_COMMUNICATION']).then((data) => {
-        Logger.info(TAG, `data: ${JSON.stringify(data)}`)
-        this.UIContext.getPromptAction().showToast({
-          message: 'requestPermissionsFromUser success'
-        })
-      }).catch((err) => {
-        Logger.info(TAG, `err: ${JSON.stringify(err)}`)
-      })
+      atManager.requestPermissionsFromUser(this.context, ['ohos.permission.ABILITY_BACKGROUND_COMMUNICATION'])
+        .then((data) => {
+          Logger.info(TAG, `data: ${JSON.stringify(data)}`);
+          this.UIContext.getPromptAction().showToast({
+            message: 'requestPermissionsFromUser success'
+          });
+        }).catch((err) => {
+        Logger.info(TAG, `err: ${JSON.stringify(err)}`);
+      });
     } catch (err) {
       Logger.info(TAG, `catch err->${JSON.stringify(err)}`);
     }
@@ -133,20 +136,31 @@ export default class AbilityContextController {
   // Specifies the name of the ability displayed in the task,
   setMissionLabel() {
     this.context.setMissionLabel('test', (result) => {
-      Logger.info(TAG, `setMissionLabel: ${JSON.stringify(result)}`)
+      Logger.info(TAG, `setMissionLabel: ${JSON.stringify(result)}`);
       this.UIContext.getPromptAction().showToast({
         message: 'setMissionLabel success'
-      })
+      });
     })
   }
 
   // Check whether the ability is in terminating state.
   isTerminating() {
-    const isTerminating = this.context.isTerminating()
-    this.UIContext.getPromptAction().showToast({
-      message: 'isTerminating success'
-    })
-    Logger.info(TAG, `ability state: ${JSON.stringify(isTerminating)}`)
+    let isTerminating = false;
+    try {
+      isTerminating = this.context.isTerminating();
+    } catch (error) {
+      let err = error as BusinessError;
+      Logger.error(TAG, 'testTag', `setColorMode failed.code=${err.code},message=${err.message}`);
+    }
+    try {
+      this.UIContext.getPromptAction().showToast({
+        message: 'isTerminating success'
+      });
+    } catch (error) {
+      let err = error as BusinessError;
+      Logger.error(TAG, 'testTag', `showToast failed.code=${err.code},message=${err.message}`);
+    }
+    Logger.info(TAG, `ability state: ${JSON.stringify(isTerminating)}`);
   }
 }
 

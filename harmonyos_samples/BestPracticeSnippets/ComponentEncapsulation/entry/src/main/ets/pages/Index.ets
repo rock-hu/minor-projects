@@ -1,3 +1,5 @@
+import { hilog } from '@kit.PerformanceAnalysisKit';
+
 /*
  * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,6 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import { BusinessError } from '@kit.BasicServicesKit';
+
 @Entry
 @Component
 struct Index {
@@ -21,26 +26,56 @@ struct Index {
         .width(120).margin({ top: 16 })
         .onClick(() => {
           this.getUIContext().getRouter().pushUrl({ url: 'pages/BuilderParamPage' })
+            .then(() => {
+              hilog.info(0x000, 'testTag', 'pushUrl success');
+            })
+            .catch((err: BusinessError) => {
+              hilog.error(0x000, 'testTag', `pushUrl failed, code=${err.code}, message=${err.message}`);
+            })
         })
       Button('ControllerCallPage')
         .width(120).margin({ top: 16 })
         .onClick(() => {
           this.getUIContext().getRouter().pushUrl({ url: 'pages/ControllerCallPage' })
+            .then(() => {
+              hilog.info(0x000, 'testTag', 'pushUrl success');
+            })
+            .catch((err: BusinessError) => {
+              hilog.error(0x000, 'testTag', `pushUrl failed, code=${err.code}, message=${err.message}`);
+            })
         })
       Button('EmitterCallPage')
         .width(120).margin({ top: 16 })
         .onClick(() => {
           this.getUIContext().getRouter().pushUrl({ url: 'pages/EmitterCallPage' })
+            .then(() => {
+              hilog.info(0x000, 'testTag', 'pushUrl success');
+            })
+            .catch((err: BusinessError) => {
+              hilog.error(0x000, 'testTag', `pushUrl failed, code=${err.code}, message=${err.message}`);
+            })
         })
       Button('ParentCallPage')
         .width(120).margin({ top: 16 })
         .onClick(() => {
           this.getUIContext().getRouter().pushUrl({ url: 'pages/ParentCallPage' })
+            .then(() => {
+              hilog.info(0x000, 'testTag', 'pushUrl success');
+            })
+            .catch((err: BusinessError) => {
+              hilog.error(0x000, 'testTag', `pushUrl failed, code=${err.code}, message=${err.message}`);
+            })
         })
       Button('WatchCallPage')
         .width(120).margin({ top: 16 })
         .onClick(() => {
           this.getUIContext().getRouter().pushUrl({ url: 'pages/WatchCallPage' })
+            .then(() => {
+              hilog.info(0x000, 'testTag', 'pushUrl success');
+            })
+            .catch((err: BusinessError) => {
+              hilog.error(0x000, 'testTag', `pushUrl failed, code=${err.code}, message=${err.message}`);
+            })
         })
     }
     .height('100%')

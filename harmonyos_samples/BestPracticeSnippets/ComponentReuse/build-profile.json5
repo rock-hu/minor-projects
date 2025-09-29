@@ -22,12 +22,37 @@
       {
         "name": "release"
       }
-    ]
+    ],
+    "signingConfigs": []
   },
   "modules": [
     {
       "name": "entry",
       "srcPath": "./entry",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "negative",
+      "srcPath": "./negative",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "positive",
+      "srcPath": "./positive",
       "targets": [
         {
           "name": "default",

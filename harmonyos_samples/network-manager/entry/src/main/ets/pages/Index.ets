@@ -17,10 +17,9 @@
 
 import { connection } from '@kit.NetworkKit';
 import { BusinessError } from '@kit.BasicServicesKit';
-import { promptAction } from '@kit.ArkUI';
 import { resourceManager } from '@kit.LocalizationKit';
 import { CommonConstant as Const } from '../common/Constant';
-import { Logger } from '../utils/Logger';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Entry
 @Component
@@ -32,8 +31,8 @@ struct Index {
   @State hostName: string = '';
   @State ip: ResourceStr = '';
   private controller: TabsController = new TabsController();
-  private netHandle: connection.NetHandle | null = null;
-  private netCon: connection.NetConnection | null = null;
+  private netHandle: connection.NetHandle | undefined = undefined;
+  private netCon: connection.NetConnection | undefined = undefined;
   private myResourceManager: resourceManager.ResourceManager = this.getUIContext().getHostContext()!.resourceManager;
   scroller: Scroller = new Scroller();
 
@@ -97,7 +96,10 @@ struct Index {
                   Column() {
                     Text($r('app.string.network_detail'))
                       .fontSize($r('app.float.font_size'))
-                      .padding({ top: $r('app.float.md_padding_margin'), left: $r('app.float.md_padding_margin') })
+                      .padding({
+                        top: $r('app.float.md_padding_margin'),
+                        left: $r('app.float.md_padding_margin')
+                      })
                       .fontWeight(FontWeight.Bold)
                       .height(Const.WebConstant_FORTY_PERCENT)
                       .width(Const.WebConstant_FULL_WIDTH)
@@ -183,9 +185,12 @@ struct Index {
         TabContent() {
           Column() {
             Search({ placeholder: $r('app.string.search_placeholder') })
-              .margin({ left: $r('app.float.md_padding_margin'), right: $r('app.float.md_padding_margin') })
+              .margin({
+                left: $r('app.float.md_padding_margin'),
+                right: $r('app.float.md_padding_margin')
+              })
               .width(Const.WebConstant_NINETY_PERCENT)
-              .searchButton(this.myResourceManager.getStringSync($r('app.string.search_button')))
+              .searchButton($r('app.string.search_button'))
               .onSubmit((value: string) => {
                 this.hostName = value;
                 this.parseHostName(this.hostName);
@@ -201,8 +206,8 @@ struct Index {
           }
           .height(Const.WebConstant_FULL_HEIGHT)
           .justifyContent(FlexAlign.Start)
-
-        }.tabBar($r('app.string.second_tabs_bar'))
+        }
+        .tabBar($r('app.string.second_tabs_bar'))
 
         TabContent() {
           Column() {
@@ -266,64 +271,81 @@ struct Index {
 
   isNetworkAccess() {
     connection.hasDefaultNet((error: BusinessError) => {
-      if (error) {
-        this.networkId = $r('app.string.network_error');
-        Logger.error('hasDefaultNet error:' + error.message);
-        return;
+      try {
+        if (error) {
+          this.networkId = $r('app.string.network_error');
+          hilog.error(0x0000, 'Index', 'hasDefaultNet error:' + error.message);
+          return;
+        }
+        this.netHandle = connection.getDefaultNetSync();
+        this.networkId =
+          this.myResourceManager.getStringSync($r('app.string.network_id').id) + JSON.stringify(this.netHandle);
+      } catch (error) {
+        let err = error as BusinessError;
+        hilog.error(0x0000, 'Index', `isNetworkAccess failed, error code=${err.code}, message=${err.message}`);
       }
-      this.netHandle = connection.getDefaultNetSync();
-      this.networkId =
-        this.myResourceManager.getStringSync($r('app.string.network_id').id) + JSON.stringify(this.netHandle);
     })
   }
 
   getNetworkMessage() {
     if (this.netHandle) {
-      connection.getNetCapabilities(this.netHandle, (error, netCap) => {
-        if (error) {
-          this.netMessage = this.myResourceManager.getStringSync($r('app.string.network_type_error'));
-          Logger.error('getNetCapabilities error:' + error.message);
-          return;
-        }
-        let netType = netCap.bearerTypes;
-        for (let i = 0; i < netType.length; i++) {
-          if (netType[i] === 0) {
-            this.netMessage = this.myResourceManager.getStringSync($r('app.string.cellular_network'));
-          } else if (netType[i] === 1) {
-            this.netMessage = this.myResourceManager.getStringSync($r('app.string.wifi_network'));
-          } else {
-            this.netMessage = this.myResourceManager.getStringSync($r('app.string.other_network'));
+      try {
+        connection.getNetCapabilities(this.netHandle, (error, netCap) => {
+          if (error) {
+            this.netMessage = this.myResourceManager.getStringSync($r('app.string.network_type_error').id);
+            hilog.error(0x0000, 'Index', 'getNetCapabilities error:' + error.message);
+            return;
           }
-        }
-        this.netMessage += 'networkCap:' + JSON.stringify(netCap.networkCap) + '\n';
-      })
+          let netType = netCap.bearerTypes;
+          for (let i = 0; i < netType.length; i++) {
+            if (netType[i] === 0) {
+              this.netMessage = this.myResourceManager.getStringSync($r('app.string.cellular_network').id);
+            } else if (netType[i] === 1) {
+              this.netMessage = this.myResourceManager.getStringSync($r('app.string.wifi_network').id);
+            } else {
+              this.netMessage = this.myResourceManager.getStringSync($r('app.string.other_network').id);
+            }
+          }
+          this.netMessage += 'networkCap:' + JSON.stringify(netCap.networkCap) + '\n';
+        })
+      } catch (error) {
+        let err = error as BusinessError;
+        hilog.error(0x0000, 'Index', `getNetworkMessage failed, error code=${err.code}, message=${err.message}`);
+      }
     }
   }
 
   getConnectionProperties() {
-    connection.getDefaultNet().then((netHandle: connection.NetHandle) => {
-      connection.getConnectionProperties(netHandle,
-        (error: BusinessError, connectionProperties: connection.ConnectionProperties) => {
-          if (error) {
-            this.connectionMessage = $r('app.string.connection_properties_error');
-            Logger.error('getConnectionProperties error:' + error.code + error.message);
-            return;
-          }
-          this.connectionMessage =
-            this.myResourceManager.getStringSync($r('app.string.connection_properties_interface_name').id) +
-            connectionProperties.interfaceName
-              + this.myResourceManager.getStringSync($r('app.string.connection_properties_domains').id) +
-            connectionProperties.domains
-              + this.myResourceManager.getStringSync($r('app.string.connection_properties_link_addresses').id) +
-            JSON.stringify(connectionProperties.linkAddresses)
-              + this.myResourceManager.getStringSync($r('app.string.connection_properties_routes').id) +
-            JSON.stringify(connectionProperties.routes)
-              + this.myResourceManager.getStringSync($r('app.string.connection_properties_link_addresses').id) +
-            JSON.stringify(connectionProperties.dnses)
-              + this.myResourceManager.getStringSync($r('app.string.connection_properties_mtu').id) +
-            connectionProperties.mtu + '\n';
-        })
-    });
+    try {
+      connection.getDefaultNet().then((netHandle: connection.NetHandle) => {
+        connection.getConnectionProperties(netHandle,
+          (error: BusinessError, connectionProperties: connection.ConnectionProperties) => {
+            if (error) {
+              this.connectionMessage = $r('app.string.connection_properties_error');
+              hilog.error(0x0000, 'Index', 'getConnectionProperties error:' + error.code + error.message);
+              return;
+            }
+            this.connectionMessage =
+              this.myResourceManager.getStringSync($r('app.string.connection_properties_interface_name').id) +
+              connectionProperties.interfaceName
+                + this.myResourceManager.getStringSync($r('app.string.connection_properties_domains').id) +
+              connectionProperties.domains
+                + this.myResourceManager.getStringSync($r('app.string.connection_properties_link_addresses').id) +
+              JSON.stringify(connectionProperties.linkAddresses)
+                + this.myResourceManager.getStringSync($r('app.string.connection_properties_routes').id) +
+              JSON.stringify(connectionProperties.routes)
+                + this.myResourceManager.getStringSync($r('app.string.connection_properties_link_addresses').id) +
+              JSON.stringify(connectionProperties.dnses)
+                + this.myResourceManager.getStringSync($r('app.string.connection_properties_mtu').id) +
+              connectionProperties.mtu + '\n';
+          })
+      }).catch((err: BusinessError) => {
+        hilog.error(0x0000, 'Index', `getDefaultNet failed, error code=${err.code}, message=${err.message}`);
+      })
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'Index', `getConnectionProperties failed, error code=${err.code}, message=${err.message}`);
+    }
   }
 
   parseHostName(hostName: string) {
@@ -335,61 +357,73 @@ struct Index {
     })
       .catch((error: BusinessError) => {
         this.ip = $r('app.string.get_addresses_error');
-        Logger.error('getAddressesByName error:' + error.message);
+        hilog.error(0x0000, 'Index', 'getAddressesByName error:' + error.message);
       })
   }
 
   useNetworkRegister() {
-    this.netCon = connection.createNetConnection();
-    this.netStateMessage += this.myResourceManager.getStringSync($r('app.string.register_network_listener').id);
-    this.netCon.register((error) => {
-      if (error) {
-        Logger.error('register error:' + error.message);
-        return;
-      }
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.register_network_listener_message'),
-        duration: 1000
-      });
-    })
-    this.netCon.on('netAvailable', (netHandle) => {
-      this.netStateMessage += this.myResourceManager.getStringSync($r('app.string.net_available')) + netHandle.netId +
-        '\n';
-    })
-    this.netCon.on('netBlockStatusChange', (data) => {
-      this.netStateMessage += this.myResourceManager.getStringSync($r('app.string.net_block_status_change')) +
-      data.netHandle.netId + '\n';
-    })
-    this.netCon.on('netCapabilitiesChange', (data) => {
-      this.netStateMessage += this.myResourceManager.getStringSync($r('app.string.net_capabilities_change_id')) +
-      data.netHandle.netId
-        + this.myResourceManager.getStringSync($r('app.string.net_capabilities_change_cap')) +
-      JSON.stringify(data.netCap) + '\n';
-    })
-    this.netCon.on('netConnectionPropertiesChange', (data) => {
-      this.netStateMessage += this.myResourceManager.getStringSync($r('app.string.net_connection_properties_change_id')) +
-      data.netHandle.netId
-        + this.myResourceManager.getStringSync($r('app.string.net_connection_change_connection_properties')) +
-      JSON.stringify(data.connectionProperties) +
-        '\n';
-    })
-  }
-
-  unUseNetworkRegister() {
-    if (this.netCon) {
-      this.netCon.unregister((error: BusinessError) => {
+    try {
+      this.netCon = connection.createNetConnection();
+      this.netStateMessage += this.myResourceManager.getStringSync($r('app.string.register_network_listener').id);
+      this.netCon.register((error) => {
         if (error) {
-          Logger.error('unregister error:' + error.message);
+          hilog.error(0x0000, 'Index', 'register error:' + error.message);
           return;
         }
         this.getUIContext().getPromptAction().showToast({
-          message: this.myResourceManager.getStringSync($r('app.string.unregister_network_listener_message')),
+          message: $r('app.string.register_network_listener_message'),
           duration: 1000
         });
-        this.netStateMessage += this.myResourceManager.getStringSync($r('app.string.unregister_network_listener'));
       })
-    } else {
-      this.netStateMessage += this.myResourceManager.getStringSync($r('app.string.unregister_network_listener_fail'));
+      this.netCon.on('netAvailable', (netHandle) => {
+        this.netStateMessage += this.myResourceManager.getStringSync($r('app.string.net_available').id) +
+        netHandle.netId + '\n';
+      })
+      this.netCon.on('netBlockStatusChange', (data) => {
+        this.netStateMessage += this.myResourceManager.getStringSync($r('app.string.net_block_status_change').id) +
+        data.netHandle.netId + '\n';
+      })
+      this.netCon.on('netCapabilitiesChange', (data) => {
+        this.netStateMessage += this.myResourceManager.getStringSync($r('app.string.net_capabilities_change_id').id) +
+        data.netHandle.netId
+          + this.myResourceManager.getStringSync($r('app.string.net_capabilities_change_cap').id) +
+        JSON.stringify(data.netCap) + '\n';
+      })
+      this.netCon.on('netConnectionPropertiesChange', (data) => {
+        this.netStateMessage += this.myResourceManager.getStringSync($r('app.string.net_connection_properties_change_id')
+          .id) +
+        data.netHandle.netId
+          + this.myResourceManager.getStringSync($r('app.string.net_connection_change_connection_properties').id) +
+        JSON.stringify(data.connectionProperties) +
+          '\n';
+      });
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'Index', `useNetworkRegister failed, error code=${err.code}, message=${err.message}`);
+    }
+  }
+
+  unUseNetworkRegister() {
+    try {
+      if (this.netCon) {
+        this.netCon.unregister((error: BusinessError) => {
+          if (error) {
+            hilog.error(0x0000, 'Index', 'unregister error:' + error.message);
+            return;
+          }
+          this.getUIContext().getPromptAction().showToast({
+            message: this.myResourceManager.getStringSync($r('app.string.unregister_network_listener_message').id),
+            duration: 1000
+          });
+          this.netStateMessage += this.myResourceManager.getStringSync($r('app.string.unregister_network_listener').id);
+        })
+      } else {
+        this.netStateMessage += this.myResourceManager.getStringSync($r('app.string.unregister_network_listener_fail')
+          .id);
+      }
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'Index', `unUseNetworkRegister failed, error code=${err.code}, message=${err.message}`);
     }
   }
 }

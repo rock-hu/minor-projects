@@ -25,7 +25,8 @@ struct Index {
 
   // [Start updateGestureValue1]
   // Update the attributes related to manual effects
-  public updateGestureValue(screenWidth: number, recentScale: number, sceneContainerSessionList: SCBSceneContainerSession[]) {
+  public updateGestureValue(screenWidth: number, recentScale: number,
+    sceneContainerSessionList: SCBSceneContainerSession[]): void {
     // Calculation of the distance moved by the hand
     this.translationUpY = (this.multiCardsNum >= 1) ? sceneContainerSessionList[this.multiCardsNum - 1].needRenderTranslate.translateY : 0;    // Report an incorrect line number
     this.translationDownY = (this.multiCardsNum >= 2) ? sceneContainerSessionList[this.multiCardsNum - 2].needRenderTranslate.translateY : 0;

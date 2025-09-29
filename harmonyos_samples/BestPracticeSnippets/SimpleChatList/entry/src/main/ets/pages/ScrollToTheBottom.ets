@@ -13,9 +13,8 @@
  * limitations under the License.
  */
 
-@Entry
 @Component
-struct ScrollToTheBottom {
+export struct ScrollToTheBottom {
   private arr: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
   // [Start Scroller]
   private scroller: Scroller = new Scroller();
@@ -24,7 +23,7 @@ struct ScrollToTheBottom {
   // [StartExclude Scroller]
 
   build() {
-    Column() {
+    NavDestination() {
       // [EndExclude Scroller]
       // [Start initialIndex]
       List({ space: 20, initialIndex: this.arr.length - 1, scroller: this.scroller }) {

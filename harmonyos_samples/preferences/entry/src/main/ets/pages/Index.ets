@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { emitter } from '@kit.BasicServicesKit';
+import { BusinessError, emitter } from '@kit.BasicServicesKit';
 import { preferences } from '@kit.ArkData';
 import Logger from '../util/Logger';
 import ThemeDesktop from '../common/ThemeDesktop';
@@ -71,7 +71,7 @@ struct Index {
     await this.getPreferencesFromStorage()
     // Retrieve the key value with the name 'theme' from the lightweight storage db file.
     this.nowTheme = await this.getPreference()
-    console.info(`nowTheme__get ${this.nowTheme}`)
+    Logger.info(TAG, `nowTheme__get ${this.nowTheme}`)
     emitter.emit({ eventId: 0, priority: 0 }, {
       data: {
         nowTheme: this.nowTheme
@@ -82,15 +82,25 @@ struct Index {
   }
 
   async getPreferencesFromStorage() {
-    let context = this.getUIContext().getHostContext() as Context
-    preferenceTheme = await preferences.getPreferences(context, PREFERENCES_NAME)
+    try {
+      let context = this.getUIContext().getHostContext() as Context
+      preferenceTheme = await preferences.getPreferences(context, PREFERENCES_NAME)
+    } catch (error) {
+      let err = error as BusinessError;
+      Logger.error(TAG, `getPreferences failed, error code=${err.code}, message=${err.message}`);
+    }
   }
 
   async putPreference(data: string) {
     Logger.info(TAG, `Put begin`)
     if (preferenceTheme !== null) {
-      await preferenceTheme.put('theme', data)
-      await preferenceTheme.flush()
+      try {
+        await preferenceTheme.put('theme', data)
+        await preferenceTheme.flush()
+      } catch (error) {
+        let err = error as BusinessError;
+        Logger.error(TAG, `preference operate failed, error code=${err.code}, message=${err.message}`);
+      }
     }
   }
 
@@ -98,8 +108,13 @@ struct Index {
     Logger.info(TAG, `Get begin`)
     let theme: string = ''
     if (preferenceTheme !== null) {
-      theme = await preferenceTheme.get('theme', 'default') as string;
-      return theme;
+      try {
+        theme = await preferenceTheme.get('theme', 'default') as string;
+        return theme;
+      } catch (error) {
+        let err = error as BusinessError;
+        Logger.error(TAG, `preference get failed, error code=${err.code}, message=${err.message}`);
+      }
     }
     return theme;
   }
@@ -119,7 +134,6 @@ struct Index {
           .fontColor(Color.White)
           .fontWeight(FontWeight.Bold)
         Image($r('app.media.change'))
-          .key('changeBtn')
           .id('changeBtn')
           .height(30)
           .layoutWeight(1)

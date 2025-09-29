@@ -17,6 +17,8 @@ import { IntroductionTitle } from '../../../../common/IntroductionTitle';
 import ShowToast from '../../../../util/ShowToast';
 import { TitleBar } from '../../../../common/TitleBar';
 import { getStringData } from '../../../../data/ResourceDataHandle';
+import Logger from '../../../../util/Logger';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 @Extend(Text)
 function textStyle() {
@@ -137,7 +139,11 @@ struct DataDialogSample {
     if (value.getDate() as number < 10) {
       day = `0${value.getDate()}`;
     }
-    ShowToast.shortToast(`${this.context.resourceManager.getStringSync($r('app.string.date_picker_toast_date')
-      .id)}${value.getFullYear()}-${month}-${day}`);
+    try {
+      ShowToast.shortToast(`${this.context.resourceManager.getStringSync($r('app.string.date_picker_toast_date')
+        .id)}${value.getFullYear()}-${month}-${day}`);
+    } catch (error) {
+      Logger.error(`callback ShowToastDate failed, error code: ${(error as BusinessError).code}, message: ${(error as BusinessError).message}.`);
+    }
   }
 }

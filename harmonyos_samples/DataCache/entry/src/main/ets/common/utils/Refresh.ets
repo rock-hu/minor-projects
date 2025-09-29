@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+import { BusinessError } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { http } from '@kit.NetworkKit';
 import * as Const from '../constant/CommonConstants';
@@ -39,8 +40,14 @@ export function refreshState(that: ListModel, state: number): void {
 }
 
 export function getUrl(context: Context): string {
-  const FILENAME = context.resourceManager.getStringSync($r('app.string.fileName').id);
-  return `https://devecostudio-drcn.op.hicloud.com/solution/v1/getSceneMockData?scene=newsData&fileName=${FILENAME}.json&`;
+  let filename = '';
+  try {
+    filename = context.resourceManager.getStringSync($r('app.string.fileName').id);
+  } catch (error) {
+    let err = error as BusinessError;
+    hilog.error(0x0000, 'refreshing', `getStringSync failed, error code=${err.code}, message=${err.message}`);
+  }
+  return `https://devecostudio-drcn.op.hicloud.com/solution/v1/getSceneMockData?scene=newsData&fileName=${filename}.json&`;
 }
 
 export function refreshing(that: ListModel, url: string): Promise<void> {
@@ -57,7 +64,7 @@ export function refreshing(that: ListModel, url: string): Promise<void> {
       }
       that.newsData = data;
     }).catch(() => {
-      hilog.info(0x0000, 'refreshing', 'http request fail');
+      hilog.error(0x0000, 'refreshing', 'http request fail');
     });
 }
 
@@ -79,7 +86,7 @@ export function loadMore(that: ListModel, url: string): void {
         }
         that.newsData = that.newsData.concat(data);
       }).catch(() => {
-        hilog.info(0x0000, 'loadMore', 'http request fail');
-      });
+      hilog.error(0x0000, 'loadMore', 'http request fail');
+    });
   }
 }

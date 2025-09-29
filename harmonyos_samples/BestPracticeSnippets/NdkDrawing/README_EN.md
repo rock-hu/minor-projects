@@ -6,8 +6,19 @@ Canvas component is a component used to display self drawn content, which has th
 
 <img alt="img.png" src="./screenshots/Screenshot.png" width="300"/>
 
+## Instructions for Use
+- Click the "Begin Draw" button at the bottom of the page to draw a transparent hollow circle.
+
 ## Project Directory
 ``` 
+├──entry/src/main/cpp
+│  ├──common
+│  │  └──log_common.h
+│  ├──types/libndkDrawing
+│  │  ├──Index.d.ts
+│  │  └──oh-package.json5
+│  ├──CMakeLists.txt
+│  └──native_bridge.cpp                                 // The Native side exposes the drawing interface nativeOnDraw for the front end to call.
 ├──entry/src/main/ets                                   // Code
 │  ├──entryability
 │  │  └──EntryAbility.ets                               // Entry ability

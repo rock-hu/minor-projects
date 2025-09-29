@@ -19,9 +19,9 @@ import { image } from '@kit.ImageKit';
 import { CommonConstants } from '../common/constants/CommonConstants';
 import { MyDataSource } from '../model/MyDataSource'
 
-const TAG = 'StickOnTopPage';
+const TAG: string = 'StickOnTopPage';
 
-// [StartExclude flow_item]
+// [StartExclude quick_start]
 @Reusable
 @Component
 struct ReusableItem {
@@ -45,11 +45,11 @@ struct ReusableItem {
   }
 }
 
-// [EndExclude flow_item]
+// [EndExclude quick_start]
 @Entry
 @Component
 struct ZoomChangeColumnPage {
-  // [StartExclude variable_declare]
+  // [StartExclude quick_start]
   @State minSize: number = 120
   @State maxSize: number = 210;
   @State fontSize: number = 24;
@@ -58,7 +58,7 @@ struct ZoomChangeColumnPage {
   private data: MyDataSource = new MyDataSource();
   private itemWidthArray: number[] = [];
   private itemHeightArray: number[] = [];
-  // [EndExclude variable_declare]
+  // [EndExclude quick_start]
   // 1、Variables required for scaling operations.
   @State itemScale: number = 1;
   @State imageScale: number = 1;
@@ -71,31 +71,31 @@ struct ZoomChangeColumnPage {
   private columnChanged: boolean = false;
   private oldColumn: number = this.columns;
 
-  // [StartExclude section_init]
+  // [StartExclude quick_start]
   getSize(): number {
-    let ret = Math.floor(Math.random() * this.maxSize);
+    let ret: number = Math.floor(Math.random() * this.maxSize);
     return (ret > this.minSize ? ret : this.minSize);
   }
 
   setItemSizeArray(): void {
-    for (let i = 0; i < 100; i++) {
+    for (let i: number = 0; i < 100; i++) {
       this.itemWidthArray.push(this.getSize());
       this.itemHeightArray.push(this.getSize());
     }
   }
 
   aboutToAppear(): void {
-    for (let i = 0; i < 100; i++) {
+    for (let i: number = 0; i < 100; i++) {
       this.data.pushData(i);
     }
-    let lastCount = AppStorage.get<number>('columnsCount');
+    let lastCount: number| undefined = AppStorage.get<number>('columnsCount');
     if (typeof lastCount != 'undefined') {
       this.columns = lastCount;
     }
     this.setItemSizeArray();
   }
 
-  // [EndExclude section_init]
+  // [EndExclude quick_start]
   // 7、Adjust the number of columns according to the zoom ratio.
   changeColumns(scale: number): void {
     this.oldColumn = this.columns;
@@ -111,7 +111,7 @@ struct ZoomChangeColumnPage {
 
   build() {
     Column({ space: 2 }) {
-      // [StartExclude title]
+      // [StartExclude quick_start]
       Row() {
         Text($r('app.string.zoom_change_column'))
           .width('100%')
@@ -120,7 +120,7 @@ struct ZoomChangeColumnPage {
           .margin({ top: '18vp', left: '16vp', bottom: '16vp' })
       }
 
-      // [EndExclude title]
+      // [EndExclude quick_start]
       Stack() {
         // 2、Display the current screen's snapshot when zooming.
         Image(this.pixelMap)
@@ -133,7 +133,7 @@ struct ZoomChangeColumnPage {
             centerY: 0
           })
         WaterFlow() {
-          // [StartExclude water_flow_item]
+          // [StartExclude quick_start]
           LazyForEach(this.data, (item: number) => {
             FlowItem() {
               ReusableItem({ item: item })
@@ -142,7 +142,7 @@ struct ZoomChangeColumnPage {
             .aspectRatio(this.itemHeightArray[item % 100] / this.itemWidthArray[item % 100])
             .backgroundColor(this.colors[item % 5])
           }, (item: number) => item.toString())
-          // [EndExclude water_flow_item]
+          // [EndExclude quick_start]
         }
         .id('waterflow')
         // 3、Dynamic adjustment of column numbers.
@@ -182,7 +182,7 @@ struct ZoomChangeColumnPage {
               }
               this.pinchTime = event.timestamp;
               // 6.2、Calculate the scaling ratio.
-              let maxScale = this.oldColumn / (this.oldColumn - 1);
+              let maxScale: number = this.oldColumn / (this.oldColumn - 1);
               this.itemScale = event.scale > maxScale ? maxScale : event.scale;
               this.imageScale = event.scale > maxScale ? maxScale : event.scale;
               this.itemOpacity = (this.itemScale > 1) ? (this.itemScale - 1) : (1 - this.itemScale);

@@ -16,6 +16,8 @@
 import util from '@ohos.util';
 import { PullToRefresh, PullToRefreshConfigurator } from '@ohos/pulltorefresh/index';
 import { common } from '@kit.AbilityKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 @Entry
 @Component
@@ -34,7 +36,6 @@ struct PullToRefreshError {
   @State private angle2?: number | string = 0;
   @State loadText: ResourceStr = '';
   private context: common.UIAbilityContext = this.getUIContext().getHostContext() as common.UIAbilityContext;
-
 
   aboutToAppear() {
     const arrayModelMockData: Array<NewsData> = getNews('mockDataOne.json', this.context);
@@ -343,12 +344,18 @@ class JsonObject {
   // Get data
   getNewsData(context: common.UIAbilityContext): Array<NewsData> {
     // Get data from a local file
-    const value = context?.resourceManager.getRawFileContentSync(this.jsonFileDir);
+    let value: Uint8Array | null = null;
+    try {
+      value = context?.resourceManager.getRawFileContentSync(this.jsonFileDir);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.warn(0x000, 'testTag', `setColorMode failed, code=${err.code}, message=${err.message}`);
+    }
     // Decode to utf-8 format
     const textDecoder = util.TextDecoder.create('utf-8', {
       ignoreBOM: true
     });
-    const textDecoderResult = textDecoder.decodeToString(new Uint8Array(value.buffer));
+    const textDecoderResult = textDecoder.decodeToString(new Uint8Array(value!.buffer));
     const jsonObj: JsonObjType = JSON.parse(textDecoderResult) as JsonObjType;
     const newsModelBuckets: Array<NewsData> = [];
     // Map json data to NewsModel objects

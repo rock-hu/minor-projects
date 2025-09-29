@@ -45,9 +45,9 @@ struct IndexPage {
   // [Start about_appear]
   // Turn on window size monitoring in aboutToAppear
   async aboutToAppear(): Promise<void> {
-    let context = this.getUIContext().getHostContext() as Context;
+    let context: Context = this.getUIContext().getHostContext() as Context;
     try {
-      let windowClass = await window.getLastWindow(context);
+      let windowClass: window.Window = await window.getLastWindow(context);
       await windowClass.setWindowKeepScreenOn(true);
     } catch (err) {
       Logger.error(TAG, `aboutToAppear failed, err.code:${err.code}, err.message:${err.message}`);
@@ -199,7 +199,7 @@ struct IndexPage {
   }
   // [End device_width]
   @Builder
-  videoDes(item: VideoData) {
+  videoDes(item: VideoData): void {
     VideoDes({
       item: item,
       isFloatWindow: this.isFloatWindow,
@@ -213,7 +213,7 @@ struct IndexPage {
   }
 
   @Builder
-  rightSlide(item: VideoData) {
+  rightSlide(item: VideoData): void {
     RightSide({ item: item })
       .visibility((this.isFullScreen && !this.isFloatWindow && !this.isFullLandscapeScreen) ? Visibility.Visible :
       Visibility.Hidden)
@@ -233,7 +233,7 @@ struct IndexPage {
   // [EndExclude index_page1]
   onWindowSizeChange(): void {
     // [StartExclude index_page1]
-    let deviceWidth = AppStorage.get<number>('deviceWidth') || 0;
+    let deviceWidth: number = AppStorage.get<number>('deviceWidth') || 0;
     // Judge whether it is a horizontal screen or a vertical screen suspension window.
     if (this.isFullLandscapeScreen && Math.round((this.deviceHeight / deviceWidth) * 1000) / 1000 === 0.563) {
       this.isFloatWindow = true;

@@ -37,10 +37,10 @@ export default class PrivacyErrorAbility extends UIAbility {
         hilog.error(DOMAIN, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err));
         return;
       }
+      let uiContext:  UIContext | undefined = windowStage.getMainWindowSync().getUIContext()
+      AppStorage.setOrCreate('uiContext', uiContext);
       hilog.info(DOMAIN, 'testTag', 'Succeeded in loading the content.');
     });
-    let uiContext:  UIContext | undefined = windowStage.getMainWindowSync().getUIContext()
-    AppStorage.setOrCreate('uiContext', uiContext);
   }
 
   onWindowStageDestroy(): void {

@@ -11,32 +11,29 @@
 
 ### 工程目录
 ```
-.
-└── entry
-    └── src
-        ├── main
-            ├── cpp
-            │   ├── CMakeLists.txt
-            │   ├── address_problems.cpp       C++ 样例代码
-            │   ├── address_sanitizer_case1.cpp       C++ 样例代码
-            │   ├── address_sanitizer_case2.cpp       C++ 样例代码
-            │   ├── address_sanitizer_case3.cpp       C++ 样例代码
-            │   ├── address_sanitizer_case4.cpp       C++ 样例代码
-            │   ├── napi_init.cpp       C++ 样例代码
-            │   ├── resource_leak.cpp       C++ 样例代码
-            │   ├── task_demo1.cpp       C++ 样例代码
-            │   └── task_demo2.cpp       C++ 样例代码
-            └── ets
-                └── pages
-                    ├── FdLeakDetection.ets       ArkTS样例代码
-                    ├── GwpAsan.cpp       C++ 样例代码
-                    ├── Index.ets       ArkTS样例代码
-                    ├── MemoryLeakDetection.ets       ArkTS样例代码
-                    ├── SetAsan.cpp       C++ 样例代码
-                    ├── address_overflow_case.cpp       C++ 样例代码
-                    ├── addressproblems.cpp       C++ 样例代码
-                    ├── resource_leak_case.ets       C++ 样例代码
-                    └── setHwAsan.cpp       C++ 样例代码
+├──entry/src/main/
+│  ├──cpp
+│  │   ├──CMakeLists.txt
+│  │   ├──address_problems.cpp                          // 地址问题示例
+│  │   ├──address_sanitizer_case1.cpp                   // 地址优化示例1
+│  │   ├──address_sanitizer_case2.cpp                   // 地址优化示例2
+│  │   ├──address_sanitizer_case3.cpp                   // 地址优化示例3
+│  │   ├──address_sanitizer_case4.cpp                   // 地址优化示例4
+│  │   ├──resource_leak.cpp                             // 泄露示例
+│  │   ├──task_demo1.cpp                                // 任务示例1
+│  │   ├──task_demo2.cpp                                // 任务示例2
+│  │   └──napi_init.cpp                                 // C++ init示例代码
+│  └──ets
+│      ├──pages
+│      │      ├──FdLeakDetection.ets                    // 泄露检测示例代码
+│      │      ├──Index.ets                              // 首页
+│      │      ├──MemoryLeakDetection.ets                // 内存泄露检测示例代码1
+│      │      └──MemoryLeakDetection2.ets               // 内存泄露检测示例代码2
+│      ├──entryability
+│      │      └──EntryAbility.ets                       // Ability的生命周期回调内容
+│      └──entrybackupability
+│             └──EntryBackupAbility.ets                 // 应用数据备份恢复类
+└──entry/src/main/resources                             // 应用资源目录 
 ```
 
 ### 具体实现
@@ -55,8 +52,8 @@
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机、华为PC/2in1设备、华为平板。
 
-2. HarmonyOS系统：HarmonyOS NEXT 5.1.1 Release及以上。
+2. HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
 
-3. DevEco Studio版本：DevEco Studio NEXT 5.1.1 Release及以上。
+3. DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
 
-4. HarmonyOS SDK版本：HarmonyOS NEXT 5.1.1 Release SDK及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。

@@ -14,6 +14,7 @@
  */
 
 import { UIAbility } from '@kit.AbilityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { UIContext, window } from '@kit.ArkUI';
 import { WindowUtil } from '../utils/WindowUtil';
@@ -31,21 +32,36 @@ export default class EntryAbility extends UIAbility {
   onWindowStageCreate(windowStage: window.WindowStage): void {
     // Main window is created, set main page for this ability
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onWindowStageCreate');
-    let windowClass: window.Window = windowStage.getMainWindowSync();
+    let windowClass: window.Window | undefined = undefined;
+    try {
+      windowClass = windowStage.getMainWindowSync();
+    } catch (err) {
+      hilog.error(0x0000, 'testTag',`getMainWindowSync failed, Code:${err.code}, message:${err.message}`);
+    }
     AppStorage.setOrCreate('windowStage', windowStage);
-    windowClass.setWindowLayoutFullScreen(true);
+    windowClass?.setWindowLayoutFullScreen(true)
+      .catch((err: BusinessError) => {
+        hilog.error(0x0000, 'testTag',`getMainWindowSync failed, Code:${err.code}, message:${err.message}`);
+      })
     WindowUtil.getInstance().setWindowStage(windowStage);
-    windowClass.setWindowSystemBarProperties({
+    windowClass?.setWindowSystemBarProperties({
       statusBarContentColor: '#e6ffffff'
-    });
+    })
+      .catch((err: BusinessError) => {
+        hilog.error(0x0000, 'testTag',`getMainWindowSync failed, Code:${err.code}, message:${err.message}`);
+      })
     windowStage.loadContent('pages/IndexPage', (err) => {
       if (err.code) {
         hilog.error(0x0000, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err) ?? '');
         return;
       }
-      let uiContext:  UIContext | undefined = windowStage.getMainWindowSync().getUIContext();
-      AppStorage.setOrCreate('uiContext', uiContext);
-      hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
+      try {
+        let uiContext:  UIContext | undefined = windowStage.getMainWindowSync().getUIContext();
+        AppStorage.setOrCreate('uiContext', uiContext);
+        hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
+      } catch (error) {
+        hilog.error(0x0000, 'testTag',`getMainWindowSync or getUIContext failed, Code:${err.code}, message:${err.message}`);
+      }
     });
   }
 

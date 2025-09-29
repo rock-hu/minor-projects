@@ -207,13 +207,21 @@ export struct TaskPoolTab {
       return;
     }
     let task = new taskpool.Task(strSort, this.taskPoolInPutArr);
-    this.gStack.push(task);
+    try {
+      this.gStack.push(task);
+    } catch (e) {
+      this.taskPoolOutPutStr += "TaskPool Stack push failed: " + e.toString() + "\n";
+    }
     await taskpool.execute(task).then((result) => {
       this.taskPoolOutPutStr += "Task executed successfully: " + result.toString() + "\n";
     }).catch((e: Error) => {
       this.taskPoolOutPutStr += "Task executed failed: " + e.toString() + "\n";
     });
-    this.gStack.pop();
+    try {
+      this.gStack.pop();
+    } catch (e) {
+      this.taskPoolOutPutStr += "TaskPool Stack pop failed: " + e.toString() + this.taskPoolInPutStr + "\n";
+    }
   }
 
   async executeDelay() {
@@ -222,13 +230,21 @@ export struct TaskPoolTab {
       return;
     }
     let task = new taskpool.Task(strSortDelay, this.taskPoolInPutArr);
-    this.gStack.push(task);
+    try {
+      this.gStack.push(task);
+    } catch (e) {
+      this.taskPoolOutPutStr += "TaskPool Stack pop failed, " + this.taskPoolInPutStr + "\n";
+    }
     await taskpool.execute(task).then((result) => {
       this.taskPoolOutPutStr += "Task executed successfully: " + result.toString() + "\n";
     }).catch((e: Error) => {
       this.taskPoolOutPutStr += "Task executed failed: " + this.taskPoolInPutStr + "\n";
     });
-    this.gStack.pop();
+    try {
+      this.gStack.pop();
+    } catch (e) {
+      this.taskPoolOutPutStr += "TaskPool Stack pop failed: " + e.toString() + this.taskPoolInPutStr + "\n";
+    }
   }
 
   async executeFunc() {
@@ -244,17 +260,21 @@ export struct TaskPoolTab {
   }
 
   async cancelTask() {
-    if (this.gStack.isEmpty()) {
-      this.taskPoolOutPutStr += "The current task queue has no cancellable tasks." + "\n";
-    } else {
-      let task: taskpool.Task = this.gStack.peek();
-      try {
-        taskpool.cancel(task);
-        this.taskPoolOutPutStr += "Task canceled successfully." + "\n";
-        this.gStack.pop();
-      } catch (e) {
-        this.taskPoolOutPutStr += "Task canceled failed: " + (e as Error).message + "\n";
+    try {
+      if (this.gStack.isEmpty()) {
+        this.taskPoolOutPutStr += "The current task queue has no cancellable tasks." + "\n";
+      } else {
+        let task: taskpool.Task = this.gStack.peek();
+        try {
+          taskpool.cancel(task);
+          this.taskPoolOutPutStr += "Task canceled successfully." + "\n";
+          this.gStack.pop();
+        } catch (e) {
+          this.taskPoolOutPutStr += "Task canceled failed: " + (e as Error).message + "\n";
+        }
       }
+    } catch (e) {
+      this.taskPoolOutPutStr += "Task canceled failed: " + (e as Error).message + "\n";
     }
   }
 }

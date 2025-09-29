@@ -20,6 +20,7 @@ import { GlobalContext } from '../common/utils/GlobalContext';
 import { Constants } from '../common/Constants';
 import { common } from '@kit.AbilityKit';
 import { window } from '@kit.ArkUI';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 const TAG = 'PhotoPage';
 
@@ -55,7 +56,13 @@ struct PhotoPage {
       let SystemBarProperties: window.SystemBarProperties = {
         statusBarContentColor: '#ffffff',
       };
-      this.windowClass.setWindowSystemBarProperties(SystemBarProperties);
+      this.windowClass.setWindowSystemBarProperties(SystemBarProperties)
+        .then(() => {
+          Logger.info('setWindowSystemBarProperties success');
+        })
+        .catch((err: BusinessError) => {
+          Logger.error(`setWindowSystemBarProperties failed, code=${err.code}, message=${err.message}`)
+        })
     } catch (exception) {
       console.error(`Failed to obtain the window. Cause code: ${exception.code}, message: ${exception.message}`);
     }
@@ -73,7 +80,13 @@ struct PhotoPage {
     let SystemBarProperties: window.SystemBarProperties = {
       statusBarContentColor: '#000000',
     };
-    this.windowClass.setWindowSystemBarProperties(SystemBarProperties);
+    this.windowClass.setWindowSystemBarProperties(SystemBarProperties)
+      .then(() => {
+        Logger.info('setWindowSystemBarProperties success');
+      })
+      .catch((err: BusinessError) => {
+        Logger.error(`setWindowSystemBarProperties failed, code=${err.code}, message=${err.message}`)
+      })
     await CameraService.releaseCamera();
   }
 

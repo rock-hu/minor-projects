@@ -12,6 +12,9 @@
           "strictMode": {
             "caseSensitiveCheck": true,
             "useNormalizedOHMUrl": true
+          },
+          "packOptions": {
+            "enableSourceCodeCheck": false
           }
         }
       }

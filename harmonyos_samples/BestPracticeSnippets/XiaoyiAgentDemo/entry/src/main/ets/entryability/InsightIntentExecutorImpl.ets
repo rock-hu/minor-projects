@@ -20,6 +20,7 @@ import { window } from '@kit.ArkUI';
 import AudioPlayHandler from './intentHandlers/AudioPlayHandler';
 import TextGetHandler from './intentHandlers/TextGetHandler';
 import PageNavigateHandler from './intentHandlers/PageNavigateHandler';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 export default class InsightIntentExecutorImpl extends InsightIntentExecutor {
   // Instruction implementation class.
@@ -81,7 +82,10 @@ export default class InsightIntentExecutorImpl extends InsightIntentExecutor {
       case 'OpenSecondPage':
         return this.pageHandler.execute();
       default:
-        pageLoader.loadContent('pages/MainPage');
+        pageLoader.loadContent('pages/MainPage')
+          .catch((error: BusinessError) => {
+            hilog.error(0x000, 'testTag', `loadContent failed. code=${error.code}, message=${error.message}`);
+          })
         break;
     }
     return Promise.resolve({
@@ -92,4 +96,5 @@ export default class InsightIntentExecutorImpl extends InsightIntentExecutor {
     } as insightIntent.ExecuteResult)
   }
 }
+
 // [End executorImpl]

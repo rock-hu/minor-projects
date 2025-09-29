@@ -104,9 +104,8 @@ class TextClass {
   }
 }
 
-@Entry
 @Component
-struct MaintainVisibleAreaContent {
+export struct MaintainVisibleAreaContent {
   private data: MyDataSource = new MyDataSource();
   @StorageProp('topRectHeight') topRectHeight: number = 0;
 
@@ -117,33 +116,37 @@ struct MaintainVisibleAreaContent {
   }
 
   build() {
-    Stack() {
-      // [Start MaintainVisibleAreaContent]
-      List({ space: 3 }) {
-        LazyForEach(this.data, (item: TextClass) => {
-          ListItem() {
-            Row() {
-              Text(item.message).fontSize(20)
+    NavDestination() {
+      Stack() {
+        // [Start MaintainVisibleAreaContent]
+        List({ space: 3 }) {
+          LazyForEach(this.data, (item: TextClass) => {
+            ListItem() {
+              Row() {
+                Text(item.message).fontSize(20)
+              }
+              .height(50)
+              .margin({ left: 10, right: 10 })
             }
-            .height(50)
-            .margin({ left: 10, right: 10 })
-          }
-        }, (item: TextClass) => JSON.stringify(item))
+          }, (item: TextClass) => JSON.stringify(item))
+        }
+        .width('100%')
+        .height('100%')
+        .scrollBar(BarState.Off)
+        .maintainVisibleContentPosition(true)
+
+        // [End MaintainVisibleAreaContent]
+
+        Button('Insert Data')
+          .onClick(() => {
+            this.data.addData(0, new TextClass('Hello -1'));
+            this.data.addData(0, new TextClass('Hello -2'));
+            this.data.addData(0, new TextClass('Hello -3'));
+          })
       }
-      .width('100%')
-      .height('100%')
-      .scrollBar(BarState.Off)
-      .maintainVisibleContentPosition(true)
-
-      // [End MaintainVisibleAreaContent]
-
-      Button('Insert Data')
-        .onClick(() => {
-          this.data.addData(0, new TextClass('Hello -1'));
-          this.data.addData(0, new TextClass('Hello -2'));
-          this.data.addData(0, new TextClass('Hello -3'));
-        })
     }
+    .width('100%')
+    .height('100%')
     .padding({ top: this.getUIContext().px2vp(this.topRectHeight) })
   }
 }

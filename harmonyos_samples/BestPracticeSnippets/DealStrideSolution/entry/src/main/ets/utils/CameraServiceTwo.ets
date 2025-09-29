@@ -20,6 +20,7 @@ import { image } from '@kit.ImageKit';
 import { JSON } from '@kit.ArkTS';
 import { photoAccessHelper } from '@kit.MediaLibraryKit';
 import Logger from './Logger';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const TAG: string = 'CameraService';
 
@@ -29,7 +30,8 @@ class CameraService {
   private cameraInput: camera.CameraInput | undefined = undefined;
   private previewOutput: camera.PreviewOutput | undefined = undefined;
   private session: camera.PhotoSession | camera.VideoSession | undefined = undefined;
-  handlePhotoAssetCb: (photoAsset: photoAccessHelper.PhotoAsset) => void = () => {};
+  handlePhotoAssetCb: (photoAsset: photoAccessHelper.PhotoAsset) => void = () => {
+  };
   private curCameraDevice: camera.CameraDevice | undefined = undefined;
   private receiver: image.ImageReceiver | undefined = undefined;
   frameStartFlag: number = 0;
@@ -42,6 +44,7 @@ class CameraService {
     }
   };
   surfaceId: string = '';
+
   // [Start Case2_start]
   onImageArrival(receiver: image.ImageReceiver): void {
     receiver.on('imageArrival', () => {
@@ -54,32 +57,37 @@ class CameraService {
         // [EndExclude Case2_start]
         if (nextImage) {
           nextImage.getComponent(image.ComponentType.JPEG, async (_err, component: image.Component) => {
-            let width = 1080; // Application create preview stream resolution corresponding to the width
-            let height = 1080; // Application create preview stream resolution corresponding to the height
-            let stride = component.rowStride; // Get stride by using component.rowStride
+            let width: number = 1080; // Application create preview stream resolution corresponding to the width
+            let height: number = 1080; // Application create preview stream resolution corresponding to the height
+            let stride: number = component.rowStride; // Get stride by using component.rowStride
             Logger.info(TAG, `receiver getComponent width:${width} height:${height} stride:${stride}`);
             // stride and width are equal. Reading buffer by width does not affect the result
             if (stride === width) {
-              let pixelMap = await image.createPixelMap(component.byteBuffer, {
+              let pixelMap: image.PixelMap | undefined = await image.createPixelMap(component.byteBuffer, {
                 size: { height: height, width: width },
                 srcPixelFormat: image.PixelMapFormat.NV21,
               })
               AppStorage.setOrCreate('stridePixel', pixelMap);
             } else {
-              let pixelMap = await image.createPixelMap(component.byteBuffer, {
+              let pixelMap: image.PixelMap | undefined = await image.createPixelMap(component.byteBuffer, {
                 // Positive example: 1. width transmission stride when creating PixelMap.
                 size: { height: height, width: stride },
                 srcPixelFormat: 8,
               })
               // 2. then call the cropSync method of PixelMap to crop out the excess pixels.
-              pixelMap.cropSync({
-                size: { width: width, height: height },
-                x: 0,
-                y: 0
-              }) // Crop the image according to the size entered, starting with (0,0), crop the area of width*height bytes.
-              let pixelBefore: PixelMap | undefined = AppStorage.get('stridePixel');
-              await pixelBefore?.release();
-              AppStorage.setOrCreate('stridePixel', pixelMap);
+              try {
+                pixelMap.cropSync({
+                  size: { width: width, height: height },
+                  x: 0,
+                  y: 0
+                }) // Crop the image according to the size entered, starting with (0,0), crop the area of width*height bytes.
+                let pixelBefore: PixelMap | undefined = AppStorage.get('stridePixel');
+                await pixelBefore?.release();
+                AppStorage.setOrCreate('stridePixel', pixelMap);
+              } catch (error) {
+                let err: BusinessError = error as BusinessError;
+                hilog.warn(0x000, 'testTag', `setColorMode failed, code=${err.code}, message=${err.message}`);
+              }
             }
             nextImage.release();
           })
@@ -87,14 +95,15 @@ class CameraService {
       });
     })
   }
+
   // [End Case2_start]
 
   getPreviewProfile(cameraOutputCapability: camera.CameraOutputCapability): camera.Profile | undefined {
-    let previewProfiles = cameraOutputCapability.previewProfiles;
+    let previewProfiles: Array<camera.Profile> = cameraOutputCapability.previewProfiles;
     if (previewProfiles.length < 1) {
       return undefined;
     }
-    let index = previewProfiles.findIndex((previewProfile: camera.Profile) => {
+    let index: number = previewProfiles.findIndex((previewProfile: camera.Profile) => {
       return previewProfile.size.width === this.previewProfileObj.size.width &&
         previewProfile.size.height === this.previewProfileObj.size.height &&
         previewProfile.format === this.previewProfileObj.format;
@@ -111,7 +120,7 @@ class CameraService {
    * @param cameraDeviceIndex - Camera equipment index
    * @returns No return value
    */
-  async initCamera(cameraDeviceIndex: number, uiContext:UIContext): Promise<void> {
+  async initCamera(cameraDeviceIndex: number, uiContext: UIContext): Promise<void> {
     Logger.debug(TAG, `initCamera cameraDeviceIndex: ${cameraDeviceIndex}`);
     try {
       await this.releaseCamera();
@@ -134,7 +143,7 @@ class CameraService {
         return;
       }
       // Turn on the camera
-      let isOpenSuccess = await this.cameraInputOpenFn(this.cameraInput);
+      let isOpenSuccess: boolean = await this.cameraInputOpenFn(this.cameraInput);
       if (!isOpenSuccess) {
         Logger.error(TAG, 'Failed to open the camera.');
         return;
@@ -172,8 +181,13 @@ class CameraService {
 
   getPreviewRotation() {
     let previewRotation: camera.ImageRotation | undefined = camera.ImageRotation.ROTATION_0;
-    previewRotation = this.previewOutput?.getPreviewRotation(previewRotation);
-    AppStorage.set('previewRotation', previewRotation)
+    try {
+      previewRotation = this.previewOutput?.getPreviewRotation(previewRotation);
+      AppStorage.set('previewRotation', previewRotation);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.warn(0x000, 'testTag', `setColorMode failed, code=${err.code}, message=${err.message}`);
+    }
   }
 
   /**
@@ -213,7 +227,7 @@ class CameraService {
   /**
    * Get the Camera Manager instance
    */
-  getCameraManagerFn(uiContext:UIContext): camera.CameraManager | undefined {
+  getCameraManagerFn(uiContext: UIContext): camera.CameraManager | undefined {
     if (this.cameraManager) {
       return this.cameraManager;
     }
@@ -276,7 +290,7 @@ class CameraService {
    * Turn on the camera
    */
   async cameraInputOpenFn(cameraInput: camera.CameraInput): Promise<boolean> {
-    let isOpenSuccess = false;
+    let isOpenSuccess: boolean = false;
     try {
       await cameraInput.open();
       isOpenSuccess = true;

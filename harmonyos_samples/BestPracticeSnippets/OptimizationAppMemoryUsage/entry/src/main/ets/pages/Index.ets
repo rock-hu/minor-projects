@@ -3,6 +3,7 @@ import { connection } from '@kit.NetworkKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { promptAction } from '@kit.ArkUI';
 import { Logger } from '../utils/Logger';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Entry
 @Component
@@ -102,6 +103,8 @@ struct Index {
           + '/best-practices' + JSON.stringify(connectionProperties.dnses)
           + 'btpa-memory-optimization' + connectionProperties.mtu + '\n';
       })
+    }).catch((error: BusinessError) => {
+      hilog.info(0xFF00, 'testTag', '%{public}s', 'getConnectionProperties fail');
     });
   }
 

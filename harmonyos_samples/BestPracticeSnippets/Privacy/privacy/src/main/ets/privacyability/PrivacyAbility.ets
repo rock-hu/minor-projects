@@ -21,7 +21,11 @@ const DOMAIN = 0x0000;
 
 export default class PrivacyAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
-    this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
+    try {
+      this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
+    } catch (e) {
+      hilog.error(0x0000, 'testTag', 'setColorMode error. Cause: %{public}s', JSON.stringify(e) ?? '');
+    }
     hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onCreate');
   }
 

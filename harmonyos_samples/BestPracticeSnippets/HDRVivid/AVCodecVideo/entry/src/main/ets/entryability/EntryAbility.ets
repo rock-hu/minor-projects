@@ -43,15 +43,30 @@ export default class EntryAbility extends UIAbility {
     } catch (err) {
       Logger.error('Entry', 'requestPre() data: ' + JSON.stringify(err));
     }
-
-    windowStage.getMainWindowSync().setWindowKeepScreenOn(true);
+    try {
+      windowStage.getMainWindowSync().setWindowKeepScreenOn(true)
+        .then(() => {
+          hilog.info(0x000, 'testTag', 'setWindowKeepScreenOn success');
+        })
+        .catch((error: BusinessError) => {
+          hilog.error(0x000, 'testTag', `setWindowKeepScreenOn failed. code ${error.code}, message ${error.message}`);
+        })
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x000, 'testTag', `getMainWindowSync failed. code=${err.code}, message=${err.message}`);
+    }
     windowStage.loadContent('pages/Index', (err) => {
       if (err.code) {
         hilog.error(0x0000, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err) ?? '');
         return;
       }
-      let uiContext:  UIContext | undefined = windowStage.getMainWindowSync().getUIContext();
-      AppStorage.setOrCreate('uiContext', uiContext);
+      try {
+        let uiContext: UIContext | undefined = windowStage.getMainWindowSync().getUIContext();
+        AppStorage.setOrCreate('uiContext', uiContext);
+      } catch (error) {
+        let err = error as BusinessError;
+        hilog.error(0x000, 'testTag', `getMainWindowSync failed. code=${err.code}, message=${err.message}`);
+      }
       hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
     });
   }

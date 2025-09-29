@@ -13,9 +13,8 @@
  * limitations under the License.
  */
 
-import { promptAction } from '@kit.ArkUI';
 import { CipherModel } from '../model/CipherModel';
-import Logger from '../model/Logger';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const TAG: string = '[Decrypt]';
 
@@ -36,13 +35,28 @@ export struct Decrypt {
           .margin(4)
           .selected(this.selectedNum)
           .value(this.algorithmType)
-          .font({ size: 20, weight: 300, family: 'serif', style: FontStyle.Normal })
-          .selectedOptionFont({ size: 16, weight: 280, family: 'serif', style: FontStyle.Normal })
-          .optionFont({ size: 16, weight: 280, family: 'serif', style: FontStyle.Normal })
+          .font({
+            size: 20,
+            weight: 300,
+            family: 'serif',
+            style: FontStyle.Normal
+          })
+          .selectedOptionFont({
+            size: 16,
+            weight: 280,
+            family: 'serif',
+            style: FontStyle.Normal
+          })
+          .optionFont({
+            size: 16,
+            weight: 280,
+            family: 'serif',
+            style: FontStyle.Normal
+          })
           .onSelect((index: number, value: string) => {
             this.selectedNum = index;
             this.algorithmType = value;
-            Logger.info(TAG, `Select: ${index} value: ${value}`);
+            hilog.info(0x0000, TAG, `Select: ${index} value: ${value}`);
           })
 
         TextArea()
@@ -62,18 +76,22 @@ export struct Decrypt {
             .id('decryptBtn')
             .onClick(() => {
               if (this.message === '') {
-                this.getUIContext().getPromptAction().showToast({
-                  message: 'This message is null.'
-                })
+                try {
+                  this.getUIContext().getPromptAction().showToast({
+                    message: 'This message is null.'
+                  })
+                } catch (error) {
+                  hilog.error(0x0000, TAG, `Failed to show toast: ${JSON.stringify(error)}`);
+                }
               } else {
                 if (this.algorithmType === 'RSA') {
                   this.cipherModel.rsaDecrypt(this.message, (result: string) => {
-                    Logger.info(TAG, `this result = ${JSON.stringify(result)}`);
+                    hilog.info(0x0000, TAG, `this result = ${JSON.stringify(result)}`);
                     this.info = `Decrypt result is :  ${result}`;
                   })
                 } else {
                   this.cipherModel.aesDecrypt(this.message, (result: string) => {
-                    Logger.info(TAG, `this result = ${JSON.stringify(result)}`);
+                    hilog.info(0x0000, TAG, `this result = ${JSON.stringify(result)}`);
                     this.info = `Decrypt result is :  ${result}`;
                   })
                 }

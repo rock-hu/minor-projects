@@ -51,7 +51,7 @@ struct Record {
   aboutToAppear() {
     this.path = context.filesDir + '/' + 'VIDEO_' + Date.parse(new Date().toString()) + '.mp4';
     let file = FileUtil.createOrOpen(this.path);
-    this.url = 'fd://' + file.fd;
+    this.url = 'fd://' + file?.fd;
     this.videoUri = fileUri.getUriFromPath(this.path);
   }
 
@@ -107,7 +107,14 @@ struct Record {
   }
 
   async initCamera(context: common.Context | undefined, surfaceId: string) {
-    this.cameraManager = camera.getCameraManager(context);
+    // this.cameraManager = camera.getCameraManager(context);
+    try {
+      this.cameraManager = camera.getCameraManager(context)
+    } catch (error) {
+      let err = error as BusinessError;
+      Logger.error(TAG, `getCameraManager failed, code=${err.code}, message=${err.message}`);
+    }
+
     if (!this.cameraManager) {
       Logger.error(TAG, 'camera.getCameraManager error');
       return;
@@ -361,10 +368,16 @@ struct Record {
       Logger.error(`The isVideoStabilizationModeSupported call failed. error code: ${err.code}`);
     }
     if (isSupported) {
-      // Setting video anti-shake
-      this.captureSession.setVideoStabilizationMode(mode);
-      let activeVideoStabilizationMode = this.captureSession.getActiveVideoStabilizationMode();
-      Logger.info(`activeVideoStabilizationMode: ${activeVideoStabilizationMode}`);
+      try {
+        // Setting video anti-shake
+        this.captureSession.setVideoStabilizationMode(mode);
+        let activeVideoStabilizationMode = this.captureSession.getActiveVideoStabilizationMode();
+        Logger.info(`activeVideoStabilizationMode: ${activeVideoStabilizationMode}`);
+      } catch (error) {
+        let err = error as BusinessError;
+        Logger.warn(TAG,
+          `setVideoStabilizationMode or getActiveVideoStabilizationMode failed, code=${err.code}, message=${err.message}`);
+      }
     } else {
       Logger.error(`videoStabilizationMode: ${mode} is not support`);
     }
@@ -388,8 +401,13 @@ struct Record {
           let err = error as BusinessError;
           Logger.error(`The setColorSpace call failed, error code: ${err.code}`);
         }
-        let activeColorSpace: colorSpaceManager.ColorSpace = this.captureSession.getActiveColorSpace();
-        Logger.info(`activeColorSpace: ${activeColorSpace}`);
+        try {
+          let activeColorSpace: colorSpaceManager.ColorSpace = this.captureSession.getActiveColorSpace();
+          Logger.info(`activeColorSpace: ${activeColorSpace}`);
+        } catch (error) {
+          let err = error as BusinessError;
+          Logger.error(`getActiveColorSpace failed, code=${err.code}, message=${err.message}`);
+        }
       } else {
         Logger.error(`colorSpace: ${colorSpace} is not support`);
       }
@@ -425,6 +443,7 @@ struct Record {
       }
     }
   }
+
   // [End start_record]
 
   async stopRecord() {
@@ -450,28 +469,38 @@ struct Record {
         let err = error as BusinessError;
         Logger.error(TAG, `avRecorder stop error: ${JSON.stringify(err)}`);
       }
-      try {
-        if (this.captureSession) {
-          this.captureSession.stop();
-        }
-        if (this.cameraInput) {
-          this.cameraInput.close();
-        }
-        if (this.previewOutput) {
-          this.previewOutput.release();
-        }
-        if (this.videoOutput) {
-          this.videoOutput.release();
-        }
-        if (this.captureSession) {
-          this.captureSession.release();
-        }
-        if (this.captureSession) {
-          this.captureSession = undefined;
-        }
-      } catch (error) {
-        let err = error as BusinessError;
-        Logger.error(TAG, `avRecorder stop error: ${JSON.stringify(err)}`);
+      if (this.captureSession) {
+        this.captureSession.stop()
+          .catch((err: BusinessError) => {
+            Logger.error(`avRecorder stop failed, code=${err.code}, message=${err.message}`)
+          })
+      }
+      if (this.cameraInput) {
+        this.cameraInput.close()
+          .catch((err: BusinessError) => {
+            Logger.error(`avRecorder close failed, code=${err.code}, message=${err.message}`)
+          })
+      }
+      if (this.previewOutput) {
+        this.previewOutput.release()
+          .catch((err: BusinessError) => {
+            Logger.error(`avRecorder release failed, code=${err.code}, message=${err.message}`)
+          })
+      }
+      if (this.videoOutput) {
+        this.videoOutput.release()
+          .catch((err: BusinessError) => {
+            Logger.error(`avRecorder release failed, code=${err.code}, message=${err.message}`)
+          })
+      }
+      if (this.captureSession) {
+        this.captureSession.release()
+          .catch((err: BusinessError) => {
+            Logger.error(`avRecorder release failed, code=${err.code}, message=${err.message}`)
+          })
+      }
+      if (this.captureSession) {
+        this.captureSession = undefined;
       }
     }
   }

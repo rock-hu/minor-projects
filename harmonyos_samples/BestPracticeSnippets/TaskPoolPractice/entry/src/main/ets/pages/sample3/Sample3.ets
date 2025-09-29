@@ -1,5 +1,5 @@
 import { taskpool } from '@kit.ArkTS';
-import { emitter } from '@kit.BasicServicesKit';
+import { BusinessError, emitter } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 // [Start wrong_1]
@@ -8,9 +8,15 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 function wrongConcurrentFunc() {
   let promise = Promise.resolve();
   promise.then(() => {
-    taskpool.Task.sendData();
+    try {
+      taskpool.Task.sendData();
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.warn(0x000, 'testTag', `sendData failed, code=${err.code}, message=${err.message}`);
+    }
   })
 }
+
 // [End wrong_1]
 
 // [Start correct_fun_1]
@@ -19,9 +25,10 @@ function wrongConcurrentFunc() {
 function correctConcurrentFunc() {
   let promise = Promise.resolve();
   promise.then(() => {
-    emitter.emit("1", {data: {name: "anonymous"}});
+    emitter.emit("1", { data: { name: "anonymous" } });
   })
 }
+
 // [End correct_fun_1]
 
 @Entry
@@ -43,7 +50,14 @@ struct Sample3 {
             task.onReceiveData(() => {
               hilog.info(0xFF00, 'sampleTag', "onReceiveData has been called");
             })
-            taskpool.execute(task);
+            taskpool.execute(task)
+              .then(() => {
+                hilog.info(0xFF00, 'sampleTag', 'receive http msg success.');
+                taskpool.terminateTask(task);
+              })
+              .catch((err: BusinessError) => {
+                hilog.error(0x000, 'testTag', `execute failed, code=${err.code}, message=${err.message}`);
+              })
             // [End task_pool_1]
           })
 
@@ -59,7 +73,14 @@ struct Sample3 {
               emitter.off("1")
               taskpool.terminateTask(task)
             })
-            taskpool.execute(task);
+            taskpool.execute(task)
+              .then(() => {
+                hilog.info(0xFF00, 'sampleTag', 'receive http msg success.');
+                taskpool.terminateTask(task);
+              })
+              .catch((err: BusinessError) => {
+                hilog.error(0x000, 'testTag', `execute failed, code=${err.code}, message=${err.message}`);
+              })
             // [End task_7]
           })
       }

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
+import { BusinessError } from '@kit.BasicServicesKit';
 import { data, radio, observer } from '@kit.TelephonyKit';
-import { router } from '@kit.ArkUI';
 import Logger from '../modle/Logger';
 import DetailData from '../modle/DetailData';
 
@@ -59,29 +59,34 @@ struct Index {
   };
 
   onChangeCallback(index: number, isOn: boolean) {
-    switch (index) {
-      case 0:
-        isOn ? observer.on('networkStateChange', this.networkStateChangeCallback) :
+    try {
+      switch (index) {
+        case 0:
+          isOn ? observer.on('networkStateChange', this.networkStateChangeCallback) :
           observer.off('networkStateChange', this.networkStateChangeCallback);
-        break;
-      case 1:
-        isOn ? observer.on('signalInfoChange', this.signalInfoChangeCallback) :
+          break;
+        case 1:
+          isOn ? observer.on('signalInfoChange', this.signalInfoChangeCallback) :
           observer.off('signalInfoChange', this.signalInfoChangeCallback);
-        break;
-      case 2:
-        isOn ? observer.on('cellularDataConnectionStateChange', this.cellularDataConnectionStateChangeCallback) :
+          break;
+        case 2:
+          isOn ? observer.on('cellularDataConnectionStateChange', this.cellularDataConnectionStateChangeCallback) :
           observer.off('cellularDataConnectionStateChange', this.cellularDataConnectionStateChangeCallback);
-        break;
-      case 3:
-        isOn ? observer.on('cellularDataFlowChange', this.cellularDataFlowChangeCallback) :
+          break;
+        case 3:
+          isOn ? observer.on('cellularDataFlowChange', this.cellularDataFlowChangeCallback) :
           observer.off('cellularDataFlowChange', this.cellularDataFlowChangeCallback);
-        break;
-      case 4:
-        isOn ? observer.on('simStateChange', this.simStateChangeCallback) :
+          break;
+        case 4:
+          isOn ? observer.on('simStateChange', this.simStateChangeCallback) :
           observer.off('simStateChange', this.simStateChangeCallback);
-        break;
-      default:
-        break;
+          break;
+        default:
+          break;
+      }
+    } catch (error) {
+      let err = error as BusinessError;
+      Logger.error(TAG, `onChangeCallback failed, error code=${err.code}, message=${err.message}`);
     }
   }
 

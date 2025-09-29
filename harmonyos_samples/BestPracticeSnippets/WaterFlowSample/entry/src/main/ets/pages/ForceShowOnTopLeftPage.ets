@@ -20,17 +20,17 @@ import { MyDataSource } from '../model/MyDataSource'
 @Entry
 @Component
 struct ForceShowOnTopLeftPage {
-  // [StartExclude data_init]
+  // [StartExclude quick_start]
   private data: MyDataSource = new MyDataSource();
   @StorageProp(CommonConstants.AS_KEY_STATUS_BAR_HEIGHT) statusBarHeight: number = 0;
 
   aboutToAppear(): void {
-    for (let i = 0; i < 80; i++) {
+    for (let i: number = 0; i < 80; i++) {
       this.data.pushData(i);
     }
   }
 
-  // [EndExclude data_init]
+  // [EndExclude quick_start]
   build() {
     Column({ space: 0 }) {
       Row() {

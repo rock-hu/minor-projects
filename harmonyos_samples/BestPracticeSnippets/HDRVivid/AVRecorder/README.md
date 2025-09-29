@@ -10,12 +10,30 @@
 |-----------------------------------|------------------------------------|-------------------------------------------|-----------------------------------|
 |![](screenshots/device/request.png)| ![](screenshots/device/record.png) | ![](screenshots/device/stopRecording.png) | ![](screenshots/device/index.png) |
 
-**使用说明**
+### 使用说明
 
 1. 获取权限。
 2. 点击“录制视频”按钮，判断授权权限，若权限均已授权，则跳转录制页面，否则需按提示开启所有权限后重新点击“录制视频”按钮。
 3. 点击开始录制按钮，开始录制视频。
 4. 点击停止录制按钮，停止录制视频，并返回首页，在“录制视频”按钮上方显示录制的视频，视频可手动播放。
+
+### 工程目录
+
+```
+├───entry/src/main/ets
+│   ├───common
+│   │   └───CommonConstants.ets            // 常量
+│   ├───entryability                        
+│   │   └───EntryAbility.ets               // Ability的生命周期回调内容
+│   ├───pages    
+│   │   ├───Index.ets                      // 主页
+│   │   └───Record.ets                     // 录制页
+│   └───utils                               
+│       ├───FileUtil.ets                   // 文件工具类
+│       ├───Logger.ets                     // 日志工具类
+│       └───RouterParams.ets               // 路由参数类
+└───entry/src/main/resources     
+```
 
 ### 实现思路
 
@@ -33,9 +51,9 @@
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机。
 
-2. HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
+2. HarmonyOS系统：HarmonyOS 5.1.0 Release及以上。
 
-3. DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
+3. DevEco Studio版本：DevEco Studio 5.1.0 Release及以上。
 
-4. HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。
+4. HarmonyOS SDK版本：HarmonyOS 5.1.0 Release SDK及以上。
 

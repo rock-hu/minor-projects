@@ -13,7 +13,8 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit'
 
 @Entry
 @Component
@@ -34,7 +35,13 @@ struct Index {
           .height(40)
           .fontWeight(FontWeight.Bold)
           .onClick(() => {
-            this.getUIContext().getRouter().pushUrl({ url: 'pages/ClickError' });
+            this.getUIContext().getRouter().pushUrl({ url: 'pages/ClickError' })
+              .then(() => {
+                hilog.info(0x000, 'testTag', 'pushUrl success');
+              })
+              .catch((err: BusinessError) => {
+                hilog.error(0x000, 'testTag', `pushUrl failed, code=${err.code}, message=${err.message}`);
+              })
           })
           .margin({ bottom: 12 })
 
@@ -44,7 +51,13 @@ struct Index {
           .height(40)
           .fontWeight(FontWeight.Bold)
           .onClick(() => {
-            this.getUIContext().getRouter().pushUrl({ url: 'pages/ClickRight' });
+            this.getUIContext().getRouter().pushUrl({ url: 'pages/ClickRight' })
+              .then(() => {
+                hilog.info(0x000, 'testTag', 'pushUrl success');
+              })
+              .catch((err: BusinessError) => {
+                hilog.error(0x000, 'testTag', `pushUrl failed, code=${err.code}, message=${err.message}`);
+              })
           })
           .margin({ bottom: 12 })
 
@@ -54,7 +67,13 @@ struct Index {
           .height(40)
           .fontWeight(FontWeight.Bold)
           .onClick(() => {
-            this.getUIContext().getRouter().pushUrl({ url: 'pages/TabsError' });
+            this.getUIContext().getRouter().pushUrl({ url: 'pages/TabsError' })
+              .then(() => {
+                hilog.info(0x000, 'testTag', 'pushUrl success');
+              })
+              .catch((err: BusinessError) => {
+                hilog.error(0x000, 'testTag', `pushUrl failed, code=${err.code}, message=${err.message}`);
+              })
           })
           .margin({ bottom: 12 })
 
@@ -64,7 +83,13 @@ struct Index {
           .height(40)
           .fontWeight(FontWeight.Bold)
           .onClick(() => {
-            this.getUIContext().getRouter().pushUrl({ url: 'pages/TabsRight' });
+            this.getUIContext().getRouter().pushUrl({ url: 'pages/TabsRight' })
+              .then(() => {
+                hilog.info(0x000, 'testTag', 'pushUrl success');
+              })
+              .catch((err: BusinessError) => {
+                hilog.error(0x000, 'testTag', `pushUrl failed, code=${err.code}, message=${err.message}`);
+              })
           })
           .margin({ bottom: 12 })
 
@@ -74,7 +99,13 @@ struct Index {
           .height(40)
           .fontWeight(FontWeight.Bold)
           .onClick(() => {
-            this.getUIContext().getRouter().pushUrl({ url: 'pages/PullToRefreshError' });
+            this.getUIContext().getRouter().pushUrl({ url: 'pages/PullToRefreshError' })
+              .then(() => {
+                hilog.info(0x000, 'testTag', 'pushUrl success');
+              })
+              .catch((err: BusinessError) => {
+                hilog.error(0x000, 'testTag', `pushUrl failed, code=${err.code}, message=${err.message}`);
+              })
           })
           .margin({ bottom: 12 })
 
@@ -84,7 +115,13 @@ struct Index {
           .height(40)
           .fontWeight(FontWeight.Bold)
           .onClick(() => {
-            this.getUIContext().getRouter().pushUrl({ url: 'pages/PullToRefreshRight' });
+            this.getUIContext().getRouter().pushUrl({ url: 'pages/PullToRefreshRight' })
+              .then(() => {
+                hilog.info(0x000, 'testTag', 'pushUrl success');
+              })
+              .catch((err: BusinessError) => {
+                hilog.error(0x000, 'testTag', `pushUrl failed, code=${err.code}, message=${err.message}`);
+              })
           })
           .margin({ bottom: 12 })
       }

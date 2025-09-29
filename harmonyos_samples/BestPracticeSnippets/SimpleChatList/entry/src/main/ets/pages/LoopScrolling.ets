@@ -103,58 +103,63 @@ class MyDataSource1 extends BasicDataSource1 {
   }
 }
 
-@Entry
 @Component
-struct LoopScrolling {
+export struct LoopScrolling {
   private data: MyDataSource1 = new MyDataSource1();
   private scroller: Scroller = new Scroller();
+  @StorageProp('topRectHeight') topRectHeight: number = 0;
 
   aboutToAppear(): void {
     for (let i = 0; i < 10; i++) {
-      this.data.pushData(i.toString())
+      this.data.pushData(i.toString());
     }
   }
 
   build() {
-    Row() {
-      List({ initialIndex: 10, scroller: this.scroller }) {
-        LazyForEach(this.data, (item: string) => {
-          ListItem() {
-            Text(item.toString())
-              .fontSize(16)
-              .textAlign(TextAlign.Center)
-              .size({ height: 200, width: 200 })
-          }
-          .borderRadius(16)
-          .margin(10)
-          .backgroundColor("#FFFFFF")
+    NavDestination() {
+      Row() {
+        List({ initialIndex: 10, scroller: this.scroller }) {
+          LazyForEach(this.data, (item: string) => {
+            ListItem() {
+              Text(item.toString())
+                .fontSize(16)
+                .textAlign(TextAlign.Center)
+                .size({ height: 200, width: 200 })
+            }
+            .borderRadius(16)
+            .margin(10)
+            .backgroundColor("#FFFFFF")
 
-        }, (item: string) => item)
+          }, (item: string) => item)
+        }
+        .width('100%')
+        .height(221)
+        .backgroundColor('#FFDCDCDC')
+        .listDirection(Axis.Horizontal)
+        .scrollSnapAlign(ScrollSnapAlign.START)
+        .friction(2)
+        // [Start LoopScrolling]
+        .onScrollFrameBegin((offset: number, state: ScrollState) => {
+          let currentOffset = this.scroller.currentOffset().xOffset;
+          let newOffset = currentOffset + offset;
+          let totalWeight = 220 * 10; // The total width of LIST.
+          if (newOffset < totalWeight * 0.5) {
+            newOffset += totalWeight;
+          } else if (newOffset > totalWeight * 2.5) {
+            newOffset -= totalWeight;
+          }
+          return { offsetRemain: newOffset - currentOffset };
+        })
+
+        // [End LoopScrolling]
       }
       .width('100%')
-      .height(221)
-      .backgroundColor('#FFDCDCDC')
-      .listDirection(Axis.Horizontal)
-      .scrollSnapAlign(ScrollSnapAlign.START)
-      .friction(2)
-      // [Start LoopScrolling]
-      .onScrollFrameBegin((offset: number, state: ScrollState) => {
-        let currentOffset = this.scroller.currentOffset().xOffset;
-        let newOffset = currentOffset + offset;
-        let totalWeight = 220 * 10; // The total width of LIST.
-        if (newOffset < totalWeight * 0.5) {
-          newOffset += totalWeight;
-        } else if (newOffset > totalWeight * 2.5) {
-          newOffset -= totalWeight;
-        }
-        return { offsetRemain: newOffset - currentOffset };
-      })
-
-      // [End LoopScrolling]
+      .height('100%')
+      .alignItems(VerticalAlign.Center)
+      .justifyContent(FlexAlign.Center)
     }
     .width('100%')
     .height('100%')
-    .alignItems(VerticalAlign.Center)
-    .justifyContent(FlexAlign.Center)
+    .padding({ top: this.getUIContext().px2vp(this.topRectHeight) })
   }
 }

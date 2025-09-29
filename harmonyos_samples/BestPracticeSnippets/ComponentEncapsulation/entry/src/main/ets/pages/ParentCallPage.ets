@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 // [Start parent_call]
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+
 @Component
 export struct ChildComponent {
   call = () => {
@@ -32,7 +35,12 @@ export struct ChildComponent {
 @Component
 struct Index {
   parentAction() {
-    this.getUIContext().getPromptAction().showToast({ message: 'Parent Action' })
+    try {
+      this.getUIContext().getPromptAction().showToast({ message: 'Parent Action' });
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.warn(0x000, 'testTag', `showToast failed, code=${err.code}, message=${err.message}`);
+    }
   }
 
   build() {

@@ -14,16 +14,22 @@
  */
 
 import { image } from '@kit.ImageKit';
+import Logger from './Logger';
 
 export class ImageUtil {
   constructor() {
   }
   public static async getPixmapFromMedia(resource: Resource, UIContext: UIContext) {
-    let unit8Array = await UIContext.getHostContext()?.resourceManager?.getMediaContent({
-      bundleName: resource.bundleName,
-      moduleName: resource.moduleName,
-      id: resource.id
-    });
+    let unit8Array: Uint8Array | undefined = undefined;
+    try {
+       unit8Array = await UIContext.getHostContext()?.resourceManager?.getMediaContent({
+        bundleName: resource.bundleName,
+        moduleName: resource.moduleName,
+        id: resource.id
+      });
+    } catch (error) {
+      Logger.error(`getMediaContent failed Cause:  ${JSON.stringify(error)}`);
+    }
     let imageSource = image.createImageSource(unit8Array?.buffer.slice(0, unit8Array.buffer.byteLength));
     let createPixelMap: image.PixelMap = await imageSource.createPixelMap({
       desiredPixelFormat: image.PixelMapFormat.RGBA_8888

@@ -18,7 +18,6 @@ import { media } from '@kit.MediaKit';
 import { audio } from '@kit.AudioKit';
 import { avSession } from '@kit.AVSessionKit';
 import { BusinessError } from '@kit.BasicServicesKit';
-import { BackgroundTaskManager } from '../utils/BackgroundTaskManager';
 import { AVPlayerState, CommonConstants } from '../common/CommonConstants';
 import { secondToTime } from '../utils/CommUtils'
 import { VideoData } from '../model/VideoData';
@@ -58,11 +57,15 @@ export class AvPlayerController {
         this.avPlayer = player;
         // this.curSource.video is the local video path, and this.curSource.url is the network video path
         if (this.curSource.video) {
-          let fileDescriptor = this.context?.resourceManager.getRawFdSync(this.curSource.video);
-          if (fileDescriptor) {
-            let avFileDescriptor: media.AVFileDescriptor =
-              { fd: fileDescriptor.fd, offset: fileDescriptor.offset, length: fileDescriptor.length };
-            this.avPlayer.fdSrc = avFileDescriptor;
+          try {
+            let fileDescriptor = this.context?.resourceManager.getRawFdSync(this.curSource.video);
+            if (fileDescriptor) {
+              let avFileDescriptor: media.AVFileDescriptor =
+                { fd: fileDescriptor.fd, offset: fileDescriptor.offset, length: fileDescriptor.length };
+              this.avPlayer.fdSrc = avFileDescriptor;
+            }
+          } catch (error) {
+            Logger.error(`getRawFdSync failed, code is ${error.code}, message is ${error.message}`);
           }
         } else {
           this.avPlayer.url = this.curSource.url;
@@ -108,7 +111,10 @@ export class AvPlayerController {
     avPlayer.on('error', (err: BusinessError) => {
       Logger.error(TAG, `Invoke avPlayer failed, code is ${err.code}, message is ${err.message}` +
         `----state:${avPlayer.state} this.curIndex:${this.curIndex}`);
-      avPlayer.reset(); // resets the resources and triggers the idle state
+      avPlayer.reset() // resets the resources and triggers the idle state
+        .catch((err: BusinessError) => {
+          Logger.error(TAG, `avPlayer reset failed, code is ${err.code}, message is ${err.message}`);
+        })
     })
     this.setInterruptCallback()
     this.setStateChangeCallback(avPlayer);
@@ -119,13 +125,17 @@ export class AvPlayerController {
     if (!this.avSessionController) {
       return;
     }
-    this.avSessionController.getAvSession()?.on('play', () => this.sessionPlayCallback());
-    this.avSessionController.getAvSession()?.on('pause', () => this.sessionPauseCallback());
-    this.avSessionController.getAvSession()?.on('stop', () => this.sessionStopCallback());
-    this.avSessionController.getAvSession()?.on('fastForward',
-      (time?: number) => this.sessionFastForwardCallback(time));
-    this.avSessionController.getAvSession()?.on('rewind', (time?: number) => this.sessionRewindCallback(time));
-    this.avSessionController.getAvSession()?.on('seek', (seekTime: number) => this.sessionSeekCallback(seekTime));
+    try {
+      this.avSessionController.getAvSession()?.on('play', () => this.sessionPlayCallback());
+      this.avSessionController.getAvSession()?.on('pause', () => this.sessionPauseCallback());
+      this.avSessionController.getAvSession()?.on('stop', () => this.sessionStopCallback());
+      this.avSessionController.getAvSession()?.on('fastForward',
+        (time?: number) => this.sessionFastForwardCallback(time));
+      this.avSessionController.getAvSession()?.on('rewind', (time?: number) => this.sessionRewindCallback(time));
+      this.avSessionController.getAvSession()?.on('seek', (seekTime: number) => this.sessionSeekCallback(seekTime));
+    } catch (error) {
+      Logger.error(`getMediaContent failed, code is ${error.code}, message is ${error.message}`);
+    }
   }
 
   private setInterruptCallback() {
@@ -207,7 +217,10 @@ export class AvPlayerController {
         case 'initialized':
           Logger.info(TAG, 'AVPlayer state initialized called.' + ` this.curIndex:${this.curIndex}`);
           avPlayer.surfaceId = this.surfaceID;
-          avPlayer.prepare();
+          avPlayer.prepare()
+            .catch((err: BusinessError) => {
+              Logger.error(TAG, `avPlayer prepare failed, code is ${err.code}, message is ${err.message}`);
+            })
           break;
         case 'prepared':
           // [StartExclude mode_volume]
@@ -405,7 +418,10 @@ export class AvPlayerController {
           this.updateIsPlay(true);
           Logger.error(TAG, `stopVideo failed, code is ${err.code}, message is ${err.message}`);
         } else {
-          this.avPlayer!.release();
+          this.avPlayer!.release()
+            .catch((err: BusinessError) => {
+              Logger.error(TAG, `avPlayer release failed, code is ${err.code}, message is ${err.message}`);
+            })
           Logger.info(TAG, `stopVideo success, this.curIndex:${this.curIndex}`);
         }
       });
@@ -466,7 +482,10 @@ export class AvPlayerController {
       this.avPlayer.off('speedDone');
       this.avPlayer.off('error');
       this.avPlayer.off('stateChange');
-      this.avPlayer.release();
+      this.avPlayer.release()
+        .catch((err: BusinessError) => {
+          Logger.error(TAG, `avPlayer release failed, code is ${err.code}, message is ${err.message}`);
+        })
       // [StartExclude destroy_instance]
       this.avSessionController?.unregisterSessionListener();
       // [EndExclude destroy_instance]

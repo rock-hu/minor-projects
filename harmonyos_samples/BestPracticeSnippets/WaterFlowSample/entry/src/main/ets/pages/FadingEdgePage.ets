@@ -18,7 +18,7 @@ import { LengthMetrics } from '@kit.ArkUI';
 import { CommonConstants } from "../common/constants/CommonConstants";
 import { SectionsWaterFlowDataSource } from "../model/SectionsWaterFlowDataSource";
 
-// [StartExclude flow_item_layout]
+// [StartExclude quick_start]
 @Reusable
 struct ReusableFlowItem {
   @State item: number = 0;
@@ -76,15 +76,15 @@ struct ReusableFlowItem {
   }
 }
 
-// [EndExclude flow_item_layout]
+// [EndExclude quick_start]
 @Entry
 @Component
 struct FadingEdgePage {
-  // [StartExclude variable_declare]
+  // [StartExclude quick_start]
   @State minSize: number = 120;
   @State maxSize: number = 260;
   scroller: Scroller = new Scroller();
-  // [EndExclude variable_declare]
+  // [EndExclude quick_start]
   dataSource: SectionsWaterFlowDataSource = new SectionsWaterFlowDataSource();
   private itemHeightArray: number[] = [];
   sectionMargin: Margin = {
@@ -124,21 +124,21 @@ struct FadingEdgePage {
     }
   }
 
-  // [StartExclude method_declare]
+  // [StartExclude quick_start]
   getSize(): number {
-    let ret = Math.floor(Math.random() * this.maxSize);
+    let ret: number = Math.floor(Math.random() * this.maxSize);
     return (ret > this.minSize ? ret : this.minSize);
   }
 
   setItemSizeArray(): void {
-    for (let i = 0; i < 100; i++) {
+    for (let i: number = 0; i < 100; i++) {
       this.itemHeightArray.push(this.getSize());
     }
   }
 
-  // [EndExclude method_declare]
+  // [EndExclude quick_start]
 
-  aboutToAppear() {
+  aboutToAppear(): void {
     this.setItemSizeArray();
     this.initSections();
   }
@@ -146,9 +146,9 @@ struct FadingEdgePage {
   // 5、Initialise group data.
   initSections(): void {
     let sectionOptions: SectionOptions[] = [];
-    let count = 0;
-    let oneOrTwo = 0;
-    let dataCount = this.dataSource.totalCount();
+    let count: number = 0;
+    let oneOrTwo: number = 0;
+    let dataCount: number = this.dataSource.totalCount();
     while (count < dataCount) {
       if (dataCount - count < 96) {
         this.dataSection.itemsCount = dataCount - count;
@@ -178,7 +178,7 @@ struct FadingEdgePage {
 
       // 6、Link the grouping information to WaterFlow.
       WaterFlow({ scroller: this.scroller, sections: this.sections }) {
-        // [StartExclude water_flow_data]
+        // [StartExclude quick_start]
         LazyForEach(this.dataSource, (item: number) => {
           FlowItem() {
             ReusableFlowItem({ item: item })
@@ -187,7 +187,7 @@ struct FadingEdgePage {
           .borderRadius(8)
           .backgroundColor(Color.Gray)
         }, (item: string) => item)
-        // [EndExclude water_flow_data]
+        // [EndExclude quick_start]
       }
       .cachedCount(12)
       .columnsGap(8)

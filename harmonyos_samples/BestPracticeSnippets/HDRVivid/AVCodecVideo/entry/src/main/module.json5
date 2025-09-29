@@ -54,6 +54,13 @@
           "abilities": ["EntryAbility"],
           "when": "always"
         }
+      },
+      {
+        "name": "ohos.permission.WRITE_IMAGEVIDEO",
+        "reason": "$string:EntryAbility_desc",
+        "usedScene": {
+          "when": "always"
+        }
       }
     ]
   }

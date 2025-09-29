@@ -20,7 +20,7 @@
 // The worker file path is: entry/ets/workers/Worker.ets
 // Worker.ets
 import { MessageEvents, ThreadWorkerGlobalScope, worker } from '@kit.ArkTS';
-import { GlobalConfig } from '../pages/InterthreadCommunication4';
+import { GlobalConfig } from '../pages/InterThreadCommunication4';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const workerPort: ThreadWorkerGlobalScope = worker.workerPort;

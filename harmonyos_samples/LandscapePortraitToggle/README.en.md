@@ -24,6 +24,8 @@ This sample implements the function of automatically switching between landscape
 ├──entry/src/main/ets/
 │  ├──entryability
 │  │  └──EntryAbility.ets          // Entry ability lifecycle callbacks
+│  ├──entrybackupability                   
+│  │  └──EntryBackupAbility.ets    // Application data backup and restore class 
 │  ├──pages
 │  │  └──VideoDetail.ets           // Video details page
 │  ├──util 

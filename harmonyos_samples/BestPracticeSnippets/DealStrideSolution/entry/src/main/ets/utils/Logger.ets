@@ -15,7 +15,7 @@
 
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
-const TAG = 'DealStrideSolution';
+const TAG: string = 'DealStrideSolution';
 
 class Logger {
   private domain: number;

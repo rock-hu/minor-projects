@@ -20,6 +20,7 @@ import { image } from '@kit.ImageKit';
 import { JSON } from '@kit.ArkTS';
 import { photoAccessHelper } from '@kit.MediaLibraryKit';
 import Logger from './Logger';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const TAG: string = 'CameraService';
 
@@ -29,7 +30,8 @@ class CameraService {
   private cameraInput: camera.CameraInput | undefined = undefined;
   private previewOutput: camera.PreviewOutput | undefined = undefined;
   private session: camera.PhotoSession | camera.VideoSession | undefined = undefined;
-  handlePhotoAssetCb: (photoAsset: photoAccessHelper.PhotoAsset) => void = () => {};
+  handlePhotoAssetCb: (photoAsset: photoAccessHelper.PhotoAsset) => void = () => {
+  };
   private curCameraDevice: camera.CameraDevice | undefined = undefined;
   private receiver: image.ImageReceiver | undefined = undefined;
   frameStartFlag: number = 0;
@@ -42,6 +44,7 @@ class CameraService {
     }
   };
   surfaceId: string = '';
+
   // [Start Case1_start]
   onImageArrival(receiver: image.ImageReceiver): void {
     // [StartExclude Case1_start]
@@ -55,13 +58,13 @@ class CameraService {
         if (nextImage) {
           nextImage.getComponent(image.ComponentType.JPEG,
             async (err, component: image.Component) => {
-              let width = 1080; // Application create preview stream resolution corresponding to the width
-              let height = 1080; // Application create preview stream resolution corresponding to the height
-              let stride = component.rowStride; // Get stride by using component.rowStride
+              let width: number = 1080; // Application create preview stream resolution corresponding to the width
+              let height: number = 1080; // Application create preview stream resolution corresponding to the height
+              let stride: number = component.rowStride; // Get stride by using component.rowStride
               Logger.info(TAG, `receiver getComponent width:${width} height:${height} stride:${stride}`);
               // Positive example: Case 1.stride and width are equal. Reading buffer by width does not affect the result.
               if (stride === width) {
-                let pixelMap = await image.createPixelMap(component.byteBuffer, {
+                let pixelMap: image.PixelMap | undefined = await image.createPixelMap(component.byteBuffer, {
                   size: { height: height, width: width },
                   srcPixelFormat: image.PixelMapFormat.NV21,
                 })
@@ -70,17 +73,18 @@ class CameraService {
                 // Positive example: Case 2.When width and stride are not equal，
                 // At this time, the camera returned preview stream data component.byteBuffer to remove stride,
                 // copy the new dstArr data, data processing to other do not support stride interface processing.
-                const dstBufferSize = width * height * 1.5; // Create a dstBufferSize space of width * height * 1.5. This is NV21 data format.
-                const dstArr = new Uint8Array(dstBufferSize); // Store the buffer after the stride is removed.
+                const dstBufferSize: number = width * height *
+                  1.5; // Create a dstBufferSize space of width * height * 1.5. This is NV21 data format.
+                const dstArr: Uint8Array = new Uint8Array(dstBufferSize); // Store the buffer after the stride is removed.
                 // For each line of data read, the camera supports an even width and height profile, which does not involve rounding.
                 for (let j = 0; j < height * 1.5; j++) { // Loop each row of dstArr data.
                   // Copy the first width bytes of each line of data from component.byteBuffer into dstArr
                   // (remove invalid pixels and get exactly an eight-byte array space of width*height per line).
-                  const srcBuf = new Uint8Array(component.byteBuffer, j * stride,
+                  const srcBuf: Uint8Array = new Uint8Array(component.byteBuffer, j * stride,
                     width); // The buffer returned by component.byteBuffer traverses each line, starting at the top, with width bytes cut off each line.
                   dstArr.set(srcBuf, j * width); // Store the width*height data in dstArr.
                 }
-                let pixelMap = await image.createPixelMap(dstArr.buffer, {
+                let pixelMap: image.PixelMap | undefined = await image.createPixelMap(dstArr.buffer, {
                   // The processed dstArr array buffer creates pixelMap directly by width and height,
                   // and stores it in the global variable stridePixel and passes it to Image for display.
                   size: { height: height, width: width },
@@ -94,6 +98,7 @@ class CameraService {
       });
     })
   }
+
   // [End Case1_start]
 
   getPreviewProfile(cameraOutputCapability: camera.CameraOutputCapability): camera.Profile | undefined {
@@ -101,7 +106,7 @@ class CameraService {
     if (previewProfiles.length < 1) {
       return undefined;
     }
-    let index = previewProfiles.findIndex((previewProfile: camera.Profile) => {
+    let index: number = previewProfiles.findIndex((previewProfile: camera.Profile) => {
       return previewProfile.size.width === this.previewProfileObj.size.width &&
         previewProfile.size.height === this.previewProfileObj.size.height &&
         previewProfile.format === this.previewProfileObj.format;
@@ -118,7 +123,7 @@ class CameraService {
    * @param cameraDeviceIndex - Camera equipment index
    * @returns No return value
    */
-  async initCamera(cameraDeviceIndex: number, uiContext:UIContext): Promise<void> {
+  async initCamera(cameraDeviceIndex: number, uiContext: UIContext): Promise<void> {
     Logger.debug(TAG, `initCamera cameraDeviceIndex: ${cameraDeviceIndex}`);
     try {
       await this.releaseCamera();
@@ -141,7 +146,7 @@ class CameraService {
         return;
       }
       // Turn on the camera
-      let isOpenSuccess = await this.cameraInputOpenFn(this.cameraInput);
+      let isOpenSuccess: boolean = await this.cameraInputOpenFn(this.cameraInput);
       if (!isOpenSuccess) {
         Logger.error(TAG, 'Failed to open the camera.');
         return;
@@ -177,10 +182,15 @@ class CameraService {
     }
   }
 
-  getPreviewRotation() {
+  getPreviewRotation(): void {
     let previewRotation: camera.ImageRotation | undefined = camera.ImageRotation.ROTATION_0;
-    previewRotation = this.previewOutput?.getPreviewRotation(previewRotation);
-    AppStorage.set('previewRotation', previewRotation);
+    try {
+      previewRotation = this.previewOutput?.getPreviewRotation(previewRotation);
+      AppStorage.set('previewRotation', previewRotation);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.warn(0x000, 'testTag', `setColorMode failed, code=${err.code}, message=${err.message}`);
+    }
   }
 
   /**
@@ -220,7 +230,7 @@ class CameraService {
   /**
    * Get the Camera Manager instance
    */
-  getCameraManagerFn(uiContext:UIContext): camera.CameraManager | undefined {
+  getCameraManagerFn(uiContext: UIContext): camera.CameraManager | undefined {
     if (this.cameraManager) {
       return this.cameraManager;
     }

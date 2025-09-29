@@ -22,8 +22,6 @@ import Logger from '../utils/Logger';
 import { WindowUtil } from '../utils/WindowUtil';
 
 export default class EntryAbility extends UIAbility {
-    private uiContext: UIContext | null = null;
-
     onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
         GlobalContext.getContext().setObject('context', this.context)
         hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onCreate');

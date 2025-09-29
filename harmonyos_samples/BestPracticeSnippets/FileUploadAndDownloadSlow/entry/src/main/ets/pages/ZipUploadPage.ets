@@ -16,6 +16,9 @@ class ZipUpload {
 
 @Component
 struct ZipUploadPage {
+  private context: common.UIAbilityContext | undefined = undefined;
+  private waitList: Array<string> = [];
+
   // [Start zip_upload_page]
   // Data compression processing
   async zipUploadFiles(fileUris: Array<string>): Promise<void> {

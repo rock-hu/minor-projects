@@ -127,8 +127,8 @@ export struct ArrayTypeCode {
 // Array Item content component.
 @Component
 struct ArrayDataItem {
-  private arrayDataItem: ArrayDataType = new ArrayDataType(0, '', 0);
-  private itemIndex: number = 0;
+  arrayDataItem: ArrayDataType = new ArrayDataType(0, '', 0);
+  itemIndex: number = 0;
 
   build() {
     Column() {

@@ -72,7 +72,6 @@ struct Index {
   }
 
   aboutToAppear() {
-    this.context = this.getUIContext().getHostContext() as common.UIAbilityContext
-
+    this.context = this.getUIContext().getHostContext() as common.UIAbilityContext;
   }
 }

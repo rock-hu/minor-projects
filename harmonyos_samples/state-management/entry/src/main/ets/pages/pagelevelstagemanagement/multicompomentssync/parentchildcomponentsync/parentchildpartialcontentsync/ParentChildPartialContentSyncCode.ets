@@ -77,7 +77,7 @@ export struct ParentChildPartialContentSyncCode {
 // Shows the child components of a single element in an array.
 @Component
 struct ParentCompDataItem {
-  private index: number = 0;
+  index: number = 0;
   @Prop syncIndex: number;
   // Decorated with @ObjectLink to synchronize with elements in the parent component.
   @ObjectLink childObject: ClassObject;

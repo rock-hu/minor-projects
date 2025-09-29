@@ -27,11 +27,17 @@ const TAG: string = '[DecodeUtil]';
 async function getResourceFd(component: UIContext): Promise<number> {
   const context = component.getHostContext()!;
   const resourceMgr = context.resourceManager;
-  let imageBuffer = await resourceMgr.getMediaContent($r('app.media.ic_low'));
-  let filePath = context.cacheDir + '/low.jpg';
-  let file = fileIo.openSync(filePath, fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE);
-  fileIo.writeSync(file.fd, imageBuffer.buffer);
-  return file.fd;
+  let res = -1;
+  try {
+    let imageBuffer = await resourceMgr.getMediaContent($r('app.media.ic_low').id);
+    let filePath = context.cacheDir + '/low.jpg';
+    let file = fileIo.openSync(filePath, fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE);
+    fileIo.writeSync(file.fd, imageBuffer.buffer);
+    res = file.fd;
+  } catch (err) {
+    hilog.error(0x0000, 'DecodeUtil', 'Failed to get resource fd: ', JSON.stringify(err) ?? '');
+  }
+  return res;
 }
 
 /**

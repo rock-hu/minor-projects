@@ -53,23 +53,25 @@ struct EditPage {
   };
 
   requestImage(requestImageParams: RequestImageParams): void {
-    try {
-      class MediaDataHandler implements photoAccessHelper.MediaAssetDataHandler<ArrayBuffer> {
-        onDataPrepared(data: ArrayBuffer, map: Map<string, string>): void {
-          Logger.info(TAG, 'onDataPrepared map' + JSON.stringify(map));
-          requestImageParams.callback(data);
-          Logger.info(TAG, 'onDataPrepared end');
-        }
-      };
-      let requestOptions: photoAccessHelper.RequestOptions = {
-        deliveryMode: photoAccessHelper.DeliveryMode.BALANCE_MODE,
-      };
-      const handler = new MediaDataHandler();
-      photoAccessHelper.MediaAssetManager.requestImageData(requestImageParams.context, requestImageParams.photoAsset,
-        requestOptions, handler);
-    } catch (error) {
-      Logger.error(TAG, `Failed in requestImage, error code: ${error.code}`);
-    }
+    class MediaDataHandler implements photoAccessHelper.MediaAssetDataHandler<ArrayBuffer> {
+      onDataPrepared(data: ArrayBuffer, map: Map<string, string>): void {
+        Logger.info(TAG, 'onDataPrepared map' + JSON.stringify(map));
+        requestImageParams.callback(data);
+        Logger.info(TAG, 'onDataPrepared end');
+      }
+    };
+    let requestOptions: photoAccessHelper.RequestOptions = {
+      deliveryMode: photoAccessHelper.DeliveryMode.BALANCE_MODE,
+    };
+    const handler = new MediaDataHandler();
+    photoAccessHelper.MediaAssetManager.requestImageData(requestImageParams.context, requestImageParams.photoAsset,
+      requestOptions, handler)
+      .then(() => {
+        Logger.info(TAG, 'requestImageData success');
+      })
+      .catch((err: BusinessError) => {
+        Logger.error(TAG, `requestImageData failed, code=${err.code}, message=${err.message}`)
+      })
   }
 
   aboutToAppear() {
@@ -88,6 +90,7 @@ struct EditPage {
       this.curPixelMap = GlobalContext.get().getT<image.PixelMap>('photoAsset');
     }
   }
+
   // [End photo_buffer_callback]
 
   build() {

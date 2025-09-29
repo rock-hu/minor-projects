@@ -25,7 +25,13 @@ struct Index {
     const accessManager = abilityAccessCtrl.createAtManager();
     const bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION;
     const bundleInfo = bundleManager.getBundleInfoForSelfSync(bundleFlags);
-    const grantStatus = accessManager.checkAccessTokenSync(bundleInfo.appInfo.accessTokenId, permissions[0]);
+    let grantStatus: abilityAccessCtrl.GrantStatus | null = null;
+    try {
+      grantStatus = accessManager.checkAccessTokenSync(bundleInfo.appInfo.accessTokenId, permissions[0]);
+    } catch (error) {
+      let err = error as BusinessError;
+      Logger.error(`checkAccessTokenSync failed, code=${err.code}, message=${err.message}`);
+    }
     if (grantStatus === abilityAccessCtrl.GrantStatus.PERMISSION_DENIED) {
       // [Start permission_camera]
       accessManager.requestPermissionsFromUser(this.getUIContext().getHostContext(), ['ohos.permission.CAMERA'])
@@ -36,21 +42,31 @@ struct Index {
           } else {
             Logger.info('request permissions denied');
             // [StartExclude permission_camera]
-            this.getUIContext().getPromptAction().showToast({
-              message: 'This function requires the camera permission. Go to the settings page to authorize the permission'
-            });
+            try {
+              this.getUIContext().getPromptAction().showToast({
+                message: 'This function requires the camera permission. Go to the settings page to authorize the permission'
+              });
+            } catch (error) {
+              let err = error as BusinessError;
+              Logger.error(`showToast failed, code=${err.code}, message=${err.message}`);
+            }
             // [EndExclude permission_camera]
           }
         })
-          // [End permission_camera]
+        // [End permission_camera]
         .catch((error: BusinessError) => {
           Logger.error(`request permissions exception, Catch error:${JSON.stringify(error)}`);
         })
     } else {
       Logger.info('request permissions granted');
-      this.getUIContext().getPromptAction().showToast({
-        message: 'request permissions has granted'
-      });
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: 'request permissions has granted'
+        });
+      } catch (error) {
+        let err = error as BusinessError;
+        Logger.error(`showToast failed, code=${err.code}, message=${err.message}`);
+      }
     }
   }
 
@@ -60,13 +76,29 @@ struct Index {
         .height(40)
         .width('100%')
         .onClick(() => {
-          this.getUIContext().getRouter().pushUrl({ url: 'pages/ApproximatelyLocationDemo' });
+          this.getUIContext()
+            .getRouter()
+            .pushUrl({ url: 'pages/ApproximatelyLocationDemo' })
+            .then(() => {
+              Logger.info(`showToast success`);
+            })
+            .catch((err: BusinessError) => {
+              Logger.error(`showToast failed, code=${err.code}, message=${err.message}`);
+            })
         })
       Button($r('app.string.use_picker'))
         .height(40)
         .width('100%')
         .onClick(() => {
-          this.getUIContext().getRouter().pushUrl({ url: 'pages/PickerDemo' });
+          this.getUIContext()
+            .getRouter()
+            .pushUrl({ url: 'pages/PickerDemo' })
+            .then(() => {
+              Logger.info(`showToast success`);
+            })
+            .catch((err: BusinessError) => {
+              Logger.error(`showToast failed, code=${err.code}, message=${err.message}`);
+            })
         })
       Button($r('app.string.apply_camera_permissions'))
         .height(40)

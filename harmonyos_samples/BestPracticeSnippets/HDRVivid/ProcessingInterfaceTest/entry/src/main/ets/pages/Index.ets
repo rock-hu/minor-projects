@@ -14,6 +14,7 @@
  */
 
 import { router } from '@kit.ArkUI';
+import { BusinessError } from '@kit.BasicServicesKit';
 import Logger from '../utils/Logger';
 
 const TAG: string = 'PickerPage';
@@ -34,9 +35,16 @@ struct Index {
           .borderRadius(10)
           .onClick(() => {
             Logger.info(TAG, 'Picker init VideoPage ')
-            this.uiContext.getRouter().pushUrl({
-              url: 'pages/VideoPage',
-            }, router.RouterMode.Standard);
+            this.uiContext.getRouter()
+              .pushUrl({
+                url: 'pages/VideoPage',
+              }, router.RouterMode.Standard)
+              .then(() => {
+                Logger.info(TAG, 'pushUrl success');
+              })
+              .catch((err: BusinessError) => {
+                Logger.warn(TAG, `pushUrl failed, code=${err.code}, message=${err.message}`)
+              })
           })
           .margin('30')
         if (this.showProgressBar) {

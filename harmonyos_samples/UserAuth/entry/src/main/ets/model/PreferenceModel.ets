@@ -5,6 +5,8 @@
 import { preferences } from '@kit.ArkData'
 import CommonConstants from '../common/constants/CommonConstants';
 import { common } from '@kit.AbilityKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 let context = uiContext?.getHostContext() as common.UIAbilityContext;
@@ -15,10 +17,15 @@ class PreferenceModel {
   /**
    * Read the specified Preferences persistence file and load the data into the Preferences instance.
    */
-  getPreferencesFromStorage(): preferences.Preferences {
+  getPreferencesFromStorage(): preferences.Preferences | undefined {
     if (!this.preference) {
       let options: preferences.Options = { name: CommonConstants.PREFERENCES_NAME};
-      this.preference = preferences.getPreferencesSync(context, options);
+      try {
+        this.preference = preferences.getPreferencesSync(context, options);
+        return this.preference;
+      } catch (error) {
+        hilog.error(0x0000, 'UserAuth', `replaceUrl error ${JSON.stringify(error)}`);
+      }
     }
     return this.preference;
   }
@@ -31,11 +38,17 @@ class PreferenceModel {
    */
   putPreference(key: string, value: preferences.ValueType) {
     let preference = this.getPreferencesFromStorage();
-    if (!key || !value) {
+    if (!key || !value || !preference) {
       return;
     }
-    preference.putSync(key, value);
-    preference.flush();
+    try {
+      preference.putSync(key, value);
+    } catch (error) {
+      hilog.error(0x0000, 'UserAuth', `putSync error ${JSON.stringify(error)}`);
+    }
+    preference.flush().catch((error: BusinessError) => {
+      hilog.error(0x0000, 'UserAuth', `flush error ${error.code}`);
+    });
   }
 
   /**
@@ -46,7 +59,15 @@ class PreferenceModel {
    */
   getPreference(key: string, value: preferences.ValueType): preferences.ValueType {
     let preference = this.getPreferencesFromStorage();
-    return preference.getSync(key, value);
+    if (!preference) {
+      return '';
+    }
+    try {
+      return preference.getSync(key, value);
+    } catch (error) {
+      hilog.error(0x0000, 'UserAuth', `getSync error ${JSON.stringify(error)}`);
+    }
+    return '';
   }
 }
 

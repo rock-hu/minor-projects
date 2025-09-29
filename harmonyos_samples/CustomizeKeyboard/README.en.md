@@ -27,13 +27,17 @@ How to Use
 │  │  └──Constants.ets                   // Common constants
 │  ├──entryability
 │  │  └──EntryAbility.ets                // Entry ability
+│  ├──entrybackupability
+│  │  └──EntryBackupAbility.ets          // Entry backup ability
 │  ├──model
 │  │  └──KeyboardController.ets          // Custom keyboard controller
 │  ├──pages
 │  │  └──MainPage.ets                    // Main page
 │  ├──view
 │  │  ├──CustomKeyboard.ets              // Custom keyboard
+│  │  ├──CustomKeyboardComponent.ets     // Custom keyboard component
 │  │  ├──EnglishKeyboard.ets             // English keyboard
+│  │  ├──InputTextComponent.ets          // Input text component
 │  │  ├──NumberKeyboard.ets              // Numeric keyboard
 │  │  ├──TabButton.ets                   // Tab button on the top of the keyboard
 │  │  ├──TabView.ets                     // Tab component on the top of the keyboard

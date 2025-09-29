@@ -26,7 +26,7 @@ export class WindowUtil {
   private windowStage?: window.WindowStage;
   private mainWindowClass?: window.Window;
 
-  public static getInstance() {
+  public static getInstance(): WindowUtil {
     if (!WindowUtil.instance) {
       WindowUtil.instance = new WindowUtil();
     }
@@ -45,23 +45,27 @@ export class WindowUtil {
       }
       // [EndExclude set_stage1]
       this.mainWindowClass = windowClass;
-      const properties: window.WindowProperties = windowClass.getWindowProperties(); // Get window information
-      // [StartExclude set_stage1]
-      // Get status bar height.
-      let area: window.AvoidArea = windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
-      let naviBarArea: window.AvoidArea =
-        windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
-      // [EndExclude set_stage1]
-      AppStorage.setOrCreate('deviceWidth', properties.windowRect.width); // Set the window width
-      AppStorage.setOrCreate('deviceHeight', properties.windowRect.height); // Set the window height
-      // [StartExclude set_stage1]
-      AppStorage.setOrCreate('statusBarHeight', uiContext?.px2vp(area.topRect.height));
-      AppStorage.setOrCreate('navBarHeight', uiContext?.px2vp(naviBarArea.bottomRect.height));
-      windowClass.on('windowSizeChange', () => BreakpointSystem.getInstance().onWindowSizeChange(windowClass));
-      windowClass.on('avoidAreaChange', (avoidAreaOption) => {
-        WindowUtil.setAvoidArea(avoidAreaOption.type, avoidAreaOption.area);
-      });
-      // [EndExclude set_stage1]
+      try {
+        const properties: window.WindowProperties = windowClass.getWindowProperties(); // Get window information
+        // [StartExclude set_stage1]
+        // Get status bar height.
+        let area: window.AvoidArea = windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
+        let naviBarArea: window.AvoidArea =
+          windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
+        // [EndExclude set_stage1]
+        AppStorage.setOrCreate('deviceWidth', properties.windowRect.width); // Set the window width
+        AppStorage.setOrCreate('deviceHeight', properties.windowRect.height); // Set the window height
+        // [StartExclude set_stage1]
+        AppStorage.setOrCreate('statusBarHeight', uiContext?.px2vp(area.topRect.height));
+        AppStorage.setOrCreate('navBarHeight', uiContext?.px2vp(naviBarArea.bottomRect.height));
+        windowClass.on('windowSizeChange', () => BreakpointSystem.getInstance().onWindowSizeChange(windowClass));
+        windowClass.on('avoidAreaChange', (avoidAreaOption) => {
+          WindowUtil.setAvoidArea(avoidAreaOption.type, avoidAreaOption.area);
+        });
+        // [EndExclude set_stage1]
+      } catch (error) {
+        Logger.error(TAG, `setWindowStage getWindowProperties failed. Code:${err.code}, message:${err.message}`);
+      }
     });
   }
   // [End set_stage1]
@@ -100,11 +104,9 @@ export class WindowUtil {
       return;
     }
     // Set the status bar and navigation bar to be invisible in full-screen mode.
-    try {
-      this.mainWindowClass.setWindowSystemBarEnable([]);
-    } catch (err) {
+    this.mainWindowClass.setWindowSystemBarEnable([]).catch((err: BusinessError) => {
       Logger.error(TAG, `disableWindowSystemBar failed, err.code:${err.code}, err.message:${err.message}`);
-    }
+    });
   }
 
   enableWindowSystemBar(): void {
@@ -112,11 +114,9 @@ export class WindowUtil {
       Logger.error(`MainWindowClass is undefined`);
       return;
     }
-    try {
-      this.mainWindowClass.setWindowSystemBarEnable(['status', 'navigation']);
-    } catch (err) {
+    this.mainWindowClass.setWindowSystemBarEnable(['status', 'navigation']).catch((err: BusinessError) => {
       Logger.error(TAG, `enableWindowSystemBar failed, err.code:${err.code}, err.message:${err.message}`);
-    }
+    });
   }
 
   setLandscapeMultiWindow(enable: boolean): void {
@@ -124,14 +124,14 @@ export class WindowUtil {
       Logger.error(`MainWindowClass is undefined`);
       return;
     }
-    try {
-      if (enable) {
-        this.mainWindowClass?.enableLandscapeMultiWindow();
-      } else {
-        this.mainWindowClass?.disableLandscapeMultiWindow();
-      }
-    } catch (err) {
-      Logger.error(TAG, `setLandscapeMultiWindow failed, err.code:${err.code}, err.message:${err.message}`);
+    if (enable) {
+      this.mainWindowClass?.enableLandscapeMultiWindow().catch((err: BusinessError) => {
+        Logger.error(TAG, `enableLandscapeMultiWindow failed, err.code:${err.code}, err.message:${err.message}`);
+      });
+    } else {
+      this.mainWindowClass?.disableLandscapeMultiWindow().catch((err: BusinessError) => {
+        Logger.error(TAG, `disableLandscapeMultiWindow failed, err.code:${err.code}, err.message:${err.message}`);
+      });
     }
   }
   // [Start size_change]

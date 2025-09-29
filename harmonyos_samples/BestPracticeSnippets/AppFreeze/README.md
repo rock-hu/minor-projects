@@ -13,13 +13,19 @@
 ```
 ├──entry/src/main                                   
 │  ├──cpp 
-│  │   └──pages                                              
-│  │       └──AppFreezeCase.cpp                            // C++ 样例代码
+│  │  └──pages
+│  │      ├──CMakeLists.txt   
+│  │      ├──napi_init.txt                                 // C++ init示例代码       
+│  │      └──AppFreezeCase.cpp                             // C++ 样例代码
 │  └──ets 
-│     └──pages             
-│        ├──appfreezecase.ets                              // ArkTS样例代码       
-│        └──Index.ets                                      // 首页                              
-└──entry/src/main/resources  
+│     ├──pages             
+│     │   ├──appfreezecase.ets                             // ArkTS样例代码       
+│     │   └──Index.ets                                     // 首页       
+│     ├──entryability
+│     │   └──EntryAbility.ets                              // Ability的生命周期回调内容
+│     └──entrybackupability
+│         └──EntryBackupAbility.ets                        // 应用数据备份恢复类                       
+└──entry/src/main/resources                                // 应用资源目录 
 ```
 
 ### 具体实现

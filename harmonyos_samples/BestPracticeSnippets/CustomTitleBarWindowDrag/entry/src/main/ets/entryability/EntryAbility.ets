@@ -22,7 +22,12 @@ const DOMAIN = 0x0000;
 
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
-    this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
+    try {
+      this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.warn(0x000, 'testTag', `setColorMode failed, code=${err.code}, message=${err.message}`);
+    }
     hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onCreate');
   }
 
@@ -42,8 +47,8 @@ export default class EntryAbility extends UIAbility {
       hilog.info(DOMAIN, 'testTag', 'Succeeded in loading the content.');
     });
 
-    try {
-      windowStage.getMainWindow().then((mainWindow: window.Window) => {
+    windowStage.getMainWindow()
+      .then((mainWindow: window.Window) => {
         try {
           mainWindow.resize(500, 400).then(() => {
             console.info('Succeeded in changing the window size.');
@@ -54,11 +59,11 @@ export default class EntryAbility extends UIAbility {
           console.error(`Failed to change the window size. Cause code: ${exception.code}, message: ${exception.message}`);
         }
         AppStorage.setOrCreate('mainWindow', mainWindow);
-      });
-    } catch (exception) {
-      hilog.error(DOMAIN, 'testTag', 'Failed to set window system bar properties, Cause: %{public}s',
-        JSON.stringify(exception) ?? '');
-    }
+      })
+      .catch((err: BusinessError) => {
+        hilog.error(0x000, 'testTag', `getMainWindow failed, code=${err.code}, message=${err.message}`);
+      })
+
     // cache the window manager into AppStorage
     AppStorage.setOrCreate('window', windowStage);
   }

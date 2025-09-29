@@ -12,7 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { router } from '@kit.ArkUI';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 @Entry
 @Component
@@ -28,42 +29,90 @@ struct Index {
           .height(40)
           .width('100%')
           .onClick(() => {
-            this.getUIContext().getRouter().pushUrl({url: "pages/sample1/Sample1"})
+            this.getUIContext()
+              .getRouter()
+              .pushUrl({ url: "pages/sample1/Sample1" })
+              .then(() => {
+                hilog.info(0x000, 'testTag', 'pushUrl success');
+              })
+              .catch((err: BusinessError) => {
+                hilog.error(0x000, 'testTag', `pushUrl failed, code=${err.code}, message=${err.message}`);
+              })
           })
 
         Button('Sample2')
           .height(40)
           .width('100%')
           .onClick(() => {
-            this.getUIContext().getRouter().pushUrl({url: "pages/sample2/Sample2"})
+            this.getUIContext()
+              .getRouter()
+              .pushUrl({ url: "pages/sample2/Sample2" })
+              .then(() => {
+                hilog.info(0x000, 'testTag', 'pushUrl success');
+              })
+              .catch((err: BusinessError) => {
+                hilog.error(0x000, 'testTag', `pushUrl failed, code=${err.code}, message=${err.message}`);
+              })
           })
 
         Button('Sample3')
           .height(40)
           .width('100%')
           .onClick(() => {
-            this.getUIContext().getRouter().pushUrl({url: "pages/sample3/Sample3"})
+            this.getUIContext()
+              .getRouter()
+              .pushUrl({ url: "pages/sample3/Sample3" })
+              .then(() => {
+                hilog.info(0x000, 'testTag', 'pushUrl success');
+              })
+              .catch((err: BusinessError) => {
+                hilog.error(0x000, 'testTag', `pushUrl failed, code=${err.code}, message=${err.message}`);
+              })
           })
 
         Button('Sample4')
           .height(40)
           .width('100%')
           .onClick(() => {
-            this.getUIContext().getRouter().pushUrl({url: "pages/sample4/Sample4"})
+            this.getUIContext()
+              .getRouter()
+              .pushUrl({ url: "pages/sample4/Sample4" })
+              .then(() => {
+                hilog.info(0x000, 'testTag', 'pushUrl success');
+              })
+              .catch((err: BusinessError) => {
+                hilog.error(0x000, 'testTag', `pushUrl failed, code=${err.code}, message=${err.message}`);
+              })
           })
 
         Button('Sample5')
           .height(40)
           .width('100%')
           .onClick(() => {
-            this.getUIContext().getRouter().pushUrl({url: "pages/sample5/Sample5"})
+            this.getUIContext()
+              .getRouter()
+              .pushUrl({ url: "pages/sample5/Sample5" })
+              .then(() => {
+                hilog.info(0x000, 'testTag', 'pushUrl success');
+              })
+              .catch((err: BusinessError) => {
+                hilog.error(0x000, 'testTag', `pushUrl failed, code=${err.code}, message=${err.message}`);
+              })
           })
 
         Button('Sample6')
           .height(40)
           .width('100%')
           .onClick(() => {
-            this.getUIContext().getRouter().pushUrl({url: "pages/sample6/Sample6"})
+            this.getUIContext()
+              .getRouter()
+              .pushUrl({ url: "pages/sample6/Sample6" })
+              .then(() => {
+                hilog.info(0x000, 'testTag', 'pushUrl success');
+              })
+              .catch((err: BusinessError) => {
+                hilog.error(0x000, 'testTag', `pushUrl failed, code=${err.code}, message=${err.message}`);
+              })
           })
       }
       .height('100%')

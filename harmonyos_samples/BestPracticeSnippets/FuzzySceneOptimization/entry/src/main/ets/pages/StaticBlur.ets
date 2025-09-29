@@ -17,6 +17,8 @@
 import { image } from '@kit.ImageKit';
 import { effectKit } from '@kit.ArkGraphics2D';
 import { window } from '@kit.ArkUI';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 @Component
 export struct StaticBlur {
@@ -31,19 +33,34 @@ export struct StaticBlur {
       if (err.code) {
         return;
       }
-      // get the height of the bottom navigation bar
-      this.bottomSafeHeight =
-        this.getUIContext().px2vp(windowBar.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR).bottomRect.height);
-      windowBar.setWindowLayoutFullScreen(true);
+      try {
+        // get the height of the bottom navigation bar
+        this.bottomSafeHeight =
+          this.getUIContext()
+            .px2vp(windowBar.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR).bottomRect.height);
+      } catch (error) {
+        let err = error as BusinessError;
+        hilog.warn(0x000, 'testTag', `getWindowAvoidArea failed, code=${err.code}, message=${err.message}`);
+      }
+      windowBar.setWindowLayoutFullScreen(true)
+        .catch((err: BusinessError) => {
+          hilog.error(0x000, 'testTag', `setWindowLayoutFullScreen failed, code=${err.code}, message=${err.message}`);
+        })
     });
   }
 
   async staticBlur() {
     let context = this.getUIContext().getHostContext()!;
     let resourceMgr = context.resourceManager; // retrieve the resourceManager object
-    const fileData = await resourceMgr.getRawFileContent('test.png'); // retrieve images from the rawfile directory
-    let buffer: ArrayBuffer = fileData.buffer.slice(0); // create an ArrayBuffer instance
-    this.imgSource = image.createImageSource(buffer); // create an image source instance
+    // const fileData = await resourceMgr.getRawFileContent('test.png'); // retrieve images from the rawfile directory
+    await resourceMgr.getRawFileContent('test.png') // retrieve images from the rawfile directory
+      .then((fileData: Uint8Array) => {
+        let buffer: ArrayBuffer = fileData.buffer.slice(0); // create an ArrayBuffer instance
+        this.imgSource = image.createImageSource(buffer); // create an image source instance
+      })
+      .catch((err: BusinessError) => {
+        hilog.error(0x000, 'testTag', `getRawFileContent failed, code=${err.code}, message=${err.message}`);
+      })
     // create attributes for pixels
     let opts: image.InitializationOptions = {
       editable: true, // is it editable
@@ -55,7 +72,7 @@ export struct StaticBlur {
       }
     };
     // create PixelMap
-    await this.imgSource.createPixelMap(opts).then((pixelMap: image.PixelMap) => {
+    await this.imgSource!.createPixelMap(opts).then((pixelMap: image.PixelMap) => {
       const blurRadius = 3;
       let headFilter = effectKit.createEffect(pixelMap); // create Filter Instance
       if (headFilter !== null) {
@@ -110,4 +127,5 @@ export struct StaticBlur {
     .hideTitleBar(true)
   }
 }
+
 // [End static_start]

@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Entry
 @Component
@@ -20,7 +22,13 @@ struct HelloWorldPage {
 
   // Jump to the second page
   private navigateToSecond() {
-    this.getUIContext().getRouter().pushUrl({ url: 'pages/SecondPage' });
+    this.getUIContext().getRouter().pushUrl({ url: 'pages/SecondPage' })
+      .then(() => {
+        hilog.info(0x000, 'testTag', `pushUrl success`);
+      })
+      .catch((error: BusinessError) => {
+        hilog.error(0x000, 'testTag', `pushUrl failed. code=${error.code}, message=${error.message}`);
+      })
   }
 
   build() {

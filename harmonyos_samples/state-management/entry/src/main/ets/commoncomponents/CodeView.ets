@@ -25,7 +25,7 @@ export struct CodeView {
   @StorageLink('sideBarShow') sideBarShow: boolean = false;
   @StorageLink('webSrc') @Watch('webSrcChange') webSrc: Resource = $rawfile('BaseTypeCode.ets.html');
   @StorageLink('currentBreakpoint') curBp: string = 'sm';
-  private isShowTitle: boolean = true;
+  isShowTitle: boolean = true;
   private controller: webview.WebviewController = new webview.WebviewController();
 
   webSrcChange():void {

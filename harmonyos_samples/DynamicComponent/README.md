@@ -41,7 +41,15 @@
     │   ├───pages
     │   │   ├───Index.ets                                // 应用入口
     │   │   ├───MainPage.ets                             // 主页面
+    │   │   ├───TestCode.ets                               
     │   │   └───TitleBar.ets                             // 标题头
+    │   ├───segment
+    │   │   ├───segment.ets     
+    │   │   ├───segment2.ets     
+    │   │   ├───segment3.ets     
+    │   │   ├───segment4.ets     
+    │   │   ├───segment5.ets     
+    │   │   └───segment6.ets                                                      
     │   └───view
     │       └───ImperativeView.ets                       // 动态生成页面案例
     └───entry/src/main/resources                         // 应用静态资源目录

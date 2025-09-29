@@ -27,7 +27,7 @@ function ColumnStyle() {
 @Preview
 @Component
 export struct TabContentNavigation {
-  private categories: ThirdLevelCategory[] | SecondLevelCategory[] = [];
+  categories: ThirdLevelCategory[] | SecondLevelCategory[] = [];
 
   hasSecondLevelCategory(category: ThirdLevelCategory | SecondLevelCategory): boolean {
     return category && category.tag ? false : true;
@@ -95,9 +95,9 @@ export struct TabContentNavigation {
 @Component
 struct ThirdLevelNavigation {
   @State isUnfold: boolean = false;
-  private thirdLevelCategory: ThirdLevelCategory = new ThirdLevelCategory();
-  private ThirdLevelNavigationIndex: number = 0;
-  private secondLevelCategoryIndex: number = 0;
+  thirdLevelCategory: ThirdLevelCategory = new ThirdLevelCategory();
+  ThirdLevelNavigationIndex: number = 0;
+  secondLevelCategoryIndex: number = 0;
 
   build() {
     Column() {
@@ -155,7 +155,7 @@ struct ThirdLevelNavigation {
 
 @Component
 struct FourthLevelNavigation {
-  private fourthLevelCategory: FourthLevelCategory = new FourthLevelCategory();
+  fourthLevelCategory: FourthLevelCategory = new FourthLevelCategory();
 
   build() {
     Row() {

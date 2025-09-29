@@ -12,34 +12,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { abilityAccessCtrl,bundleManager } from '@kit.AbilityKit'
+import { abilityAccessCtrl, bundleManager } from '@kit.AbilityKit'
 import { promptAction, UIContext } from '@kit.ArkUI';
-import Logger from '../util/Logger'
+import Logger from '../util/Logger';
 
-const TAG: string = 'AbilityAccessCtrlController'
+const TAG: string = 'AbilityAccessCtrlController';
 
 
 export default class AbilityAccessCtrlController {
-  private UIContext: UIContext
+  private UIContext: UIContext;
 
   constructor(UIContext: UIContext) {
-    this.UIContext = UIContext
+    this.UIContext = UIContext;
   }
+
   // Checks whether the permission is granted to the application and returns the result asynchronously in Promise mode.
   // Corresponding to verifyPermission() of the FA model
   verifyAccessToken() {
-    let AtManager = abilityAccessCtrl.createAtManager()
+    let AtManager = abilityAccessCtrl.createAtManager();
     let bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION;
-    let bundledata
+    let bundledata;
     try {
       bundledata = bundleManager.getBundleInfoForSelfSync(bundleFlags);
     } catch (err) {
-      Logger.info(TAG, `getBundleInfoForSelfSync error: ${err}`)
+      Logger.info(TAG, `getBundleInfoForSelfSync error: ${err}`);
     }
-    let tokenID = bundledata.appInfo.accessTokenId
-    let promise = AtManager.verifyAccessTokenSync(tokenID, "ohos.permission.GRANT_SENSITIVE_PERMISSIONS");
-    this.UIContext.getPromptAction().showToast({
-      message: `promise: data: ${JSON.stringify(promise)}`
-    })
+    let tokenID = bundledata.appInfo.accessTokenId;
+    try {
+      let data: abilityAccessCtrl.GrantStatus =
+        AtManager.verifyAccessTokenSync(tokenID, "ohos.permission.GRANT_SENSITIVE_PERMISSIONS");
+      Logger.info(TAG, `verifyAccessTokenSync success, result: ${data}`);
+      this.UIContext.getPromptAction().showToast({
+        message: `promise: data: ${JSON.stringify(data)}`
+      })
+    } catch (err) {
+      Logger.error(TAG, `verifyAccessTokenSync fail, code: ${err.code}, message: ${err.message}`);
+    }
   }
 }

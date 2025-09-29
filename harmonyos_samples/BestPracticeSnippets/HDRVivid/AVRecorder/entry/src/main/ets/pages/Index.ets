@@ -87,7 +87,13 @@ struct Index {
             message: $r('app.string.show_toast_message'),
             duration: CommonConstants.SHOW_TOAST_DURATION,
             bottom: CommonConstants.SHOW_TOAST_BOTTOM
-          });
+          })
+            .then(() => {
+              Logger.info(TAG, 'openToast success');
+            })
+            .catch((err: BusinessError) => {
+              Logger.error(TAG, `openToast failed, code=${err.code}, message=${err.message}`)
+            })
           break;
         }
       }
@@ -117,7 +123,13 @@ struct Index {
           .onClick(async () => {
             this.checkAccessToken(this.permissions);
             if (this.result) {
-              router?.pushUrl({ url: 'pages/Record' });
+              router?.pushUrl({ url: 'pages/Record' })
+                .then(() => {
+                  Logger.info(TAG, 'pushUrl success');
+                })
+                .catch((err: BusinessError) => {
+                  Logger.error(TAG, `pushUrl failed, code=${err.code}, message=${err.message}`)
+                })
             }
           })
       }

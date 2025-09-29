@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { promptAction } from '@kit.ArkUI';
 import Logger from '../util/Logger';
 import { picker } from '@kit.CoreFileKit';
 import { CryptoOperation } from '../cryptoframework/CryptoOperation';
@@ -39,7 +38,14 @@ export struct Encrypt {
     Stack({ alignContent: Alignment.Center }) {
       Column() {
         GridRow() {
-          GridCol({ span: { xs: 12, sm: 12, md: 12, lg: 12 } }) {
+          GridCol({
+            span: {
+              xs: 12,
+              sm: 12,
+              md: 12,
+              lg: 12
+            }
+          }) {
             Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Center }) {
               List() {
                 ListItem() {
@@ -59,7 +65,12 @@ export struct Encrypt {
                     Image($r('app.media.right_arrow'))
                       .height('19vp')
                       .width('10vp')
-                      .margin({ left: 9, right: 9, top: 6, bottom: 6 })
+                      .margin({
+                        left: 9,
+                        right: 9,
+                        top: 6,
+                        bottom: 6
+                      })
                   }
                   .backgroundColor(0xFFFFFF)
                   .width('100%')
@@ -86,7 +97,12 @@ export struct Encrypt {
                     Image($r('app.media.right_arrow'))
                       .height('19vp')
                       .width('10vp')
-                      .margin({ left: 9, right: 9, top: 6, bottom: 6 })
+                      .margin({
+                        left: 9,
+                        right: 9,
+                        top: 6,
+                        bottom: 6
+                      })
                   }
                   .backgroundColor(0xFFFFFF)
                   .width('100%')
@@ -106,7 +122,14 @@ export struct Encrypt {
         .margin({ left: 12, right: 12, bottom: 12 })
 
         GridRow() {
-          GridCol({ span: { xs: 12, sm: 12, md: 12, lg: 12 } }) {
+          GridCol({
+            span: {
+              xs: 12,
+              sm: 12,
+              md: 12,
+              lg: 12
+            }
+          }) {
             Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Center }) {
               Column() {
                 Row() {
@@ -143,7 +166,14 @@ export struct Encrypt {
         .margin({ left: 12, right: 12, bottom: 12 })
 
         GridRow() {
-          GridCol({ span: { xs: 12, sm: 12, md: 12, lg: 12 } }) {
+          GridCol({
+            span: {
+              xs: 12,
+              sm: 12,
+              md: 12,
+              lg: 12
+            }
+          }) {
             Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Center }) {
               Column() {
                 Row() {
@@ -181,7 +211,14 @@ export struct Encrypt {
 
         Column() {
           GridRow() {
-            GridCol({ span: { xs: 12, sm: 12, md: 12, lg: 12 } }) {
+            GridCol({
+              span: {
+                xs: 12,
+                sm: 12,
+                md: 12,
+                lg: 12
+              }
+            }) {
               Column() {
                 Button() {
                   Text($r('app.string.generate_aes_key_randomly')).fontSize(16).fontWeight(500)
@@ -213,9 +250,13 @@ export struct Encrypt {
                 .backgroundColor('#007DFF')
                 .onClick(() => {
                   if (this.textFileUri === '' || this.keyFileUri === '') {
-                    this.getUIContext().getPromptAction().showToast({
-                      message: $r('app.string.null_message')
-                    });
+                    try {
+                      this.getUIContext().getPromptAction().showToast({
+                        message: $r('app.string.null_message')
+                      });
+                    } catch (err) {
+                      console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+                    }
                   } else {
                     this.encryptFunc();
                   }
@@ -286,23 +327,35 @@ export struct Encrypt {
 
   async encryptFunc() {
     if (this.plainText === '' || this.keyFileUri === '') {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.null_message')
-      });
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.null_message')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
       return;
     }
     try {
       this.cipherText = await this.CryptoOperation.aesConvertAndEncrypt(this.keyString, this.plainText);
     } catch (error) {
       Logger.error(TAG, `encrypt failed, ${error}`);
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.encrypt_fail')
-      });
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.encrypt_fail')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
     }
     if (this.cipherText === '' || this.cipherText === undefined || this.cipherText === null) {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.encrypt_fail')
-      });
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.encrypt_fail')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
       return;
     } else {
       try {
@@ -312,13 +365,21 @@ export struct Encrypt {
       }
     }
     if (this.encryptedFileUri === '' || typeof (this.encryptedFileUri) == 'undefined') {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.encrypt_fail')
-      });
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.encrypt_fail')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
     } else {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.encrypt_success')
-      });
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.encrypt_success')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
     }
   }
 
@@ -329,9 +390,13 @@ export struct Encrypt {
       Logger.error(TAG, `gen aes key failed, ${error}`);
     }
     if (this.keyString === '' || typeof (this.keyString) == 'undefined') {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.gen_key_fail')
-      });
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.gen_key_fail')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
       return;
     } else {
       try {
@@ -341,13 +406,21 @@ export struct Encrypt {
       }
     }
     if (this.createKeyUri === '' || typeof (this.createKeyUri) == 'undefined') {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.gen_key_fail')
-      });
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.gen_key_fail')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
     } else {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.gen_key_success')
-      });
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.gen_key_success')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
     }
   }
 }

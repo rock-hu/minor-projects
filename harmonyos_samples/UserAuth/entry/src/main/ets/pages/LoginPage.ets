@@ -12,6 +12,7 @@ import { BusinessError } from '@kit.BasicServicesKit';
 import UserAuthModel from '../model/UserAuthModel';
 import Logger from '../common/utils/Logger';
 import { RegisterPage } from '../view/RegisterPage';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Extend(TextInput)
 function inputStyle() {
@@ -55,7 +56,11 @@ struct LoginPage {
 
   onPageShow() {
     window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
-      windowStage.setWindowPrivacyMode(true);
+      windowStage.setWindowPrivacyMode(true).catch((error: BusinessError) => {
+        hilog.error(0x0000, 'UserAuth', `setWindowPrivacyMode error ${error.code}`);
+      });
+    }).catch((error: BusinessError) => {
+      hilog.error(0x0000, 'UserAuth', `getLastWindow error ${error.code}`);
     });
     this.isFace = PreferenceModel.getPreference(CommonConstants.IS_SHOW_FACE, false) as boolean;
     this.isFingerprint = PreferenceModel.getPreference(CommonConstants.IS_SHOW_FINGERPRINT, false) as boolean;
@@ -63,7 +68,11 @@ struct LoginPage {
 
   onPageHide(): void {
     window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
-      windowStage.setWindowPrivacyMode(false);
+      windowStage.setWindowPrivacyMode(false).catch((error: BusinessError) => {
+        hilog.error(0x0000, 'UserAuth', `setWindowPrivacyMode error ${error.code}`);
+      });
+    }).catch((error: BusinessError) => {
+      hilog.error(0x0000, 'UserAuth', `getLastWindow error ${error.code}`);
     });
   }
 
@@ -110,6 +119,8 @@ struct LoginPage {
         this.userLogin = true;
         this.getUIContext().getRouter().replaceUrl({
           url: 'pages/MainPage'
+        }).catch((error: BusinessError) => {
+          hilog.error(0x0000, 'UserAuth', `replaceUrl error ${error.code}`);
         });
       } else {
         PromptUtil.promptMessage($r('app.string.message_login_prompt'), CommonConstants.PROMPT_DURATION);

@@ -14,6 +14,7 @@
  */
 
 import { window } from '@kit.ArkUI';
+import { BusinessError } from '@kit.BasicServicesKit';
 import { CommonConstants as Const, Logger, VideoData } from '@ohos/MediaService';
 import { SOURCES, VideoSource } from '../model/DataModel';
 import { WindowUtil } from '../utils/WindowUtil';
@@ -22,6 +23,7 @@ import { VideoList } from '../view/VideoList';
 import { VideoPlayer } from '../view/AVPlayer';
 import { VideoDetails } from '../view/VideoDetails';
 import { common } from '@kit.AbilityKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const TAG = '[IndexPage]';
 
@@ -43,8 +45,17 @@ struct IndexPage {
 
   async aboutToAppear(): Promise<void> {
     let context = this.uiContext.getHostContext() as common.UIAbilityContext;
-    let windowClass = await window.getLastWindow(context);
-    await windowClass.setWindowKeepScreenOn(true);
+    await window.getLastWindow(context)
+      .then((windowClass: window.Window) => {
+        windowClass.setWindowKeepScreenOn(true)
+          .catch((err: BusinessError) => {
+            hilog.error(0x0000, 'testTag',`setWindowKeepScreenOn failed, Code:${err.code}, message:${err.message}`);
+          })
+      })
+      .catch((err: BusinessError) => {
+        hilog.error(0x0000, 'testTag',`getLastWindow failed, Code:${err.code}, message:${err.message}`);
+      })
+
     this.windowUtil.registerOnWindowSizeChange((size) => {
       if (size.width > size.height) {
         this.isFullLandscapeScreen = true;

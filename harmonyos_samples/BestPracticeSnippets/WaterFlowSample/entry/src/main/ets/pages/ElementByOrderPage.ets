@@ -14,7 +14,7 @@
  */
 
 import { CommonConstants } from '../common/constants/CommonConstants';
-
+// [Start quick_start]
 @Entry
 @Component
 struct ElementByOrderPage {
@@ -76,3 +76,4 @@ struct ElementByOrderPage {
     })
   }
 }
+// [End quick_start]

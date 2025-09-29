@@ -13,7 +13,17 @@
  * limitations under the License.
  */
 
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+
 export function getResourceString(resource: Resource, context: UIContext): string {
-  let resourceString = context.getHostContext()!.resourceManager.getStringSync(resource.id);
+  let resourceString = '';
+
+  try {
+    resourceString = context.getHostContext()!.resourceManager.getStringSync(resource.id);
+  } catch (error) {
+    let err = error as BusinessError;
+    hilog.error(0x0000, 'getResourceString', `getStringSync failed, error code=${err.code}, message=${err.message}`);
+  }
   return resourceString;
 }

@@ -45,34 +45,65 @@ struct Watcher {
   onPageShow() {
     this.myWorker.readyFilesToWorker();
     let filePathDir = this.baseDir + '/workerDir';
-    let filenames = fileIo.listFileSync(filePathDir);
+    let filenames: string[] = []
+    try {
+      filenames = fileIo.listFileSync(filePathDir);
+    } catch (e) {
+      Logger.error(TAG, `list file has failed for: {message: ${(e as Error).message}, ${e}}`);
+    }
     Logger.info(TAG, 'listFile succeed');
     for (let i = 0; i < filenames.length; i++) {
       Logger.info(TAG, 'filename: %s', filenames[i]);
       this.showFilePath[i] = filenames[i];
       let filePath = filePathDir + '/' + filenames[i]
-      this.filePathSize[i] = fileIo.statSync(filePath).size;
+      try {
+        this.filePathSize[i] = fileIo.statSync(filePath).size;
+      } catch (e) {
+        Logger.error(TAG, `rObtains detailed attribute information failed for: {message: ${(e as Error).message}, ${e}}`);
+      }
     }
     this.dirPath = this.baseDir + '/workerCopy';
-    if (!fileIo.accessSync(this.dirPath)) {
-      fileIo.mkdirSync(this.dirPath);
+    try {
+      if (!fileIo.accessSync(this.dirPath)) {
+        fileIo.mkdirSync(this.dirPath);
+      }
+    } catch (e) {
+      Logger.error(TAG, `Creates the directory failed for: {message: ${(e as Error).message}, ${e}}`);
     }
   }
 
   onPageHide() {
     this.dirPath = this.baseDir + '/workerCopy';
-    let isDirectory = fileIo.statSync(this.dirPath).isDirectory();
+    let isDirectory = false;
+    try {
+      isDirectory = fileIo.statSync(this.dirPath).isDirectory();
+    } catch (e) {
+      Logger.error(TAG, `Obtains detailed attribute information failed for: {message: ${(e as Error).message}, ${e}}`);
+    }
     if (isDirectory) {
-      fileIo.rmdirSync(this.dirPath);
+      try {
+        fileIo.rmdirSync(this.dirPath);
+      } catch (e) {
+        Logger.error(TAG, `Removes the directory failed for: {message: ${(e as Error).message}, ${e}}`);
+      }
       AppStorage.setOrCreate('fileNumber', '0');
       AppStorage.setOrCreate('fileListName1', '');
       AppStorage.setOrCreate('fileListName2', '');
       AppStorage.setOrCreate('copyFileShowLog', '');
     }
     let filePathDir = this.baseDir + '/workerDir';
-    let isDir = fileIo.statSync(filePathDir).isDirectory();
+    let isDir = false;
+    try {
+      isDir = fileIo.statSync(filePathDir).isDirectory();
+    } catch (e) {
+      Logger.error(TAG, `Obtains detailed attribute information for: {message: ${(e as Error).message}, ${e}}`);
+    }
     if (isDir) {
-      fileIo.rmdirSync(filePathDir);
+      try {
+        fileIo.rmdirSync(filePathDir);
+      } catch (e) {
+        Logger.error(TAG, `Obtains detailed attribute information for: {message: ${(e as Error).message}, ${e}}`);
+      }
     }
   }
 

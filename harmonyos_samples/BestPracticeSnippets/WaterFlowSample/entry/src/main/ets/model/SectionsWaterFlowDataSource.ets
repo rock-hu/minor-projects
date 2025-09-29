@@ -18,7 +18,7 @@ export class SectionsWaterFlowDataSource implements IDataSource {
   private listeners: DataChangeListener[] = [];
 
   constructor() {
-    for (let i = 0; i < 100; i++) {
+    for (let i: number = 0; i < 100; i++) {
       this.dataArray.push(i);
     }
   }
@@ -68,7 +68,7 @@ export class SectionsWaterFlowDataSource implements IDataSource {
   }
 
   unregisterDataChangeListener(listener: DataChangeListener): void {
-    const pos = this.listeners.indexOf(listener);
+    const pos: number = this.listeners.indexOf(listener);
     if (pos >= 0) {
       this.listeners.splice(pos, 1);
     }

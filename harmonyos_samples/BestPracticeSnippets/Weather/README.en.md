@@ -42,8 +42,10 @@ N/A
 
 ###  Constraints
 
-1. This sample can only be run on standard-system devices.
+* This sample can only be run on standard-system devices.
 
-2. This sample demonstrates the stage model, which supports only the SDK of API version 9 (SDK version: 3.2.11.9 Beta2).
+* The HarmonyOS version must be HarmonyOS 5.0.5 Release or later.
 
-3. DevEco Studio 3.1 Canary1 (Build Version: 3.1.0.400)must be used.
+* The DevEco Studio version must be DevEco Studio 5.0.5 Release or later.
+
+* The HarmonyOS SDK version must be HarmonyOS 5.0.5 Release SDK or later.

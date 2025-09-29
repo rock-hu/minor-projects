@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-@Entry
+
 @Component
-struct EdgeBlur {
+export struct EdgeBlur {
   private arr: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
   @StorageProp('topRectHeight') topRectHeight: number = 0;
 
@@ -31,7 +31,7 @@ struct EdgeBlur {
   }
 
   build() {
-    Column() {
+    NavDestination() {
       List({ space: 20, initialIndex: 0 }) {
         ForEach(this.arr, (item: number) => {
           ListItem() {

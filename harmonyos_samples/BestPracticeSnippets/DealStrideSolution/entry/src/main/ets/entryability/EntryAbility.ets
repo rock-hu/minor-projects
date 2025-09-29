@@ -33,16 +33,26 @@ export default class EntryAbility extends UIAbility {
   onWindowStageCreate(windowStage: window.WindowStage): void {
     // Main window is created, set main page for this ability
     Logger.info(TAG, 'Ability onWindowStageCreate');
-    windowStage.getMainWindow().then((win: window.Window): void => {
-      win.setWindowLayoutFullScreen(true).then((): void => {
-      });
-      win.setWindowSystemBarProperties({
-        // Navigation bar color
-        navigationBarColor: '#F1F3F5',
-        // Status bar color
-        statusBarColor: '#F1F3F5'
+    windowStage.getMainWindow()
+      .then((win: window.Window): void => {
+        win.setWindowLayoutFullScreen(true).then((): void => {
+        })
+          .catch((err: BusinessError) => {
+            hilog.error(0x000, 'testTag', `setWindowLayoutFullScreen failed, code=${err.code}, message=${err.message}`);
+          })
+        win.setWindowSystemBarProperties({
+          // Navigation bar color
+          navigationBarColor: '#F1F3F5',
+          // Status bar color
+          statusBarColor: '#F1F3F5'
+        })
+          .catch((err: BusinessError) => {
+            hilog.error(0x000, 'testTag', `setWindowSystemBarProperties failed, code=${err.code}, message=${err.message}`);
+          })
       })
-    });
+      .catch((err: BusinessError) => {
+        hilog.error(0x000, 'testTag', `getMainWindow failed, code=${err.code}, message=${err.message}`);
+      })
 
     windowStage.loadContent('pages/Index', (err, data) => {
       if (err.code) {

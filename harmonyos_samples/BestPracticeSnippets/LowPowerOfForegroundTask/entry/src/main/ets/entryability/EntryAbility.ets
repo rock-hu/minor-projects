@@ -8,7 +8,11 @@ const DOMAIN = 0x0000;
 export default class EntryAbility extends UIAbility {
   // [StartExclude power_entry_ability]
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
-    this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
+    try {
+      this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
+    } catch (error) {
+      hilog.info(DOMAIN, 'testTag', '%{public}s', 'setColorMode fail');
+    }
     hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onCreate');
   }
 
@@ -30,8 +34,8 @@ export default class EntryAbility extends UIAbility {
     // [EndExclude power_entry_ability]
     // Determine whether it is currently in dark mode.
     if (this.context?.config?.colorMode == ConfigurationConstant.ColorMode.COLOR_MODE_DARK) {
-      let windowClass = windowStage.getMainWindowSync();
       try {
+        let windowClass = windowStage.getMainWindowSync();
         // Set the brightness of the current application window
         windowClass.setWindowBrightness(0.2, (err) => {
           if (err.code) {

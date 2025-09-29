@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { promptAction } from '@kit.ArkUI';
 import Logger from '../util/Logger';
 import { picker } from '@kit.CoreFileKit';
 import { CryptoOperation } from '../cryptoframework/CryptoOperation';
@@ -200,9 +199,13 @@ export struct Verify {
                 .backgroundColor('#007DFF')
                 .onClick(() => {
                   if (this.textFileUri === '' || this.keyFileUri === '' || this.signFileUri === '') {
-                    this.getUIContext().getPromptAction().showToast({
-                      message: $r('app.string.null_message')
-                    });
+                    try {
+                      this.getUIContext().getPromptAction().showToast({
+                        message: $r('app.string.null_message')
+                      });
+                    } catch (err) {
+                      console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+                    }
                   } else {
                     this.verifyFunc();
                   }
@@ -294,9 +297,13 @@ export struct Verify {
   async verifyFunc() {
     let verifyRes: Boolean = false;
     if (this.plainText === '' || this.keyFileUri === '' || this.signText === '') {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.null_message')
-      });
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.null_message')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
       return;
     }
     try {
@@ -304,15 +311,23 @@ export struct Verify {
     } catch (error) {
       Logger.error(TAG, `verify failed, ${error}`);
     }
-    if (verifyRes != true) {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.verify_fail')
-      });
+    if (verifyRes !== true) {
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.verify_fail')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
       return;
     } else {
-      this.getUIContext().getPromptAction().showToast({
-        message: $r('app.string.verify_success')
-      });
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.verify_success')
+        });
+      } catch (err) {
+        console.error(`Show toast failed, code is ${err}, message is ${err.message}`);
+      }
     }
   }
 }

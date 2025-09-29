@@ -16,6 +16,7 @@
 // [Start router]
 import { insightIntent } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 export default class PageNavigateHandler {
   async execute(): Promise<insightIntent.ExecuteResult> {
@@ -23,7 +24,10 @@ export default class PageNavigateHandler {
       // Execute page redirection.
       let uiContext: UIContext | null | undefined = null;
       uiContext = AppStorage.get('uiContext');
-      uiContext?.getRouter().pushUrl({ url: 'pages/SecondPage' });
+      uiContext?.getRouter().pushUrl({ url: 'pages/SecondPage' })
+        .catch((err: BusinessError) => {
+        hilog.error(0x0000, 'testTag',`pushUrl failed, Code:${err.code}, message:${err.message}`);
+      })
 
       return {
         code: 0,

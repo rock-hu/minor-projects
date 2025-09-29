@@ -13,7 +13,10 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+
+const TAG: string = '[Index]';
 
 @Entry
 @Component
@@ -44,7 +47,9 @@ struct Index {
               this.getUIContext().getRouter().pushUrl({
                 url: 'pages/Second',
                 params: paramsInfo
-              })
+              }).catch((err: BusinessError) => {
+                hilog.error(0x0000, TAG, 'push url error: ' + err.code);
+              });
             })
 
           Button($r('app.string.decrypt'))
@@ -59,7 +64,9 @@ struct Index {
                 params: {
                   flag: false
                 }
-              })
+              }).catch((err: BusinessError) => {
+                hilog.error(0x0000, TAG, 'push url error: ' + err.code);
+              });
             })
         }
       }

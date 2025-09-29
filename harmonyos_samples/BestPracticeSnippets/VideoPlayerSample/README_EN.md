@@ -34,7 +34,7 @@ This sample demonstrates how to develop a video app using the AVPlayer and AVSes
 │  ├──pages                                     
 │  │  └──IndexPage.ets                  // Home page
 │  ├──utils                                     
-│  │  └──WindowUtil.ets                 // Window utility class
+│  │  ├──WindowUtil.ets                 // Window utility class
 │  │  └──BreakpointSystem.ets           // Breakpoint utility class
 │  └──view
 │     ├──AVPlayer.ets                   // Video component
@@ -43,18 +43,19 @@ This sample demonstrates how to develop a video app using the AVPlayer and AVSes
 │     └──VideoDetails.ets               // Video details components
 ├──entry/src/main/resources             // Static resources
 └──MediaService/src/main/ets
-   ├──common  
-   │  └──CommonConstants.ets            // Common constants
-   ├──controller
-   │  ├──AvPlayerController.ets         // Video playback control
-   │  └──AvSessionController.ets        // AVSession control
-   ├──model
-   │  └──VideoData.ets                  // Video data class
-   └──utils
-       ├──BackgroundTaskManager.ets     // Background playback
-       ├──CommUtils.ets                 // Utility class
-       ├──ImageUtil.ets                 // Image pixel processing class
-       └──Logger.ets                    // Log utility
+│  ├──common  
+│  │  └──CommonConstants.ets            // Common constants
+│  ├──controller
+│  │  ├──AvPlayerController.ets         // Video playback control
+│  │  ├──AvSessionController.ets        // AVSession control
+│  │  └──AvSessionControllerPCode.ets   // AVSession control pseudocode
+│  ├──model
+│  │  └──VideoData.ets                  // Video data class
+│  └──utils
+│      ├──BackgroundTaskManager.etss    // Background playback
+│      ├──CommUtils.ets                 // Utility class
+│      └──Logger.ets                    // Image pixel processing class
+└──MediaService/src/main/resources      // Log utility
 ```
 
 ### Required Permissions
@@ -67,8 +68,8 @@ This sample demonstrates how to develop a video app using the AVPlayer and AVSes
 
 1. The sample is only supported on Huawei phones with standard systems.
 
-2. The HarmonyOS version must be HarmonyOS 5.0.5 Release or later.
+2. The HarmonyOS version must be HarmonyOS 6.0.0 Release or later.
 
-3. The DevEco Studio version must be DevEco Studio 5.0.5 Release or later.
+3. The DevEco Studio version must be DevEco Studio 6.0.0 Release or later.
 
-4. The HarmonyOS SDK version must be HarmonyOS 5.0.5 Release SDK or later.
+4. The HarmonyOS SDK version must be HarmonyOS 6.0.0 Release SDK or later.

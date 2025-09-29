@@ -13,9 +13,12 @@
  * limitations under the License.
  */
 
+import { BusinessError } from '@kit.BasicServicesKit';
 import { media } from '@kit.MediaKit';
 import { common } from '@kit.AbilityKit';
 import Logger from '../utils/Logger';
+
+const TAG = 'AVPlayerUtilLogTag';
 
 export class AVPlayerUtil {
   private surfaceId: string = '';
@@ -37,16 +40,22 @@ export class AVPlayerUtil {
       switch (state) {
         case 'idle':
           Logger.info('AVPlayer state idle called.');
-          avPlayer.release();
+          avPlayer.release().catch((error: BusinessError) => {
+            Logger.error(TAG, `avPlayer release err, error code: ${error.code}, error mesage: ${error.message}`);
+          });
           break;
         case 'initialized':
           Logger.info('AVPlayer state initialized called.');
           avPlayer.surfaceId = this.surfaceId;
-          avPlayer.prepare();
+          avPlayer.prepare().catch((error: BusinessError) => {
+            Logger.error(TAG, `avPlayer initialized err, error code: ${error.code}, error mesage: ${error.message}`);
+          });
           break;
         case 'prepared':
           Logger.info('AVPlayer state prepared called.');
-          avPlayer.play();
+          avPlayer.play().catch((error: BusinessError) => {
+            Logger.error(TAG, `avPlayer play err, error code: ${error.code}, error mesage: ${error.message}`);
+          });
           break;
         case 'playing':
           Logger.info('AVPlayer state playing called.');
@@ -56,11 +65,15 @@ export class AVPlayerUtil {
           break;
         case 'completed':
           Logger.info('AVPlayer state completed called.');
-          avPlayer.play();
+          avPlayer.play().catch((error: BusinessError) => {
+            Logger.error(TAG, `avPlayer play err, error code: ${error.code}, error mesage: ${error.message}`);
+          });
           break;
         case 'stopped':
           Logger.info('AVPlayer state stopped called.');
-          avPlayer.reset();
+          avPlayer.reset().catch((error: BusinessError) => {
+            Logger.error(TAG, `avPlayer reset err, error code: ${error.code}, error mesage: ${error.message}`);
+          });
           break;
         case 'released':
           Logger.info('AVPlayer state released called.');
@@ -78,15 +91,20 @@ export class AVPlayerUtil {
   }
 
   async initPlayer(url: string, callBack: Function) {
-    this.avPlayer = await media.createAVPlayer();
-    this.callBack = callBack;
-    this.setAVPlayerCallback(this.avPlayer);
+    try {
+      this.avPlayer = await media.createAVPlayer();
+      this.callBack = callBack;
+      this.setAVPlayerCallback(this.avPlayer);
 
-    let context = this.UIContext.getHostContext() as common.UIAbilityContext;
-    let fileDescriptor = await context.resourceManager.getRawFd(url);
-    let avFileDescriptor: media.AVFileDescriptor =
-      { fd: fileDescriptor.fd, offset: fileDescriptor.offset, length: fileDescriptor.length };
-    this.avPlayer.fdSrc = avFileDescriptor;
-    Logger.info('fdSrc: ' + this.avPlayer.fdSrc);
+      let context = this.UIContext.getHostContext() as common.UIAbilityContext;
+      let fileDescriptor = await context.resourceManager.getRawFd(url);
+      let avFileDescriptor: media.AVFileDescriptor =
+        { fd: fileDescriptor.fd, offset: fileDescriptor.offset, length: fileDescriptor.length };
+      this.avPlayer.fdSrc = avFileDescriptor;
+      Logger.info('fdSrc: ' + this.avPlayer.fdSrc);
+    } catch (err) {
+      let error = err as BusinessError;
+      Logger.error(TAG, `initPlayer err, error code: ${error.code}, error mesage: ${error.message}`);
+    }
   }
 }

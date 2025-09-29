@@ -35,7 +35,7 @@
 │  ├──pages                                     
 │  │  └──IndexPage.ets                  // 首页 
 │  ├──utils                                     
-│  │  └──WindowUtil.ets                 // 窗口工具类
+│  │  ├──WindowUtil.ets                 // 窗口工具类
 │  │  └──BreakpointSystem.ets           // 断点工具类 
 │  └──view
 │     ├──AVPlayer.ets                   // 视频组件
@@ -48,7 +48,8 @@
 │  │  └──CommonConstants.ets            //常量类
 │  ├──controller
 │  │  ├──AvPlayerController.ets         //视频播放控制
-│  │  └──AvSessionController.ets        //媒体会话控制
+│  │  ├──AvSessionController.ets        //媒体会话控制
+│  │  └──AvSessionControllerPCode.ets   //媒体会话控制伪代码
 │  ├──model
 │  │  └──VideoData.ets                  //视频数据类
 │  └──utils
@@ -69,8 +70,8 @@
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机。
 
-2. HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
+2. HarmonyOS系统：HarmonyOS 6.0.0 Release及以上。
 
-3. DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
+3. DevEco Studio版本：DevEco Studio 6.0.0 Release及以上。
 
-4. HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。
+4. HarmonyOS SDK版本：HarmonyOS 6.0.0 Release SDK及以上。

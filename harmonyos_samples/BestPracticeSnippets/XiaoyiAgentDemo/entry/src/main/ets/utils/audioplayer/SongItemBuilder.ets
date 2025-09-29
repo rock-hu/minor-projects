@@ -18,6 +18,7 @@ import { resourceManager } from '@kit.LocalizationKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { SongItem } from '../../models/SongItem';
 import { Logger } from '../Logger';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const TAG = 'SongItemBuilder';
 
@@ -55,7 +56,10 @@ export default class SongItemBuilder {
 
   public async release(): Promise<void> {
     if (this.context && this.context !== null && this.songItem !== null) {
-      this.context.resourceManager.closeRawFd(this.songItem.src);
+      this.context.resourceManager.closeRawFd(this.songItem.src)
+        .catch((err: BusinessError) => {
+          hilog.error(0x0000, 'testTag',`closeRawFd failed, Code:${err.code}, message:${err.message}`);
+        })
     }
     this.songItem = null;
   }

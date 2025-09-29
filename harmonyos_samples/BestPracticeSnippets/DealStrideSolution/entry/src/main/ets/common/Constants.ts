@@ -17,9 +17,9 @@ export class Constants {
   /**
    * Surface width in xComponent.
    */
-  static readonly X_COMPONENT_SURFACE_WIDTH = 1080; // 1080*1080 stride->1088
+  static readonly X_COMPONENT_SURFACE_WIDTH: number = 1080; // 1080*1080 stride->1088
   /**
    * Surface height in xComponent.
    */
-  static readonly X_COMPONENT_SURFACE_HEIGHT = 1080;
+  static readonly X_COMPONENT_SURFACE_HEIGHT: number = 1080;
 };

@@ -14,17 +14,23 @@
  */
 
 import { fileIo } from '@kit.CoreFileKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 import Logger from './Logger';
 
 export class FileUtil {
   // Create and open a file.
-  static createOrOpen(path: string): fileIo.File {
-    let isExist = fileIo.accessSync(path);
-    let file: fileIo.File;
-    if (isExist) {
-      file = fileIo.openSync(path, fileIo.OpenMode.READ_WRITE);
-    } else {
-      file = fileIo.openSync(path, fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE);
+  static createOrOpen(path: string): fileIo.File | null {
+    let file: fileIo.File | null = null;
+    try {
+      let isExist = fileIo.accessSync(path);
+      if (isExist) {
+        file = fileIo.openSync(path, fileIo.OpenMode.READ_WRITE);
+      } else {
+        file = fileIo.openSync(path, fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE);
+      }
+    } catch (error) {
+      let err = error as BusinessError;
+      Logger.warn('testTag', `setColorMode failed, code=${err.code}, message=${err.message}`);
     }
     return file;
   }

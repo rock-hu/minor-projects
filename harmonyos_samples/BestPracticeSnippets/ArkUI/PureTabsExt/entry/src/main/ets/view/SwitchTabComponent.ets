@@ -13,7 +13,8 @@
  * limitations under the License.
  */
 import { AbilityConstant, Configuration } from "@kit.AbilityKit";
-import { Constants } from "../common/constant/Constants";
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from "@kit.PerformanceAnalysisKit";
 
 // [Start custom_switch_tab]
 @Component
@@ -35,7 +36,10 @@ export default struct SwitchTabComponent {
       .getHostContext()?.resourceManager.getStringArrayValue($r('app.strarray.switch_tabs_items'))
       .then((strarray: string[]) => {
         this.tabItems = strarray;
-      });
+      })
+      .catch((err: BusinessError) => {
+        hilog.error(0x000, 'testTag', `getStringArrayValue failed, code=${err.code}, message=${err.message}`)
+      })
   }
 
   subscribeSystemLanguageUpdate() {

@@ -183,8 +183,9 @@ class HuksModel {
    * check whether a key exists
    *
    * @param keyAlias
+   * @throws
    */
-  isKeyItemExist(keyAlias: string) {
+  isKeyItemExist(keyAlias: string): Promise<boolean> {
     let emptyOptions: huks.HuksOptions = {
       properties: []
     };

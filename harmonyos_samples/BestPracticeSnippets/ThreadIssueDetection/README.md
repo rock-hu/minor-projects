@@ -4,14 +4,30 @@
 
 本示例是《使用TSan检测线程问题》最佳实践中的代码示例片段。
 
-##### 使用说明
+### 使用说明
 
-进入首面，点击按钮，分别进入示例页面。
+不涉及。
 
+
+### 工程目录
+
+``` 
+├──entry/src/main/ets
+│  ├──cpp
+│  │  └──UseTSANToDetectThreadingIssues.cpp       // 检测示例代码                          
+│  ├──entryability
+│  │  └──EntryAbility.ets                         // 入口类
+│  ├──entrybackupability
+│  │  └──EntryBackupAbility.ets                   // 备份恢复类
+│  └──pages        
+│     ├──UseTSANToDetectThreadingIssues.ets       // 示例页面
+│     └──Index.ets                                // 首页
+└──entry/src/main/resources                       // 应用资源目录
+```
 
 ### 具体实现
 
-1. 主要介绍如何使用TSan检测线程，提供代码示例。
+1. 主要介绍如何使用TSan检测线程，文章配套代码示例。
 
 ### 相关权限
 

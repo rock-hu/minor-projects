@@ -14,8 +14,9 @@
 */
 
 // [Start Case2]
-import { hiTraceMeter } from '@kit.PerformanceAnalysisKit';
+import { hilog, hiTraceMeter } from '@kit.PerformanceAnalysisKit';
 import { common } from '@kit.AbilityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 @Entry
 @Component
@@ -26,8 +27,12 @@ struct Index {
   aboutToAppear(): void {
     hiTraceMeter.startTrace('getStringSyncAfter', 2);
     // The input parameter of the getStringSync interface uses the resource ID.
-
-    this.context.resourceManager.getStringSync($r('app.string.app_name').id);
+    try {
+      this.context.resourceManager.getStringSync($r('app.string.app_name').id);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.warn(0x000, 'testTag', `getStringSync failed, code=${err.code}, message=${err.message}`);
+    }
     hiTraceMeter.finishTrace('getStringSyncAfter', 2);
   }
 

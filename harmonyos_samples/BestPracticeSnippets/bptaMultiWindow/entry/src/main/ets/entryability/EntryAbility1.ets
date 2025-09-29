@@ -31,17 +31,28 @@ export default class EntryAbility extends UIAbility {
   }
 
   setDefaultOrientation(): void {
-    let windowRect: window.Rect = this.windowObj!.getWindowProperties().windowRect;
-    let windowWidthVp: number = this.uiContext!.px2vp(windowRect.width);
-    let windowHeightVp: number = this.uiContext!.px2vp(windowRect.height);
+    try {
+      let windowRect: window.Rect = this.windowObj!.getWindowProperties().windowRect;
+      let windowWidthVp: number = this.uiContext!.px2vp(windowRect.width);
+      let windowHeightVp: number = this.uiContext!.px2vp(windowRect.height);
 
-    // If this condition is met, the window can be rotated.
-    if (Math.min(windowWidthVp, windowHeightVp) > 348) {
-      this.windowObj?.setPreferredOrientation(window.Orientation.AUTO_ROTATION_RESTRICTED);
-    }
-    // Otherwise, the window is displayed in portrait mode.
-    else {
-      this.windowObj?.setPreferredOrientation(window.Orientation.PORTRAIT);
+      // If this condition is met, the window can be rotated.
+      if (Math.min(windowWidthVp, windowHeightVp) > 348) {
+        this.windowObj?.setPreferredOrientation(window.Orientation.AUTO_ROTATION_RESTRICTED)
+          .catch((err: BusinessError) => {
+            hilog.error(0x000, 'testTag', `setPreferredOrientation failed, code=${err.code}, message=${err.message}`)
+          })
+      }
+      // Otherwise, the window is displayed in portrait mode.
+      else {
+        this.windowObj?.setPreferredOrientation(window.Orientation.PORTRAIT)
+          .catch((err: BusinessError) => {
+            hilog.error(0x000, 'testTag', `setPreferredOrientation failed, code=${err.code}, message=${err.message}`)
+          })
+      }
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.warn(0x000, 'testTag', `getWindowProperties failed, code=${err.code}, message=${err.message}`);
     }
   }
 
@@ -51,18 +62,26 @@ export default class EntryAbility extends UIAbility {
     windowStage.getMainWindow().then((windowObj) => {
       this.windowObj = windowObj;
     }).catch((err: BusinessError) => {
-      hilog.error(0x0000, 'testTag', `Failed to obtain the main window. Cause code: ${err.code}, message: ${err.message}`);
+      hilog.error(0x0000, 'testTag',
+        `Failed to obtain the main window. Cause code: ${err.code}, message: ${err.message}`);
     });
     windowStage.loadContent('pages/Index', (err) => {
       if (err.code) {
         hilog.error(0x0000, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err) ?? '');
         return;
       }
-      this.uiContext = this.windowObj!.getUIContext();
-      this.setDefaultOrientation();
-      this.windowObj!.on('windowSizeChange', this.onWindowSizeChange);
-      hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
+      try {
+        this.uiContext = this.windowObj!.getUIContext();
+        this.setDefaultOrientation();
+        this.windowObj!.on('windowSizeChange', this.onWindowSizeChange);
+        hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
+      } catch (error) {
+        let err = error as BusinessError;
+        hilog.warn(0x000, 'testTag', `getUIContext failed, code=${err.code}, message=${err.message}`);
+      }
+
     });
   }
 }
+
 // [End setdefaultorientation]

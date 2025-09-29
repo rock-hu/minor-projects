@@ -1,4 +1,4 @@
-import { window, display } from '@kit.ArkUI'
+import { window, display } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
 export class Breakpoint {
   // [Start source_add2]

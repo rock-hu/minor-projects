@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 import { CommonConstants as Const, VideoData } from '@ohos/MediaService';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Component({ freezeWhenInactive: true })
 export struct VideoDetails {
@@ -129,7 +130,11 @@ export struct VideoDetails {
             .opacity($r('app.float.opacity_4'))
         }
         .onClick(() => {
-          this.getPromptAction.showToast({ message: $r('app.string.comment'), duration: Const.TOAST_DURATION });
+          try {
+            this.getPromptAction.showToast({ message: $r('app.string.comment'), duration: Const.TOAST_DURATION })
+          } catch (error) {
+            hilog.error(0x0000, 'testTag',`getPromptAction showToast failed, Code:${error.code}, message:${error.message}`);
+          }
         })
 
         Column() {
@@ -143,7 +148,11 @@ export struct VideoDetails {
             .opacity($r('app.float.opacity_4'))
         }
         .onClick(() => {
-          this.getPromptAction.showToast({ message: $r('app.string.share'), duration: Const.TOAST_DURATION });
+          try {
+            this.getPromptAction.showToast({ message: $r('app.string.share'), duration: Const.TOAST_DURATION });
+          } catch (error) {
+            hilog.error(0x0000, 'testTag',`getPromptAction showToast failed, Code:${error.code}, message:${error.message}`);
+          }
         })
       }
       .width(Const.FULL_SIZE)

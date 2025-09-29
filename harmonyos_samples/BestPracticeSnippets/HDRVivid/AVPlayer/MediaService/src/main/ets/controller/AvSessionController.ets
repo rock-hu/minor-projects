@@ -46,13 +46,20 @@ export class AvSessionController {
       Logger.info(TAG, `session create failed : conext is undefined`);
       return;
     }
-    avSession.createAVSession(this.context, "SHORT_AUDIO_SESSION", 'video').then(async (avSession) => {
-      this.avSession = avSession;
-      Logger.info(TAG, `session create successed : sessionId : ${this.avSession.sessionId}`);
-      BackgroundTaskManager.startContinuousTask(this.context);
-      this.setLaunchAbility();
-      this.avSession.activate();
-    });
+    avSession.createAVSession(this.context, "SHORT_AUDIO_SESSION", 'video')
+      .then(async (avSession) => {
+        this.avSession = avSession;
+        Logger.info(TAG, `session create successed : sessionId : ${this.avSession.sessionId}`);
+        BackgroundTaskManager.startContinuousTask(this.context);
+        this.setLaunchAbility();
+        this.avSession.activate()
+          .catch((err: BusinessError) => {
+            Logger.error(TAG, `avSession activate failed Cause:  ${JSON.stringify(err)}`);
+          })
+    })
+      .catch((err: BusinessError) => {
+        Logger.error(TAG, `createAVSession failed Cause:  ${JSON.stringify(err)}`);
+      })
   }
 
   public getAvSession() {
@@ -70,19 +77,23 @@ export class AvSessionController {
     }
 
     const imagePixMap = await ImageUtil.getPixmapFromMedia(curSource.head, UIContext);
-    let metadata: avSession.AVMetadata = {
-      assetId: `${curSource.index}`,
-      title: this.context?.resourceManager.getStringSync(curSource.name),
-      mediaImage: imagePixMap,
-      duration: duration
-    };
-    if (this.avSession) {
-      this.avSession.setAVMetadata(metadata).then(() => {
-        this.avSessionMetadata = metadata;
-        Logger.info(TAG, 'SetAVMetadata successfully');
-      }).catch((err: BusinessError) => {
-        Logger.error(TAG, `SetAVMetadata BusinessError: code: ${err.code}, message: ${err.message}`);
-      });
+    try {
+      let metadata: avSession.AVMetadata = {
+        assetId: `${curSource.index}`,
+        title: this.context?.resourceManager.getStringSync(curSource.name),
+        mediaImage: imagePixMap,
+        duration: duration
+      };
+      if (this.avSession) {
+        this.avSession.setAVMetadata(metadata).then(() => {
+          this.avSessionMetadata = metadata;
+          Logger.info(TAG, 'SetAVMetadata successfully');
+        }).catch((err: BusinessError) => {
+          Logger.error(TAG, `SetAVMetadata BusinessError: code: ${err.code}, message: ${err.message}`);
+        });
+      }
+    } catch (error) {
+      Logger.error(`getStringSync failed Cause:  ${JSON.stringify(error)}`);
     }
   }
 
@@ -101,11 +112,17 @@ export class AvSessionController {
       requestCode: 0,
       wantAgentFlags: [wantAgent.WantAgentFlags.UPDATE_PRESENT_FLAG]
     };
-    wantAgent.getWantAgent(wantAgentInfo).then((agent) => {
-      if (this.avSession) {
-        this.avSession.setLaunchAbility(agent);
-      }
-    });
+    wantAgent.getWantAgent(wantAgentInfo)
+      .then((agent) => {
+        if (this.avSession) {
+          this.avSession.setLaunchAbility(agent).catch((err: BusinessError) => {
+            Logger.error(TAG, `setLaunchAbility failed Cause:  ${JSON.stringify(err)}`);
+          })
+        }
+      })
+      .catch((err: BusinessError) => {
+        Logger.error(TAG, `getWantAgent failed Cause:  ${JSON.stringify(err)}`);
+      })
   }
 
   public setAvSessionPlayState(playbackState: avSession.AVPlaybackState) {
@@ -124,13 +141,17 @@ export class AvSessionController {
     if (!this.avSession) {
       return;
     }
-    this.avSession.off('play');
-    this.avSession.off('pause');
-    this.avSession.off('playNext');
-    this.avSession.off('playPrevious');
-    this.avSession.off('setLoopMode');
-    this.avSession.off('seek');
-    this.avSession.off('toggleFavorite');
-    BackgroundTaskManager.stopContinuousTask(this.context);
+    try {
+      this.avSession.off('play');
+      this.avSession.off('pause');
+      this.avSession.off('playNext');
+      this.avSession.off('playPrevious');
+      this.avSession.off('setLoopMode');
+      this.avSession.off('seek');
+      this.avSession.off('toggleFavorite');
+      BackgroundTaskManager.stopContinuousTask(this.context);
+    } catch (error) {
+      Logger.error(`avSession off failed Cause:  ${JSON.stringify(error)}`);
+    }
   }
 }

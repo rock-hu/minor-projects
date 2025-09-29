@@ -15,6 +15,8 @@
 
 // [Start dynamic_start]
 import { window } from '@kit.ArkUI';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 @Component
 export struct MotionBlur {
@@ -27,10 +29,21 @@ export struct MotionBlur {
       if (err.code) {
         return;
       }
-      // get the height of the bottom navigation bar
-      this.bottomSafeHeight =
-        this.getUIContext().px2vp(windowBar.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR).bottomRect.height);
-      windowBar.setWindowLayoutFullScreen(true);
+
+      try {
+        // get the height of the bottom navigation bar
+        this.bottomSafeHeight =
+          this.getUIContext()
+            .px2vp(windowBar.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR).bottomRect.height);
+      } catch (error) {
+        let err = error as BusinessError;
+        hilog.warn(0x000, 'testTag', `getWindowAvoidArea failed, code=${err.code}, message=${err.message}`);
+      }
+      windowBar.setWindowLayoutFullScreen(true)
+        .catch((err: BusinessError) => {
+          hilog.error(0x000, 'testTag', `setWindowLayoutFullScreen failed, code=${err.code}, message=${err.message}`);
+        })
+
     });
   }
 
@@ -76,4 +89,5 @@ export struct MotionBlur {
     .hideTitleBar(true)
   }
 }
+
 // [End dynamic_start]

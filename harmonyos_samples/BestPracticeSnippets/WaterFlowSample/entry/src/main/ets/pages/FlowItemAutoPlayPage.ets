@@ -19,14 +19,14 @@ import { CommonConstants } from '../common/constants/CommonConstants';
 import MediaItem, { ItemType } from '../model/MediaItem';
 import { StickyWaterFlowDataSource } from '../model/StickyWaterFlowDataSource';
 
-const TAG = 'FlowItemAutoPlayPage';
+const TAG: string = 'FlowItemAutoPlayPage';
 
 @Component
 struct FlowVideoItem {
   @Prop item: MediaItem;
   controller: VideoController = new VideoController();
 
-  aboutToReuse(params: Record<string, MediaItem>) {
+  aboutToReuse(params: Record<string, MediaItem>): void {
     this.item = params.item as MediaItem;
   }
 
@@ -57,7 +57,7 @@ struct FlowVideoItem {
           })
       }
     } else {
-      // [StartExclude image_item]
+      // [StartExclude quick_start]
       RelativeContainer() {
         Image(this.item.imageUri)
           .objectFit(ImageFit.Cover)
@@ -107,12 +107,12 @@ struct FlowVideoItem {
       .borderRadius(8)
       .backgroundColor(Color.Gray)
 
-      // [EndExclude image_item]
+      // [EndExclude quick_start]
     }
   }
 }
 
-// [StartExclude water_flow_init]
+// [StartExclude quick_start]
 @Entry
 @Component
 struct FlowItemAutoPlayPage {
@@ -165,22 +165,22 @@ struct FlowItemAutoPlayPage {
   }
 
   getSize(): number {
-    let ret = Math.floor(Math.random() * this.maxSize);
+    let ret: number = Math.floor(Math.random() * this.maxSize);
     return (ret > this.minSize ? ret : this.minSize);
   }
 
   setItemSizeArray(): void {
-    for (let i = 0; i < 100; i++) {
+    for (let i: number = 0; i < 100; i++) {
       this.itemWidthArray.push(this.getSize());
       this.itemHeightArray.push(this.getSize());
     }
   }
 
-  aboutToAppear() {
+  aboutToAppear(): void {
     this.setItemSizeArray();
     let sectionOptions: SectionOptions[] = [];
-    let count = 0;
-    let oneOrTwo = 0;
+    let count: number = 0;
+    let oneOrTwo: number = 0;
     while (count < 100) {
       if (oneOrTwo++ % 2 === 0) {
         sectionOptions.push(this.oneColumnSection);
@@ -227,5 +227,5 @@ struct FlowItemAutoPlayPage {
   }
 }
 
-// [EndExclude water_flow_init]
+// [EndExclude quick_start]
 // [End quick_start]

@@ -14,8 +14,7 @@
  */
 
 import { window } from '@kit.ArkUI';
-import type { BusinessError } from '@kit.BasicServicesKit';
-import { hilog } from '@kit.PerformanceAnalysisKit';
+import { Logger } from '@ohos/MediaService';
 
 const TAG: string = '[BreakpointSystem]';
 
@@ -111,9 +110,8 @@ export class BreakpointSystem {
         widthBp = BreakpointTypeEnum.XL;
       }
       this.updateCurrentBreakpoint(widthBp);
-    } catch (error) {
-      const err: BusinessError = error as BusinessError;
-      hilog.error(0x0000, TAG, `UpdateBreakpoint fail, error code: ${err.code}, message: ${err.message}`);
+    } catch (err) {
+      Logger.error(TAG, `updateWidthBp failed, err.code:${err.code}, err.message:${err.message}`);
     }
   }
 }

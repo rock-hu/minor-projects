@@ -25,7 +25,7 @@ export struct PageListSlideToHistory {
   private readonly ANIMATION_DURATION: number = 500;
   private readonly DEFAULT_VISIBLE_BTN_INDEX: number = 3; // Show jump history button when scroll more than 3 item
   private readonly LIST_CACHE_COUNT: number = 3;
-  private momentData: FriendMomentsData = new FriendMomentsData();
+  private momentData: FriendMomentsData = new FriendMomentsData(this.getUIContext().getHostContext());
   private listScroller: ListScroller = new ListScroller();
   private historyOffset: number = 0;
   private isHistoricalRecord: boolean = false;

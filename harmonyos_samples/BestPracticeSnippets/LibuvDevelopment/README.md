@@ -4,10 +4,23 @@
 
 本示例是《libuv使用规范及案例》最佳实践中的代码示例片段。
 
-##### 使用说明
+### 使用说明
 
-进入首面，点击按钮，分别进入示例页面。
+进入首面，加载示例逻辑。
 
+
+### 工程目录
+
+``` 
+├──entry/src/main/ets                          
+│  ├──entryability
+│  │  └──EntryAbility.ets                   // 入口类
+│  ├──entrybackupability
+│  │  └──EntryBackupAbility.ets             // 数据备份类
+│  └──pages
+│     └──Index.ets                           // 示例页面
+└──entry/src/main/resources                 // 应用资源目录
+```
 
 ### 具体实现
 

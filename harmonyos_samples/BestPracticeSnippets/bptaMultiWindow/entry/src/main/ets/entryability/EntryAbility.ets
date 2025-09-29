@@ -19,7 +19,7 @@
 // [Start onWindowStageCreate]
 import { UIAbility } from '@kit.AbilityKit';
 import { window } from '@kit.ArkUI';
-import { deviceInfo } from '@kit.BasicServicesKit';
+import { BusinessError, deviceInfo } from '@kit.BasicServicesKit';
 import hilog from '@ohos.hilog';
 
 export default class EntryAbility extends UIAbility {
@@ -34,12 +34,22 @@ export default class EntryAbility extends UIAbility {
     });
     // [EndExclude onWindowStageCreate]
     let windowClass: window.Window | null = null;
-    windowStage.getMainWindow().then((data: window.Window) => {
-      windowClass = data;
-      if (deviceInfo.deviceType !== '2in1') {
-        windowClass.setWindowLayoutFullScreen(true);
-      }
-    });
+    windowStage.getMainWindow()
+      .then((data: window.Window) => {
+        windowClass = data;
+        if (deviceInfo.deviceType !== '2in1') {
+          windowClass.setWindowLayoutFullScreen(true)
+            .catch((err: BusinessError) => {
+              hilog.error(0x000, 'testTag',
+                `setWindowLayoutFullScreen failed, code=${err.code}, message=${err.message}`)
+            })
+        }
+      })
+      .catch((err: BusinessError) => {
+        hilog.error(0x000, 'testTag', `getMainWindow failed, code=${err.code}, message=${err.message}`)
+      })
+
   }
 }
+
 // [End onWindowStageCreate]

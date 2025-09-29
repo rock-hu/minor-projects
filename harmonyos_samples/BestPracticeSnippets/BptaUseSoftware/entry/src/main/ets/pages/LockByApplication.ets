@@ -4,12 +4,18 @@
  */
 // [Start bpta_lock_by_application]
 import { runningLock } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 // Return to the background to release the lock
 runningLock.create('running_lock_test', runningLock.RunningLockType.BACKGROUND)
   .then((lock: runningLock.RunningLock) => {
-    lock.unhold();
-    console.info('create running lock and unlock success');
+    try {
+      lock.unhold();
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.warn(0x000, 'testTag', `setColorMode failed, code=${err.code}, message=${err.message}`);
+    }
   })
   .catch((err: Error) => {
     console.error('create running lock failed, err: ' + err);

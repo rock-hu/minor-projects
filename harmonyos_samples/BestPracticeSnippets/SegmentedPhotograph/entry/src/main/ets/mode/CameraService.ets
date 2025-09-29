@@ -203,6 +203,7 @@ class CameraService {
       Logger.error(TAG, `initCamera fail: ${JSON.stringify(err)}`);
     }
   }
+
   // [End init_camera]
 
   /**
@@ -211,7 +212,12 @@ class CameraService {
   getZoomRatioRange(): Array<number> {
     let zoomRatioRange: Array<number> = [];
     if (this.session !== undefined) {
-      zoomRatioRange = this.session.getZoomRatioRange();
+      try {
+        zoomRatioRange = this.session.getZoomRatioRange();
+      } catch (error) {
+        let err = error as BusinessError;
+        Logger.warn('testTag', `getZoomRatioRange failed, code=${err.code}, message=${err.message}`);
+      }
     }
     return zoomRatioRange;
   }
@@ -250,9 +256,15 @@ class CameraService {
       quality: camera.QualityLevel.QUALITY_LEVEL_HIGH,
       mirror: cameraDeviceIndex ? true : false
     };
-    await this.photoOutput?.capture(photoSettings);
-    Logger.info(TAG, 'takePicture end');
+    try {
+      await this.photoOutput?.capture(photoSettings);
+      Logger.info(TAG, 'takePicture end');
+    } catch (error) {
+      let err = error as BusinessError;
+      Logger.warn('testTag', `capture failed, code=${err.code}, message=${err.message}`);
+    }
   }
+
   // [End take_picture]
 
   /**
@@ -364,6 +376,7 @@ class CameraService {
       return undefined;
     }
   }
+
   // [End create_photo_outputFn]
 
   /**
@@ -632,15 +645,19 @@ class CameraService {
    * Focus mode
    */
   setFocusMode(focusMode: camera.FocusMode): void {
-    // Check whether the focus mode is supported
-    Logger.info(TAG, `setFocusMode is called`);
-    let isSupported = this.session?.isFocusModeSupported(focusMode);
-    Logger.info(TAG, `setFocusMode isSupported: ${isSupported}`);
-    // Setting the Focus Mode
-    if (!isSupported) {
-      return;
+    try {
+      // Check whether the focus mode is supported
+      let isSupported = this.session?.isFocusModeSupported(focusMode);
+      Logger.info(TAG, `setFocusMode isSupported: ${isSupported}`);
+      // Setting the Focus Mode
+      if (!isSupported) {
+        return;
+      }
+      this.session?.setFocusMode(focusMode);
+    } catch (error) {
+      let err = error as BusinessError;
+      Logger.warn('testTag', `isFocusModeSupported or setFocusMode failed, code=${err.code}, message=${err.message}`);
     }
-    this.session?.setFocusMode(focusMode);
   }
 }
 

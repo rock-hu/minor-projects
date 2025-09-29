@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 
+import { BusinessError } from '@kit.BasicServicesKit';
 import { Constants } from '../common/Constants';
+import Logger from '../common/utils/Logger';
 
 @Entry
 @Component
@@ -35,7 +37,13 @@ struct IndexPage {
           .height(42)
           .onClick(() => {
             AppStorage.setOrCreate('photoMode', Constants.SINGLE_STAGE_MODE);
-            this.getUIContext().getRouter().pushUrl({ url: 'pages/PhotoPage' });
+            this.getUIContext().getRouter().pushUrl({ url: 'pages/PhotoPage' })
+              .then(() => {
+                Logger.info('pushUrl success');
+              })
+              .catch((err: BusinessError) => {
+                Logger.error(`pushUrl failed, code=${err.code}, message=${err.message}`)
+              })
           })
         Button($r('app.string.segmented_photography'))
           .height(42)
@@ -44,7 +52,13 @@ struct IndexPage {
           .width('100%')
           .onClick(() => {
             AppStorage.setOrCreate('photoMode', Constants.SUBSECTION_MODE);
-            this.getUIContext().getRouter().pushUrl({ url: 'pages/PhotoPage' });
+            this.getUIContext().getRouter().pushUrl({ url: 'pages/PhotoPage' })
+              .then(() => {
+                Logger.info('pushUrl success');
+              })
+              .catch((err: BusinessError) => {
+                Logger.error(`pushUrl failed, code=${err.code}, message=${err.message}`)
+              })
           })
 
       }.margin({ bottom: 46 })

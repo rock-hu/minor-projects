@@ -22,11 +22,12 @@ import { camera } from '@kit.CameraKit';
 class cameraClass {
   cameraManager: camera.CameraManager | undefined = undefined;
 
-  getCameraManager(context: Context) {
+  getCameraManager(context: Context): void {
     this.cameraManager = camera.getCameraManager(context);
   }
 
-  async addInput(cameraManager: camera.CameraManager, camera: camera.CameraDevice, session: camera.Session) {
+  async addInput(cameraManager: camera.CameraManager, camera: camera.CameraDevice,
+    session: camera.Session): Promise<void> {
     let cameraInput: camera.CameraInput | undefined = undefined;
     // [Start add_input]
     cameraInput = cameraManager.createCameraInput(camera);
@@ -37,7 +38,7 @@ class cameraClass {
   }
 
   async addOutput(cameraManager: camera.CameraManager, camera: camera.CameraDevice, session: camera.Session,
-    cameraOutputCapability: camera.CameraOutputCapability) {
+    cameraOutputCapability: camera.CameraOutputCapability): Promise<void> {
     let previewOutput: camera.CameraOutput | undefined = undefined;
     let cameraInput: camera.CameraInput | undefined = undefined;
     let profile: camera.Profile = cameraOutputCapability.previewProfiles[0];
@@ -53,7 +54,7 @@ class cameraClass {
   }
 
   async addOutput1(cameraManager: camera.CameraManager, camera: camera.CameraDevice, session: camera.Session,
-    cameraOutputCapability: camera.CameraOutputCapability) {
+    cameraOutputCapability: camera.CameraOutputCapability): Promise<void> {
     let previewOutput: camera.CameraOutput | undefined = undefined;
     let cameraInput: camera.CameraInput | undefined = undefined;
     let profile: camera.Profile = cameraOutputCapability.previewProfiles[0];
@@ -68,13 +69,13 @@ class cameraClass {
     session.commitConfig();
     // [End add_output1]
   }
-
 }
 
-let cameraInput:camera.CameraInput;
-let cameraSession:camera.Session;
+let cameraInput: camera.CameraInput;
+let cameraSession: camera.Session;
+
 // [Start close_release]
-async function onBackground() {
+async function onBackground(): Promise<void> {
   await cameraInput.close();
   await cameraSession.release();
 }

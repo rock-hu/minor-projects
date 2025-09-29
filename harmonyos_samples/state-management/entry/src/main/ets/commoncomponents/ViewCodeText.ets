@@ -16,7 +16,7 @@
 @Component
 export struct ViewCodeText {
   @StorageLink('sideBarShow') sideBarShow: boolean = false;
-  private webSrc: Resource =  $rawfile('BaseTypeCode.ets.html');
+  webSrc: Resource =  $rawfile('BaseTypeCode.ets.html');
 
   build() {
     Column(){

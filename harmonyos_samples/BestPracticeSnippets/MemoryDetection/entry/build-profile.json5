@@ -8,6 +8,7 @@
       */
       // [Start set_arguments]
       "arguments": "-DOHOS_ENABLE_HWASAN=ON",
+      "abiFilters": ["x86_64", "arm64-v8a"]
       // [End set_arguments]
     }
   },

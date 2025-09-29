@@ -17,14 +17,14 @@
 import { hilog } from "@kit.PerformanceAnalysisKit";
 import { SectionsWaterFlowDataSource } from "../model/SectionsWaterFlowDataSource";
 
-const TAG = 'FlowItemRemovePage';
+const TAG: string = 'FlowItemRemovePage';
 
-// [StartExclude flow_item_layout]
+// [StartExclude quick_start]
 @Reusable
 struct ReusableFlowItem {
   @State item: number = 0;
 
-  aboutToReuse(params: Record<string, number>) {
+  aboutToReuse(params: Record<string, number>): void {
     this.item = params.item;
   }
 
@@ -77,13 +77,13 @@ struct ReusableFlowItem {
   }
 }
 
-// [EndExclude flow_item_layout]
+// [EndExclude quick_start]
 @Entry
 @Component
 struct FlowItemRemovePage {
   // 1、Select the index of the FlowItem.
   @State currentItem: number = -1;
-  // [StartExclude variable_declare]
+  // [StartExclude quick_start]
   @State isRefreshing: boolean = false;
   @State minSize: number = 80;
   @State maxSize: number = 180;
@@ -125,7 +125,7 @@ struct FlowItemRemovePage {
   }
 
   @Builder
-  headerRefresh() {
+  headerRefresh(): void {
     Column() {
       LoadingProgress()
         .color(Color.Black)
@@ -141,8 +141,8 @@ struct FlowItemRemovePage {
     setTimeout(() => {
       // Add new data.
       this.dataSource.dataArray = [];
-      let value = Math.floor(Math.random() * 100);
-      for (let i = 0; i < 100; i++) {
+      let value: number = Math.floor(Math.random() * 100);
+      for (let i: number = 0; i < 100; i++) {
         this.dataSource.dataArray.push(i + value);
         this.dataSource.notifyDataAdd(i);
       }
@@ -161,21 +161,21 @@ struct FlowItemRemovePage {
   }
 
   getSize(): number {
-    let ret = Math.floor(Math.random() * this.maxSize);
+    let ret: number = Math.floor(Math.random() * this.maxSize);
     return (ret > this.minSize ? ret : this.minSize);
   }
 
   setItemSizeArray(): void {
-    for (let i = 0; i < 100; i++) {
+    for (let i: number = 0; i < 100; i++) {
       this.itemHeightArray.push(this.getSize());
     }
   }
 
   initSections(): void {
     let sectionOptions: SectionOptions[] = [];
-    let count = 0;
-    let oneOrTwo = 0;
-    let dataCount = this.dataSource.totalCount();
+    let count: number = 0;
+    let oneOrTwo: number = 0;
+    let dataCount: number = this.dataSource.totalCount();
     while (count < dataCount) {
       if (dataCount - count < 96) {
         this.dataSection.itemsCount = dataCount - count;
@@ -193,22 +193,22 @@ struct FlowItemRemovePage {
     this.sections.splice(0, 0, sectionOptions);
   }
 
-  aboutToAppear() {
+  aboutToAppear(): void {
     this.setItemSizeArray();
     this.initSections();
   }
 
-  // [EndExclude variable_declare]
+  // [EndExclude quick_start]
   removeItem(item: number): void {
     // 5、Delete source data.
-    let index = this.dataSource.indexOf(item);
+    let index: number = this.dataSource.indexOf(item);
     this.dataSource.deleteItem(index);
     // 6、Update the itemsCount quantity in the group and refresh.
     const sections: Array<SectionOptions> = this.sections.values();
     let newSection: SectionOptions;
-    let tmpIndex = 0;
-    let sectionIndex = 0;
-    for (let i = 0; i < sections.length; i++) {
+    let tmpIndex: number = 0;
+    let sectionIndex: number = 0;
+    for (let i: number = 0; i < sections.length; i++) {
       tmpIndex += sections[i].itemsCount;
       if (index < tmpIndex) {
         sectionIndex = i;
@@ -268,7 +268,7 @@ struct FlowItemRemovePage {
             .backgroundColor(Color.Gray)
           }, (item: string) => item)
         }
-        // [StartExclude water_flow_setting]
+        // [StartExclude quick_start]
         .cachedCount(12)
         .columnsGap(8)
         .rowsGap(8)
@@ -278,9 +278,9 @@ struct FlowItemRemovePage {
         // For better experience, pre load data.
         .onScrollIndex((first: number, last: number) => {
           setTimeout(() => {
-            let totalCount = this.dataSource.totalCount();
+            let totalCount: number = this.dataSource.totalCount();
             if (last + 20 >= totalCount) {
-              for (let i = 0; i < 20; i++) {
+              for (let i: number = 0; i < 20; i++) {
                 this.dataSource.addLastItem();
               }
               // Update sections itemsCount.
@@ -295,7 +295,7 @@ struct FlowItemRemovePage {
         this.refresh();
       })
 
-      // [EndExclude water_flow_setting]
+      // [EndExclude quick_start]
     }
   }
 }

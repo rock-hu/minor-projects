@@ -15,7 +15,6 @@
 
 import { componentUtils, window } from '@kit.ArkUI';
 import { BusinessError, settings } from '@kit.BasicServicesKit';
-import { hilog } from '@kit.PerformanceAnalysisKit';
 import { audio, AVVolumePanel } from '@kit.AudioKit';
 import { Logger, CommonConstants, secondToTime, } from '@ohos/MediaService';
 import { AvPlayerController, VideoData } from '@ohos/MediaService';
@@ -53,7 +52,7 @@ export struct VideoPlayer {
   @State volume: number = 0;
   @State visible: boolean = false;
   @State screenBrightness: number = 0;
-  private xComponentController = new XComponentController();
+  private xComponentController: XComponentController = new XComponentController();
   private showTipsTime: string = '';
   private slideWidth: number = 130;
   private blockSize: number = 16;
@@ -65,69 +64,37 @@ export struct VideoPlayer {
   private screenHeight: number = 0;
   private windowStage: window.WindowStage = AppStorage.get('windowStage') as window.WindowStage;
   // Get the main window.
-  private mainWin: window.Window = this.windowStage.getMainWindowSync();
+  private mainWin?: window.Window;
 
   aboutToAppear(): void {
-    let windowClass: window.Window | undefined = undefined;
+    try {
+      this.mainWin = this.windowStage.getMainWindowSync();
+    } catch (err) {
+      Logger.error(TAG, `mainWin  failed, err.code:${err.code}, err.message:${err.message}`);
+    }
 
     const context: Context | undefined = AppStorage.get('context');
     settings.getValue(context, settings.display.SCREEN_BRIGHTNESS_STATUS, settings.domainName.DEVICE_SHARED)
       .then((value) => {
-        hilog.info(0x0000, 'AVPlayer', `Promise:value -> ${JSON.stringify(value)}`);
+        Logger.info(TAG, `Promise:value -> ${JSON.stringify(value)}`);
         this.screenBrightness = Number(value) / 255;
       })
 
     try {
+      let windowClass: window.Window | undefined = undefined;
       window.getLastWindow(this.getUIContext().getHostContext()).then((window: window.Window) => {
         windowClass = window;
         this.screenHeight = windowClass.getWindowProperties().windowRect.height;
       }).catch((err: BusinessError) => {
-        hilog.error(0x0000, 'AVPlayer',
-          `Failed to obtain the top window. Cause code: ${err.code}, message: ${err.message}`);
+        Logger.error(TAG, `Failed to obtain the top window. Cause code: ${err.code}, message: ${err.message}`);
       });
-
+      let audioManager: audio.AudioManager = audio.getAudioManager();
+      let audioVolumeManger: audio.AudioVolumeManager = audioManager.getVolumeManager();
+      this.volume = audioVolumeManger.getVolumeByStream(audio.StreamUsage.STREAM_USAGE_MOVIE);
     } catch (exception) {
-      hilog.error(0x0000, 'AVPlayer',
+      Logger.error(TAG,
         `Failed to obtain the top window. Cause code: ${exception.code}, message: ${exception.message}`);
     }
-
-    let groupId: number = audio.DEFAULT_VOLUME_GROUP_ID;
-    let audioManager: audio.AudioManager = audio.getAudioManager();
-    let audioVolumeManger: audio.AudioVolumeManager = audioManager.getVolumeManager();
-
-    audioVolumeManger.getVolumeGroupManager(groupId, (err: BusinessError, value: audio.AudioVolumeGroupManager) => {
-      if (err) {
-        hilog.error(0x0000, 'AVPlayer', `Failed to obtain the colume group infos list. ${err}`);
-        return;
-      }
-      let audioVolumeGroupManager: audio.AudioVolumeGroupManager = value;
-      hilog.info(0x0000, 'AVPlayer', `Callback invoked to indicate that the volume group infos list is obtained.`);
-
-      audioVolumeGroupManager.getVolume(audio.AudioVolumeType.MEDIA, (err: BusinessError, value: number) => {
-        if (err) {
-          hilog.error(0x0000, 'AVPlayer', `Failed to obtain the volume. ${err}`);
-          return;
-        }
-        this.volume = value;
-        hilog.info(0x0000, 'AVPlayer', `Callback invoked to indicate that the volume is obtained. ${value}`);
-      });
-
-      audioVolumeGroupManager.getMaxVolume(audio.AudioVolumeType.MEDIA, (err: BusinessError, value: number) => {
-        if (err) {
-          hilog.error(0x0000, 'AVPlayer', `Failed to obtain the maximum volume. ${err}`);
-          return;
-        }
-        hilog.info(0x0000, 'AVPlayer', `Callback invoked to indicate that the maximum volume is obtained. ${value}`);
-      });
-
-      audioVolumeGroupManager.getMinVolume(audio.AudioVolumeType.MEDIA, (err: BusinessError, value: number) => {
-        if (err) {
-          hilog.error(0x0000, 'AVPlayer', `Failed to obtain the minimum volume. ${err}`);
-          return;
-        }
-        hilog.info(0x0000, 'AVPlayer', `Callback invoked to indicate that the minimum volume is obtained. ${value}`);
-      });
-    });
   }
 
   onIndexChange(): void {
@@ -199,7 +166,7 @@ export struct VideoPlayer {
               .width(this.isFloatWindow ? $r('app.float.size_24') : $r('app.float.icon_size_large'))
               .aspectRatio(1)
               .visibility(this.isFullScreen || this.isFullLandscapeScreen || this.isFloatWindow ?
-              Visibility.Visible : Visibility.Hidden)
+                Visibility.Visible : Visibility.Hidden)
             Image($r('app.media.ic_video_menu_forward'))
               .monopolizeEvents(true)
               .width(this.isFloatWindow ? $r('app.float.size_24') : $r('app.float.icon_size_large'))
@@ -250,7 +217,6 @@ export struct VideoPlayer {
                 }
                 .width('50%')
                 // [End panel]
-
                 // [Start screen5]
                 Column() {
                   Stack() {
@@ -288,6 +254,7 @@ export struct VideoPlayer {
                 })
                 .height('100%')
                 .width('50%')
+
                 // [End screen5]
               }
               .height('100%')
@@ -295,6 +262,7 @@ export struct VideoPlayer {
             }
             // [EndExclude build]
           }
+
           // [StartExclude build]
         }
         .justifyContent(FlexAlign.Center)
@@ -317,21 +285,22 @@ export struct VideoPlayer {
             if (event.fingerList[0].globalX > (CommonConstants.FULL_SCREEN_WIDTH / 2)) {
               // On the right side of the screen relative to the X-axis coordinate in the upper left corner of the application window, adjust the brightness.
               this.visible = true;
-              let curBrightness: number = this.screenBrightness - this.getUIContext().vp2px(event.offsetY) / this.getUIContext().vp2px(this.screenHeight);
+              let curBrightness: number = this.screenBrightness -
+                this.getUIContext().vp2px(event.offsetY) / this.getUIContext().vp2px(this.screenHeight);
               curBrightness = Math.max(0, Math.min(1.0, curBrightness));
               this.screenBrightness = curBrightness;
-              hilog.info(0x0000, 'AVPlayer', `this brightness is: ` + this.screenBrightness);
+              Logger.info(TAG, `this brightness is: ` + this.screenBrightness);
 
               try {
-                this.mainWin.setWindowBrightness(this.screenBrightness, (err) => {
+                this.mainWin?.setWindowBrightness(this.screenBrightness, (err) => {
                   if (err) {
-                    hilog.error(0x0000, 'AVPlayer', `Failed to set the brightness. Cause: ${JSON.stringify(err)}`);
+                    Logger.error(TAG, `Failed to set the brightness. Cause: ${JSON.stringify(err)}`);
                     return;
                   }
-                  hilog.info(0x0000, 'AVPlayer', `Succeeded in setting the brightness.`);
+                  Logger.info(TAG, `Succeeded in setting the brightness.`);
                 });
               } catch (exception) {
-                hilog.error(0x0000, 'AVPlayer', `Failed to set the brightness.`);
+                Logger.error(TAG, `Failed to set the brightness.`);
               }
             } else {
               // On the left side of the screen relative to the X-axis coordinate in the upper left corner of the application window, adjust the volume.
@@ -340,7 +309,7 @@ export struct VideoPlayer {
               curVolume = curVolume >= 15.0 ? 15.0 : curVolume;
               curVolume = curVolume <= 0.0 ? 0.0 : curVolume;
               this.volume = curVolume;
-              hilog.info(0x0000, 'AVPlayer', `this volume is: ` + this.volume);
+              Logger.info(TAG, `this volume is: ` + this.volume);
             }
           })
           .onActionEnd(() => {
@@ -394,11 +363,12 @@ export struct VideoPlayer {
         })
     )
   }
+
   // [End build]
 
   // The popup constructor defines the content of the dialog box
   @Builder
-  popupBuilder() {
+  popupBuilder(): void {
     Row({ space: 2 }) {
       Text($r('app.string.last_history', this.showTipsTime))
         .fontSize($r('app.float.font_size_14'))
@@ -426,7 +396,7 @@ export struct VideoPlayer {
   }
 
   @Builder
-  PlayControl() {
+  PlayControl(): void {
     Column() {
       Row() {
         Text(this.currentStringTime)
@@ -472,7 +442,7 @@ export struct VideoPlayer {
       Column() {
         Row() {
           Image(this.avPlayerController.isPlaying ? $r('sys.media.ohos_ic_public_pause') :
-          $r('app.media.ic_video_menu_play'))
+            $r('app.media.ic_video_menu_play'))
             .width($r('app.float.size_24'))
             .height($r('app.float.size_24'))
             .fillColor(Color.White)
@@ -491,8 +461,8 @@ export struct VideoPlayer {
             max: this.avPlayerController.durationTime,
             style: this.sliderStyle
           })
-            // [StartExclude value]
-            // [StartExclude slider]
+          // [StartExclude value]
+          // [StartExclude slider]
             .id('video_slider')
             .height(this.isSliderDragging ? $r('app.float.side_width') : $r('app.float.size_24'))
             .layoutWeight(1)
@@ -509,10 +479,15 @@ export struct VideoPlayer {
             // [EndExclude value]
             // [StartExclude slider]
             .onAreaChange(() => {
-              let videoSlider: componentUtils.ComponentInfo = this.getUIContext().getComponentUtils().getRectangleById('video_slider');
-              this.slideWidth = this.getUIContext().px2vp(videoSlider.size.width);
-              this.offsetY = this.getUIContext().px2vp(videoSlider.localOffset.y);
-              this.beginX = this.getUIContext().px2vp(videoSlider.localOffset.x);
+              try {
+                let videoSlider: componentUtils.ComponentInfo =
+                  this.getUIContext().getComponentUtils().getRectangleById('video_slider');
+                this.slideWidth = this.getUIContext().px2vp(videoSlider.size.width);
+                this.offsetY = this.getUIContext().px2vp(videoSlider.localOffset.y);
+                this.beginX = this.getUIContext().px2vp(videoSlider.localOffset.x);
+              } catch (err) {
+                Logger.error(TAG, `onAreaChange  failed, err.code:${err.code}, err.message:${err.message}`);
+              }
             })
             // [EndExclude slider]
             .onChange((value: number, mode: SliderChangeMode) => {
@@ -526,6 +501,7 @@ export struct VideoPlayer {
           }
         }
         .width(CommonConstants.WIDTH_FULL_PERCENT)
+
         // [Start transparent]
         // Set a transparent stack block with the same size as the Slider.
         Stack() {
@@ -548,6 +524,7 @@ export struct VideoPlayer {
           arrowPointPosition: ArrowPointPosition.CENTER,
           radius: this.blockSize,
         })
+
         // [End transparent]
       }
     }.margin({
@@ -594,6 +571,7 @@ export struct VideoPlayer {
         break;
     }
   }
+
   // [End slider1]
 
   async iconOnclick(): Promise<void> {
@@ -602,7 +580,7 @@ export struct VideoPlayer {
       this.avPlayerController.setIsPlaying(false);
       this.isTimeDisplay = 0;
       this.trackThicknessSize = CommonConstants.TRACK_SIZE_MIN;
-      let context: Context =  AppStorage.get('context')!;
+      let context: Context = AppStorage.get('context')!;
       try {
         let windowClass: window.Window = await window.getLastWindow(context);
         await windowClass.setWindowKeepScreenOn(false);

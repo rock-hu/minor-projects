@@ -41,8 +41,6 @@ const getUsers = () => {
   });
 }
 
-
-@Entry
 @Component
 export struct AvatarGrid {
   @State users: User[] = getUsers();

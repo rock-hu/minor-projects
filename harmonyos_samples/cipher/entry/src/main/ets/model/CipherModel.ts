@@ -16,9 +16,9 @@
 import { cryptoFramework } from '@kit.CryptoArchitectureKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { buffer, util } from '@kit.ArkTS';
-import Logger from './Logger';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
-const TAG: string = '[CipherModel]'
+const TAG: string = '[CipherModel]';
 const AES_ENCRYPT_KEY: string = '5QXzAbJj0TJN9OQNvxFhhw==';
 const RSA_ENCRYPT_KEY: string =
   'MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBALXJZEloyLbBB6UbUQzUtM3WGTkcd4dn4HgCxL5wHcdICoLbv6EiUjcaQq8c906hqv6/J7Bv9Owj59XMauKweJUCAwEAAQ==';
@@ -67,114 +67,130 @@ export class CipherModel {
   }
 
   rsaEncrypt(message: string, callback) {
-    let rsaGenerator = cryptoFramework.createAsyKeyGenerator(RSA512_PRIMES_2);
-    let cipher = cryptoFramework.createCipher(RSA512_PKCS1);
-    let that = new util.Base64Helper();
-    let pubKey = that.decodeSync(RSA_ENCRYPT_KEY);
-    let pubKeyBlob: cryptoFramework.DataBlob = { data: pubKey };
-    rsaGenerator.convertKey(pubKeyBlob, null, (err, keyPair) => {
-      if (err) {
-        Logger.error('convertKey: error.' + (err as BusinessError).code);
-        return;
-      }
-      cipher.init(cryptoFramework.CryptoMode.ENCRYPT_MODE, keyPair.pubKey, null, (err, data) => {
-        let input: cryptoFramework.DataBlob = { data: this.stringToUint8Array(message) };
-        cipher.doFinal(input, (err, data) => {
-          Logger.info(TAG, 'EncryptOutPut is ' + data.data);
-          let result = that.encodeToStringSync(data.data);
-          Logger.info(TAG, 'result is ' + result);
-          callback(result);
+    try {
+      let rsaGenerator = cryptoFramework.createAsyKeyGenerator(RSA512_PRIMES_2);
+      let cipher = cryptoFramework.createCipher(RSA512_PKCS1);
+      let that = new util.Base64Helper();
+      let pubKey = that.decodeSync(RSA_ENCRYPT_KEY);
+      let pubKeyBlob: cryptoFramework.DataBlob = { data: pubKey };
+      rsaGenerator.convertKey(pubKeyBlob, null, (err, keyPair) => {
+        if (err) {
+          hilog.error(0x0000, TAG, 'convertKey: error.' + (err as BusinessError).code);
+          return;
+        }
+        cipher.init(cryptoFramework.CryptoMode.ENCRYPT_MODE, keyPair.pubKey, null, (_err) => {
+          let input: cryptoFramework.DataBlob = { data: this.stringToUint8Array(message) };
+          cipher.doFinal(input, (_err, data) => {
+            hilog.info(0x0000, TAG, 'EncryptOutPut is ' + data.data);
+            let result = that.encodeToStringSync(data.data);
+            hilog.info(0x0000, TAG, 'result is ' + result);
+            callback(result);
+          })
         })
       })
-    })
+    } catch (err) {
+      hilog.error(0x0000, TAG, `Error in rsaEncrypt. Cause code: ${err.code}, message: ${err.message}`);
+    }
   }
 
   rsaDecrypt(message: string, callback) {
-    let rsaGenerator = cryptoFramework.createAsyKeyGenerator(RSA512_PRIMES_2);
-    let cipher = cryptoFramework.createCipher(RSA512_PKCS1);
-    let that = new util.Base64Helper();
-    let priKey = that.decodeSync(RSA_DECRYPT_KEY);
-    let priKeyBlob: cryptoFramework.DataBlob = { data: priKey };
-    rsaGenerator.convertKey(null, priKeyBlob, (err, keyPair) => {
-      if (err) {
-        Logger.error(TAG, 'convertKey: error.' + (err as BusinessError).code);
-        return;
-      }
-      cipher.init(cryptoFramework.CryptoMode.DECRYPT_MODE, keyPair.priKey, null, (err, data) => {
-        try {
-          let newMessage = that.decodeSync(message);
-          let input: cryptoFramework.DataBlob = { data: newMessage };
-          cipher.doFinal(input, (err, data) => {
-            if (err) {
-              Logger.error(TAG, 'cipher doFinal.' + (err as BusinessError).code);
-              return;
-            }
-            Logger.info(TAG, 'DecryptOutPut is ' + data.data);
-            let result = this.uint8ArrayToString(data.data);
-            Logger.info(TAG, 'result is ' + result);
-            callback(result)
-          })
-        } catch (err) {
-          Logger.info(TAG, 'cipher init error: ' + (err as BusinessError).code);
-          return err;
+    try {
+      let rsaGenerator = cryptoFramework.createAsyKeyGenerator(RSA512_PRIMES_2);
+      let cipher = cryptoFramework.createCipher(RSA512_PKCS1);
+      let that = new util.Base64Helper();
+      let priKey = that.decodeSync(RSA_DECRYPT_KEY);
+      let priKeyBlob: cryptoFramework.DataBlob = { data: priKey };
+      rsaGenerator.convertKey(null, priKeyBlob, (err, keyPair) => {
+        if (err) {
+          hilog.error(0x0000, TAG, 'convertKey: error.' + (err as BusinessError).code);
+          return;
         }
+        cipher.init(cryptoFramework.CryptoMode.DECRYPT_MODE, keyPair.priKey, null, (_err) => {
+          try {
+            let newMessage = that.decodeSync(message);
+            let input: cryptoFramework.DataBlob = { data: newMessage };
+            cipher.doFinal(input, (err, data) => {
+              if (err) {
+                hilog.error(0x0000, TAG, 'cipher doFinal.' + (err as BusinessError).code);
+                return;
+              }
+              hilog.info(0x0000, TAG, 'DecryptOutPut is ' + data.data);
+              let result = this.uint8ArrayToString(data.data);
+              hilog.info(0x0000, TAG, 'result is ' + result);
+              callback(result);
+            })
+          } catch (err) {
+            hilog.error(0x0000, TAG, 'cipher init error: ' + (err as BusinessError).code);
+            return err;
+          }
+        })
       })
-    })
+    } catch (err) {
+      hilog.error(0x0000, TAG, `Error in rsaDecrypt. Cause code: ${err.code}, message: ${err.message}`);
+    }
   }
 
   aesEncrypt(message: string, callback) {
-    let aesGenerator = cryptoFramework.createSymKeyGenerator(AES128);
-    let cipher = cryptoFramework.createCipher(AES128_PKCS7);
-    let that = new util.Base64Helper();
-    let pubKey = that.decodeSync(AES_ENCRYPT_KEY);
-    let pubKeyBlob: cryptoFramework.DataBlob = { data: pubKey };
-    aesGenerator.convertKey(pubKeyBlob, (err, symKey) => {
-      if (err) {
-        console.error('convertKey: error.' + (err as BusinessError).code);
-        return;
-      }
-      cipher.init(cryptoFramework.CryptoMode.ENCRYPT_MODE, symKey, null, (err, data) => {
-        let input: cryptoFramework.DataBlob = { data: this.stringToUint8Array(message) };
-        cipher.doFinal(input, (err, data) => {
-          Logger.info(TAG, 'EncryptOutPut is ' + data.data);
-          let result = that.encodeToStringSync(data.data)
-          Logger.info(TAG, 'result is ' + result);
-          callback(result)
+    try {
+      let aesGenerator = cryptoFramework.createSymKeyGenerator(AES128);
+      let cipher = cryptoFramework.createCipher(AES128_PKCS7);
+      let that = new util.Base64Helper();
+      let pubKey = that.decodeSync(AES_ENCRYPT_KEY);
+      let pubKeyBlob: cryptoFramework.DataBlob = { data: pubKey };
+      aesGenerator.convertKey(pubKeyBlob, (err, symKey) => {
+        if (err) {
+          console.error('convertKey: error.' + (err as BusinessError).code);
+          return;
+        }
+        cipher.init(cryptoFramework.CryptoMode.ENCRYPT_MODE, symKey, null, (_err) => {
+          let input: cryptoFramework.DataBlob = { data: this.stringToUint8Array(message) };
+          cipher.doFinal(input, (_err, data) => {
+            hilog.info(0x0000, TAG, 'EncryptOutPut is ' + data.data);
+            let result = that.encodeToStringSync(data.data);
+            hilog.info(0x0000, TAG, 'result is ' + result);
+            callback(result);
+          })
         })
       })
-    })
+    } catch (err) {
+      hilog.error(0x0000, TAG, `Error in aesEncrypt. Cause code: ${err.code}, message: ${err.message}`);
+    }
   }
 
   aesDecrypt(message: string, callback) {
-    let aesGenerator = cryptoFramework.createSymKeyGenerator(AES128);
-    let cipher = cryptoFramework.createCipher(AES128_PKCS7);
-    let that = new util.Base64Helper();
-    let pubKey = that.decodeSync(AES_ENCRYPT_KEY);
-    let pubKeyBlob: cryptoFramework.DataBlob = { data: pubKey };
-    aesGenerator.convertKey(pubKeyBlob, (err, symKey) => {
-      if (err) {
-        console.error('convertKey: error.' + (err as BusinessError).code);
-        return;
-      }
-      cipher.init(cryptoFramework.CryptoMode.DECRYPT_MODE, symKey, null, (err, data) => {
-        try {
-          let newMessage = that.decodeSync(message);
-          let input: cryptoFramework.DataBlob = { data: newMessage };
-          cipher.doFinal(input, (err, data) => {
-            if (err) {
-              Logger.error(TAG, 'cipher doFinal.' + (err as BusinessError).code);
-              return;
-            }
-            Logger.info(TAG, 'DecryptOutPut is ' + data?.data);
-            let result = this.uint8ArrayToString(data?.data)
-            Logger.info(TAG, 'result is ' + result);
-            callback(result)
-          })
-        } catch (err) {
-          Logger.info(TAG, 'cipher init error: ' + (err as BusinessError).code);
-          return err;
+    try {
+      let aesGenerator = cryptoFramework.createSymKeyGenerator(AES128);
+      let cipher = cryptoFramework.createCipher(AES128_PKCS7);
+      let that = new util.Base64Helper();
+      let pubKey = that.decodeSync(AES_ENCRYPT_KEY);
+      let pubKeyBlob: cryptoFramework.DataBlob = { data: pubKey };
+      aesGenerator.convertKey(pubKeyBlob, (err, symKey) => {
+        if (err) {
+          console.error('convertKey: error.' + (err as BusinessError).code);
+          return;
         }
+        cipher.init(cryptoFramework.CryptoMode.DECRYPT_MODE, symKey, null, (_err) => {
+          try {
+            let newMessage = that.decodeSync(message);
+            let input: cryptoFramework.DataBlob = { data: newMessage };
+            cipher.doFinal(input, (err, data) => {
+              if (err) {
+                hilog.error(0x0000, TAG, 'cipher doFinal.' + (err as BusinessError).code);
+                return;
+              }
+              hilog.info(0x0000, TAG, 'DecryptOutPut is ' + data?.data);
+              let result = this.uint8ArrayToString(data?.data)
+              hilog.info(0x0000, TAG, 'result is ' + result);
+              callback(result);
+            })
+          } catch (err) {
+            hilog.error(0x0000, TAG, 'cipher init error: ' + (err as BusinessError).code);
+            return err;
+          }
+        })
       })
-    })
+    } catch (err) {
+      hilog.error(0x0000, TAG, `Error in aesDecrypt. Cause code: ${err.code}, message: ${err.message}`);
+    }
   }
 }

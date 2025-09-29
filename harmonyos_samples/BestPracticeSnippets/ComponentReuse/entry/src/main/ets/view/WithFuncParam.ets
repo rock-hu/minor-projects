@@ -24,7 +24,8 @@ import { FriendMomentsData } from '../model/FriendMomentData';
 struct WithFuncParam {
   @State sum: number = 0;
   // [StartExclude opt_funcParam]
-  private momentData: FriendMomentsData = new FriendMomentsData(Constants.NAV_DESTINATION_ITEM_3);
+  private momentData: FriendMomentsData =
+    new FriendMomentsData(this.getUIContext().getHostContext(), Constants.NAV_DESTINATION_ITEM_3);
   private readonly LIST_CACHE_COUNT: number = 5;
   private readonly LIST_SPACE: number = 18;
   // [EndExclude opt_funcParam]

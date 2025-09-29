@@ -18,6 +18,9 @@ import ShowToast from '../../../../util/ShowToast';
 import { TitleBar } from '../../../../common/TitleBar';
 import { LEFT_PADDING, RIGHT_PADDING } from '../../ComponentData';
 import { webview }from '@kit.ArkWeb';
+import Logger from '../../../../util/Logger';
+import { BusinessError } from '@kit.BasicServicesKit';
+
 
 
 @Extend(Column)
@@ -34,11 +37,15 @@ struct WebSample {
   controller: webview.WebviewController = new webview.WebviewController();
 
   onBackPress(): boolean | void {
-    if (this.controller.accessStep(-1)) {
-      this.controller.backward();
-      return true;
-    } else {
-      return false;
+    try {
+      if (this.controller.accessStep(-1)) {
+        this.controller.backward();
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      Logger.error(`onBackPress failed, error code: ${(error as BusinessError).code}, message: ${(error as BusinessError).message}.`);
     }
   }
 

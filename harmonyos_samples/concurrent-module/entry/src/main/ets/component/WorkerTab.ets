@@ -14,6 +14,9 @@
  */
 
 import { worker } from '@kit.ArkTS';
+import { Logger } from '../common/Common';
+
+const TAG: string = '[ConcurrentModule].[WorkerTab]';
 
 @Component
 export struct WorkerTab {
@@ -143,7 +146,11 @@ export struct WorkerTab {
       this.jsWorkerOutPutStr = "No input for the string to be sorted.\n";
       return;
     }
-    this.myWorker.postMessage(inPutArr);
+    try {
+      this.myWorker.postMessage(inPutArr);
+    } catch (e) {
+      Logger.error(TAG, `post message failed for: {message: ${(e as Error).message}, ${e}}`);
+    }
     let strFlag = false;
     let outPutStr = '';
     this.myWorker.onmessage = (e) => {

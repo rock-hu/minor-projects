@@ -19,10 +19,14 @@
 ### 工程目录
 ```
 ├──entry/src/main/ets
+│  ├──common
+│  │  ├───utils
+│  │  │   ├───DateTimeUtil.ets              // 时间处理公共方法
+│  │  │   ├───GlobalContext.ets             // 全局上下文
+│  │  │   └───Logger.ets                    // 日志工具类
+│  │  └──Constants.ets                      // 视图层-拍照页面
 │  ├──entryability
 │  │  └──EntryAbility.ets                   // Ability的生命周期回调内容
-│  ├──entrybackupability
-│  │  └──EntryBackupAbility.ets             // 程序入口类
 │  ├──mode
 │  │  └──CameraService.ets                  // 模型层- 相机服务
 │  ├──pages 
@@ -63,15 +67,15 @@
    ```
 
 2. initCamera函数完成一个相机生命周期初始化的过程。
-- 首先通过[getCameraManager](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-camera#cameragetcameramanager)来获取CameraMananger相机管理器类。
-- 调用[getSupportedCameras](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-camera#getsupportedcameras)和[getSupportedOutputCapability](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-camera#getsupportedoutputcapability11)方法来获取支持的camera设备以及设备能力集。
-- 调用[createPreviewOutput](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-camera#createpreviewoutput)和[createPhotoOutput](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-camera#createphotooutput11)方法来创建预览输出和拍照输出对象。
+- 首先通过[getCameraManager](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/arkts-apis-camera-f#cameragetcameramanager)来获取CameraMananger相机管理器类。
+- 调用[getSupportedCameras](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/arkts-apis-camera-cameramanager#getsupportedcameras)和[getSupportedOutputCapability](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/arkts-apis-camera-cameramanager#getsupportedoutputcapability11)方法来获取支持的camera设备以及设备能力集。
+- 调用[createPreviewOutput](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/arkts-apis-camera-cameramanager#createpreviewoutput)和[createPhotoOutput](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/arkts-apis-camera-cameramanager#createphotooutput11)方法来创建预览输出和拍照输出对象。
 - 使用CameraInput的open方法来打开相机输入，通过onCameraStatusChange函数来创建CameraManager注册回调。
 - 最后调用sessionFlowFn函数创建并开启Session。
 
-3. 确定拍照输出流。通过[CameraOutputCapability](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-camera#cameraoutputcapability)类中的photoProfiles属性，可获取当前设备支持的拍照输出流，通过cameraManager.createPhotoOutput方法创建拍照输出流。
+3. 确定拍照输出流。通过[CameraOutputCapability](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/arkts-apis-camera-i#cameraoutputcapability)类中的photoProfiles属性，可获取当前设备支持的拍照输出流，通过cameraManager.createPhotoOutput方法创建拍照输出流。
 
-4. 触发拍照。通过photoOutput类的[capture](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-camera#capture-2)方法，执行拍照任务。
+4. 触发拍照。通过photoOutput类的[capture](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/arkts-apis-camera-photooutput#capture)方法，执行拍照任务。
 
    ```typescript
    async takePicture(): Promise<void> {

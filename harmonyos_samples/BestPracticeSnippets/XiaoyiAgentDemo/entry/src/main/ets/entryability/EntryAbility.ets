@@ -23,7 +23,6 @@ const DOMAIN = 0x0000;
 let uiContext: UIContext | null = null;
 
 export default class EntryAbility extends UIAbility {
-
   onCreate(): void {
     AppStorage.setOrCreate('context', this.context);
     hilog.info(DOMAIN, 'testTag', '[EntryAbility] onCreate completed');
@@ -43,9 +42,14 @@ export default class EntryAbility extends UIAbility {
         return;
       }
       windowStage.getMainWindow((err: BusinessError, data) => {
-        let windowClass = data;
-        uiContext = windowClass.getUIContext();
-        AppStorage.set('uiContext', uiContext);
+        try {
+          let windowClass = data;
+          uiContext = windowClass.getUIContext();
+          AppStorage.set('uiContext', uiContext);
+        } catch (error) {
+          let err = error as BusinessError;
+          hilog.error(0x000, 'testTag', `getUIContext failed. code=${err.code}, message=${err.message}`);
+        }
       })
 
       hilog.info(DOMAIN, 'testTag', 'Succeeded in loading the content.');
@@ -71,10 +75,19 @@ export default class EntryAbility extends UIAbility {
   onNewWant(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     hilog.info(DOMAIN, 'testTag', 'Received URI:', want.uri);
     const uri = want.uri;
+    let pathname = '';
     if (uri) {
-      const urlObj = url.URL.parseURL(uri);
-      let pathname = urlObj.pathname;
-      uiContext?.getRouter().pushUrl({ url: 'pages' + pathname });
+      try {
+        const urlObj = url.URL.parseURL(uri);
+        pathname = urlObj.pathname;
+      } catch (error) {
+        let err = error as BusinessError;
+        hilog.error(0x000, 'testTag', `getUIContext failed. code=${err.code}, message=${err.message}`);
+      }
+      uiContext?.getRouter().pushUrl({ url: 'pages' + pathname })
+        .catch((error: BusinessError) => {
+          hilog.error(0x000, 'testTag', `pushUrl failed. code=${error.code}, message=${error.message}`);
+        })
     }
   }
   // [End onNewWant]

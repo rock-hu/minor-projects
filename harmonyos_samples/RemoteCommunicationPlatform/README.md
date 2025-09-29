@@ -33,9 +33,8 @@ RCP指的是远程通信平台（remote communication platform），RCP提供网
 │  |  ├──MultipartForm.ets                              // 多表单提交
 │  |  ├──RequestAndResponse.ets                         // 请求与响应拦截示例
 │  |  └──TracingPoint.ets                               // 捕获有关HTTP请求/响应流的详细信息
-|  └──utils.ets
-│     ├──Interceptors.ets                               // 请求与响应拦截
-│     └──NetworkStateSimulator.ets                      // 模拟慢速网络
+|  └──utils.ets                            
+│     └──Interceptors.ets                               // 请求与响应拦截
 └──entry/src/main/resources                             // 应用资源目录
 ``` 
 ## 相关权限

@@ -6,6 +6,8 @@
 import { fileIo as fs } from '@kit.CoreFileKit';
 // [StartExclude audio_bpta]
 import { audio } from '@kit.AudioKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 let audioStreamInfo: audio.AudioStreamInfo = {
   samplingRate: audio.AudioSamplingRate.SAMPLE_RATE_48000,
@@ -43,8 +45,13 @@ async function read() {
   let path = context.filesDir; // Path of the file
 
   const filePath = path + '/voice_call_data.wav'; // Prohibit the file from being played silently
-  let file: fs.File = fs.openSync(filePath, fs.OpenMode.READ_ONLY); // Open the file
-  let buf = new ArrayBuffer(bufferSize);
-  let readSize: number = await fs.read(file.fd, buf); // Read the file content
+  try {
+    let file: fs.File = fs.openSync(filePath, fs.OpenMode.READ_ONLY); // Open the file
+    let buf = new ArrayBuffer(bufferSize);
+    let readSize: number = await fs.read(file.fd, buf); // Read the file content
+  } catch (error) {
+    let err = error as BusinessError;
+    hilog.warn(0x000, 'testTag', `openSync or read failed, code=${err.code}, message=${err.message}`);
+  }
 }
 // [End audio_bpta]

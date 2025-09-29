@@ -16,13 +16,17 @@
 import { BasicDataSource, FriendMoment } from './BasicDataSource';
 import { util } from '@kit.ArkTS';
 import { Constants } from '../common/Constants';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 export class FriendMomentsData extends BasicDataSource<FriendMoment> {
   private friendMoments: Array<FriendMoment> = [];
   private mode: string | undefined = '';
+  private context: Context | undefined = undefined;
 
-  constructor(mode?: string) {
+  constructor(context?: Context,mode?: string) {
     super();
+    this.context = context;
     this.mode = mode;
   }
 
@@ -43,22 +47,26 @@ export class FriendMomentsData extends BasicDataSource<FriendMoment> {
   }
 
   public async getFriendMomentFromRawFile(): Promise<void> {
-    const resourceManager = getContext().resourceManager;
-    const res = await resourceManager.getRawFileContent('mockFriendMomentOneModelData.json');
-    const textDecoder = util.TextDecoder.create();
-    const friendMomentArray = (JSON.parse(textDecoder.decodeToString(res)) as FriendMomentsData).friendMoments;
-
-    friendMomentArray.forEach(item => {
-      if (item.id) {
-        item.id = Math.floor(this.totalCount() / 10) + item.id;
-      }
-      item.userName = resourceManager.getStringSync($r('app.string.userName').id, parseInt(item.id) + 1);
-      if (this.mode === Constants.NAV_DESTINATION_ITEM_3) {
-        item.text = resourceManager.getStringSync($r('app.string.with_func_title'), parseInt(item.id) + 1);
-      } else {
-        item.text = resourceManager.getStringSync($r('app.string.jump_text_one'), parseInt(item.id) + 1);
-      }
-      this.pushData(item);
-    })
+    const resourceManager = this.context!.resourceManager;
+    try {
+      const res = await resourceManager.getRawFileContent('mockFriendMomentOneModelData.json');
+      const textDecoder = util.TextDecoder.create();
+      const friendMomentArray = (JSON.parse(textDecoder.decodeToString(res)) as FriendMomentsData).friendMoments;
+      friendMomentArray.forEach(item => {
+        if (item.id) {
+          item.id = Math.floor(this.totalCount() / 10) + item.id;
+        }
+        item.userName = resourceManager.getStringSync($r('app.string.userName').id, parseInt(item.id) + 1);
+        if (this.mode === Constants.NAV_DESTINATION_ITEM_3) {
+          item.text = resourceManager.getStringSync($r('app.string.with_func_title').id, parseInt(item.id) + 1);
+        } else {
+          item.text = resourceManager.getStringSync($r('app.string.jump_text_one').id, parseInt(item.id) + 1);
+        }
+        this.pushData(item);
+      })
+    } catch (e) {
+      let err = e as BusinessError;
+      hilog.error(0x0000, 'testTag', `failed code=${err.code}, message=${err.message}`);
+    }
   }
 }

@@ -15,9 +15,9 @@
 
 import { photoAccessHelper } from '@kit.MediaLibraryKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-import { promptAction } from '@kit.ArkUI';
 import { fileIo } from '@kit.CoreFileKit';
 import { image } from '@kit.ImageKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 const TAG: string = '[EncodeUtil]';
 const context = AppStorage.get('uiContext') as UIContext;
@@ -37,20 +37,26 @@ export async function encode(component: Object, pixelMap: PixelMap) {
     format: 'image/jpeg',
     quality: 100
   }
-  const imageData = await imagePackerApi.packToData(newPixelMap, packOptions);
-  hilog.info(0x0000, TAG, '%{public}s', `imageData's length is ${imageData.byteLength}`);
-  // Create image asset.
-  let photoType: photoAccessHelper.PhotoType = photoAccessHelper.PhotoType.IMAGE;
-  let extension: string = 'jpg';
-  phAccessHelper.createAsset(photoType, extension, (err, uri) => {
-    if (err) {
-      hilog.error(0x0000, TAG, 'createAsset ', JSON.stringify(err) ?? '');
-    }
-    if (uri != undefined) {
-      let file = fileIo.openSync(uri, fileIo.OpenMode.READ_WRITE);
-      fileIo.writeSync(file.fd, imageData);
-      fileIo.close(file.fd);
-      context.getPromptAction().showToast({ message: $r('app.string.image_save') });
-    }
-  });
+  try {
+    const imageData = await imagePackerApi.packToData(newPixelMap, packOptions);
+    hilog.info(0x0000, TAG, '%{public}s', `imageData's length is ${imageData.byteLength}`);
+    // Create image asset.
+    let photoType: photoAccessHelper.PhotoType = photoAccessHelper.PhotoType.IMAGE;
+    let extension: string = 'jpg';
+    phAccessHelper.createAsset(photoType, extension, (err, uri) => {
+      if (err) {
+        hilog.error(0x0000, TAG, 'createAsset ', JSON.stringify(err) ?? '');
+      }
+      if (uri !== undefined) {
+        let file = fileIo.openSync(uri, fileIo.OpenMode.READ_WRITE);
+        fileIo.writeSync(file.fd, imageData);
+        fileIo.close(file.fd).catch((err: BusinessError) => {
+          hilog.error(0x0000, TAG, 'Failed to close: ', JSON.stringify(err) ?? '');
+        });
+        context.getPromptAction().showToast({ message: $r('app.string.image_save') });
+      }
+    });
+  } catch (err) {
+    hilog.error(0x0000, TAG, 'Failed to packToData: ', JSON.stringify(err) ?? '');
+  }
 }

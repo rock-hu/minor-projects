@@ -4,9 +4,32 @@
 
 本示例是《应用切面编程设计》最佳实践中的代码示例片段。
 
-##### 使用说明
+### 使用说明
 
-进入首面，点击按钮，分别进入示例页面。
+进入首面，加载示例逻辑。
+
+### 工程目录
+
+``` 
+├──entry/src/main/ets                          
+│  ├──entryability
+│  │  └──EntryAbility.ets               // 入口类
+│  ├──entrybackupability
+│  │  └──EntryBackupAbility.ets         // 备份恢复类
+│  └──pages        
+│     ├──Index.ets                      // 示例页面
+│     ├──Index1.ets                     // 示例页面                  
+│     ├──Index2.ets                     // 示例页面   
+│     ├──Index3.ets                     // 示例页面
+│     ├──Index4.ets                     // 示例页面           
+│     ├──Index5.ets                     // 示例页面
+│     ├──Index6.ets                     // 示例页面
+│     ├──Index7.ets                     // 示例页面              
+│     ├──Index8.ets                     // 示例页面
+│     ├──Index9.ets                     // 示例页面
+│     └──Index10.ets                    // 示例页面
+└──entry/src/main/resources             // 应用资源目录
+```
 
 
 ### 具体实现

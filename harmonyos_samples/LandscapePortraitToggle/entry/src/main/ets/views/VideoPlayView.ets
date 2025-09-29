@@ -19,6 +19,8 @@ import { BusinessError, settings } from '@kit.BasicServicesKit'
 import Logger from '../utils/Logger'
 import { common } from '@kit.AbilityKit'
 
+const TAG = 'VideoPlayViewLogTag';
+
 @Component
 export struct VideoPlayView {
   private context = this.getUIContext().getHostContext() as common.UIAbilityContext;
@@ -34,83 +36,99 @@ export struct VideoPlayView {
   private xComponentController: XComponentController = new XComponentController()
   private player?: AVPlayerUtil
   // [EndExclude set_orientation]
-  private windowClass = (this.context as common.UIAbilityContext).windowStage.getMainWindowSync()
-
+  private windowClass = (this.context as common.UIAbilityContext).windowStage.getMainWindowSync();
   // [StartExclude set_orientation]
-
   // [Start about_to_appear]
   aboutToAppear(): void {
-    // [StartExclude about_to_appear]
-    // Get the rotation lock on state
-    this.orientationLockState = settings.getValueSync(this.context, settings.general.ACCELEROMETER_ROTATION_STATUS,
-      settings.domainName.DEVICE_SHARED)
-    // [EndExclude about_to_appear]
-    // [Start window_size_change]
-    // [Start window_size_change_two]
-    this.windowClass.on('windowSizeChange', (size) => {
+    try {
       // [StartExclude about_to_appear]
-      let viewWidth = this.getUIContext().px2vp(size.width)
-      let viewHeight = this.getUIContext().px2vp(size.height)
-      // [StartExclude window_size_change_two]
-      // [StartExclude window_size_change]
-      if (this.isExpandedOrHalfFolded()) {
-        this.xComponentWidth = viewWidth
-        this.xComponentHeight = viewWidth * this.aspect
-      } else {
-        // [EndExclude window_size_change]
-        // [EndExclude window_size_change_two]
-        if (viewWidth > viewHeight) {
-          // [StartExclude window_size_change]
-          if (display.getFoldStatus() === display.FoldStatus.FOLD_STATUS_EXPANDED ||
-            display.getFoldStatus() === display.FoldStatus.FOLD_STATUS_HALF_FOLDED) {
+      // Get the rotation lock on state
+      this.orientationLockState = settings.getValueSync(this.context, settings.general.ACCELEROMETER_ROTATION_STATUS,
+        settings.domainName.DEVICE_SHARED)
+      // [EndExclude about_to_appear]
+      // [Start window_size_change]
+      // [Start window_size_change_two]
+      this.windowClass.on('windowSizeChange', (size) => {
+        // [StartExclude about_to_appear]
+        let viewWidth = this.getUIContext().px2vp(size.width)
+        let viewHeight = this.getUIContext().px2vp(size.height)
+        // [StartExclude window_size_change_two]
+        // [StartExclude window_size_change]
+        if (this.isExpandedOrHalfFolded()) {
+          this.xComponentWidth = viewWidth
+          this.xComponentHeight = viewWidth * this.aspect
+        } else {
+          // [EndExclude window_size_change]
+          // [EndExclude window_size_change_two]
+          if (viewWidth > viewHeight) {
+            // [StartExclude window_size_change]
+            if (display.getFoldStatus() === display.FoldStatus.FOLD_STATUS_EXPANDED ||
+              display.getFoldStatus() === display.FoldStatus.FOLD_STATUS_HALF_FOLDED) {
+              this.xComponentHeight = viewWidth * this.aspect
+              this.xComponentWidth = viewWidth
+            } else {
+              this.xComponentWidth = viewHeight / this.aspect
+              this.xComponentHeight = viewHeight
+              this.isLandscape = true
+            }
+            this.windowClass.setSpecificSystemBarEnabled('navigationIndicator', false).catch((error: BusinessError) => {
+              Logger.error(TAG,
+                `setSpecificSystemBarEnabled err, error code: ${error.code}, error mesage: ${error.message}`);
+            })
+            // hide bottom navigation bar
+            // [EndExclude window_size_change]
+          } else {
+            // [StartExclude window_size_change]
             this.xComponentHeight = viewWidth * this.aspect
             this.xComponentWidth = viewWidth
-          } else {
-            this.xComponentWidth = viewHeight / this.aspect
-            this.xComponentHeight = viewHeight
-            this.isLandscape = true
+            this.windowClass.setSpecificSystemBarEnabled('navigationIndicator', true).catch((error: BusinessError) => {
+              Logger.error(TAG, `setSpecificSystemBarEnabled err, error code: ${error.code}, error mesage: ${error.message}`);
+            })
+            // show bottom navigation bar
+            this.isLandscape = false
+            // [EndExclude window_size_change]
           }
-          this.windowClass.setSpecificSystemBarEnabled('navigationIndicator', false) // hide bottom navigation bar
-          // [EndExclude window_size_change]
-        } else {
           // [StartExclude window_size_change]
-          this.xComponentHeight = viewWidth * this.aspect
-          this.xComponentWidth = viewWidth
-          this.windowClass.setSpecificSystemBarEnabled('navigationIndicator', true) // show bottom navigation bar
-          this.isLandscape = false
-          // [EndExclude window_size_change]
+          // [StartExclude window_size_change_two]
         }
-        // [StartExclude window_size_change]
-        // [StartExclude window_size_change_two]
-      }
-      // [EndExclude window_size_change_two]
-      // [EndExclude window_size_change]
-      // [EndExclude about_to_appear]
-    })
-    // [End window_size_change]
-    // [End window_size_change_two]
-
-    // [StartExclude about_to_appear]
-    // Listen to get the rotary lock switch chapter table
-    // [Start register_key_observer]
-    settings.registerKeyObserver(this.context, settings.general.ACCELEROMETER_ROTATION_STATUS,
-      settings.domainName.DEVICE_SHARED, () => {
-        this.orientationLockState =
-          settings.getValueSync(this.context, settings.general.ACCELEROMETER_ROTATION_STATUS,
-            settings.domainName.DEVICE_SHARED)
+        // [EndExclude window_size_change_two]
+        // [EndExclude window_size_change]
+        // [EndExclude about_to_appear]
       })
-    // [End register_key_observer]
-    // [EndExclude about_to_appear]
+      // [End window_size_change]
+      // [End window_size_change_two]
+
+      // [StartExclude about_to_appear]
+      // Listen to get the rotary lock switch chapter table
+      // [Start register_key_observer]
+      settings.registerKeyObserver(this.context, settings.general.ACCELEROMETER_ROTATION_STATUS,
+        settings.domainName.DEVICE_SHARED, () => {
+          this.orientationLockState =
+            settings.getValueSync(this.context, settings.general.ACCELEROMETER_ROTATION_STATUS,
+              settings.domainName.DEVICE_SHARED)
+        })
+      // [End register_key_observer]
+      // [EndExclude about_to_appear]
+    } catch (err) {
+      let error = err as BusinessError;
+      Logger.error(TAG, `aboutToAppear err, error code: ${error.code}, error mesage: ${error.message}`);
+    }
   }
 
   // [End about_to_appear]
 
   // [Start is_expanded_or_halfFolded]
   isExpandedOrHalfFolded(): boolean {
-    return display.getFoldStatus() === display.FoldStatus.FOLD_STATUS_EXPANDED ||
-      display.getFoldStatus() === display.FoldStatus.FOLD_STATUS_HALF_FOLDED
+    let isExpandedOrHalfFolded: boolean = false;
+    try {
+      isExpandedOrHalfFolded = display.getFoldStatus() === display.FoldStatus.FOLD_STATUS_EXPANDED ||
+        display.getFoldStatus() === display.FoldStatus.FOLD_STATUS_HALF_FOLDED
+    } catch (err) {
+      let error = err as BusinessError;
+      Logger.error(TAG, `isExpandedOrHalfFolded err, error code: ${error.code}, error mesage: ${error.message}`);
+    }
+    return isExpandedOrHalfFolded;
   }
-
   // [End is_expanded_or_halfFolded]
 
   // [EndExclude set_orientation]
@@ -142,13 +160,18 @@ export struct VideoPlayView {
         XComponent({ id: 'video_player_id', type: XComponentType.SURFACE, controller: this.xComponentController })
           .onLoad(() => {
             // [StartExclude X_component]
-            this.player = new AVPlayerUtil(this.getUIContext())
-            this.player.setSurfaceId(this.xComponentController.getXComponentSurfaceId())
-            this.player.initPlayer('videoTest.mp4', (aspect: number) => {
-              this.aspect = aspect
-              this.xComponentHeight = this.getUIContext().px2vp(display.getDefaultDisplaySync().width * aspect)
-              this.xComponentWidth = this.getUIContext().px2vp(display.getDefaultDisplaySync().width)
-            })
+            try {
+              this.player = new AVPlayerUtil(this.getUIContext())
+              this.player.setSurfaceId(this.xComponentController.getXComponentSurfaceId())
+              this.player.initPlayer('videoTest.mp4', (aspect: number) => {
+                this.aspect = aspect
+                this.xComponentHeight = this.getUIContext().px2vp(display.getDefaultDisplaySync().width * aspect)
+                this.xComponentWidth = this.getUIContext().px2vp(display.getDefaultDisplaySync().width)
+              })
+            } catch (err) {
+              let error = err as BusinessError;
+              Logger.error(TAG, `getDefaultDisplaySync err, error code: ${error.code}, error mesage: ${error.message}`);
+            }
             // [EndExclude X_component]
           })
           .width(this.xComponentWidth)
@@ -298,8 +321,8 @@ struct TabsView {
 
       // [EndExclude Tabs_view]
     }
-    .barHeight(this.isLayoutFullScreen ? 0 :
-      50) // Hide the height of the Tabs tab bar by whether the user needs to click to enter the full screen and hide it
+    // Hide the height of the Tabs tab bar by whether the user needs to click to enter the full screen and hide it
+    .barHeight(this.isLayoutFullScreen ? 0 : 50)
   }
 }
 

@@ -5,18 +5,16 @@
 APM（Application Performance Management）是一种用于监控和管理应用程序性能的解决方案。它通过收集、分析和报告应用程序的性能数据，帮助开发和运维团队快速定位并解决应用程序问题，提高应用程序的可靠性和性能。HarmonyOS 提供了完善的 HiAppEvent 机制，帮助开发者上报稳定性、性能等应用事件，开发者可以利用它构建自身的 APM 系统。
 低功耗是指设备在执行各种任务时，通过应用一系列技术和策略来减少能耗，从而延长电池寿命和设备使用时间。手机等移动设备因其便携、移动的特性，续航时间的长短直接影响用户对品牌的体验和满意度。
 
-### 工程结构&模块类型
+### 工程结构
 
 ```
 ├──entry/src/main/ets/
-│  ├──mock
-│  │  └──GoodsMock.ets                       // 模拟数据类
 │  ├──entryability
-│  │  └──EntryAbility.ets                    // 配置类
-│  └──model
-│  │  └──GoodsModel.ets                      // 类型声明
+│  │  └──EntryAbility.ets                    // 程序入口类
+│  └──entrybackupability
+│  │  └──EntryBackupAbility.ets              // 备份类
 │  └──pages
-│     └──Index.ets                           // 程序入口类
+│     └──Index.ets                           // 入口页面
 │     └──MonitorCrash.ets                    // 崩溃监测实践文章配套代码
 │     └──MusicPlayRule.ets                   // 音乐播放场景低功耗规则文章配套代码
 │     └──NavigationAndPositioningRule.ets    // 导航定位场景低功耗规则文章配套代码

@@ -34,9 +34,13 @@
 │  │  ├──ArticleListData.ets            // 列表的DataSource
 │  │  └──LearningResource.ets           // 列表数据类
 │  ├──pages
+│  │  ├──basicPre.ets                   // 预加载页面
 │  │  ├──ForEachListPage.ets            // ForEach列表页面
+│  │  ├──Header.ets                     // 页面头
 │  │  ├──Index.ets                      // 首页页面
-│  │  └──LazyForEachListPage.ets        // LazyForEach列表页面
+│  │  ├──LazyForEachListPage.ets        // LazyForEach列表页面
+│  │  ├──prefetching.ets                // prefetching预加载
+│  │  └──song.ets                       // SongInfo
 │  └──utils
 │     ├──Logger.ets                     // 日志工具类
 │     └──ObservedArray.ets              // 数组工具类

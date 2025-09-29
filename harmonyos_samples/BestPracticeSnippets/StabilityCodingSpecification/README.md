@@ -4,9 +4,24 @@
 
 本示例是《NDK开发ArkTS侧编码规范》《使用DevEco Studio静态检测编码规范》最佳实践中的代码示例片段。
 
-##### 使用说明
+### 使用说明
 
-进入首面，点击按钮，分别进入示例页面。
+进入首面，加载示例逻辑。
+
+
+### 工程目录
+
+``` 
+├──DevEcoStaticCheck/src/main/ets                          
+│  ├──devecostaticcheckability
+│  │  └──DevEcoStaticCheckAbility.ets       // 入口类
+│  └──pages       
+│     ├──Index.ets                          // 示例页面
+│     ├──Index2.ets                         // 示例页面                   
+│     └──Index3.ets                         // 示例页面
+└──entry/src/main/resources                 // 应用资源目录
+```
+
 
 
 ### 具体实现

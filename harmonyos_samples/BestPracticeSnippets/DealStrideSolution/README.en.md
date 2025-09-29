@@ -10,6 +10,9 @@ After obtaining the preview stream buffer of each frame, if the image is stacked
 |----------------------------------------------------------|----------------------------------------------------------|
 | <img src="screenshots/devices/zhengli1.gif" width="320"> | <img src="screenshots/devices/zhengli2.gif" width="320"> |
 
+
+The images are for reference only. The actual camera preview and captured images shall prevail.
+
 ## How to Use
 1. Tap the **Negative example: unprocessed stride** button to redirect to the child page **NoDealStride**. The camera preview stream is displayed on the child page, and an artifact appears.
 

@@ -22,6 +22,7 @@ import { logger } from '../utils/Logger';
 import { CryptoViewModel } from '../viewmodel/CryptoViewModel';
 import { getResourceString } from '../utils/ResourceString';
 import { DataConversion } from '../utils/DataConversion';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 @Builder
 export function CryptoDetailBuilder() {
@@ -57,7 +58,7 @@ export struct CryptoDetail {
       Scroll() {
         Column() {
           if (getResourceString(this.cryptoItem.name, this.getUIContext()) ===
-            getResourceString($r('app.string.format_conversion'), this.getUIContext())) {
+          getResourceString($r('app.string.format_conversion'), this.getUIContext())) {
             Row() {
               Text($r('app.string.private_key'))
                 .fontSize($r('app.float.count_size'))
@@ -110,11 +111,17 @@ export struct CryptoDetail {
                 this.cipherParam = 'AES128|GCM|PKCS7';
                 let keyData = new Uint8Array([83, 217, 231, 76, 28, 113, 23, 219, 250, 71, 209, 210, 205, 97, 32, 159]);
                 this.symKey = CryptoUtil.genSymKeyByData(keyData, 'AES128');
+                if (!this.symKey) {
+                  return;
+                }
                 let plainText: cryptoFramework.DataBlob = {
                   data: new Uint8Array(buffer.from(this.original, 'utf-8').buffer)
                 };
                 let encryptText = await CryptoUtil.encryptAESGCMMessagePromise(this.cipherParam, this.gcmParamsSpec,
                   this.symKey, plainText);
+                if (!encryptText) {
+                  return;
+                }
                 let base = new util.Base64Helper();
                 let encodeString = base.encodeToStringSync(encryptText.data);
                 this.encrypt = encodeString;
@@ -125,11 +132,17 @@ export struct CryptoDetail {
                 this.cipherParam = 'AES128|CBC|PKCS7';
                 let keyData = new Uint8Array([83, 217, 231, 76, 28, 113, 23, 219, 250, 71, 209, 210, 205, 97, 32, 159]);
                 this.symKey = CryptoUtil.genSymKeyByData(keyData, 'AES128');
+                if (!this.symKey) {
+                  return;
+                }
                 let plainText: cryptoFramework.DataBlob = {
                   data: new Uint8Array(buffer.from(this.original, 'utf-8').buffer)
                 };
                 let encryptText = await CryptoUtil.encryptCBCMessagePromise(this.cipherParam, this.ivParamsSpec,
                   this.symKey, plainText);
+                if (!encryptText) {
+                  return;
+                }
                 let base = new util.Base64Helper();
                 let encodeString = base.encodeToStringSync(encryptText.data);
                 this.encrypt = encodeString;
@@ -139,10 +152,16 @@ export struct CryptoDetail {
                 this.cipherParam = 'AES128|ECB|PKCS7';
                 let keyData = new Uint8Array([83, 217, 231, 76, 28, 113, 23, 219, 250, 71, 209, 210, 205, 97, 32, 159]);
                 this.symKey = CryptoUtil.genSymKeyByData(keyData, 'AES128');
+                if (!this.symKey) {
+                  return;
+                }
                 let plainText: cryptoFramework.DataBlob = {
                   data: new Uint8Array(buffer.from(this.original, 'utf-8').buffer)
                 };
                 let encryptText = await CryptoUtil.encryptMessagePromise(this.cipherParam, this.symKey, plainText);
+                if (!encryptText) {
+                  return;
+                }
                 let base = new util.Base64Helper();
                 let encodeString = base.encodeToStringSync(encryptText.data);
                 this.encrypt = encodeString;
@@ -153,10 +172,16 @@ export struct CryptoDetail {
                 let keyData = new Uint8Array([238, 249, 61, 55, 128, 220, 183, 224, 139, 253, 248, 239, 239, 41, 71, 25,
                   235, 206, 230, 162, 249, 27, 234, 114]);
                 this.symKey = CryptoUtil.genSymKeyByData(keyData, '3DES192');
+                if (!this.symKey) {
+                  return;
+                }
                 let plainText: cryptoFramework.DataBlob = {
                   data: new Uint8Array(buffer.from(this.original, 'utf-8').buffer)
                 };
                 let encryptText = await CryptoUtil.encryptMessagePromise(this.cipherParam, this.symKey, plainText);
+                if (!encryptText) {
+                  return;
+                }
                 let base = new util.Base64Helper();
                 let encodeString = base.encodeToStringSync(encryptText.data);
                 this.encrypt = encodeString;
@@ -166,10 +191,16 @@ export struct CryptoDetail {
                 this.cipherParam = 'SM4_128|ECB|PKCS7';
                 let keyData = new Uint8Array([7, 154, 52, 176, 4, 236, 150, 43, 237, 9, 145, 166, 141, 174, 224, 131]);
                 this.symKey = CryptoUtil.genSymKeyByData(keyData, 'SM4_128');
+                if (!this.symKey) {
+                  return;
+                }
                 let plainText: cryptoFramework.DataBlob = {
                   data: new Uint8Array(buffer.from(this.original, 'utf-8').buffer)
                 };
                 let encryptText = await CryptoUtil.encryptMessagePromise(this.cipherParam, this.symKey, plainText);
+                if (!encryptText) {
+                  return;
+                }
                 let base = new util.Base64Helper();
                 let encodeString = base.encodeToStringSync(encryptText.data);
                 this.encrypt = encodeString;
@@ -180,11 +211,17 @@ export struct CryptoDetail {
                 this.cipherParam = 'SM4_128|CBC|PKCS7';
                 let keyData = new Uint8Array([7, 154, 52, 176, 4, 236, 150, 43, 237, 9, 145, 166, 141, 174, 224, 131]);
                 this.symKey = CryptoUtil.genSymKeyByData(keyData, 'SM4_128');
+                if (!this.symKey) {
+                  return;
+                }
                 let plainText: cryptoFramework.DataBlob = {
                   data: new Uint8Array(buffer.from(this.original, 'utf-8').buffer)
                 };
                 let encryptText = await CryptoUtil.encryptCBCMessagePromise(this.cipherParam, this.ivParamsSpec,
                   this.symKey, plainText);
+                if (!encryptText) {
+                  return;
+                }
                 let base = new util.Base64Helper();
                 let encodeString = base.encodeToStringSync(encryptText.data);
                 this.encrypt = encodeString;
@@ -194,12 +231,18 @@ export struct CryptoDetail {
                 let pkData = CryptoViewModel.pkData;
                 let skData = CryptoViewModel.skData;
                 this.keyPair = CryptoUtil.genKeyPairByData('RSA1024', pkData, skData);
+                if (!this.keyPair) {
+                  return;
+                }
                 this.cipherParam = 'RSA1024|PKCS1';
                 let plainText: cryptoFramework.DataBlob = {
                   data: new Uint8Array(buffer.from(this.original, 'utf-8').buffer)
                 };
                 let encryptText = await CryptoUtil.encryptPublicKeyMessagePromise(this.cipherParam, this.keyPair.pubKey,
                   plainText);
+                if (!encryptText) {
+                  return;
+                }
                 let base = new util.Base64Helper();
                 let encodeString = base.encodeToStringSync(encryptText.data);
                 this.encrypt = encodeString;
@@ -208,15 +251,25 @@ export struct CryptoDetail {
               } else if (this.cryptoItem.type === 'RSA_PKCS1_OAEP') {
                 let rsaKeyPair = CryptoUtil.genRsaKeyPairSpec(CryptoViewModel.rsaKeyNin, BigInt('0x010001'),
                   CryptoViewModel.rsaKeyDIn);
-                let rsaGeneratorSpec = cryptoFramework.createAsyKeyGeneratorBySpec(rsaKeyPair);
+                try {
+                  let rsaGeneratorSpec = cryptoFramework.createAsyKeyGeneratorBySpec(rsaKeyPair);
+                  this.keyPair = await rsaGeneratorSpec.generateKeyPair();
+                } catch (error) {
+                  let err = error as BusinessError;
+                  logger.error('CryptoDetail',
+                    `createAsyKeyGeneratorBySpec failed, error code=${err.code}, message=${err.message}`);
+                  return;
+                }
                 this.pSource = new Uint8Array([1, 2, 3, 4]);
                 this.cipherParam = 'RSA2048|PKCS1_OAEP|SHA256|MGF1_SHA1';
-                this.keyPair = await rsaGeneratorSpec.generateKeyPair();
                 let plainText: cryptoFramework.DataBlob = {
                   data: new Uint8Array(buffer.from(this.original, 'utf-8').buffer)
                 };
                 let encryptText = CryptoUtil.encryptOAEPPublicKeyMessagePromise(this.cipherParam, this.keyPair.pubKey,
                   this.pSource, plainText);
+                if (!encryptText) {
+                  return;
+                }
                 let base = new util.Base64Helper();
                 let encodeString = base.encodeToStringSync(encryptText.data);
                 this.encrypt = encodeString;
@@ -238,16 +291,34 @@ export struct CryptoDetail {
                     10, 6, 8, 42, 129, 28, 207, 85, 1, 130, 45]);
                 // Public key, private key u8 type
                 if (getResourceString(this.cryptoItem.name, this.getUIContext()) ===
-                  getResourceString($r('app.string.format_conversion'), this.getUIContext())) {
+                getResourceString($r('app.string.format_conversion'), this.getUIContext())) {
                   // Public key conversion to SM2 key.
-                  let pksData = await DataConversion.convertStrToPubKey(this.pk)
+                  let pksData = await DataConversion.convertStrToPubKey(this.pk);
+                  if (!pksData) {
+                    return;
+                  }
                   // Private key conversion to SM2 key.
-                  let sksData = await DataConversion.convertStrToPriKey(this.sk)
+                  let sksData = await DataConversion.convertStrToPriKey(this.sk);
+                  if (!sksData) {
+                    return;
+                  }
                   // Generate SM2 key.
-                  this.keyPair =
-                    CryptoUtil.genKeyPairByData('SM2_256', pksData.getEncoded().data, sksData.getEncoded().data);
+                  try {
+                    this.keyPair =
+                      CryptoUtil.genKeyPairByData('SM2_256', pksData.getEncoded().data, sksData.getEncoded().data);
+                  } catch (error) {
+                    let err = error as BusinessError;
+                    logger.error('CryptoDetail',
+                      `decryptMessagePromise failed, error code=${err.code}, message=${err.message}`);
+                  }
+                  if (!this.keyPair) {
+                    return;
+                  }
                 } else {
                   this.keyPair = CryptoUtil.genKeyPairByData('SM2_256', pkData, skData);
+                  if (!this.keyPair) {
+                    return;
+                  }
                 }
                 this.cipherParam = 'SM2_256|SM3';
                 let plainText: cryptoFramework.DataBlob = {
@@ -256,8 +327,18 @@ export struct CryptoDetail {
                 // Encrypt messages.
                 let encryptText = await CryptoUtil.encryptPublicKeyMessagePromise(this.cipherParam, this.keyPair.pubKey,
                   plainText);
-                this.encryptTextJava =
-                  new DataConversion(this.getUIContext()).d2i_SM2_Ciphertext(buffer.from(encryptText.data).toString('hex'))
+                if (!encryptText) {
+                  return;
+                }
+                try {
+                  this.encryptTextJava =
+                    new DataConversion(this.getUIContext()).d2i_SM2_Ciphertext(buffer.from(encryptText.data)
+                      .toString('hex'))
+                } catch (error) {
+                  let err = error as BusinessError;
+                  logger.error('CryptoDetail',
+                    `DataConversion failed, error code=${err.code}, message=${err.message}`);
+                }
                 let base = new util.Base64Helper();
                 let encodeString = base.encodeToStringSync(encryptText.data);
                 this.encrypt = encodeString;
@@ -267,11 +348,17 @@ export struct CryptoDetail {
                 let pkData = CryptoViewModel.pkData;
                 let skData = CryptoViewModel.skData;
                 this.keyPair = CryptoUtil.genKeyPairByData('RSA1024', pkData, skData);
+                if (!this.keyPair) {
+                  return;
+                }
                 this.cipherParam = 'RSA1024|PKCS1';
                 let plainText: cryptoFramework.DataBlob = {
                   data: new Uint8Array(buffer.from(this.original, 'utf-8').buffer)
                 };
                 let encryptText = CryptoUtil.rsaEncryptBySegment(this.cipherParam, this.keyPair.pubKey, plainText);
+                if (!encryptText) {
+                  return;
+                }
                 let base = new util.Base64Helper();
                 let encodeString = base.encodeToStringSync(encryptText.data);
                 this.encrypt = encodeString;
@@ -294,7 +381,7 @@ export struct CryptoDetail {
           .justifyContent(FlexAlign.Start)
 
           if (getResourceString(this.cryptoItem.name, this.getUIContext()) ===
-            getResourceString($r('app.string.format_conversion'), this.getUIContext())) {
+          getResourceString($r('app.string.format_conversion'), this.getUIContext())) {
             Row() {
               Text($r('app.string.ASN_1'))
                 .fontSize($r('app.float.count_size'))
@@ -331,7 +418,7 @@ export struct CryptoDetail {
           })
 
           if (getResourceString(this.cryptoItem.name, this.getUIContext()) ===
-            getResourceString($r('app.string.format_conversion'), this.getUIContext())) {
+          getResourceString($r('app.string.format_conversion'), this.getUIContext())) {
             Row() {
               Text($r('app.string.naked_ciphertext'))
                 .fontSize($r('app.float.count_size'))
@@ -380,6 +467,9 @@ export struct CryptoDetail {
                 let plainText: cryptoFramework.DataBlob = { data: base.decodeSync(this.encrypt) };
                 let encryptText = await CryptoUtil.decryptAESGCMMessagePromise(this.cipherParam, this.gcmParamsSpec,
                   this.symKey, plainText);
+                if (!encryptText) {
+                  return;
+                }
                 let textDecoder = util.TextDecoder.create('utf-8');
                 this.decrypt = textDecoder.decodeToString(encryptText.data);
               } else if (this.cryptoItem.type === 'AES_CBC') {
@@ -390,6 +480,9 @@ export struct CryptoDetail {
                 let plainText: cryptoFramework.DataBlob = { data: base.decodeSync(this.encrypt) };
                 let encryptText = await CryptoUtil.decryptCBCMessagePromise(this.cipherParam, this.ivParamsSpec,
                   this.symKey, plainText);
+                if (!encryptText) {
+                  return;
+                }
                 let textDecoder = util.TextDecoder.create('utf-8');
                 this.decrypt = textDecoder.decodeToString(encryptText.data);
               } else if (this.cryptoItem.type === 'AES_ECB') {
@@ -399,6 +492,9 @@ export struct CryptoDetail {
                 let base = new util.Base64Helper();
                 let plainText: cryptoFramework.DataBlob = { data: base.decodeSync(this.encrypt) };
                 let encryptText = await CryptoUtil.decryptMessagePromise(this.cipherParam, this.symKey, plainText);
+                if (!encryptText) {
+                  return;
+                }
                 let textDecoder = util.TextDecoder.create('utf-8');
                 this.decrypt = textDecoder.decodeToString(encryptText.data);
               } else if (this.cryptoItem.type === '3DES_ECB') {
@@ -408,6 +504,9 @@ export struct CryptoDetail {
                 let base = new util.Base64Helper();
                 let plainText: cryptoFramework.DataBlob = { data: base.decodeSync(this.encrypt) };
                 let encryptText = await CryptoUtil.decryptMessagePromise(this.cipherParam, this.symKey, plainText);
+                if (!encryptText) {
+                  return;
+                }
                 let textDecoder = util.TextDecoder.create('utf-8');
                 this.decrypt = textDecoder.decodeToString(encryptText.data);
               } else if (this.cryptoItem.type === 'SM4_ECB') {
@@ -417,6 +516,9 @@ export struct CryptoDetail {
                 let base = new util.Base64Helper();
                 let plainText: cryptoFramework.DataBlob = { data: base.decodeSync(this.encrypt) };
                 let encryptText = await CryptoUtil.decryptMessagePromise(this.cipherParam, this.symKey, plainText);
+                if (!encryptText) {
+                  return;
+                }
                 let textDecoder = util.TextDecoder.create('utf-8');
                 this.decrypt = textDecoder.decodeToString(encryptText.data);
               } else if (this.cryptoItem.type === 'SM4_CBC') {
@@ -427,6 +529,9 @@ export struct CryptoDetail {
                 let plainText: cryptoFramework.DataBlob = { data: base.decodeSync(this.encrypt) };
                 let encryptText = await CryptoUtil.decryptCBCMessagePromise(this.cipherParam, this.ivParamsSpec,
                   this.symKey, plainText);
+                if (!encryptText) {
+                  return;
+                }
                 let textDecoder = util.TextDecoder.create('utf-8');
                 this.decrypt = textDecoder.decodeToString(encryptText.data);
               } else if (this.cryptoItem.type === 'RSA_PKCS1') {
@@ -438,6 +543,9 @@ export struct CryptoDetail {
                 let encryptText =
                   await CryptoUtil.decryptPrivateKeyMessagePromise(this.cipherParam, this.keyPair.priKey,
                     plainText);
+                if (!encryptText) {
+                  return;
+                }
                 let textDecoder = util.TextDecoder.create('utf-8');
                 this.decrypt = textDecoder.decodeToString(encryptText.data);
               } else if (this.cryptoItem.type === 'RSA_PKCS1_OAEP') {
@@ -448,6 +556,9 @@ export struct CryptoDetail {
                 let plainText: cryptoFramework.DataBlob = { data: base.decodeSync(this.encrypt) };
                 let encryptText = CryptoUtil.decryptOAEPPrivateKeyMessagePromise(this.cipherParam, this.keyPair.priKey,
                   this.pSource, plainText);
+                if (!encryptText) {
+                  return;
+                }
                 let textDecoder = util.TextDecoder.create('utf-8');
                 this.decrypt = textDecoder.decodeToString(encryptText.data);
               } else if (this.cryptoItem.type === 'SM2') {
@@ -460,6 +571,9 @@ export struct CryptoDetail {
                 let encryptText =
                   await CryptoUtil.decryptPrivateKeyMessagePromise(this.cipherParam, this.keyPair.priKey,
                     plainText);
+                if (!encryptText) {
+                  return;
+                }
                 let textDecoder = util.TextDecoder.create('utf-8');
                 this.decrypt = textDecoder.decodeToString(encryptText.data);
               } else if (this.cryptoItem.type === 'RSA_PKCS1_BIG') {
@@ -469,6 +583,9 @@ export struct CryptoDetail {
                 let base = new util.Base64Helper();
                 let plainText: cryptoFramework.DataBlob = { data: base.decodeSync(this.encrypt) };
                 let encryptText = CryptoUtil.rsaDecryptBySegment(this.cipherParam, this.keyPair.priKey, plainText);
+                if (!encryptText) {
+                  return;
+                }
                 let textDecoder = util.TextDecoder.create('utf-8');
                 this.decrypt = textDecoder.decodeToString(encryptText.data);
               } else {
@@ -502,9 +619,10 @@ export struct CryptoDetail {
         })
       }
       .align(getResourceString(this.cryptoItem.name, this.getUIContext()) ===
-        getResourceString($r('app.string.format_conversion'), this.getUIContext()) ? Alignment.TopStart : Alignment.Center)
+      getResourceString($r('app.string.format_conversion'), this.getUIContext()) ? Alignment.TopStart :
+        Alignment.Center)
       .height(getResourceString(this.cryptoItem.name, this.getUIContext()) ===
-        getResourceString($r('app.string.format_conversion'), this.getUIContext()) ? '100%' : '90%')
+      getResourceString($r('app.string.format_conversion'), this.getUIContext()) ? '100%' : '90%')
     }
     .padding({ bottom: 16 })
     .title(getResourceString(this.cryptoItem.name, this.getUIContext()))

@@ -3,6 +3,7 @@
  */
 
 import CommonConstants from '../constants/CommonConstants';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 /**
@@ -16,11 +17,15 @@ class PromptUtil {
    * @param bottom
    */
   promptMessage(message: string | Resource, time: number, bottom: string | number = CommonConstants.PROMPT_BOTTOM) {
-    uiContext?.getPromptAction().showToast({
-      message:message,
-      duration: time,
-      bottom: bottom
-    })
+    try {
+      uiContext?.getPromptAction().showToast({
+        message: message,
+        duration: time,
+        bottom: bottom
+      })
+    } catch (error) {
+      hilog.error(0x0000, 'UserAuth', `showToast error ${JSON.stringify(error)}`);
+    }
   }
 }
 

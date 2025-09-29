@@ -5,11 +5,14 @@
 // [Start gps_resources]
 import { UIAbility } from '@kit.AbilityKit';
 import { geoLocationManager } from '@kit.LocationKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 // [StartExclude gps_resources]
 let locationChange = (location: geoLocationManager.Location): void => {
   console.log('locationChanger:data:' + JSON.stringify(location));
 };
+
 // [EndExclude gps_resources]
 
 export default class EntryAbility extends UIAbility {
@@ -25,13 +28,24 @@ export default class EntryAbility extends UIAbility {
     let locationChange = (location: geoLocationManager.Location): void => {
       console.log('locationChanger:data:' + JSON.stringify(location));
     };
-    //The change of the listening position
-    geoLocationManager.on('locationChange', requestInfo, locationChange);
+    try {
+      //The change of the listening position
+      geoLocationManager.on('locationChange', requestInfo, locationChange);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.warn(0x000, 'testTag', `geoLocationManager on failed, code=${err.code}, message=${err.message}`);
+    }
   }
 
   onBackground(): void {
-    //The backstage cancels the listening
-    geoLocationManager.off('locationChange', locationChange);
+    try {
+      //The backstage cancels the listening
+      geoLocationManager.off('locationChange', locationChange);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.warn(0x000, 'testTag', `geoLocationManager off failed, code=${err.code}, message=${err.message}`);
+    }
   }
 }
+
 // [End gps_resources]

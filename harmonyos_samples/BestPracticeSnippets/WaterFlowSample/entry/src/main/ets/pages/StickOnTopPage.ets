@@ -19,15 +19,15 @@ import { CommonConstants } from '../common/constants/CommonConstants';
 import MediaItem, { ItemType } from '../model/MediaItem';
 import { StickyWaterFlowDataSource } from '../model/StickyWaterFlowDataSource';
 
-const TAG = 'StickOnTopPage';
+const TAG: string = 'StickOnTopPage';
 
-// [StartExclude item_layout]
+// [StartExclude quick_start]
 @Component
 struct FlowVideoItem {
   @Prop item: MediaItem;
   controller: VideoController = new VideoController();
 
-  aboutToReuse(params: Record<string, MediaItem>) {
+  aboutToReuse(params: Record<string, MediaItem>): void {
     this.item = params.item as MediaItem;
   }
 
@@ -105,10 +105,10 @@ struct FlowVideoItem {
   }
 }
 
-// [EndExclude item_layout]
+// [EndExclude quick_start]
 @Component
 export struct StickyPage {
-  // [StartExclude variable_declare]
+  // [StartExclude quick_start]
   @State arr: number[] = [1, 2, 3, 4, 5, 6];
   @State colors: number[] = [0xFFC0CB, 0xDA70D6, 0x6B8E23, 0x6A5ACD, 0x00FFFF, 0x00FF7F];
   @State minSize: number = 80;
@@ -119,7 +119,7 @@ export struct StickyPage {
   dataSource: StickyWaterFlowDataSource = new StickyWaterFlowDataSource();
   private itemWidthArray: number[] = [];
   private itemHeightArray: number[] = [];
-  // [EndExclude variable_declare]
+  // [EndExclude quick_start]
   // 1、Define the height of the ceiling layout.
   @State scrollOffset: number = 0;
   private stickItemHeight: number = 90;
@@ -151,7 +151,7 @@ export struct StickyPage {
     }
   };
 
-  // [StartExclude section_init]
+  // [StartExclude quick_start]
   getResourceStringArray(resource: Resource): Array<string> {
     let result: Array<string> = new Array<string>();
     try {
@@ -163,22 +163,22 @@ export struct StickyPage {
   }
 
   getSize(): number {
-    let ret = Math.floor(Math.random() * this.maxSize);
+    let ret: number = Math.floor(Math.random() * this.maxSize);
     return (ret > this.minSize ? ret : this.minSize);
   }
 
   setItemSizeArray(): void {
-    for (let i = 0; i < 100; i++) {
+    for (let i: number = 0; i < 100; i++) {
       this.itemWidthArray.push(this.getSize());
       this.itemHeightArray.push(this.getSize());
     }
   }
 
-  aboutToAppear() {
+  aboutToAppear(): void {
     this.setItemSizeArray();
     let sectionOptions: SectionOptions[] = [];
-    let count = 0;
-    let oneOrTwo = 0;
+    let count: number = 0;
+    let oneOrTwo: number = 0;
     while (count < 100) {
       if (oneOrTwo++ % 2 === 0) {
         sectionOptions.push(this.oneColumnSection);
@@ -191,7 +191,7 @@ export struct StickyPage {
     this.sections.splice(-1, 0, sectionOptions);
   }
 
-  // [EndExclude section_init]
+  // [EndExclude quick_start]
   build() {
     Stack({ alignContent: Alignment.TopStart }) {
       WaterFlow({ scroller: this.scroller, sections: this.sections }) {
@@ -217,7 +217,7 @@ export struct StickyPage {
       })
 
       Stack() {
-        // [StartExclude stick_content]
+        // [StartExclude quick_start]
         Column() {
           Scroll() {
             Row({ space: 0 }) {
@@ -340,7 +340,7 @@ export struct StickyPage {
           })
         }.alignItems(HorizontalAlign.Start)
 
-        // [EndExclude stick_content]
+        // [EndExclude quick_start]
       }
       .width('100%')
       .height(100)
@@ -352,7 +352,7 @@ export struct StickyPage {
   }
 }
 
-// [StartExclude homepage]
+// [StartExclude quick_start]
 @Entry
 @Component
 struct StickOnTopPage {
@@ -364,7 +364,7 @@ struct StickOnTopPage {
   @StorageProp(CommonConstants.AS_KEY_STATUS_BAR_HEIGHT) statusBarHeight: number = 0;
 
   @Builder
-  tabBuilder(index: number, name: string | Resource) {
+  tabBuilder(index: number, name: string | Resource): void {
     Row() {
       Text(name)
         .constraintSize({ minWidth: 56 })
@@ -459,5 +459,5 @@ struct StickOnTopPage {
   }
 }
 
-// [EndExclude homepage]
+// [EndExclude quick_start]
 // [End quick_start]
