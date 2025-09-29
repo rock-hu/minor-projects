@@ -9,9 +9,9 @@
   "packageType": "InterfaceHar",
   "dynamicDependencies": {},
   "dependencies": {
-    "@ohos/transaction": "file:../transaction",
-    "@ohos/fundComparison": "file:../fundComparison",
-    "@ohos/basic": "file:../../commons/basic",
+    "transaction": "file:../transaction",
+    "fundComparison": "file:../fundComparison",
+    "basic": "file:../../commons/basic",
     "@ohos/mpchart": "3.0.23-rc.0"
   }
 }

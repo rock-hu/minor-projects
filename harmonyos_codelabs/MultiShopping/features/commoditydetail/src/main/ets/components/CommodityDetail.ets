@@ -87,9 +87,13 @@ export struct CommodityDetail {
     switch (type) {
       case FinishType.JOIN_SHOPPING_CART:
         this.localDataManager.insertShopCart(params);
-        this.getUIContext().getPromptAction().showToast({
-          message: $r('app.string.insert_cart_success')
-        });
+        try {
+          this.getUIContext().getPromptAction().showToast({
+            message: $r('app.string.insert_cart_success')
+          });
+        } catch (err) {
+          Logger.error(JSON.stringify(err));
+        }
         break;
       case FinishType.BUY_NOW:
         if (this.info !== undefined) {

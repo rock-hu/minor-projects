@@ -15,9 +15,12 @@
 
 import { UIAbility } from '@kit.AbilityKit';
 import { window } from '@kit.ArkUI';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 export default class MainAbility extends UIAbility {
   onWindowStageCreate(windowStage: window.WindowStage): void {
-    windowStage.loadContent('pages/MainPage');
+    windowStage.loadContent('pages/MainPage').catch((err: BusinessError) => {
+      console.error(`loadContent error: ${JSON.stringify(err)}`);
+    });
   }
 }

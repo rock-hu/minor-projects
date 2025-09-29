@@ -17,10 +17,12 @@ import { Callback } from '@kit.BasicServicesKit';
 import { display } from '@kit.ArkUI';
 import { window } from '@kit.ArkUI';
 import { LineChart, LineChartModel } from '@ohos/mpchart';
-import { BreakpointUtil, CommonConstants, logger } from '@ohos/basic/';
+import { BreakpointUtil, CommonConstants, logger } from 'basic/';
 import ChartViewModel from '../viewmodel/ChartViewModel';
 import { ChartLegendComponent } from './ChartLegendComponent';
 import { FundConstants } from '../constants/FundConstants';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Component
 export struct TrendsPage {
@@ -37,12 +39,16 @@ export struct TrendsPage {
   private callback: Callback<display.FoldDisplayMode> = (data: display.FoldDisplayMode) => {
     if (this.isLandScape && data === display.FoldDisplayMode.FOLD_DISPLAY_MODE_FULL) {
       window.getLastWindow(this.getUIContext().getHostContext()).then((stage: window.Window) => {
-        stage.setPreferredOrientation(window.Orientation.PORTRAIT);
+        stage.setPreferredOrientation(window.Orientation.PORTRAIT).catch((error: BusinessError) => {
+          hilog.error(0x0000, 'TrendsPage', `Failed to set window orientation. Cause code: ${error.code}, message: ${error.message}`)
+        });
       });
     }
     if (data === display.FoldDisplayMode.FOLD_DISPLAY_MODE_MAIN) {
       window.getLastWindow(this.getUIContext().getHostContext()).then((stage: window.Window) => {
-        stage.setPreferredOrientation(window.Orientation.LANDSCAPE)
+        stage.setPreferredOrientation(window.Orientation.LANDSCAPE).catch((error: BusinessError) => {
+          hilog.error(0x0000, 'TrendsPage', `Failed to set window orientation. Cause code: ${error.code}, message: ${error.message}`)
+        })
       });
       this.isLandScape = true;
     }
@@ -257,11 +263,15 @@ export struct TrendsPage {
     .hideTitleBar(true)
     .onAppear(() => {
       window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
-        windowStage.setWindowLayoutFullScreen(true);
+        windowStage.setWindowLayoutFullScreen(true).catch((error: BusinessError) => {
+          hilog.error(0x0000, 'TrendsPage', `Failed to set the window layout to full-screen mode. Cause code: ${error.code}, message: ${error.message}`)
+        });
       })
       if (!this.isLandScape && this.breakPoint === CommonConstants.BREAK_POINT_SM) {
         window.getLastWindow(this.getUIContext().getHostContext()).then((stage: window.Window) => {
-          stage.setPreferredOrientation(window.Orientation.LANDSCAPE);
+          stage.setPreferredOrientation(window.Orientation.LANDSCAPE).catch((error: BusinessError) => {
+            hilog.error(0x0000, 'TrendsPage', `Failed to set window orientation. Cause code: ${error.code}, message: ${error.message}`);
+          });
           this.isLandScape = true;
         });
       }
@@ -273,11 +283,15 @@ export struct TrendsPage {
     })
     .onWillDisappear(() => {
       window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
-        windowStage.setWindowLayoutFullScreen(true);
+        windowStage.setWindowLayoutFullScreen(true).catch((error: BusinessError) => {
+          hilog.error(0x0000, 'TrendsPage', `Failed to set the window layout to full-screen mode. Cause code: ${error.code}, message: ${error.message}`);
+        });
       })
       if (this.isLandScape) {
         window.getLastWindow(this.getUIContext().getHostContext()).then((stage: window.Window) => {
-          stage.setPreferredOrientation(window.Orientation.PORTRAIT);
+          stage.setPreferredOrientation(window.Orientation.PORTRAIT).catch((error: BusinessError) => {
+            hilog.error(0x0000, 'TrendsPage', `Failed to set window orientation. Cause code: ${error.code}, message: ${error.message}`);
+          });
         });
         this.isLandScape = false;
       }

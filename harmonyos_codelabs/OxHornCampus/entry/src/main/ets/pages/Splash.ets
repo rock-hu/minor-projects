@@ -15,7 +15,10 @@
 
 import { router } from '@kit.ArkUI';
 import { CommonConstants as Const } from '../common/constants/CommonConstants';
+import Logger from '../common/utils/Logger';
 import { splashImages } from '../viewmodel/SplashModel';
+
+const TAG = 'Splash'
 
 @Entry
 @Component
@@ -64,6 +67,8 @@ struct Splash {
     this.clearTiming();
     this.getUIContext().getRouter().replaceUrl({
       url: 'pages/MainPage'
+    }).catch((err: Error) => {
+      Logger.error(TAG, `jump to main page failed, error = ${JSON.stringify(err)}`);
     });
   }
 

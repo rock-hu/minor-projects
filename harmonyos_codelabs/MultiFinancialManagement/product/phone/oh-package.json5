@@ -8,9 +8,9 @@
   "version": "1.0.0",
   "dynamicDependencies": {},
   "dependencies": {
-    "@ohos/basic": "file:../../commons/basic",
-    "@ohos/home": "file:../../features/home",
-    "@ohos/fund": "file:../../features/fund",
-    "@ohos/fundComparison": "file:../../features/fundComparison"
+    "basic": "file:../../commons/basic",
+    "home": "file:../../features/home",
+    "fund": "file:../../features/fund",
+    "fundComparison": "file:../../features/fundComparison"
   }
 }

@@ -17,7 +17,10 @@ import { UIAbility, Want, AbilityConstant } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { display, window } from '@kit.ArkUI';
-import { CommonConstants } from '@ohos/basic';
+import { CommonConstants } from 'basic';
+
+const DOMAIN = 0x0000;
+const TAG = 'EntryAbility';
 
 export default class EntryAbility extends UIAbility {
   private windowObj?: window.Window;
@@ -36,11 +39,17 @@ export default class EntryAbility extends UIAbility {
 
     windowStage.getMainWindow().then((data: window.Window) => {
       this.windowObj = data;
-      this.updateBreakpoint(this.windowObj.getWindowProperties().windowRect.width);
+      try {
+        this.updateBreakpoint(this.windowObj.getWindowProperties().windowRect.width);
+      } catch (error) {
+        hilog.error(DOMAIN, TAG, `Failed to obtain the window properties. Cause code: ${error.code}, message: ${error.message}`)
+      }
       this.windowObj.on('windowSizeChange', (windowSize: window.Size) => {
         this.updateBreakpoint(windowSize.width);
       })
-    })
+    }).catch((error: BusinessError) => {
+      hilog.error(DOMAIN, TAG, `Failed to obtain the main window. Cause code: ${error.code}, message: ${error.message}`)
+    });
 
     windowStage.loadContent('pages/Index', (err: BusinessError<void>, data) => {
       if (err.code) {
@@ -52,16 +61,20 @@ export default class EntryAbility extends UIAbility {
   }
 
   private updateBreakpoint(windowWidth: number): void{
-    let windowWidthVp = windowWidth / display.getDefaultDisplaySync().densityPixels;
-    let curBp: string = '';
-    if (windowWidthVp < CommonConstants.BREAK_POINTS_VALUE_NUMBER[1]) {
-      curBp = CommonConstants.BREAK_POINT_SM;
-    } else if (windowWidthVp < CommonConstants.BREAK_POINTS_VALUE_NUMBER[2]) {
-      curBp = CommonConstants.BREAK_POINT_MD;
-    } else {
-      curBp = CommonConstants.BREAK_POINT_LG;
+    try {
+      let windowWidthVp = windowWidth / display.getDefaultDisplaySync().densityPixels;
+      let curBp: string = '';
+      if (windowWidthVp < CommonConstants.BREAK_POINTS_VALUE_NUMBER[1]) {
+        curBp = CommonConstants.BREAK_POINT_SM;
+      } else if (windowWidthVp < CommonConstants.BREAK_POINTS_VALUE_NUMBER[2]) {
+        curBp = CommonConstants.BREAK_POINT_MD;
+      } else {
+        curBp = CommonConstants.BREAK_POINT_LG;
+      }
+      AppStorage.setOrCreate('breakPoint', curBp);
+    } catch (error) {
+      hilog.error(DOMAIN, TAG, `Failed to obtain the default display. Cause code: ${error.code}, message: ${error.message}`)
     }
-    AppStorage.setOrCreate('breakPoint', curBp);
   }
 
   onWindowStageDestroy(): void {

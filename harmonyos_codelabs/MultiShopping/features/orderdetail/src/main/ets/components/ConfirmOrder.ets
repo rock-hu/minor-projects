@@ -19,7 +19,7 @@ import { AddressInfo } from './AddressInfo';
 import { HeaderBar } from '../components/HeaderBar';
 import { OrderDetailConstants } from '../constants/OrderDetailConstants';
 import { CommodityOrderList } from './CommodityOrderList';
-import { LocalDataManager, Order, OrderOperationStatus, GridConstants, StyleConstants } from '@ohos/common';
+import { LocalDataManager, Order, OrderOperationStatus, GridConstants, StyleConstants, Logger } from '@ohos/common';
 import { InsertOrderProps } from '@ohos/common/src/main/ets/viewmodel/OrderModel';
 
 @Component
@@ -53,9 +53,15 @@ export struct ConfirmOrder {
       this.getUIContext().getRouter().replaceUrl({
         url: OrderDetailConstants.PAY_ORDER_PAGE_URL,
         params: { orderIds: this.orderIds }
+      }).catch((err: Error) => {
+        Logger.error(JSON.stringify(err));
       });
     } catch (err) {
-      this.getUIContext().getPromptAction().showToast({ message: $r('app.string.order_commit_fail', err) });
+      try {
+        this.getUIContext().getPromptAction().showToast({ message: $r('app.string.order_commit_fail', err) });
+      } catch (err) {
+        Logger.error(JSON.stringify(err));
+      }
     }
   }
 

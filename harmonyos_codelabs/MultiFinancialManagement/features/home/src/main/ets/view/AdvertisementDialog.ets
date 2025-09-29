@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { BreakpointUtil, CommonConstants } from '@ohos/basic';
+import { BreakpointUtil, CommonConstants } from 'basic';
 
 @CustomDialog
 export struct AdvertisementDialog {

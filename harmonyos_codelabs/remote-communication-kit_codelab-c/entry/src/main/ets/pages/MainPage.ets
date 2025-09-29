@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { BusinessError } from '@kit.BasicServicesKit'
 
 @Entry
 @Component
@@ -119,12 +120,18 @@ struct MainPage {
   }
 
   private getTimeout = () => {
-    this.getUIContext().getRouter().pushUrl({ url: 'pages/TimeOut' });
+    this.getUIContext().getRouter().pushUrl({ url: 'pages/TimeOut' }).catch((err: BusinessError) => {
+      console.error(`pushUrl error: ${JSON.stringify(err)}`);
+    });
   }
   private getTransferRange = () => {
-    this.getUIContext().getRouter().pushUrl({ url: 'pages/TransferRange' });
+    this.getUIContext().getRouter().pushUrl({ url: 'pages/TransferRange' }).catch((err: BusinessError) => {
+      console.error(`pushUrl error: ${JSON.stringify(err)}`);
+    });
   }
   private getBaseAddress = () => {
-    this.getUIContext().getRouter().pushUrl({ url: 'pages/BaseAddress' });
+    this.getUIContext().getRouter().pushUrl({ url: 'pages/BaseAddress' }).catch((err: BusinessError) => {
+      console.error(`pushUrl error: ${JSON.stringify(err)}`);
+    });
   }
 }

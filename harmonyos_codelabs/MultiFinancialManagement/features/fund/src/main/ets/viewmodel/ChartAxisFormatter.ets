@@ -15,6 +15,7 @@
 
 import { HashMap } from '@kit.ArkTS';
 import { AxisBase, IAxisValueFormatter } from '@ohos/mpchart';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 export class ChartAxisFormatter implements IAxisValueFormatter {
   xAxis: HashMap<number, string> = new HashMap();
@@ -24,10 +25,12 @@ export class ChartAxisFormatter implements IAxisValueFormatter {
   }
 
   public getFormattedValue(value: number, axis: AxisBase): string {
-    let xAxis = this.xAxis.get(value);
-    if (xAxis) {
-      return xAxis;
+    let xAxis = '';
+    try {
+      xAxis = this.xAxis.get(value);
+    } catch (error) {
+      hilog.error(0x0000, 'ChartAxisFormatter', `Failed to obtain the formatted value. Cause code: ${error.code}, message: ${error.message}`)
     }
-    return '';
+    return xAxis;
   }
 }

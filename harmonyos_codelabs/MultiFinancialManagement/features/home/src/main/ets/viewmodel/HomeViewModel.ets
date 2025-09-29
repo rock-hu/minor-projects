@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { BusinessInfo, RouterConstants } from '@ohos/basic';
+import { BusinessInfo, RouterConstants } from 'basic';
 
 /**
  * Get home data.

@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-import { CommonConstants } from '@ohos/basic/';
-import { ComparisonComponent, ComparisonInfo, ComparisonDetailComponent } from '@ohos/fundComparison/';
-import { TransactionComponent } from '@ohos/transaction/';
+import { CommonConstants } from 'basic/';
+import { ComparisonComponent, ComparisonInfo, ComparisonDetailComponent } from 'fundComparison/';
+import { TransactionComponent } from 'transaction';
 import { FundConstants } from '../constants/FundConstants';
 import { DetailComponent } from './DetailComponent';
 import { FundNavigationComponent } from './FundNavigationComponent';

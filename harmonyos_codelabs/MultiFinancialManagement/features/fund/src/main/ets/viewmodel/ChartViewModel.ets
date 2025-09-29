@@ -21,6 +21,7 @@ import { EntryOhos, ILineDataSet, JArrayList, LineChartModel, LineData, LineData
   Description
 } from '@ohos/mpchart';
 import { ChartAxisFormatter } from './ChartAxisFormatter';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 class ChartViewModel {
   xAxis: XAxis | null = null;
@@ -134,9 +135,14 @@ class ChartViewModel {
       this.xAxis.setAvoidFirstLastClipping(true);
       this.xAxis.setDrawGridLines(false)
       let xMap: HashMap<number, string> = new HashMap();
-      xMap.set(0, '07-14');
-      xMap.set(22, '08-01');
-      xMap.set(44, '08-16');
+      try {
+        xMap.set(0, '07-14');
+        xMap.set(22, '08-01');
+        xMap.set(44, '08-16');
+      } catch (error) {
+        hilog.error(0x0000, 'ChartViewModel', `Failed to set. Cause code: ${error.code}, message: ${error.message}`)
+      }
+
       this.xAxis.setValueFormatter(new ChartAxisFormatter(xMap))
     }
 
@@ -153,7 +159,11 @@ class ChartViewModel {
       this.leftAxis.setDrawAxisLine(true);
       let yMap: HashMap<number, string> = new HashMap();
       for (let i = miny; i <= maxy; i++) {
-        yMap.set(i, i + '.00%');
+        try {
+          yMap.set(i, i + '.00%');
+        } catch (error) {
+          hilog.error(0x0000, 'ChartViewModel', `Failed to set. Cause code: ${error.code}, message: ${error.message}`)
+        }
       }
       this.leftAxis.setValueFormatter(new ChartAxisFormatter(yMap))
     }

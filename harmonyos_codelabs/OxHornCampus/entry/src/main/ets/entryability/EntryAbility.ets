@@ -21,6 +21,7 @@ import { BusinessError } from '@kit.BasicServicesKit';
 
 let selectPage = "";
 let currentWindowStage: window.WindowStage | null = null;
+const TAG = "EntryAbility"
 
 export default class EntryAbility extends UIAbility {
   private storage: LocalStorage = new LocalStorage();
@@ -115,7 +116,11 @@ export default class EntryAbility extends UIAbility {
       AppStorage.setOrCreate<boolean>('showLineThree', want.parameters['showLineThree'] as boolean);
       AppStorage.setOrCreate<number>('curIndex', want.parameters['curIndex'] as number);
       this.storage = new LocalStorage();
-      this.context.restoreWindowStage(this.storage);
+      try {
+        this.context.restoreWindowStage(this.storage);
+      } catch (err) {
+        Logger.error(TAG, `restore data failed, error = ${JSON.stringify(err)}`);
+      }
     }
   }
 

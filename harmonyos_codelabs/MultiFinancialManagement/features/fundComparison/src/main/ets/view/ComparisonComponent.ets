@@ -14,7 +14,7 @@
  */
 
 import { TreeMap } from '@kit.ArkTS';
-import { CommonConstants } from '@ohos/basic';
+import { CommonConstants } from 'basic';
 import { ComparisonInfo } from '../viewmodel/ComparisonInfo';
 import FundComparisonViewModel from '../viewmodel/FundComparisonViewModel';
 import { ComparisonConstants } from '../constants/ComparisonConstants';

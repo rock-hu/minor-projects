@@ -23,9 +23,11 @@ import { CommonConstant as Const, ContentType } from '../constant/CommonConstant
  * @param url URL for initiating an HTTP request.
  * @param params Params for initiating an HTTP request.
  */
-export function httpRequestGet(url: string): Promise<ResponseResult> {
+export async  function httpRequestGet(url: string): Promise<ResponseResult> {
   let httpRequest = http.createHttp();
-  let responseResult = httpRequest.request(url, {
+  let serverData: ResponseResult = new ResponseResult();
+  // Processes the data and returns.
+  return httpRequest.request(url, {
     method: http.RequestMethod.GET,
     readTimeout: Const.HTTP_READ_TIMEOUT,
     header: {
@@ -33,10 +35,7 @@ export function httpRequestGet(url: string): Promise<ResponseResult> {
     },
     connectTimeout: Const.HTTP_READ_TIMEOUT,
     extraData: {}
-  });
-  let serverData: ResponseResult = new ResponseResult();
-  // Processes the data and returns.
-  return responseResult.then((value: http.HttpResponse) => {
+  }).then((value: http.HttpResponse) => {
     if (value.responseCode === Const.HTTP_CODE_200) {
       // Obtain the returned data.
       let result = `${value.result}`;

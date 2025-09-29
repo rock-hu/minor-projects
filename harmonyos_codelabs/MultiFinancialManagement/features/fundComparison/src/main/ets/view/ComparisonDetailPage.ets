@@ -15,7 +15,7 @@
 
 import { ComparisonDetailComponent } from './ComparisonDetailComponent';
 import { ComparisonInfo } from '../viewmodel/ComparisonInfo';
-import { CommonConstants } from '@ohos/basic';
+import { CommonConstants } from 'basic';
 
 @Component
 export struct ComparisonDetailPage {

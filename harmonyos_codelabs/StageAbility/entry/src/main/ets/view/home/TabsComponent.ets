@@ -18,7 +18,7 @@ import { GoodsTabs } from '../../common/constants/HomeConstants';
 
 @Component
 export default struct TabsComponent {
-  private tabMenus: Resource[] = [];
+  tabMenus: Resource[] = [];
 
   build() {
     Row() {

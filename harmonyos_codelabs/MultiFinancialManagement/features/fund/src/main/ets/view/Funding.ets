@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { CommonConstants } from '@ohos/basic/';
+import { CommonConstants } from 'basic/';
 import { window } from '@kit.ArkUI';
 import { FundConstants } from '../constants/FundConstants';
 import { FundComponent } from './FundComponent';

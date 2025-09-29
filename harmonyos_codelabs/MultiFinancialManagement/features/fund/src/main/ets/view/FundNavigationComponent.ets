@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { BreakpointUtil, BusinessInfo, CommonConstants, FundDetail } from '@ohos/basic';
+import { BreakpointUtil, BusinessInfo, CommonConstants, FundDetail } from 'basic';
 import { FundConstants } from '../constants/FundConstants';
 import FundingViewModel from '../viewmodel/FundingViewModel';
 

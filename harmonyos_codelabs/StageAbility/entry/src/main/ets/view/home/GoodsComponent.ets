@@ -20,8 +20,8 @@ import { PERCENTAGE_100, PERCENTAGE_50 } from '../../common/constants/Constants'
 
 @Component
 export default struct GoodsComponent {
-  private goodsList: GoodsData[] = [];
-  private startPage: (index: number) => void = (index: number) => {};
+  goodsList: GoodsData[] = [];
+  startPage: (index: number) => void = (index: number) => {};
 
   build() {
     Grid() {

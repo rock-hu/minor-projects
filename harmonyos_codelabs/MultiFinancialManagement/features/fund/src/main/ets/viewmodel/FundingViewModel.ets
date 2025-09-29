@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { BusinessInfo, FundDetail } from '@ohos/basic';
+import { BusinessInfo, FundDetail } from 'basic';
 
 /**
  * Get fund data.

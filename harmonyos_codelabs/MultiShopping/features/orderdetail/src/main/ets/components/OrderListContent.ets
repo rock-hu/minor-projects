@@ -43,7 +43,16 @@ export struct OrderListContent {
   paymentHandler(orderId: string, status: number, msg: Resource) {
     let orderIdStatus: updateOrderProps = { orderId, status }
     this.orderList = this.localDataManager.updateOrder(orderIdStatus);
-    this.getUIContext().getPromptAction().showToast({ message: `${this.getUIContext().getHostContext()!.resourceManager.getStringSync(msg)}${this.getUIContext().getHostContext()!.resourceManager.getStringSync(OrderDetailConstants.SUCCESS)}` });
+    try {
+      this.getUIContext()
+        .getPromptAction()
+        .showToast({
+          message: `${this.getUIContext().getHostContext()!.resourceManager.getStringSync(msg)}${this.getUIContext()
+            .getHostContext()!.resourceManager.getStringSync(OrderDetailConstants.SUCCESS)}`
+        });
+    } catch (err) {
+      Logger.error(JSON.stringify(err));
+    }
   }
 
   build() {

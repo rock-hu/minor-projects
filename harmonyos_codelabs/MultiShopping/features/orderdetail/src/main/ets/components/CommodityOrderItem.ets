@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { Order, StyleConstants } from '@ohos/common';
+import { Logger, Order, StyleConstants } from '@ohos/common';
 
 @Component
 export struct CommodityOrderItem {
@@ -24,6 +24,17 @@ export struct CommodityOrderItem {
     .flexShrink(StyleConstants.FLEX_SHRINK)
     .flexGrow(StyleConstants.FLEX_GROW)
     .flexBasis(StyleConstants.FLEX_BASIC)
+  }
+
+  private getStringTitle(id: Resource | undefined): string {
+    let res = '';
+    try {
+      res = this.getUIContext().getHostContext()!.resourceManager.getStringSync(id);
+      return res;
+    } catch (err) {
+      Logger.error(JSON.stringify(err));
+    }
+    return res;
   }
 
   build() {
@@ -64,11 +75,11 @@ export struct CommodityOrderItem {
           Flex({ justifyContent: FlexAlign.SpaceBetween }) {
             Flex({ direction: FlexDirection.Column }) {
               Text(this.orderData.specifications.length === 2 ?
-                this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.orderData.specifications[0].value) + '，' +  this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.orderData.specifications[1].value):
+                this.getStringTitle(this.orderData.specifications[0].value) + '，' +  this.getStringTitle(this.orderData.specifications[1].value):
                   this.orderData.specifications.length === 3 ?
-                    this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.orderData.specifications[0].value) + '，' +  this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.orderData.specifications[1].value) + '，' +  this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.orderData.specifications[2].value) :
+                    this.getStringTitle(this.orderData.specifications[0].value) + '，' +  this.getStringTitle(this.orderData.specifications[1].value) + '，' +  this.getStringTitle(this.orderData.specifications[2].value) :
                     this.orderData.specifications.length === 4 ?
-                      this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.orderData.specifications[0].value) + '，' +  this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.orderData.specifications[1].value) + '，' +  this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.orderData.specifications[2].value) + '，' +  this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.orderData.specifications[3].value) : ''
+                      this.getStringTitle(this.orderData.specifications[0].value) + '，' +  this.getStringTitle(this.orderData.specifications[1].value) + '，' +  this.getStringTitle(this.orderData.specifications[2].value) + '，' +  this.getStringTitle(this.orderData.specifications[3].value) : ''
               )
                 .fontSize($r('app.float.smaller_font_size'))
                 .fontColor($r("app.color.sixty_alpha_black"))

@@ -19,6 +19,9 @@ import ZonesItem from '../viewmodel/ZonesItem';
 import { CommonConstants as Const } from '../common/constants/CommonConstants';
 import { DeviceScreen } from '../common/utils/DeviceScreen';
 import { ImageDataSource } from '../viewmodel/ZonesViewModel';
+import Logger from '../common/utils/Logger';
+
+const TAG = 'ImageViewComponent'
 
 @CustomDialog
 export struct ImageView {
@@ -45,9 +48,13 @@ export struct ImageView {
     let deviceSize = DeviceScreen.getDeviceSize(this.getUIContext().getHostContext()! as common.UIAbilityContext);
     deviceSize.then((data) => {
       this.windowClass = data;
-      let properties = this.windowClass.getWindowProperties();
-      this.deviceWidth = properties.windowRect.width;
-      this.deviceHeight = properties.windowRect.height;
+      try {
+        let properties = this.windowClass!.getWindowProperties();
+        this.deviceWidth = properties.windowRect.width;
+        this.deviceHeight = properties.windowRect.height;
+      } catch (err) {
+        Logger.error(TAG, `setDeviceSize failed, error = ${JSON.stringify(err)}`);
+      }
     });
     this.imageModalOpen = true;
     if (AppStorage.get<string>('isContinuation') === 'false') {

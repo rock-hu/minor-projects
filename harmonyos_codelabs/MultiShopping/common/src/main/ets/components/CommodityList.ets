@@ -17,6 +17,7 @@ import { Commodity } from '../viewmodel/CommodityModel';
 import { EmptyComponent } from './EmptyComponent';
 import { StyleConstants } from '../constants/StyleConstants';
 import { CommonDataSource } from '../utils/CommonDataSource';
+import { Logger } from '../utils/Logger';
 
 /**
  * Commodity list component.
@@ -26,6 +27,17 @@ export struct CommodityList {
   @Link commodityList: Commodity[];
   @Prop column: number = 0;
   public onClickItem? = (Commodity: Commodity) => {};
+
+  private getStringTitle(id: Resource | undefined): string {
+    let res = '';
+    try {
+      res = this.getUIContext().getHostContext()!.resourceManager.getStringSync(id);
+      return res;
+    } catch (err) {
+      Logger.error(JSON.stringify(err));
+    }
+    return res;
+  }
 
   @Builder
   CommodityItem(info: Commodity) {
@@ -53,7 +65,7 @@ export struct CommodityList {
             top: $r('app.float.vp_four'),
             bottom: $r('app.float.vp_eight')
           })
-        Text(`${this.getUIContext().getHostContext()!.resourceManager.getStringSync(info.promotion)}`)
+        Text(`${this.getStringTitle(info.promotion)}`)
           .fontSize($r('app.float.micro_font_size'))
           .fontColor(Color.White)
           .backgroundColor($r('app.color.focus_color'))

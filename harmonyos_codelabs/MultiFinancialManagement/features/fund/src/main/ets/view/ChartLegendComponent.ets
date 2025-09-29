@@ -15,9 +15,9 @@
 
 @Component
 export struct ChartLegendComponent {
-  private name: ResourceStr = '';
-  private color: ResourceStr = '';
-  private value: ResourceStr = '';
+  name: ResourceStr = '';
+  color: ResourceStr = '';
+  value: ResourceStr = '';
 
   build() {
     Column() {

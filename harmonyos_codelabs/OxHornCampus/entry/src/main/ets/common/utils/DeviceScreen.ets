@@ -17,6 +17,9 @@ import { display } from '@kit.ArkUI';
 import { window } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { CommonConstants as Const } from '../constants/CommonConstants';
+import Logger from './Logger';
+
+const TAG = 'DeviceScreen'
 
 export class DeviceScreen {
   /**
@@ -24,8 +27,12 @@ export class DeviceScreen {
    *
    * @returns promise of window.
    */
-  public static getDeviceSize(context: common.UIAbilityContext): Promise<window.Window> {
-    return window.getLastWindow(context);
+  public static getDeviceSize(context: common.UIAbilityContext): Promise<null | window.Window> {
+    let lastWindow = window.getLastWindow(context).catch((err: Error) => {
+      Logger.error(TAG, `getDeviceSize failed, error = ${JSON.stringify(err)}`);
+      return null;
+    })
+    return lastWindow
   }
 
   /**
@@ -34,9 +41,17 @@ export class DeviceScreen {
    * @returns screen height.
    */
   public static getDeviceHeight() {
-    let displayObject = display.getDefaultDisplaySync();
-    let screenPixelHeight = displayObject.height;
-    let screenDensityDPI = displayObject.densityDPI;
-    return screenPixelHeight * (Const.DEVICE_DPI / screenDensityDPI);
+    let height = 0;
+    try {
+      let displayObject = display.getDefaultDisplaySync();
+      let screenPixelHeight = displayObject.height;
+      let screenDensityDPI = displayObject.densityDPI;
+      return screenPixelHeight * (Const.DEVICE_DPI / screenDensityDPI);
+    } catch (err) {
+      Logger.error(TAG, `get device height failed, error = ${JSON.stringify(err)}`);
+      return height;
+    }
+
+
   }
 }

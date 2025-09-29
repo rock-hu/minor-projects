@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { BreakpointUtil, BusinessInfo, CommonConstants, RouterConstants } from '@ohos/basic';
+import { BreakpointUtil, BusinessInfo, CommonConstants, RouterConstants } from 'basic';
 import { HomeConstants } from '../constants/HomeConstants';
 import HomeViewModel from '../viewmodel/HomeViewModel';
 

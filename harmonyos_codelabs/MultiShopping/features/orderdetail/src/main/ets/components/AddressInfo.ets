@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { StyleConstants } from '@ohos/common';
+import { Logger, StyleConstants } from '@ohos/common';
 import { addressInfo, AddressInfoParams } from '../viewmodel/OrderData';
 
 @Component
@@ -22,6 +22,17 @@ export struct AddressInfo {
 
   aboutToAppear() {
     this.info = addressInfo[0];
+  }
+
+  private getStringTitle(id: Resource | undefined): string {
+    let res = '';
+    try {
+      res = this.getUIContext().getHostContext()!.resourceManager.getStringSync(id);
+      return res;
+    } catch (err) {
+      Logger.error(JSON.stringify(err));
+    }
+    return res;
   }
 
   build() {
@@ -48,7 +59,7 @@ export struct AddressInfo {
               .fontColor($r("app.color.sixty_alpha_black"))
           }
           .margin({ bottom: $r('app.float.vp_eight') })
-          Text(`${this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.info?.province)}${this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.info?.city)}${this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.info?.region)} ${this.getUIContext().getHostContext()!.resourceManager.getStringSync(this.info?.detailAddress)}`)
+          Text(`${this.getStringTitle(this.info?.province)}${this.getStringTitle(this.info?.city)}${this.getStringTitle(this.info?.region)} ${this.getStringTitle(this.info?.detailAddress)}`)
             .fontSize($r('app.float.smaller_font_size'))
             .fontColor($r("app.color.sixty_alpha_black"))
         }

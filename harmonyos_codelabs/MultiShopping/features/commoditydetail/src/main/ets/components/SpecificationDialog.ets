@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { Specification, CounterProduct, Commodity, KV, GridConstants, StyleConstants } from '@ohos/common';
+import { Specification, CounterProduct, Commodity, KV, GridConstants, StyleConstants, Logger } from '@ohos/common';
 import { CapsuleGroupButton } from './CapsuleGroupButton';
 import { ColorChange, FinishType } from '../viewmodel/TypeModel';
 import { CommodityConstants } from '../constants/CommodityConstants';
@@ -35,23 +35,34 @@ export struct SpecificationDialog {
   private onFinish?: (type: FinishType, count: number, selectKeys: ProductSpecification[]) => void;
   aboutToAppear(){
     this.selectTags.forEach((item) => {
-      switch (this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.name)) {
-        case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_color')):
-          this.colorChange.Color = this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.value);
+      switch (this.getStringTitle(item.name)) {
+        case this.getStringTitle($r('app.string.case_color')):
+          this.colorChange.Color = this.getStringTitle(item.value);
           break;
-        case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_version')):
-          this.colorChange.Version = this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.value);
+        case this.getStringTitle($r('app.string.case_version')):
+          this.colorChange.Version = this.getStringTitle(item.value);
           break;
-        case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_network_standard')):
-          this.colorChange.Network = this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.value);
+        case this.getStringTitle($r('app.string.case_network_standard')):
+          this.colorChange.Network = this.getStringTitle(item.value);
           break;
-        case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_type')):
-          this.colorChange.Type = this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.value);
+        case this.getStringTitle($r('app.string.case_type')):
+          this.colorChange.Type = this.getStringTitle(item.value);
           break;
         default:
           break;
       }
     })
+  }
+
+  private getStringTitle(id: Resource | undefined): string {
+    let res = '';
+    try {
+      res = this.getUIContext().getHostContext()!.resourceManager.getStringSync(id);
+      return res;
+    } catch (err) {
+      Logger.error(JSON.stringify(err));
+    }
+    return res;
   }
 
   build() {
@@ -90,7 +101,7 @@ export struct SpecificationDialog {
               }
               .margin({ bottom: $r('app.float.vp_twelve') })
 
-              Text(`${this.getUIContext().getHostContext()!.resourceManager.getStringSync(CommodityConstants.SPECIAL_CHOOSE)} ：${this.productOptions} ${this.count ? `X${this.count}` : ''}`)
+              Text(`${this.getStringTitle(CommodityConstants.SPECIAL_CHOOSE)} ：${this.productOptions} ${this.count ? `X${this.count}` : ''}`)
                 .fontSize($r('app.float.smaller_font_size'))
                 .fontColor(Color.Black)
                 .maxLines(CommodityConstants.MAX_LINE)
@@ -110,7 +121,7 @@ export struct SpecificationDialog {
             Column() {
               ForEach(this.data.specifications || [], (item: Specification) => {
                 this.Specification(item)
-              }, (item: Specification) => this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.id))
+              }, (item: Specification) => this.getStringTitle(item.id))
               Flex({ justifyContent: FlexAlign.SpaceBetween, alignItems: ItemAlign.Center }) {
                 Text($r('app.string.quantity'))
                   .fontSize($r('app.float.small_font_size'))
@@ -168,16 +179,16 @@ export struct SpecificationDialog {
   colorChanges(key: string): string {
     let temp: string = '';
     switch (key) {
-      case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_color')):
+      case this.getStringTitle($r('app.string.case_color')):
         temp = this.colorChange.Color;
         break;
-      case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_version')):
+      case this.getStringTitle($r('app.string.case_version')):
         temp = this.colorChange.Version;
         break;
-      case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_network_standard')):
+      case this.getStringTitle($r('app.string.case_network_standard')):
         temp = this.colorChange.Network;
         break;
-      case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_type')):
+      case this.getStringTitle($r('app.string.case_type')):
         temp = this.colorChange.Type;
         break;
       default:
@@ -196,7 +207,7 @@ export struct SpecificationDialog {
         ForEach(payload.data, (item: KV) => {
           Text(item.key)
             .fontSize($r('app.float.smaller_font_size'))
-            .fontColor(this.colorChanges(this.getUIContext().getHostContext()!.resourceManager.getStringSync(payload.id)) === this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.value) ? $r('app.color.focus_color') : Color.Black)
+            .fontColor(this.colorChanges(this.getStringTitle(payload.id)) === this.getStringTitle(item.value) ? $r('app.color.focus_color') : Color.Black)
             .height($r('app.float.vp_twenty_four'))
             .padding({
               top: $r('app.float.vp_six'),
@@ -204,11 +215,11 @@ export struct SpecificationDialog {
               left: $r('app.float.vp_ten'),
               right: $r('app.float.vp_ten')
             })
-            .backgroundColor(this.colorChanges(this.getUIContext().getHostContext()!.resourceManager.getStringSync(payload.id)) === this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.value)  ?
+            .backgroundColor(this.colorChanges(this.getStringTitle(payload.id)) === this.getStringTitle(item.value)  ?
               $r('app.color.dialog_select_tag') : $r('app.color.five_alpha_black'))
             .margin({ bottom: $r('app.float.vp_ten'), right: $r('app.float.vp_twelve') })
             .borderRadius($r('app.float.vp_twelve'))
-            .onClick(():void => this.onTagSelect(item, this.getUIContext().getHostContext()!.resourceManager.getStringSync(payload.id)))
+            .onClick(():void => this.onTagSelect(item, this.getStringTitle(payload.id)))
         }, (item: KV) => JSON.stringify(item.value))
       }
     }
@@ -219,19 +230,19 @@ export struct SpecificationDialog {
 
   onTagSelect(tag: KV, parentId: string) {
     this.selectTags.forEach((item, index) => {
-      if (parentId === this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.name)) {
+      if (parentId === this.getStringTitle(item.name)) {
         switch (parentId) {
-          case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_color')):
-            this.colorChange.Color = this.getUIContext().getHostContext()!.resourceManager.getStringSync(tag.value);
+          case this.getStringTitle($r('app.string.case_color')):
+            this.colorChange.Color = this.getStringTitle(tag.value);
             break;
-          case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_version')):
-            this.colorChange.Version = this.getUIContext().getHostContext()!.resourceManager.getStringSync(tag.value);
+          case this.getStringTitle($r('app.string.case_version')):
+            this.colorChange.Version = this.getStringTitle(tag.value);
             break;
-          case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_network_standard')):
-            this.colorChange.Network = this.getUIContext().getHostContext()!.resourceManager.getStringSync(tag.value);
+          case this.getStringTitle($r('app.string.case_network_standard')):
+            this.colorChange.Network = this.getStringTitle(tag.value);
             break;
-          case this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.case_type')):
-            this.colorChange.Type = this.getUIContext().getHostContext()!.resourceManager.getStringSync(tag.value);
+          case this.getStringTitle($r('app.string.case_type')):
+            this.colorChange.Type = this.getStringTitle(tag.value);
             break;
           default:
             break;
@@ -246,7 +257,7 @@ export struct SpecificationDialog {
   onSelectKeysChange(){
     this.productOptions = '';
     this.selectTags.forEach((item)=>{
-      this.productOptions += this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.value)+' ';
+      this.productOptions += this.getStringTitle(item.value)+' ';
     })
   }
 }

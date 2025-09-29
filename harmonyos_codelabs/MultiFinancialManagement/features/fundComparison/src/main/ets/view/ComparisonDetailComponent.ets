@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { CommonConstants, logger, RouterConstants } from '@ohos/basic';
+import { CommonConstants, logger, RouterConstants } from 'basic';
 import { ComparisonConstants } from '../constants/ComparisonConstants';
 import { ComparisonInfo } from '../viewmodel/ComparisonInfo';
 import FundComparisonViewModel from '../viewmodel/FundComparisonViewModel';

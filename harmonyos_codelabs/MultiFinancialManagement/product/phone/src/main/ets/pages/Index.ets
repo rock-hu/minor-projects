@@ -14,10 +14,15 @@
  */
 
 import { window } from '@kit.ArkUI';
-import { BreakpointUtil, CommonConstants, RouterConstants } from '@ohos/basic';
-import { AccountPage, AdvertisementDialog, HomeComponent } from '@ohos/home';
-import { Funding, FundingDetail, TrendsPage } from '@ohos/fund';
-import { ComparisonDetailPage, ComparisonInfo } from '@ohos/fundComparison';
+import { BreakpointUtil, CommonConstants, RouterConstants } from 'basic';
+import { AccountPage, AdvertisementDialog, HomeComponent } from 'home';
+import { Funding, FundingDetail, TrendsPage } from 'fund';
+import { ComparisonDetailPage, ComparisonInfo } from 'fundComparison';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+
+const DOMAIN = 0x0000;
+const TAG = 'Index';
 
 // [Start init_pop_custom_style]
 @Entry
@@ -45,24 +50,37 @@ struct Index {
   // [StartExclude init_pop_custom_style]
   onPageShow() {
     window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
-      let area = windowStage.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
-      let topHeight = this.getUIContext().px2vp(area.topRect.height);
-      let bottomArea = windowStage.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
-      let bottom =  this.getUIContext().px2vp(bottomArea.bottomRect.height);
-      if (topHeight > 0) {
-        windowStage.setWindowLayoutFullScreen(true);
-        AppStorage.setOrCreate('avoidArea', topHeight);
-        AppStorage.setOrCreate('bottom', bottom);
+      try {
+        let area = windowStage.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
+        let topHeight = this.getUIContext().px2vp(area.topRect.height);
+        let bottomArea = windowStage.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
+        let bottom =  this.getUIContext().px2vp(bottomArea.bottomRect.height);
+        if (topHeight > 0) {
+          windowStage.setWindowLayoutFullScreen(true).catch((error:BusinessError) => {
+            hilog.error(DOMAIN, TAG, `Failed to set the window layout to full-screen mode. Cause code: ${error.code}, message: ${error.message}`)
+          });
+          AppStorage.setOrCreate('avoidArea', topHeight);
+          AppStorage.setOrCreate('bottom', bottom);
+        }
+      } catch (error) {
+        hilog.error(DOMAIN, TAG, `Failed to obtain the window avoid area. Cause code: ${error.code}, message: ${error.message}`)
       }
-    });
+
+    }).catch((error: BusinessError) => {
+      hilog.error(DOMAIN, TAG, `Failed to obtain the last window. Cause code: ${error.code}, message: ${error.message}`)
+    })
   }
 
   onPageHide() {
     window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
       if (this.topHeight > 0) {
-        windowStage.setWindowLayoutFullScreen(false);
+        windowStage.setWindowLayoutFullScreen(false).catch((error:BusinessError) => {
+          hilog.error(DOMAIN, TAG, `Failed to set the window layout to full-screen mode. Cause code: ${error.code}, message: ${error.message}`)
+        });
       }
-    });
+    }).catch((error: BusinessError) => {
+      hilog.error(DOMAIN, TAG, `Failed to obtain the last window. Cause code: ${error.code}, message: ${error.message}`)
+    })
   }
 
   getTabBarColor(index: number, currentTabIndex: number, breakPoint: string): ResourceColor {
@@ -114,12 +132,16 @@ struct Index {
       .hideTitleBar(true)
       .onWillShow(() => {
         window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
-          windowStage.setWindowLayoutFullScreen(false);
+          windowStage.setWindowLayoutFullScreen(false).catch((error: BusinessError) => {
+            hilog.error(DOMAIN, TAG, `Failed to set the window layout to full-screen mode. Cause code: ${error.code}, message: ${error.message}`)
+          });
         })
       })
       .onWillDisappear(() => {
         window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
-          windowStage.setWindowLayoutFullScreen(true);
+          windowStage.setWindowLayoutFullScreen(true).catch((error: BusinessError) => {
+            hilog.error(DOMAIN, TAG, `Failed to set the window layout to full-screen mode. Cause code: ${error.code}, message: ${error.message}`)
+          });
         })
       })
     } else if (name === RouterConstants.FUNDING_DETAIL_URL) {
@@ -133,12 +155,16 @@ struct Index {
       .hideTitleBar(true)
       .onWillShow(() => {
         window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
-          windowStage.setWindowLayoutFullScreen(false);
+          windowStage.setWindowLayoutFullScreen(false).catch((error:BusinessError) => {
+            hilog.error(DOMAIN, TAG, `Failed to set the window layout to full-screen mode. Cause code: ${error.code}, message: ${error.message}`)
+          });
         })
       })
       .onWillDisappear(() => {
         window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
-          windowStage.setWindowLayoutFullScreen(true);
+          windowStage.setWindowLayoutFullScreen(true).catch((error:BusinessError) => {
+            hilog.error(DOMAIN, TAG, `Failed to set the window layout to full-screen mode. Cause code: ${error.code}, message: ${error.message}`)
+          });
         })
       })
     }

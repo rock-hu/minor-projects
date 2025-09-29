@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { BreakpointUtil, CommonConstants } from '@ohos/basic/Index';
+import { BreakpointUtil, CommonConstants } from 'basic/Index';
 
 @Component
 export struct LiabilitiesComponent {

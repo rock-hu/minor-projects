@@ -14,6 +14,8 @@
  */
 
 import { common } from '@kit.AbilityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import { DetailsPageStyle, PERCENTAGE_100 } from '../common/constants/Constants';
 import AddressComponent from '../view/details/AddressComponent';
 import PickerComponent from '../view/details/PickerComponent';
@@ -53,7 +55,10 @@ struct DetailsPage {
 
   onBackPress() {
     let handler = this.getUIContext().getHostContext() as common.UIAbilityContext;
-    handler.terminateSelf();
+    handler.terminateSelf().catch((err: BusinessError) => {
+      hilog.error(0x0000, 'DetailsPage',
+        `onBackPress terminateSelf failed, error code=${err.code}, message=${err.message}`);
+    });
     return true;
   }
 
@@ -69,6 +74,7 @@ struct DetailsPage {
           .height(DetailsPageStyle.TOP_LAYOUT_HEIGHT)
           .width(PERCENTAGE_100)
           .backgroundColor($r('app.color.background1'))
+
           // The card layout style about goods information.
           this.cardsLayout()
         }
@@ -76,6 +82,7 @@ struct DetailsPage {
       }
       .height(DetailsPageStyle.SCROLL_LAYOUT_WEIGHT)
       .backgroundColor($r('app.color.background'))
+
       // Tool bar in the bottom.
       BottomBarComponent()
         .height(DetailsPageStyle.TOOLBAR_WEIGHT)
@@ -90,7 +97,10 @@ struct DetailsPage {
       .setTopImageStyle()
       .onClick(() => {
         let handler = this.getUIContext().getHostContext() as common.UIAbilityContext;
-        handler.terminateSelf();
+        handler.terminateSelf().catch((err: BusinessError) => {
+          hilog.error(0x0000, 'DetailsPage',
+            `onClick terminateSelf failed, error code=${err.code}, message=${err.message}`);
+        });
       })
   }
 

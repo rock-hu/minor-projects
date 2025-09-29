@@ -14,7 +14,7 @@
  */
 
 import { window } from '@kit.ArkUI';
-import { CommonConstants, FundDetail } from '@ohos/basic';
+import { CommonConstants, FundDetail } from 'basic';
 import { TransactionConstants } from '../constants/TransactionConstants';
 
 @Component

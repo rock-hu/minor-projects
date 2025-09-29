@@ -14,8 +14,13 @@
  */
 
 import { window } from '@kit.ArkUI';
-import { CommonConstants } from '@ohos/basic/Index';
+import { CommonConstants } from 'basic/Index';
 import { AccountComponent } from './AccountComponent';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+
+const DOMAIN = 0x0000;
+const TAG = 'AccountPage';
 
 @Component
 export struct AccountPage {
@@ -23,20 +28,32 @@ export struct AccountPage {
 
   onPageShow() {
     window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
-      let area = windowStage.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
-      let topHeight = this.getUIContext().px2vp(area.topRect.height);
-      if (topHeight > 0) {
-        windowStage.setWindowLayoutFullScreen(true);
+      try {
+        let area = windowStage.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
+        let topHeight = this.getUIContext().px2vp(area.topRect.height);
+        if (topHeight > 0) {
+          windowStage.setWindowLayoutFullScreen(true).catch((err: BusinessError) => {
+            hilog.error(DOMAIN, TAG, `Failed to set the window layout to full-screen mode. Cause code: ${err.code}, message: ${err.message}`)
+          });
+        }
+      } catch (error) {
+        hilog.error(DOMAIN, TAG, `Failed to set the window avoid area. Cause code: ${error.code}, message: ${error.message}`)
       }
-    });
+    }).catch((error: BusinessError) => {
+      hilog.error(DOMAIN, TAG, `Failed to obtain the last window. Cause code: ${error.code}, message: ${error.message}`)
+    })
   }
 
   onPageHide() {
     window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
       if (this.topHeight > 0) {
-        windowStage.setWindowLayoutFullScreen(false);
+        windowStage.setWindowLayoutFullScreen(false).catch((error: BusinessError) => {
+          hilog.error(DOMAIN, TAG, `Failed to set the window layout to full-screen mode. Cause code: ${error.code}, message: ${error.message}`)
+        });
       }
-    });
+    }).catch((error: BusinessError) => {
+      hilog.error(DOMAIN, TAG, `Failed to obtain the last window. Cause code: ${error.code}, message: ${error.message}`)
+    })
   }
 
   build() {

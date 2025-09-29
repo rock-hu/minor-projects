@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { CommonConstants } from '@ohos/basic/Index';
+import { CommonConstants } from 'basic/Index';
 import { HomeConstants } from '../constants/HomeConstants';
 
 @Component

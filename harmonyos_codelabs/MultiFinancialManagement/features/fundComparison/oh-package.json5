@@ -9,6 +9,6 @@
   "packageType": "InterfaceHar",
   "dynamicDependencies": {},
   "dependencies": {
-    "@ohos/basic": "file:../../commons/basic"
+    "basic": "file:../../commons/basic"
   }
 }

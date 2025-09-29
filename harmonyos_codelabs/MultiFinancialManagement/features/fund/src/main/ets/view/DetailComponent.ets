@@ -14,7 +14,7 @@
  */
 
 import { LineChart, LineChartModel } from '@ohos/mpchart';
-import { BreakpointUtil, CommonConstants, FundDetail, RouterConstants } from '@ohos/basic';
+import { BreakpointUtil, CommonConstants, FundDetail, RouterConstants } from 'basic';
 import ChartViewModel from '../viewmodel/ChartViewModel';
 import FundingViewModel from '../viewmodel/FundingViewModel';
 import { FundConstants } from '../constants/FundConstants';
