@@ -51,14 +51,19 @@ export default class EntryAbility extends UIAbility {
   }
 
   private immersive(): void {
-    let type: window.AvoidAreaType = window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR;
-    let avoidArea: window.AvoidArea = this.windowClass?.getWindowAvoidArea(type) as window.AvoidArea;
-    let bottomRectHeight: number = avoidArea.bottomRect.height;
-    AppStorage.setOrCreate('bottomRectHeight', bottomRectHeight);
-    type = window.AvoidAreaType.TYPE_SYSTEM;
-    avoidArea = this.windowClass?.getWindowAvoidArea(type) as window.AvoidArea;
-    let topRectHeight: number = avoidArea.topRect.height;
-    AppStorage.setOrCreate('topRectHeight', topRectHeight);
+    try {
+      let type: window.AvoidAreaType = window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR;
+      let avoidArea: window.AvoidArea = this.windowClass?.getWindowAvoidArea(type) as window.AvoidArea;
+      let bottomRectHeight: number = avoidArea.bottomRect.height;
+      AppStorage.setOrCreate('bottomRectHeight', bottomRectHeight);
+      type = window.AvoidAreaType.TYPE_SYSTEM;
+      avoidArea = this.windowClass?.getWindowAvoidArea(type) as window.AvoidArea;
+      let topRectHeight: number = avoidArea.topRect.height;
+      AppStorage.setOrCreate('topRectHeight', topRectHeight);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'EntryAbility', `getWindowAvoidArea failed. code=${err.code}, message=${err.message}`);
+    }
   }
 
   onWindowStageDestroy(): void {

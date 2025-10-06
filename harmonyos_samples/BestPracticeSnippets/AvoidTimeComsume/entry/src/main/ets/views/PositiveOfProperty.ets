@@ -16,6 +16,7 @@
 // [Start positive_of_property]
 import { taskpool } from '@kit.ArkTS'; // Task pools
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 @Concurrent
 function getHeight(): number {
@@ -31,7 +32,9 @@ function getHeight(): number {
 // Execute getHeight
 taskpool.execute(getHeight).then((value: Object) => {
   AppStorage.setOrCreate('height', value);
-})
+}).catch((error: BusinessError)=>{
+  hilog.error(0x0000,'',`execute failed. code=${error.code}, message=${error.message}`);
+});
 
 @Entry
 @Component

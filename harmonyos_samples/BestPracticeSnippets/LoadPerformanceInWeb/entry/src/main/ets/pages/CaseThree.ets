@@ -10,7 +10,7 @@ struct WebComponent {
       Web({ src: 'https://www.example.com/', controller: this.webviewController})
         .onPageEnd(() => {
           // Pre-connected https://www.example1.com/
-          // 第三个参数numSockets，取值范围1-6，超过6按照6处理
+          // The third parameter, numSockets, has a value range of 1-6. If it exceeds 6, the parameter will be treated as 6.
           webview.WebviewController.prepareForPageLoad('https://www.example.com/', true, 2);
         })
     }

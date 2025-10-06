@@ -22,7 +22,7 @@ The involved ArkUI API is [@ohos.graphics.displaySync (Variable Frame Rate)](htt
 ``` 
 ├──entry/src/main/ets                          
 │  ├──common
-│  │  ├──Constants.ets                  // Common constants
+│  │  ├──CommonConstants.ets            // Common constants
 │  │  └──GlobalBuilderContext.ets       // Caching the global @Builder
 │  ├──entryability
 │  │  └──EntryAbility.ets               // Entry ability
@@ -41,6 +41,7 @@ The involved ArkUI API is [@ohos.graphics.displaySync (Variable Frame Rate)](htt
 │  └──view                        
 │     ├──DateItemView.ets               // Monthly date data
 │     ├──SlidingScene.ets               // Calendar UI
+│     ├──TestCode.ets                   // test data
 │     └──TransitionScene.ets            // Transition UI
 └──entry/src/main/resources             // Application resources
 ``` 

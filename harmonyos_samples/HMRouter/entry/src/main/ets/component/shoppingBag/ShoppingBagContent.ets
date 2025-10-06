@@ -81,8 +81,10 @@ export struct ShoppingBagContent {
   // [StartExclude HMRouter_life_cycle_name]
   @StorageLink('currentBreakpoint') currentBreakpoint: string = BreakpointConstants.BREAKPOINT_SM;
   @Provide('ShoppingNavModifier') modifier: ShoppingNavModifier = new ShoppingNavModifier();
+  private requestModel: RequestModel = new RequestModel();
 
   aboutToAppear(): void {
+    console.log(this.requestModel.data);
     let task: taskpool.Task = new taskpool.Task(networkRequest, 'aboutToAppear');
     taskpool.execute(task).then((res: Object) => {
       console.log(JSON.stringify(res));

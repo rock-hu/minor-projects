@@ -19,81 +19,81 @@ export class MineConstants{
   /**
    * Mine page title.
    */
-  static readonly MINE_TITLE: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_TITLE'));
+  static readonly MINE_TITLE: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_TITLE').id);
   /**
    * Mine page text1.
    */
-  static readonly MINE_TEXT1: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_TEXT1'));
+  static readonly MINE_TEXT1: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_TEXT1').id);
   /**
    * Mine page text2.
    */
-  static readonly MINE_TEXT2: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_TEXT2'));
+  static readonly MINE_TEXT2: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_TEXT2').id);
   /**
    * Mine animation settings page content.
    */
-  static readonly MINE_ANIMATION_CONTENT: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_ANIMATION_CONTENT'));
+  static readonly MINE_ANIMATION_CONTENT: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_ANIMATION_CONTENT').id);
   /**
    * Mine page animation type1.
    */
-  static readonly MINE_ANIMATION_TYPE1: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_ANIMATION_TYPE1'));
+  static readonly MINE_ANIMATION_TYPE1: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_ANIMATION_TYPE1').id);
   /**
    * Mine page animation type2.
    */
-  static readonly MINE_ANIMATION_TYPE2: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_ANIMATION_TYPE2'));
+  static readonly MINE_ANIMATION_TYPE2: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_ANIMATION_TYPE2').id);
   /**
    * Mine page animation type3.
    */
-  static readonly MINE_ANIMATION_TYPE3: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_ANIMATION_TYPE3'));
+  static readonly MINE_ANIMATION_TYPE3: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_ANIMATION_TYPE3').id);
   /**
    * Personalized transition animation page title.
    */
-  static readonly PERSONALIZED_ANIMATION_TITLE: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PERSONALIZED_ANIMATION_TITLE'));
+  static readonly PERSONALIZED_ANIMATION_TITLE: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PERSONALIZED_ANIMATION_TITLE').id);
   /**
    * Personalized transition animation type1.
    */
-  static readonly PERSONALIZED_ANIMATION_TYPE1: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PERSONALIZED_ANIMATION_TYPE1'));
+  static readonly PERSONALIZED_ANIMATION_TYPE1: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PERSONALIZED_ANIMATION_TYPE1').id);
   /**
    * Personalized transition animation type2.
    */
-  static readonly PERSONALIZED_ANIMATION_TYPE2: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PERSONALIZED_ANIMATION_TYPE2'));
+  static readonly PERSONALIZED_ANIMATION_TYPE2: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PERSONALIZED_ANIMATION_TYPE2').id);
   /**
    * Personalized transition animation type3.
    */
-  static readonly PERSONALIZED_ANIMATION_TYPE3: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PERSONALIZED_ANIMATION_TYPE3'));
+  static readonly PERSONALIZED_ANIMATION_TYPE3: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PERSONALIZED_ANIMATION_TYPE3').id);
   /**
    * Mine page button text.
    */
-  static readonly MINE_BUTTON_TEXT: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_BUTTON_TEXT'));
+  static readonly MINE_BUTTON_TEXT: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_BUTTON_TEXT').id);
   /**
    * Mine page user name.
    */
-  static readonly MINE_NAME: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_NAME'));
+  static readonly MINE_NAME: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_NAME').id);
   /**
    * Mine log out page title.
    */
-  static readonly MINE_LOG_OUT_TITLE: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_LOG_OUT_TITLE'));
+  static readonly MINE_LOG_OUT_TITLE: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_LOG_OUT_TITLE').id);
   /**
    * Mine log out page text.
    */
-  static readonly MINE_LOG_OUT_TEXT: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_LOG_OUT_TEXT'));
+  static readonly MINE_LOG_OUT_TEXT: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_LOG_OUT_TEXT').id);
   /**
    * Mine log out page button text.
    */
-  static readonly MINE_LOG_OUT_BUTTON: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_LOG_OUT_BUTTON'));
+  static readonly MINE_LOG_OUT_BUTTON: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.MINE_LOG_OUT_BUTTON').id);
   /**
    * Exit login title.
    */
-  static readonly EXIT_LOGIN_TITLE: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.EXIT_LOGIN_TITLE'));
+  static readonly EXIT_LOGIN_TITLE: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.EXIT_LOGIN_TITLE').id);
   /**
    * Exit login content.
    */
-  static readonly EXIT_LOGIN_CONTENT: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.EXIT_LOGIN_CONTENT'));
+  static readonly EXIT_LOGIN_CONTENT: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.EXIT_LOGIN_CONTENT').id);
   /**
    * Exit login left button.
    */
-  static readonly EXIT_LOGIN_LEFT_BUTTON: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.EXIT_LOGIN_LEFT_BUTTON'));
+  static readonly EXIT_LOGIN_LEFT_BUTTON: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.EXIT_LOGIN_LEFT_BUTTON').id);
   /**
    * Exit login right button.
    */
-  static readonly EXIT_LOGIN_RIGHT_BUTTON: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.EXIT_LOGIN_RIGHT_BUTTON'));
+  static readonly EXIT_LOGIN_RIGHT_BUTTON: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.EXIT_LOGIN_RIGHT_BUTTON').id);
 }

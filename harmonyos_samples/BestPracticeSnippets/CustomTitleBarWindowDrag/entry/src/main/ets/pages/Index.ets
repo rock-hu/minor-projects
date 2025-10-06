@@ -14,18 +14,18 @@
  */
 
 // [Start drag_sample]
-import { window } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { window } from '@kit.ArkUI';
 
-const COLUMN_WIDTH = 108;
-const COLUMN_TOP = 50;
-const COLUMN_LEFT = 100;
+const COLUMN_WIDTH: number = 108;
+const COLUMN_TOP: number = 50;
+const COLUMN_LEFT: number = 100;
 
 @Entry
 @Component
 struct Index {
   // get the window manager from AppStorage
-  private windowStage = AppStorage.get('window') as window.WindowStage;
+  windowStage: window.WindowStage = AppStorage.get('window') as window.WindowStage;
 
   build() {
     Column() {
@@ -35,7 +35,7 @@ struct Index {
           if (event.type === TouchType.Down) {
             try {
               let wnd: window.Window = this.windowStage.getMainWindowSync();
-              if (canIUse("SystemCapability.Window.SessionManager")) {
+              if (canIUse('SystemCapability.Window.SessionManager')) {
                 wnd.startMoving().then(() => {
                   console.info('wnd Succeeded in starting moving window');
                 }).catch((err: BusinessError) => {

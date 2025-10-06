@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 class DirectoryItem {
   title: ResourceStr = '';
@@ -107,6 +109,8 @@ struct Index {
                 .onClick(() => {
                   this.getUIContext().getRouter().pushUrl({
                     url: item.uri
+                  }).catch((error: BusinessError)=>{
+                    hilog.error(0x0000,'',`pushUrl failed. code=${error.code}, message=${error.message}`);
                   });
                 })
             }
@@ -128,6 +132,8 @@ struct Index {
             .onClick(() => {
               this.getUIContext().getRouter().pushUrl({
                 url: 'views/NegativeOfOnScroll'
+              }).catch((error: BusinessError)=>{
+                hilog.error(0x0000,'',`pushUrl failed. code=${error.code}, message=${error.message}`);
               });
             })
           Button($r('app.string.positive_of_onScroll'))
@@ -139,6 +145,8 @@ struct Index {
             .onClick(() => {
               this.getUIContext().getRouter().pushUrl({
                 url: 'views/PositiveOfOnScroll'
+              }).catch((error: BusinessError)=>{
+                hilog.error(0x0000,'',`pushUrl failed. code=${error.code}, message=${error.message}`);
               });
             })
           Button($r('app.string.conditional_rendering'))
@@ -150,7 +158,9 @@ struct Index {
             .onClick(() => {
               this.getUIContext().getRouter().pushUrl({
                 url: 'views/ConditionalRendering'
-              });
+              }).catch((error: BusinessError)=>{
+                hilog.error(0x0000,'',`pushUrl failed. code=${error.code}, message=${error.message}`);
+              });;
             })
         }
         .padding({ left: 16, right: 16, bottom: 44 })

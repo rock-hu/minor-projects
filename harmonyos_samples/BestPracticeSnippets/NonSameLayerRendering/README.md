@@ -6,14 +6,10 @@
 本工程配套官网[同层渲染原生组件](https://developer.huawei.com/consumer/cn/doc/best-practices/bpta-render-web-using-same-layer-render)，
 文章介绍如何在Web组件上使用原生组件同层渲染。
 
-### 预览效果
-
-![image](screenshots/render.gif)
-
 ### 使用说明
 
-1. 打开应用，抓取Trace图分析。
-2. 上下滑动商品列表，抓取Trace图分析。
+1. 当前sample为非同层渲染模块，同层渲染模块请查看[arkweb-same-level-rendering](https://gitee.com/harmonyos_samples/arkweb-same-level-rendering)。
+2. 分别运行2个sample，抓取Trace图进行[Frame分析](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/ide-insight-session-frame)对比帧耗时。
 
 ### 工程目录
 

@@ -2,10 +2,6 @@
 ## 介绍
 本例通过Scroll嵌套List，对比List设置宽度和不设置的情况。
 
-## 预览效果
-
-<img alt="img.png" src="./screenshots/Screenshot.jpeg" width="300"/>
-
 ## 工程目录
 ``` 
 ├──entry/src/main/ets                                   // 代码区
@@ -16,11 +12,15 @@
 │  ├──pages                              
 │  │  └──Index.ets                                      // 首页
 │  └──segment
-│     ├──segment1.ets                       
-│     ├──segment2.ets                       
-│     └──segment3.ets                                 
+│     ├──segment1.ets                                   // List列表数据
+│     ├──segment2.ets                                   // List不设置宽高
+│     └──segment3.ets                                   // List设置固定高度
 └──entry/src/main/resources                             // 应用资源目录
 ```
+## 使用说明
+示例代码包含两个场景：
+* Scroll嵌套List，List不设置宽高。
+* Scroll嵌套List，List设置固定宽高。
 
 ## 相关权限
 无

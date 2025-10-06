@@ -30,7 +30,7 @@ export class ExitAppLifecycle implements IHMLifecycle {
     if (time - this.lastTime > 1000) {
       this.lastTime = time;
       ctx.uiContext.getPromptAction().showToast({
-        message: 'Return to exit the application again.',
+        message: '再次返回退出应用',
         duration: 1000
       });
       return true;

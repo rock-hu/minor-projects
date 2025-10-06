@@ -32,23 +32,19 @@ export struct ColorPickerMode {
   @State blurColor: string = 'rgba(255,255,255,255)';
 
   async blurPix(resource: Resource) {
-    const context = this.getUIContext().getHostContext()!;
-    const resourceMgr = context.resourceManager;
-    let imageSource: image.ImageSource | null = null;
-    // const fileData = await resourceMgr.getMediaContent(resource)
-    resourceMgr.getMediaContent(resource)
-      .then((fileData: Uint8Array) => {
-        const buffer = fileData.buffer
-        imageSource = image.createImageSource(buffer as ArrayBuffer)
-      })
-      .catch((err: BusinessError) => {
-        hilog.error(0x000, 'testTag', `setPreferredOrientation failed, code=${err.code}, message=${err.message}`)
-      })
-    this.pixMap = await imageSource!.createPixelMap();
-    // create a color picker for color extraction
-    this.kitColor = (await effectKit.createColorPicker(this.pixMap, [0, 0, 1, 1])).getAverageColor();
-    // convert to the format of the blur interface color parameter
-    this.blurColor = 'rgba(' + this.kitColor.red + ',' + this.kitColor.green + ',' + this.kitColor.blue + ',0)';
+    try {
+      const context = this.getUIContext().getHostContext()!;
+      const resourceMgr = context.resourceManager
+      const fileData = await resourceMgr.getMediaContent(resource.id);
+      const buffer = fileData.buffer
+      let imageSource = image.createImageSource(buffer as ArrayBuffer)
+      this.pixMap = await imageSource.createPixelMap();
+      // create a color picker for color extraction
+      this.kitColor = (await effectKit.createColorPicker(this.pixMap, [0, 0, 1, 1])).getAverageColor();
+      // convert to the format of the blur interface color parameter
+      this.blurColor = 'rgba(' + this.kitColor.red + ',' + this.kitColor.green + ',' + this.kitColor.blue + ',0)';
+    } catch (err) {
+    }
   }
 
   build() {

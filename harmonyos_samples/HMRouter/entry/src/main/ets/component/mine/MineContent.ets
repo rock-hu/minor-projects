@@ -120,9 +120,9 @@ export struct MineContent {
         .backgroundColor($r('app.color.mine_content_flex_background_color'))
         .borderRadius(15)
         .onClick(() => {
-          // HMRouterMgr.to(MineContent.jumpPageUrl)
-          //   .withNavigation(this.queryNavigationInfo()?.navigationId)
-          //   .pushAsync()
+          HMRouterMgr.to(MineContent.jumpPageUrl)
+            .withNavigation(this.queryNavigationInfo()?.navigationId)
+            .pushAsync()
         });
       }
       .justifyContent(FlexAlign.Start)

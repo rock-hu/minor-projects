@@ -18,16 +18,16 @@ import { window } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
-const SUB_WINDOW_LEFT_OFFSET = 50;
-const SUB_WINDOW_TOP_OFFSET = 500;
-const TAG = 'subWindowAdaptWhenRotate';
-const DOMAIN = 0x0000;
+const SUB_WINDOW_LEFT_OFFSET: number = 50;
+const SUB_WINDOW_TOP_OFFSET: number = 500;
+const TAG: string = 'subWindowAdaptWhenRotate';
+const DOMAIN: number = 0x0000;
 
 @Entry
 @Component
 struct Index {
-  private mainWindow: window.Window | undefined = undefined;
-  private subWindow: window.Window | undefined = undefined;
+  public mainWindow: window.Window | undefined = undefined;
+  public subWindow: window.Window | undefined = undefined;
 
   aboutToAppear(): void {
     // create subWindow
@@ -42,7 +42,7 @@ struct Index {
     })
   }
 
-  private adjustSubwindowSizeAndPosition() {
+  private adjustSubwindowSizeAndPosition(): void {
     if (!this.subWindow) {
       hilog.error(DOMAIN, TAG, 'subWindow is null');
       return;
@@ -51,8 +51,7 @@ struct Index {
     try {
       subwindowRect = this.subWindow.getWindowProperties().windowRect;
     } catch (error) {
-      let err = error as BusinessError;
-      hilog.warn(0x000, 'testTag', `getWindowProperties failed, code=${err.code}, message=${err.message}`);
+      hilog.warn(0x000, 'testTag', `getWindowProperties failed, code: ${error.code}, message: ${error.message}`);
     }
     let newWidth: number = subwindowRect!.height;
     let newHeight: number = subwindowRect!.width;
@@ -75,12 +74,12 @@ struct Index {
   }
 
   // [StartExclude rotate_sample]
-  private createSubWindow() {
+  private createSubWindow(): void {
     window.createWindow({
       name: 'subWindow',
       windowType: window.WindowType.TYPE_DIALOG,
       ctx: this.getUIContext().getHostContext(),
-    }).then((subWindow) => {
+    }).then((subWindow: window.Window) => {
       this.subWindow = subWindow;
 
       if (!this.mainWindow) {
@@ -90,8 +89,7 @@ struct Index {
       try {
         mainWindowRect = this.mainWindow.getWindowProperties().windowRect;
       } catch (error) {
-        let err = error as BusinessError;
-        hilog.warn(0x000, 'testTag', `getWindowProperties failed, code=${err.code}, message=${err.message}`);
+        hilog.warn(0x000, 'testTag', `getWindowProperties failed, code: ${error.code}, message: ${error.message}`);
       }
 
       let mainWindowWidth: number = mainWindowRect!.width;
@@ -108,8 +106,8 @@ struct Index {
         try {
           this.subWindow?.setWindowBackgroundColor('#ff0000');
         } catch (error) {
-          let err = error as BusinessError;
-          hilog.warn(0x000, 'testTag', `setWindowBackgroundColor failed, code=${err.code}, message=${err.message}`);
+          hilog.warn(0x000, 'testTag',
+            `setWindowBackgroundColor failed, code: ${error.code}, message: ${error.message}`);
         }
         this.subWindow?.showWindow().then(() => {
           hilog.info(DOMAIN, TAG, 'Show subwindow success');

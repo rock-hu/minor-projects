@@ -20,8 +20,8 @@
 // [Start maximize]
 // [Start recover]
 import { BusinessError } from '@kit.BasicServicesKit';
-import { window } from '@kit.ArkUI';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { window } from '@kit.ArkUI';
 
 @Observed
 export class WindowUtil {
@@ -41,8 +41,7 @@ export class WindowUtil {
           });
       }
     } catch (error) {
-      let err = error as BusinessError;
-      hilog.warn(0x000, 'testTag', `getWindowStatus failed, code=${err.code}, message=${err.message}`);
+      hilog.warn(0x000, 'testTag', `getWindowStatus failed, code: ${error.code}, message: ${error.message}`);
     }
   }
 
@@ -61,13 +60,10 @@ export class WindowUtil {
           });
       }
     } catch (error) {
-      let err = error as BusinessError;
-      hilog.warn(0x000, 'testTag', `getWindowStatus failed, code=${err.code}, message=${err.message}`);
+      hilog.warn(0x000, 'testTag', `getWindowStatus failed, code: ${error.code}, message: ${error.message}`);
     }
   }
-
   // [EndExclude maximize]
 }
-
 // [End maximize]
 // [End recover]

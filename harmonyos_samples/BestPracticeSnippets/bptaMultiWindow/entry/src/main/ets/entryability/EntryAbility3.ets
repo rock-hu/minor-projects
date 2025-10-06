@@ -18,10 +18,10 @@
 */
 
 // [Start onwindowstagecreate1]
-import { UIAbility } from '@kit.AbilityKit';
-import { window } from '@kit.ArkUI';
 import { BusinessError, deviceInfo } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { UIAbility } from '@kit.AbilityKit';
+import { window } from '@kit.ArkUI';
 
 export default class EntryAbility extends UIAbility {
   onWindowStageCreate(windowStage: window.WindowStage): void {
@@ -45,10 +45,9 @@ export default class EntryAbility extends UIAbility {
           hilog.warn(0x000, 'testTag', `set windowDecor size failed, code=${err.code}, message=${err.message}`);
         }
       }
+    }).catch((err: BusinessError) => {
+      hilog.error(0x000, 'testTag', `setWindowLayoutFullScreen failed, code=${err.code}, message=${err.message}`)
     })
-      .catch((err: BusinessError) => {
-        hilog.error(0x000, 'testTag', `setWindowLayoutFullScreen failed, code=${err.code}, message=${err.message}`)
-      })
   }
 }
 

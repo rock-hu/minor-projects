@@ -6,7 +6,7 @@
 
 ### 效果预览
 
-<img src="screenshots/videoPlayer.gif" width='320'>
+<img src="screenshots/video.png" width='320'>
 
 ### 使用说明
 

@@ -46,10 +46,10 @@ export class ShoppingBagConstants {
    * Product status list.
    */
   static readonly PRODUCT_STATUS_LIST: Array<Array<string>> =
-    [[uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_PAID'))],
-      [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_UNPAID'))],
-      [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_PAID'))],
-      [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_UNPAID'))]];
+    [[uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_PAID').id)],
+      [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_UNPAID').id)],
+      [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_PAID').id)],
+      [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_UNPAID').id)]];
   /**
    * Product price list.
    */
@@ -83,9 +83,9 @@ export class ShoppingBagConstants {
    * Shopping bag titles.
    */
   static readonly SHOPPING_BAG_TITLES: string[] = [
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_BAG_TITLES1')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_BAG_TITLES2')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_BAG_TITLES3'))];
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_BAG_TITLES1').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_BAG_TITLES2').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_BAG_TITLES3').id)];
   /**
    * Shopping discount title list.
    */
@@ -101,11 +101,11 @@ export class ShoppingBagConstants {
    * Shopping card foot title list.
    */
   static readonly SHOPPING_CARD_FOOT_TITLES: string[] = [
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_CARD_FOOT_TITLES1')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_CARD_FOOT_TITLES2')),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_CARD_FOOT_TITLES1').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_CARD_FOOT_TITLES2').id),
     '￥', '12999',
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_CARD_FOOT_TITLES3')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_CARD_FOOT_TITLES4'))];
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_CARD_FOOT_TITLES3').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_CARD_FOOT_TITLES4').id)];
   /**
    * Shopping card name list.
    */
@@ -121,15 +121,15 @@ export class ShoppingBagConstants {
    * Shopping card settlement button.
    */
   static readonly SHOPPING_SETTLEMENT_BUTTON: string =
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_SETTLEMENT_BUTTON'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_SETTLEMENT_BUTTON').id);
   /**
    * Shopping unpaid.
    */
   static readonly SHOPPING_UNPAID: string =
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_UNPAID'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_UNPAID').id);
   /**
    * Shopping paid.
    */
   static readonly SHOPPING_PAID: string =
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_PAID'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SHOPPING_PAID').id);
 }

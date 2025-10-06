@@ -14,7 +14,7 @@
  */
 
 // [Start get_str_of_resource]
-import { hiTraceMeter } from '@kit.PerformanceAnalysisKit';
+import { hilog, hiTraceMeter } from '@kit.PerformanceAnalysisKit';
 
 
 @Entry
@@ -25,7 +25,11 @@ struct GetStrOfResource {
   aboutToAppear(): void {
     hiTraceMeter.startTrace('getStringSync', 1);
     // The input parameter of the getStringSync operation directly uses the resource and does not use the resource ID
-    this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.test'))
+    try {
+      this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.test').id)
+    } catch (error) {
+      hilog.error(0x0000,'',`getStringSync failed. code=${error.code}, message=${error.message}`);
+    }
     hiTraceMeter.finishTrace('getStringSync', 1)
   }
 

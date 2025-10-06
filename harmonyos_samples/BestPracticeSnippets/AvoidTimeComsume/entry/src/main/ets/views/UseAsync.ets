@@ -16,7 +16,8 @@
 import { Item, ResponseData, dataToItem } from '../common/Item';
 import { WaterFlowDataSource } from './WaterFlowDataSource';
 import { buffer } from '@kit.ArkTS';
-
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 @Entry
 @Component
@@ -122,9 +123,15 @@ struct WaterFlowExample2 {
     // data.json is the local json data, which is about 20 MB in size, and simulates getting data from the network
     await this.getUIContext().getHostContext()!.resourceManager.getRawFileContent('data.json').then((data: Uint8Array) => {
       // parse json
-      let str = buffer.from(data).toString();
-      res = JSON.parse(str);
-    })
+      try {
+        let str: string = buffer.from(data).toString();
+        res = JSON.parse(str);
+      } catch (error) {
+        hilog.error(0x0000,'',`buffer.from failed. code=${error.code}, message=${error.message}`);
+      }
+    }).catch((error: BusinessError)=>{
+      hilog.error(0x0000,'',`getRawFileContent failed. code=${error.code}, message=${error.message}`);
+    });
     return dataToItem(res.data)
   }
 

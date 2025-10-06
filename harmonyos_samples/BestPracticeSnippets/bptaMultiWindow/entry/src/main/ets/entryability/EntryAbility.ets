@@ -16,6 +16,7 @@
 /*
 * 最佳实践: 一多窗口适配开发实践
 */
+
 // [Start onWindowStageCreate]
 import { UIAbility } from '@kit.AbilityKit';
 import { window } from '@kit.ArkUI';
@@ -41,14 +42,13 @@ export default class EntryAbility extends UIAbility {
           windowClass.setWindowLayoutFullScreen(true)
             .catch((err: BusinessError) => {
               hilog.error(0x000, 'testTag',
-                `setWindowLayoutFullScreen failed, code=${err.code}, message=${err.message}`)
+                `setWindowLayoutFullScreen failed, code: ${err.code}, message: ${err.message}`)
             })
         }
       })
       .catch((err: BusinessError) => {
-        hilog.error(0x000, 'testTag', `getMainWindow failed, code=${err.code}, message=${err.message}`)
+        hilog.error(0x000, 'testTag', `getMainWindow failed, code: ${err.code}, message: ${err.message}`)
       })
-
   }
 }
 

@@ -11,6 +11,9 @@
 | ![](screenshots/portrait.png) | ![](screenshots/landscape.png) |
 
 
+### 使用说明
+- 旋转手机，对应的页面页随旋转。
+
 ### 工程目录
 
 ```
@@ -25,9 +28,13 @@
 └──entry/src/main/resources                 // 应用资源目录
 ```
 
+### 具体实现
+
+不涉及
+
 ### 相关权限
 
-ohos.permission.SYSTEM_FLOAT_WINDOW
+- ohos.permission.SYSTEM_FLOAT_WINDOW
 
 ### 模块依赖
 

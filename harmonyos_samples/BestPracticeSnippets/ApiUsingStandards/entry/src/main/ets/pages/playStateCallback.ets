@@ -18,8 +18,7 @@
  */
 import { BusinessError } from '@kit.BasicServicesKit';
 import { avSession } from '@kit.AVSessionKit';
-
-const TAG: string = 'TEST';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 class avSessionClass {
   castController!: avSession.AVCastController;
@@ -32,17 +31,16 @@ class avSessionClass {
   create(context: Context, tag: string): void {
     avSession.createAVSession(context, tag, "audio").then(async (currentAVSession: avSession.AVSession) => {
       this.session = currentAVSession;
-      let sessionController = await currentAVSession.getAVCastController();
+      let sessionController: avSession.AVCastController = await currentAVSession.getAVCastController();
       this.castController = sessionController;
       // [Start play_state_callback]
-      let playStateCallback = (state: avSession.AVPlaybackState) => {
-
+      let playStateCallback: (state: avSession.AVPlaybackState) => void = (state: avSession.AVPlaybackState) => {
       }
       sessionController.on('playbackStateChange', 'all', this.playStateCallback);
       sessionController.off('playbackStateChange', this.playStateCallback);
       // [End play_state_callback]
     }).catch((err: BusinessError) => {
-      console.info(`CreateAVSession BusinessError: code: ${err.code}, message: ${err.message}`);
+      hilog.error(0x0000, 'testTag', `CreateAVSession BusinessError: code: ${err.code}, message: ${err.message}`);
     });
   }
 
@@ -66,10 +64,9 @@ class avSessionClass {
     // [Start prepare]
     // Preparing to play, this will not trigger actual playback, it will load and buffer
     this.castController?.prepare(playItem, () => {
-      console.info('Preparation done');
       // Start playback, truly triggering the playback on the other end. Please call start after Prepare is successful.
       this.castController?.start(playItem, () => {
-        console.info('Playback started');
+        hilog.info(0x0000, 'testTag', 'Playback started');
       });
     });
     // [End prepare]
@@ -78,7 +75,6 @@ class avSessionClass {
   onPrepare(): void {
     // [Start on_prepare]
     this.session?.on('pause', async () => {
-      console.info(TAG, `on pause , do pause task`);
       // Execute player pause
       // Set the status and progress during pause
       this.currentState = {

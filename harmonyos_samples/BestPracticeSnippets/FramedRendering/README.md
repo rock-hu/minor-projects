@@ -22,7 +22,7 @@
 ``` 
 ├──entry/src/main/ets                          
 │  ├──common
-│  │  ├──Constants.ets                  // 公共常量
+│  │  ├──CommonConstants.ets            // 公共常量
 │  │  └──GlobalBuilderContext.ets       // 缓存全局@Builder
 │  ├──entryability
 │  │  └──EntryAbility.ets               // 程序入口类
@@ -41,6 +41,7 @@
 │  └──view                        
 │     ├──DateItemView.ets               // 每个月的日历数据
 │     ├──SlidingScene.ets               // 日历页面 UI
+│     ├──TestCode.ets                   // 代码同源举例
 │     └──TransitionScene.ets            // 转场场景 UI
 └──entry/src/main/resources             // 应用资源目录
 ``` 

@@ -18,10 +18,10 @@
 */
 
 // [Start onavoid_areachange]
-import { UIAbility } from '@kit.AbilityKit';
-import { window as arkWindow } from '@kit.ArkUI'; // Renamed the imported window
-import { hilog } from '@kit.PerformanceAnalysisKit';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { window as arkWindow } from '@kit.ArkUI'; // Renamed the imported window
+import { UIAbility } from '@kit.AbilityKit';
 
 export default class EntryAbility extends UIAbility {
   private onAvoidAreaChange: (avoidArea: arkWindow.AvoidAreaOptions) => void =

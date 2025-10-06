@@ -42,7 +42,7 @@ class cameraClass {
     let previewOutput: camera.CameraOutput | undefined = undefined;
     let cameraInput: camera.CameraInput | undefined = undefined;
     let profile: camera.Profile = cameraOutputCapability.previewProfiles[0];
-    let surfaceId = 'xxx';
+    let surfaceId: string = 'xxx';
     // [Start add_output]
     previewOutput = cameraManager.createPreviewOutput(profile, surfaceId);
     cameraInput = cameraManager.createCameraInput(camera);
@@ -58,7 +58,7 @@ class cameraClass {
     let previewOutput: camera.CameraOutput | undefined = undefined;
     let cameraInput: camera.CameraInput | undefined = undefined;
     let profile: camera.Profile = cameraOutputCapability.previewProfiles[0];
-    let surfaceId = 'xxx';
+    let surfaceId: string = 'xxx';
     // [Start add_output1]
     previewOutput = cameraManager.createPreviewOutput(profile, surfaceId);
     cameraInput = cameraManager.createCameraInput(camera);
@@ -79,4 +79,5 @@ async function onBackground(): Promise<void> {
   await cameraInput.close();
   await cameraSession.release();
 }
+
 // [End close_release]

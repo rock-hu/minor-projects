@@ -139,25 +139,25 @@ export class LiveConstants {
    * Live comments title left text.
    */
   static readonly LIVING_LEFT_TEXT: string =
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.LIVING_LEFT_TEXT'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.LIVING_LEFT_TEXT').id);
   /**
    * Live comments title left text.
    */
   static readonly LIVING_RIGHT_TEXT: string =
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.LIVING_RIGHT_TEXT'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.LIVING_RIGHT_TEXT').id);
   /**
    * Live comments title left text.
    */
   static readonly LIVING_WRITE: string =
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.LIVING_WRITE'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.LIVING_WRITE').id);
   /**
    * Live title top.
    */
   static readonly LIVING_TITLE_TOP: string =
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.store_name'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.store_name').id);
   /**
    * Live title bottom.
    */
   static readonly LIVING_TITLE_BOTTOM: string =
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.number_of_viewers'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.number_of_viewers').id);
 }

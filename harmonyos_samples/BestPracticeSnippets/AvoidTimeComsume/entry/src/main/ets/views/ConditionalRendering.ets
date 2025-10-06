@@ -78,7 +78,7 @@ struct MyComponent {
 @Component
 struct CustomComponentA {
   aboutToAppear(): void {
-    let temp = 0;
+    let temp: number = 0;
     for (let i = 0; i < 1000000; i++) {
       temp += 1;
     }
@@ -86,7 +86,7 @@ struct CustomComponentA {
   }
 
   aboutToDisappear(): void {
-    let temp = 0;
+    let temp: number = 0;
     for (let i = 0; i < 1000000; i++) {
       temp += 1;
     }
@@ -104,7 +104,7 @@ struct CustomComponentA {
 @Component
 struct CustomComponentB {
   aboutToAppear(): void {
-    let temp = 0;
+    let temp: number = 0;
     for (let i = 0; i < 1000000; i++) {
       temp += 1;
     }
@@ -112,7 +112,7 @@ struct CustomComponentB {
   }
 
   aboutToDisappear(): void {
-    let temp = 0;
+    let temp: number = 0;
     for (let i = 0; i < 1000000; i++) {
       temp += 1;
     }

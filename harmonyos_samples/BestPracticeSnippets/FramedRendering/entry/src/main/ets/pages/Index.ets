@@ -54,7 +54,7 @@ struct Index {
   }
 
   @Builder
-  navTitle() {
+  navTitle(): void {
     Column() {
       Text($r('app.string.EntryAbility_label'))
         .fontSize(30)

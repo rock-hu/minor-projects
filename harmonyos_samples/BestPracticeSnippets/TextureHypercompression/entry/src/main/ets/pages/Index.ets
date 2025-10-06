@@ -24,7 +24,7 @@ struct Index {
   @Provide('pageInfos') pageInfos: NavPathStack = new NavPathStack();
 
   @Builder
-  PageMap(name: string, param: string) {
+  PageMap(name: string, param: string): void {
     if (name === 'TextureCompression') {
       TextureCompression()
     } else if (name === 'OptimizeWebImagesUsingCDN') {

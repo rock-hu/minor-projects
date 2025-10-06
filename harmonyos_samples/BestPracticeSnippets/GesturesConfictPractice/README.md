@@ -19,9 +19,10 @@
 │  │  └──EntryBackupAbility.ets         // 数据备份恢复类
 │  └──pages        
 │     ├──GesturesConflictScene1.ets     // 滚动容器嵌套滚动容器事件冲突
-│     ├──GesturesConflictScene2.ets     // 使用组合手势同时绑定多个同类型手势冲突解        
-│     ├──GesturesConflictScene3.ets     // 系统手势和自定义手势之间冲突
-│     ├──GesturesConflictScene3A.ets    // 系统手势和自定义手势之间冲突反例
+│     ├──GesturesConflictScene2.ets     // 使用组合手势同时绑定多个同类型手势冲突解反例        
+│     ├──GesturesConflictScene2A.ets    // 使用组合手势同时绑定多个同类型手势冲突解正例        
+│     ├──GesturesConflictScene3.ets     // 系统手势和自定义手势之间冲突反例
+│     ├──GesturesConflictScene3A.ets    // 系统手势和自定义手势之间冲突正例
 │     ├──GesturesConflictScene4.ets     // 手势事件透传
 │     ├──GesturesConflictScene5.ets     // 多点触控场景下手势冲突
 │     ├──GesturesConflictScene6.ets     // 动态控制自定义手势是否响应

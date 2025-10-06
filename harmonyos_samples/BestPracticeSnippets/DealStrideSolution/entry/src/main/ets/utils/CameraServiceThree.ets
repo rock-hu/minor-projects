@@ -160,7 +160,7 @@ class CameraService {
       previewRotation = this.previewOutput?.getPreviewRotation(previewRotation);
       AppStorage.set('previewRotation', previewRotation);
     } catch (error) {
-      let err = error as BusinessError;
+      let err: BusinessError = error as BusinessError;
       hilog.warn(0x000, 'testTag', `setColorMode failed, code=${err.code}, message=${err.message}`);
     }
   }

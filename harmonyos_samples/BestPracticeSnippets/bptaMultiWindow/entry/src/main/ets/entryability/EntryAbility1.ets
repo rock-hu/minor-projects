@@ -18,15 +18,16 @@
 */
 
 // [Start setdefaultorientation]
-import { hilog } from "@kit.PerformanceAnalysisKit";
-import { BusinessError } from "@kit.BasicServicesKit";
-import { window } from "@kit.ArkUI";
-import { UIAbility } from "@kit.AbilityKit";
+
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { UIAbility } from '@kit.AbilityKit';
+import { window } from '@kit.ArkUI';
 
 export default class EntryAbility extends UIAbility {
   windowObj?: window.Window;
   uiContext?: UIContext;
-  onWindowSizeChange: (data: window.Size) => void = (data: window.Size) => {
+  onWindowSizeChange: (data: window.Size) => void = () => {
     this.setDefaultOrientation();
   }
 

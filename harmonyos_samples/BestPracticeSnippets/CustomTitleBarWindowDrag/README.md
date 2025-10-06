@@ -8,6 +8,9 @@
 
 ![](screenshots/windowDrag.gif)
 
+### 使用说明
+- 点击应用中间的蓝色区域，可拖动应用。
+
 ### 工程目录
 
 ```
@@ -20,6 +23,10 @@
 |     └──Index.ets                          // 首页
 └──entry/src/main/resources                 // 应用资源目录
 ```
+
+### 具体实现
+1. 手指触摸动作触发onTouch()该方法。
+2. 使用startMoving()方法,指定鼠标在窗口内的位置并移动窗口。
 
 ### 相关权限
 

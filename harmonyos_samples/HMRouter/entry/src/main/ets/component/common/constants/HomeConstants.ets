@@ -20,11 +20,11 @@ export class HomeConstants {
    * Footer tab topics.
    */
   static readonly FOOTER_TOPIC_LIST: string[] = [
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.FOOTER_TOPIC_LIST1')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.FOOTER_TOPIC_LIST2')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.FOOTER_TOPIC_LIST3')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.FOOTER_TOPIC_LIST4')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.FOOTER_TOPIC_LIST5'))];
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.FOOTER_TOPIC_LIST1').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.FOOTER_TOPIC_LIST2').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.FOOTER_TOPIC_LIST3').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.FOOTER_TOPIC_LIST4').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.FOOTER_TOPIC_LIST5').id)];
 
   /**
    * Footer topic icons.
@@ -43,16 +43,16 @@ export class HomeConstants {
    * Top bar text list.
    */
   static readonly TOP_BAR_TEXTS: string[] = [
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.TOP_BAR_TEXTS1')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.TOP_BAR_TEXTS2')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.TOP_BAR_TEXTS3')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.TOP_BAR_TEXTS4'))];
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.TOP_BAR_TEXTS1').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.TOP_BAR_TEXTS2').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.TOP_BAR_TEXTS3').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.TOP_BAR_TEXTS4').id)];
 
   /**
    * Search placeholder.
    */
   static readonly SEARCH_PLACEHOLDER: string =
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.searching'));
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.searching').id);
 
   /**
    * Recommended product list.
@@ -69,16 +69,16 @@ export class HomeConstants {
    * Good categories.
    */
   static readonly GOOD_CATEGORIES: string[] = [
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES1')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES2')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES3')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES4')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES5')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES6')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES7')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES8')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES9')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES10'))];
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES1').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES2').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES3').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES4').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES5').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES6').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES7').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES8').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES9').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.GOOD_CATEGORIES10').id)];
 
   /**
    * Good category images.
@@ -130,30 +130,30 @@ export class HomeConstants {
    * Price unit.
    */
   static readonly PRICE_UNIT: string[] = ['￥',
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRICE_UNIT'))];
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PRICE_UNIT').id)];
 
   /**
    * Home title list.
    */
   static readonly HOME_TITLES: string[] = [
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.HOME_TITLES1')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.HOME_TITLES2')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.HOME_TITLES3'))];
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.HOME_TITLES1').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.HOME_TITLES2').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.HOME_TITLES3').id)];
 
   /**
    * Home button text list.
    */
   static readonly BUTTON_TEXTS: string[] = [
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.BUTTON_TEXTS1')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.BUTTON_TEXTS2'))];
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.BUTTON_TEXTS1').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.BUTTON_TEXTS2').id)];
 
   /**
    * Welfare tip text.
    */
   static readonly TIP_TEXTS: string[] = [
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.TIP_TEXTS1')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.TIP_TEXTS2')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.TIP_TEXTS3'))];
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.TIP_TEXTS1').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.TIP_TEXTS2').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.TIP_TEXTS3').id)];
 
   /**
    * Gradient color list.
@@ -171,18 +171,18 @@ export class HomeConstants {
    * Section products title list.
    */
   static readonly SECTION_PRODUCTS_TITLES: string[][] = [
-    [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_TITLES1'))],
+    [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_TITLES1').id)],
     ['HUAWEI Mate 50',
-      uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_TITLES2'))],
+      uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_TITLES2').id)],
     ['Sound X NEW'], ['HUAWEI MatePad Air'], ['HUAWEI MateBook 14s']];
 
   /**
    * Section products info list.
    */
   static readonly SECTION_PRODUCTS_INFO: string[] = ['',
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_INFO1')), '',
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_INFO2')),
-    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_INFO3'))];
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_INFO1').id), '',
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_INFO2').id),
+    uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_INFO3').id)];
 
   /**
    * Section products price list.
@@ -193,11 +193,11 @@ export class HomeConstants {
    * Section products feature list.
    */
   static readonly SECTION_PRODUCTS_FEATURES: string[][] = [
-    [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_FEATURES1'))],
-    [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_FEATURES2'))],
-    [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_FEATURES3'))],
-    [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_FEATURES4'))],
-    [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_FEATURES5'))]];
+    [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_FEATURES1').id)],
+    [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_FEATURES2').id)],
+    [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_FEATURES3').id)],
+    [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_FEATURES4').id)],
+    [uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.SECTION_PRODUCTS_FEATURES5').id)]];
 
   /**
    * Section products comment list.

@@ -14,7 +14,7 @@
 */
 
 // [Start service_task]
-export function fun1() {
+export function fun1(): void {
   for (let index = 0; index < 906666; index++) {
     console.debug('fun1 index:' + index);
   }

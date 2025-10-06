@@ -102,7 +102,7 @@ class CameraService {
   // [End Case1_start]
 
   getPreviewProfile(cameraOutputCapability: camera.CameraOutputCapability): camera.Profile | undefined {
-    let previewProfiles = cameraOutputCapability.previewProfiles;
+    let previewProfiles: Array<camera.Profile> = cameraOutputCapability.previewProfiles;
     if (previewProfiles.length < 1) {
       return undefined;
     }
@@ -188,7 +188,7 @@ class CameraService {
       previewRotation = this.previewOutput?.getPreviewRotation(previewRotation);
       AppStorage.set('previewRotation', previewRotation);
     } catch (error) {
-      let err = error as BusinessError;
+      let err: BusinessError = error as BusinessError;
       hilog.warn(0x000, 'testTag', `setColorMode failed, code=${err.code}, message=${err.message}`);
     }
   }
@@ -293,7 +293,7 @@ class CameraService {
    * Turn on the camera
    */
   async cameraInputOpenFn(cameraInput: camera.CameraInput): Promise<boolean> {
-    let isOpenSuccess = false;
+    let isOpenSuccess: boolean = false;
     try {
       await cameraInput.open();
       isOpenSuccess = true;

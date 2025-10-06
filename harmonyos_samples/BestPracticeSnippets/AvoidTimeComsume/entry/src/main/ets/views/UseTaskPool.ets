@@ -16,6 +16,8 @@
 import { buffer, taskpool } from '@kit.ArkTS';
 import { Item, ResponseData, dataToItem } from '../common/Item';
 import { WaterFlowDataSource } from './WaterFlowDataSource';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 @Entry
 @Component
@@ -23,7 +25,7 @@ struct WaterFlowExample {
   @State fontSize: number = 24;
   scroller: Scroller = new Scroller();
   dataSource: WaterFlowDataSource = new WaterFlowDataSource();
-  UIContext = this.getUIContext()
+  UIContext: UIContext = this.getUIContext()
 
   @Builder
   itemFoot() {
@@ -123,18 +125,31 @@ struct WaterFlowExample {
 // The following methods are defined outside of the component
 async function taskPoolExecute(UIContext: UIContext): Promise<Item[]> {
   let task: taskpool.Task = new taskpool.Task(mockRequestData, UIContext);
-  return await taskpool.execute(task) as Item[];
+  let result: Item[] = [];
+  try {
+    result = await taskpool.execute(task) as Item[]
+  } catch (error) {
+    hilog.error(0x0000,'',`execute failed. code=${error.code}, message=${error.message}`);
+  }
+  return result;
 }
 
+@Concurrent
 async function mockRequestData(context: Context): Promise<Item[]> {
   let res: ResponseData = new ResponseData();
   // data.json is the local json data, which is about 20 MB in size, and simulates getting data from the network
   await context.resourceManager.getRawFileContent('data.json').then((data: Uint8Array) => {
     // parse json
-    let str = buffer.from(data).toString();
-    res = JSON.parse(str);
-  })
-  let arr = dataToItem(res.data);
+    try {
+      let str: string = buffer.from(data).toString();
+      res = JSON.parse(str);
+    } catch (error) {
+      hilog.error(0x0000,'',`buffer.from failed. code=${error.code}, message=${error.message}`);
+    }
+  }).catch((error: BusinessError)=>{
+    hilog.error(0x0000,'',`getRawFileContent failed. code=${error.code}, message=${error.message}`);
+  });
+  let arr: Item[] = dataToItem(res.data);
   return arr;
 }
 

@@ -19,45 +19,45 @@ export class PayConstants {
   /**
    * Pay card text1.
    */
-  static readonly PAY_CARD_TEXT1: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_CARD_TEXT1'));
+  static readonly PAY_CARD_TEXT1: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_CARD_TEXT1').id);
   /**
    * Pay card text2.
    */
-  static readonly PAY_CARD_TEXT2: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_CARD_TEXT2'));
+  static readonly PAY_CARD_TEXT2: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_CARD_TEXT2').id);
   /**
    * Pay card text3.
    */
-  static readonly PAY_CARD_TEXT3: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_CARD_TEXT3'));
+  static readonly PAY_CARD_TEXT3: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_CARD_TEXT3').id);
   /**
    * Pay card text2.
    */
-  static readonly PAY_CARD_BUTTON: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_CARD_BUTTON'));
+  static readonly PAY_CARD_BUTTON: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_CARD_BUTTON').id);
   /**
    * Pay cancel title.
    */
-  static readonly PAY_CANCEL_TITLE: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_CANCEL_TITLE'));
+  static readonly PAY_CANCEL_TITLE: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_CANCEL_TITLE').id);
   /**
    * Pay cancel content.
    */
-  static readonly PAY_CANCEL_CONTENT: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_CANCEL_CONTENT'));
+  static readonly PAY_CANCEL_CONTENT: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_CANCEL_CONTENT').id);
   /**
    * Pay cancel button1.
    */
-  static readonly PAY_CANCEL_BUTTON1: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_CANCEL_SEE'));
+  static readonly PAY_CANCEL_BUTTON1: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_CANCEL_SEE').id);
   /**
    * Pay cancel button2.
    */
-  static readonly PAY_CANCEL_BUTTON2: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_CANCEL_CONFIRM'));
+  static readonly PAY_CANCEL_BUTTON2: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_CANCEL_CONFIRM').id);
   /**
    * Pay success title.
    */
-  static readonly PAY_SUCCESS_TITLE: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_SUCCESS_TITLE'));
+  static readonly PAY_SUCCESS_TITLE: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_SUCCESS_TITLE').id);
   /**
    * Pay success text.
    */
-  static readonly PAY_SUCCESS_TEXT: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_SUCCESS_TEXT'));
+  static readonly PAY_SUCCESS_TEXT: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_SUCCESS_TEXT').id);
   /**
    * Pay success button text.
    */
-  static readonly PAY_SUCCESS_BUTTON: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_SUCCESS_BUTTON'));
+  static readonly PAY_SUCCESS_BUTTON: string = uiContext!.getHostContext()!.resourceManager.getStringSync($r('app.string.PAY_SUCCESS_BUTTON').id);
 }
