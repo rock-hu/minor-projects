@@ -2,18 +2,19 @@
 
 ## Overview
 
-This example triggers the lifecycle of the application by the user, and then uses EventHub to listen and print the
-triggered lifecycle on the homepage.
+This example demonstrates how to use **EventHub** to listen for triggered lifecycle events and log the lifecycle on the
+home
+page.
 
-## Preview
+## Effect
 
 ![lifecycle_en.gif](screenshots/device/lifecycle_en.gif)
 
 ## How to Use
 
-1. The user clicks on the application and prints out the triggered lifecycle on the homepage.
-2. The user returns to the desktop, clicks on the application, and adds the lifecycle triggered by printing on the
-   homepage.
+1. Tap the application. The triggered lifecycle is displayed on the home page.
+2. Return to the home screen and tap the application again. The subsequent triggered lifecycle is displayed on the home
+   page.
 
 ## Project Directory
 
@@ -30,26 +31,27 @@ triggered lifecycle on the homepage.
 └──entry/src/main/resources             // Application resource directory
 ```
 
-## Implementation Details
+## How to Implement
 
-The homepage printing lifecycle is achieved by adding eventHub listener in the ElementAbility.ts file:
+To log the lifecycle on the home page, you can add **eventHub** listening to the **EntryAbility.ets** file.
 
-- Open the homepage for the first time, trigger the onCreate, onWindowStageCreate, and onForeground lifecycles, listen
-  through eventHub, and print on the page.
-- Switch to the desktop, return to the application, trigger the onBackground and onForeground lifecycles, listen through
-  eventHub, and add printing to the page.
+- When the home page is first opened, the **onCreate**, **onWindowStageCreate**, and **onForeground** lifecycles are
+  triggered. The
+  **eventHub** is used to listen for the lifecycle and log the lifecycle on the page.
+- When the user switches to the home screen and returns to the application, the **onBackground** and **onForeground** lifecycles
+  are triggered. The **eventHub** is used to listen for the lifecycle and log the lifecycle on the page.
 
-## Permissions
+## Required Permissions
 
 N/A
 
-## Dependency
+## Dependencies
 
 N/A
 
 ## Constraints
 
-1. The sample is only supported on Huawei phones with standard systems.
+1. This sample is only supported on Huawei phones running standard systems.
 2. The HarmonyOS version must be HarmonyOS 5.1.1 Release or later.
 3. The DevEco Studio version must be DevEco Studio 5.1.1 Release or later.
 4. The HarmonyOS SDK version must be HarmonyOS 5.1.1 Release SDK or later.
