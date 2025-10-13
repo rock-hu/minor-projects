@@ -54,6 +54,8 @@ export default class EntryAbility extends UIAbility {
       }).catch((err: BusinessError) => {
         hilog.error(DOMAIN, 'testTag', 'Failed to operation startBackgroundRunning. %{public}s', JSON.stringify(err));
       });
+    }).catch((err: BusinessError) => {
+      hilog.error(DOMAIN, 'testTag', 'Failed to operation getWantAgent. %{public}s', JSON.stringify(err));
     });
   }
 
@@ -66,8 +68,13 @@ export default class EntryAbility extends UIAbility {
   }
 
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
-    this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
-    hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onCreate');
+    try {
+      this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
+      hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onCreate');
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'testTag', `setColorMode fail. code = ${err.code}, message = ${err.message}`);
+    }
   }
 
   onDestroy(): void {
@@ -99,10 +106,16 @@ export default class EntryAbility extends UIAbility {
       }
       hilog.info(DOMAIN, 'testTag', 'Succeeded in loading the content.');
     });
-    // [Start get_size]
-    let displayInfo = display.getDefaultDisplaySync();
-    // [End get_size]
-    AppStorage.setOrCreate('displayInfo', displayInfo);
+
+    try {
+      // [Start get_size]
+      let displayInfo = display.getDefaultDisplaySync();
+      // [End get_size]
+      AppStorage.setOrCreate('displayInfo', displayInfo);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'testTag', `getDefaultDisplaySync fail. code = ${err.code}, message = ${err.message}`);
+    }
   }
 
   onWindowStageDestroy(): void {

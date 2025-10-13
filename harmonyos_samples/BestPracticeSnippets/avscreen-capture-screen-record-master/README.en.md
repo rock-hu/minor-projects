@@ -1,36 +1,75 @@
-# AVScreenCaptureScreenRecord
+# Screen Recording Based on AVScreenCapture
 
-#### Description
-{**When you're done, you can delete the content in this README and update the file with details for others getting started with your repository**}
+### Overview
 
-#### Software Architecture
-Software architecture description
+This sample demonstrates how to implement screen recording using AVScreenCapture, including recording to a file using ArkTS, recording to a file using C/C++, and recording and transcoding stream using C/C++. Based on this case, you can master the screen recording capabilities of AVScreenCapture.
 
-#### Installation
+### Preview
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+<img src="screenshots/device/PreviewImage_EN.png" width="320">
 
-#### Instructions
+### How to Use
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+On the home page, the user taps the corresponding button to navigate to the page for a specific scenario. Each scenario page contains a video playback area and two buttons. Tapping **Record** will trigger a request for necessary permissions. After the user grants permissions, screen recording starts. During this period, recording can continue even if it exits to the background. The user taps **Stop**, or **Stop** in the screen capsule at the top left, to stop video recording. After recording is complete, the page refreshes to display the recorded file. With a tap on **Play**, it starts to play in the playback area.
 
-#### Contribution
+### Project Structure**
 
-1.  Fork the repository
-2.  Create Feat_xxx branch
-3.  Commit your code
-4.  Create Pull Request
+```
+├──entry/src/main/cpp                   // C++ code area. 
+│  ├──CAVScreenCaptureToFile            // Recording the video to the file module using C/C++. 
+│  │  ├──CAVScreenCaptureToFile.cpp 
+│  │  └──CAVScreenCaptureToFile.h       
+│  ├──CAVScreenCaptureToStream          // Recording and transcoding stream module using C/C++. 
+│  │  ├──AudioCapturer.cpp              // Audio recording file. 
+│  │  ├──AudioCapturer.h 
+│  │  ├──AudioEncoder.cpp               // Audio encoder file. 
+│  │  ├──AudioEncoder.h 
+│  │  ├──CAVScreenCaptureToStream.cpp   // Recording and transcoding stream. 
+│  │  ├──CAVScreenCaptureToStream.h 
+│  │  ├──Muxer.cpp                      // Multiplexer file. 
+│  │  ├──Muxer.h 
+│  │  ├──SampleInfo.h                   // Custom data type. 
+│  │  ├──VideoEncoder.cpp               // Video encoder file. 
+│  │  └──VideoEncoder.h     
+│  ├──types 
+│  │  └──libentry                       // C++ APIs. 
+│  │     ├──Index.d.ts                 
+│  │     └──oh-package.json5            
+│  ├──CMakeLists.txt                    // CMake configuration file. 
+│  └──napi_init.cpp                     // Native-side code entry. 
+├──entry/src/main/ets                   // ArkTS code area. 
+│  ├──entryability         
+│  │  └──EntryAbility.ets                                 
+│  ├──entrybackupability  
+│  │  └──EntryBackupAbility.ets    
+│  ├──common 
+│  │  ├──constants                      // Constant definitions. 
+│  │  │  └──CommonConstants.ets         
+│  │  └──utils                          // Video time conversion utilities. 
+│  │     └──TimeUtils.ets          
+│  ├──model                 
+│  │  └──MyAVScreenCapture.ets          // Module for screen recording to files using ArkTS. 
+│  └──pages                             // ArkTS side pages. 
+│     ├──ArkTSAVScreenCapture.ets       // Page for screen recording to files using ArkTS. 
+│     ├──CAVScreenCaptureToFile.ets     // Page for screen recording to files using C/C++. 
+│     ├──CAVScreenCaptureToStream.ets   // Page for recording and transcoding streams using C/C++. 
+│     └──Index.ets                      // Home page. 
+└──entry/src/main/resources             // Application resource files.
+```
 
+### Required Permissions
 
-#### Gitee Feature
+1. **ohos.permission.KEEP_BACKGROUND_RUNNING**: required for background continuous task permission.
 
-1.  You can use Readme\_XXX.md to support different languages, such as Readme\_en.md, Readme\_zh.md
-2.  Gitee blog [blog.gitee.com](https://blog.gitee.com)
-3.  Explore open source project [https://gitee.com/explore](https://gitee.com/explore)
-4.  The most valuable open source project [GVP](https://gitee.com/gvp)
-5.  The manual of Gitee [https://gitee.com/help](https://gitee.com/help)
-6.  The most popular members  [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+2. **ohos.permission.MICROPHONE**: required for microphone permission.
+
+### References
+
+N/A
+
+### Restrictions
+
+1. This sample is only supported on Huawei phones running standard systems.
+2. The HarmonyOS version must be HarmonyOS 5.1.0 Release or later.
+3. The DevEco Studio version must be DevEco Studio 5.1.0 Release or later.
+4. The HarmonyOS SDK version must be HarmonyOS 5.1.0 Release SDK or later.

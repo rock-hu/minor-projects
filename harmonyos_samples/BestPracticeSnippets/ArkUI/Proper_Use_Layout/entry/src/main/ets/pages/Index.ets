@@ -12,27 +12,48 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Entry
 @Component
 struct Index {
-  @State message: string = 'Hello World';
-
   build() {
-    RelativeContainer() {
-      Text(this.message)
-        .id('HelloWorld')
-        .fontSize($r('app.float.page_text_font_size'))
-        .fontWeight(FontWeight.Bold)
-        .alignRules({
-          center: { anchor: '__container__', align: VerticalAlign.Center },
-          middle: { anchor: '__container__', align: HorizontalAlign.Center }
-        })
+    Column({ space: 15 }) {
+      Button('to segment2')
+        .width('100%')
         .onClick(() => {
-          this.message = 'Welcome';
+          this.getUIContext()
+            .getRouter()
+            .pushUrl({
+              url: 'segment/segment2'
+            })
+            .then(() => {
+              hilog.info(0x000, 'testTag', `pushUrl succeed.`);
+            })
+            .catch((err: BusinessError) => {
+              hilog.warn(0x000, 'testTag', `pushUrl failed. code=${err.code}, message=${err.message}`);
+            })
+        })
+      Button('to segment3')
+        .width('100%')
+        .onClick(() => {
+          this.getUIContext()
+            .getRouter()
+            .pushUrl({
+              url: 'segment/segment3'
+            })
+            .then(() => {
+              hilog.info(0x000, 'testTag', `pushUrl succeed.`);
+            })
+            .catch((err: BusinessError) => {
+              hilog.warn(0x000, 'testTag', `pushUrl failed. code=${err.code}, message=${err.message}`);
+            })
         })
     }
     .height('100%')
     .width('100%')
+    .justifyContent(FlexAlign.End)
+    .padding({ left: 12, right: 12, bottom: 15 })
   }
 }

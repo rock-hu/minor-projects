@@ -50,31 +50,42 @@ export struct CAVScreenCaptureToStream {
     // [EndExclude create_file_fd2]
     this.filepath = this.getUIContext().getHostContext()?.filesDir + '/' + this.tmpFileNameThree;
     hilog.info(0xFF00, CommonConstants.LOG_TAG, 'filepath uri: %{public}s', this.filepath);
+    try {
+      // 获取文件信息
+      this.file = fs.openSync(this.filepath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
 
-    // 获取文件信息
-    this.file = fs.openSync(this.filepath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
+      // [StartExclude create_file_fd2]
+      avScreenCapture.setStopCallbackToStream(this.StopCallback);
+      // [EndExclude create_file_fd2]
 
-    // [StartExclude create_file_fd2]
-    avScreenCapture.setStopCallbackToStream(this.StopCallback);
-    // [EndExclude create_file_fd2]
+      // 调用native方法开启录制并传递fd、宽高
+      avScreenCapture.startScreenCaptureToStream(this.file.fd, this.displayInfo.width, this.displayInfo.height)
 
-    // 调用native方法开启录制并传递fd、宽高
-    avScreenCapture.startScreenCaptureToStream(this.file.fd, this.displayInfo.width, this.displayInfo.height)
-
-    // [StartExclude create_file_fd2]
-    this.videoSrc = 'file://' + this.filepath;
-    AppStorage.setOrCreate('videoSrcThree', this.videoSrc);
-    // [EndExclude create_file_fd2]
+      // [StartExclude create_file_fd2]
+      this.videoSrc = 'file://' + this.filepath;
+      AppStorage.setOrCreate('videoSrcThree', this.videoSrc);
+      // [EndExclude create_file_fd2]
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'testTag', `startScreenCaptureToStream fail. code = ${err.code}, message = ${err.message}`);
+    }
   }
+
   // [End create_file_fd2]
 
   // [Start release_fd2]
   async releaseFD() {
     if (this.file?.fd != undefined && this.file.fd?.valueOf() > 0) {
       // 关闭文件
-      fs.close(this.file.fd);
+      try {
+        fs.close(this.file.fd);
+      } catch (error) {
+        let err = error as BusinessError;
+        hilog.error(0x0000, 'testTag', `close fail. code = ${err.code}, message = ${err.message}`);
+      }
     }
   }
+
   // [End release_fd2]
 
   build() {

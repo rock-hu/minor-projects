@@ -39,18 +39,6 @@ export default class EntryAbility extends UIAbility {
     hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onWindowStageCreate');
 
     let path = 'pages/Index';
-    path = 'pages/ForceShowOnTopLeftPage';
-    path = 'pages/MergeDoubleWaterFlowPage';
-    path = 'pages/ZoomChangeColumnPage';
-    path = 'pages/FlowItemAutoPlayPage';
-    path = 'pages/StickOnTopPage';
-    path = 'pages/SectionOptionsUsePage';
-    path = 'pages/DataUpadteAndAnimationPage';
-    path = 'pages/FadingEdgePage';
-    path = 'pages/ElementByOrderPage'
-    path = 'pages/DataLoadMorePage';
-    path = 'pages/FlowItemRmoveAnimationPage';
-
     windowStage.loadContent(path, (err) => {
       if (err.code) {
         hilog.error(DOMAIN, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err));

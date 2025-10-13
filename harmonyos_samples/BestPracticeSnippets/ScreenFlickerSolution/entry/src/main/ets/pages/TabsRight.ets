@@ -105,11 +105,11 @@ struct TabsRight {
         this.startAnimateTo(this.animationDuration, this.textInfos[targetIndex][0], this.textInfos[targetIndex][1]);
       })
       .onAnimationEnd((index: number, event: TabsAnimationEvent) => {
-        let currentIndicatorInfo = this.getCurrentIndicatorInfo(index, event);
+        let currentIndicatorInfo: Record<string, number> = this.getCurrentIndicatorInfo(index, event);
         this.startAnimateTo(0, currentIndicatorInfo.left, currentIndicatorInfo.width);
       })
       .onGestureSwipe((index: number, event: TabsAnimationEvent) => {
-        let currentIndicatorInfo = this.getCurrentIndicatorInfo(index, event);
+        let currentIndicatorInfo: Record<string, number> = this.getCurrentIndicatorInfo(index, event);
         this.currentIndex = currentIndicatorInfo.index;
         this.indicatorLeftMargin = currentIndicatorInfo.left;
         this.indicatorWidth = currentIndicatorInfo.width;
@@ -135,13 +135,13 @@ struct TabsRight {
       nextIndex++;
     }
 
-    let indexInfo = this.textInfos[index];
-    let nextIndexInfo = this.textInfos[nextIndex];
-    let swipeRatio = Math.abs(event.currentOffset / this.tabsWidth);
-    let currentIndex = swipeRatio > 0.5 ? nextIndex :
+    let indexInfo: [number, number] = this.textInfos[index];
+    let nextIndexInfo: [number, number] = this.textInfos[nextIndex];
+    let swipeRatio: number = Math.abs(event.currentOffset / this.tabsWidth);
+    let currentIndex: number = swipeRatio > 0.5 ? nextIndex :
       index; // The page slides more than halfway and the tabBar switches to the next page.
-    let currentLeft = indexInfo[0] + (nextIndexInfo[0] - indexInfo[0]) * swipeRatio;
-    let currentWidth = indexInfo[1] + (nextIndexInfo[1] - indexInfo[1]) * swipeRatio;
+    let currentLeft: number = indexInfo[0] + (nextIndexInfo[0] - indexInfo[0]) * swipeRatio;
+    let currentWidth: number = indexInfo[1] + (nextIndexInfo[1] - indexInfo[1]) * swipeRatio;
     return { 'index': currentIndex, 'left': currentLeft, 'width': currentWidth };
   }
 

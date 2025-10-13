@@ -37,7 +37,7 @@ struct PullToRefreshError {
   @State loadText: ResourceStr = '';
   private context: common.UIAbilityContext = this.getUIContext().getHostContext() as common.UIAbilityContext;
 
-  aboutToAppear() {
+  aboutToAppear(): void {
     const arrayModelMockData: Array<NewsData> = getNews('mockDataOne.json', this.context);
     this.newsData = arrayModelMockData;
   }
@@ -89,7 +89,7 @@ struct PullToRefreshError {
                   newsModelMockData = getNews('mockDataOne.json', this.context);
                 }
                 this.mockFlag = !this.mockFlag;
-                const array = this.newsData.slice();
+                const array: NewsData[] = this.newsData.slice();
                 array.push(...newsModelMockData);
                 this.newsData = array;
                 // Page number to zero
@@ -352,16 +352,16 @@ class JsonObject {
       hilog.warn(0x000, 'testTag', `setColorMode failed, code=${err.code}, message=${err.message}`);
     }
     // Decode to utf-8 format
-    const textDecoder = util.TextDecoder.create('utf-8', {
+    const textDecoder: util.TextDecoder = util.TextDecoder.create('utf-8', {
       ignoreBOM: true
     });
-    const textDecoderResult = textDecoder.decodeToString(new Uint8Array(value!.buffer));
+    const textDecoderResult: string = textDecoder.decodeToString(new Uint8Array(value!.buffer));
     const jsonObj: JsonObjType = JSON.parse(textDecoderResult) as JsonObjType;
     const newsModelBuckets: Array<NewsData> = [];
     // Map json data to NewsModel objects
-    const newsModelObj = jsonObj.newsList;
+    const newsModelObj: NewsData[] = jsonObj.newsList;
     for (let i = 0; i < newsModelObj.length; i++) {
-      const contactTemp = new NewsData(newsModelObj[i].newsId, newsModelObj[i].newsTitle,
+      const contactTemp: NewsData = new NewsData(newsModelObj[i].newsId, newsModelObj[i].newsTitle,
         newsModelObj[i].newsContent, newsModelObj[i].newsTime, newsModelObj[i].img);
       newsModelBuckets.push(contactTemp);
     }

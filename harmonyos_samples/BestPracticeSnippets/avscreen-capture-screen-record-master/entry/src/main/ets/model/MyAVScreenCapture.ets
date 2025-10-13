@@ -14,7 +14,7 @@
  */
 import { media } from '@kit.MediaKit';
 import { fileIo as fs } from '@kit.CoreFileKit';
-import { systemDateTime } from '@kit.BasicServicesKit';
+import { systemDateTime, BusinessError } from '@kit.BasicServicesKit';
 import { display } from '@kit.ArkUI';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { CommonConstants } from '../common/constants/CommonConstants';
@@ -28,14 +28,19 @@ export class MyAVScreenCapture {
   private file: fs.File | null = null;
   private displayInfo: display.Display = AppStorage.get('displayInfo') as display.Display;
 
-
   // 开始屏幕录制
   public async startRecording(filesDir: string) {
     // [Start create_record]
     // 获取fd
     this.updateFileFd(filesDir);
     // 实例化对象
-    this.screenCapture = await media.createAVScreenCaptureRecorder();
+    try {
+      this.screenCapture = await media.createAVScreenCaptureRecorder();
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'testTag',
+        `createAVScreenCaptureRecorder fail. code = ${err.code}, message = ${err.message}`);
+    }
     if (this.screenCapture != undefined) {
       hilog.info(0xFF00, CommonConstants.LOG_TAG, 'ScreenCapture has been created successfully.');
     } else {
@@ -113,15 +118,20 @@ export class MyAVScreenCapture {
       displayId: 0,
     };
     // [End set_config]
+    try {
+      // [Start init_config]
+      await this.screenCapture?.init(captureConfig);
+      // [End init_config]
 
-    // [Start init_config]
-    await this.screenCapture?.init(captureConfig);
-    // [End init_config]
-
-    // [Start start_record]
-    await this.screenCapture?.startRecording();
-    // [End start_record]
+      // [Start start_record]
+      await this.screenCapture?.startRecording();
+      // [End start_record]
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'testTag', `start fail. code = ${err.code}, message = ${err.message}`);
+    }
   }
+
   // [Start stop_record]
   // 停止录屏
   public async stopRecording() {
@@ -129,14 +139,21 @@ export class MyAVScreenCapture {
       hilog.info(0xFF00, CommonConstants.LOG_TAG, 'ScreenCapture exception.');
       return;
     }
-    await this.screenCapture?.stopRecording();
 
-    // 调用release()方法来销毁实例并释放资源
-    await this.screenCapture?.release();
+    try {
+      await this.screenCapture?.stopRecording();
 
-    // 关闭文件
-    fs.close((this.file as fs.File).fd);
+      // 调用release()方法来销毁实例并释放资源
+      await this.screenCapture?.release();
+
+      // 关闭文件
+      fs.close((this.file as fs.File).fd);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'testTag', `stop fail. code = ${err.code}, message = ${err.message}`);
+    }
   }
+
   // [End stop_record]
 
   // [Start get_file_fd]
@@ -144,8 +161,14 @@ export class MyAVScreenCapture {
     // 获取文件fd
     this.fileName = systemDateTime.getTime(true).toString() + '.mp4';
     this.path = filesDir + '/' + this.fileName;
-    this.file = fs.openSync(this.path, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
+    try {
+      this.file = fs.openSync(this.path, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'testTag', `openSync fail. code = ${err.code}, message = ${err.message}`);
+    }
   }
+
   // [End get_file_fd]
 
   public getPath(): string {

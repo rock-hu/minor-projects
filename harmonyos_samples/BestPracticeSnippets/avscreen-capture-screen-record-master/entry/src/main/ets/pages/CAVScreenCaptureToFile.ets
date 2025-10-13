@@ -51,29 +51,41 @@ export struct CAVScreenCaptureToFile {
     this.filepath = this.getUIContext().getHostContext()?.filesDir + '/' + this.tmpFileNameTwo;
     hilog.info(0xFF00, CommonConstants.LOG_TAG, 'filepath uri: %{public}s', this.filepath);
 
-    // 获取文件信息
-    this.file = fs.openSync(this.filepath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
-    // [StartExclude create_file_fd1]
-    avScreenCapture.setStopCallbackToFile(this.StopCallback);
-    // [EndExclude create_file_fd1]
+    try {
+      // 获取文件信息
+      this.file = fs.openSync(this.filepath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
+      // [StartExclude create_file_fd1]
+      avScreenCapture.setStopCallbackToFile(this.StopCallback);
+      // [EndExclude create_file_fd1]
 
-    // 调用native方法开启录制并传递fd、宽高
-    avScreenCapture.startScreenCaptureToFile(this.file.fd, this.displayInfo.width, this.displayInfo.height);
+      // 调用native方法开启录制并传递fd、宽高
+      avScreenCapture.startScreenCaptureToFile(this.file.fd, this.displayInfo.width, this.displayInfo.height);
 
-    // [StartExclude create_file_fd1]
-    this.videoSrc = 'file://' + this.filepath;
-    AppStorage.setOrCreate('videoSrcTwo', this.videoSrc);
-    // [EndExclude create_file_fd1]
+      // [StartExclude create_file_fd1]
+      this.videoSrc = 'file://' + this.filepath;
+      AppStorage.setOrCreate('videoSrcTwo', this.videoSrc);
+      // [EndExclude create_file_fd1]
+    } catch (error) {
+      let err = error as BusinessError;
+      hilog.error(0x0000, 'testTag', `startScreenCaptureToFile fail. code = ${err.code}, message = ${err.message}`);
+    }
   }
+
   // [End create_file_fd1]
 
   // [Start release_fd1]
   async releaseFD() {
     if (this.file?.fd != undefined && this.file.fd?.valueOf() > 0) {
       // 关闭文件
-      fs.close(this.file.fd);
+      try {
+        fs.close(this.file.fd);
+      } catch (error) {
+        let err = error as BusinessError;
+        hilog.error(0x0000, 'testTag', `close fail. code = ${err.code}, message = ${err.message}`);
+      }
     }
   }
+
   // [End release_fd1]
 
 
