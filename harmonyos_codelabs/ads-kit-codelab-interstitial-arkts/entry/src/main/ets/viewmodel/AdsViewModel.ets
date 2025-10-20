@@ -24,18 +24,7 @@ const TAG: string = 'Ads Demo-AdsViewModel';
 
 export class AdsViewModel {
   // Ad configuration.
-  adOptions: advertising.AdOptions = {
-    // Whether you want your ad content to be treated as child-directed according to the regulations of COPPA.
-    tagForChildProtection: -1,
-    // Maximum ad content rating.
-    adContentClassification: 'A',
-    // Whether to request non-personalized ads.
-    nonPersonalizedAd: 0,
-    // Whether to allow ad asset download through mobile data.
-    allowMobileTraffic: 0,
-    // Whether you want the ad request to be processed in a way that is suitable for users in the European Economic Area (EEA) who are below the legal age of consent.
-    tagForUnderAgeOfPromise: -1
-  };
+  adOptions: advertising.AdOptions = {};
 
   // Ad display parameters.
   adDisplayOptions: advertising.AdDisplayOptions = {
@@ -60,16 +49,24 @@ export class AdsViewModel {
         if (ads[0]?.adType === 12) {
           // Register a status listener for rewarded ads to monitor their playback status.
           new InterstitialAdStatusHandler().registerPPSReceiver();
-          // Call the API for displaying ads.
-          advertising.showAd(ads[0], this.adDisplayOptions, this.context);
+          try {
+            // Call the API for displaying ads.
+            advertising.showAd(ads[0], this.adDisplayOptions, this.context);
+          } catch (e) {
+            hilog.error(0x0000, 'testTag', `Failed to show ad. Code is ${e.code}, message is ${e.message}`);
+          }
           return;
         }
       }
     };
     // Create an AdLoader ad object.
     const adLoader: advertising.AdLoader = new advertising.AdLoader(this.context);
-    // Call the API for requesting ads.
-    adLoader.loadAd(adRequestParams, this.adOptions, adLoadListener);
+    try {
+      // Call the API for requesting ads.
+      adLoader.loadAd(adRequestParams, this.adOptions, adLoadListener);
+    } catch (e) {
+      hilog.error(0x0000, 'testTag', `Failed to load ad. Code is ${e.code}, message is ${e.message}`);
+    }
   }
 }
 // [End sampleCode]

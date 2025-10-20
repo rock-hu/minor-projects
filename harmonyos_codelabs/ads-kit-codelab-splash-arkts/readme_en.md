@@ -21,7 +21,7 @@ Before running this demo, you need to [configure app signing information](https:
 ## Preview
 
 | Page of the full-screen splash video ad                | Page of the half-screen splash image ad                   |
-|--------------------------------------------------------|-----------------------------------------------------------|
+| ------------------------------------------------------ | --------------------------------------------------------- |
 | ![avatar](./screenshots/device_en/splash_video_en.png) | ![avatar](./screenshots/device_en/splash_pictures_en.png) |
 
 ## Project Directory
@@ -63,6 +63,7 @@ The sample code includes the following files for you to request and display ads:
 ## Required Permissions
 
 - To obtain the OAID, you need to request the activity tracking permission [ohos.permission.APP_TRACKING_CONSENT](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/permissions-for-all-user#ohospermissionapp_tracking_consent).
+- To request and display ads, you need to request the Internet permission [ohos.permission.INTERNET](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/permissions-for-all#ohospermissioninternet).
 
 ## Constraints
 

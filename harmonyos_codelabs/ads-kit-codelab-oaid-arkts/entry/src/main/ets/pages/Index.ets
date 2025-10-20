@@ -14,169 +14,101 @@
  */
 
 // [Start sampleCode]
-import { BusinessError } from '@kit.BasicServicesKit';
+import { abilityAccessCtrl, common, PermissionRequestResult } from '@kit.AbilityKit';
 import { identifier } from '@kit.AdsKit';
-import { abilityAccessCtrl, common } from '@kit.AbilityKit';
+import { ButtonModifier } from '@kit.ArkUI';
+import { BusinessError } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Entry
-@Component
+@ComponentV2
 struct Index {
-  // Obtained OAID.
-  @State oaid: string = '';
+  @Local oaid: string = '';
   private context: common.UIAbilityContext = this.getUIContext().getHostContext() as common.UIAbilityContext;
+  private buttonModifier: ButtonModifier = new ButtonModifier()
+    .fontSize(20)
+    .fontWeight(FontWeight.Normal)
+    .width('90%')
+    .margin({ top: 10, bottom: 10 });
 
-  aboutToAppear() {
-    this.requestOAIDTrackingConsentPermissions(this.context);
-  }
-
-  requestOAIDTrackingConsentPermissions(context: common.Context): void {
-    // Request Activity tracking for this app from users when they access a page.
-    const atManager: abilityAccessCtrl.AtManager = abilityAccessCtrl.createAtManager();
-    try {
-      atManager.requestPermissionsFromUser(context, ['ohos.permission.APP_TRACKING_CONSENT']).then((data) => {
-        if (data.authResults[0] === 0) {
-          hilog.info(0x0000, 'testTag', '%{public}s', 'succeeded in requesting permission');
-        } else {
-          hilog.info(0x0000, 'testTag', '%{public}s', 'user rejected');
-        }
-      }).catch((err: BusinessError) => {
-        hilog.error(0x0000, 'testTag', '%{public}s', `request permission failed, error: ${err.code} ${err.message}`);
-      })
-    } catch (err) {
-      hilog.error(0x0000, 'testTag', '%{public}s', `catch err->${err.code}, ${err.message}`);
-    }
+  aboutToAppear(): void {
+    requestAppTrackingConsentPermission(this.context);
   }
 
   build() {
-    Column() {
-      this.actionBar($r('app.string.oaid_title'))
+    Navigation() {
       Column() {
-        // Display area for the obtained OAID.
-        FormItemText({
-          label: $r('app.string.oaid_label'),
-          value: $oaid,
-          compId: 'hiad_demo_oaid_textArea'
-        }).width('90%')
+        Row() {
+          Text($r('app.string.oaid_label'))
+            .fontSize(20)
+          Text(this.oaid)
+            .fontSize(14)
+            .height(40)
+            .borderRadius(20)
+            .backgroundColor($r('sys.color.background_secondary'))
+            .textAlign(TextAlign.Center)
+            .layoutWeight(1)
+            .margin({ left: 5 })
+            .copyOption(CopyOptions.InApp)
+        }
+        .justifyContent(FlexAlign.Start)
+        .alignItems(VerticalAlign.Center)
+        .width('90%')
+        .height(50)
 
-        // 1. Obtain the OAID through a promise.
-        this.customButton($r('app.string.oaid_btn_promise'), () => {
-          this.getOaidByPromise();
-        });
+        Button($r('app.string.oaid_btn_promise'))
+          .attributeModifier(this.buttonModifier)
+          .onClick(() => this.getOaidByPromise())
 
-        // 2. Obtain the OAID through an asynchronous callback.
-        this.customButton($r('app.string.oaid_btn_asynccallback'), () => {
-          this.getOaidByCallback();
-        });
+        Button($r('app.string.oaid_btn_asynccallback'))
+          .attributeModifier(this.buttonModifier)
+          .onClick(() => this.getOaidByCallback())
       }
       .width('100%')
-      .height('80%')
+      .height('100%')
       .justifyContent(FlexAlign.Center)
     }
-    .width('100%')
-    .height('100%')
+    .title($r('app.string.oaid_title'))
+    .titleMode(NavigationTitleMode.Mini)
+    .mode(NavigationMode.Stack)
+    .hideBackButton(true)
   }
 
-  private getOaidByPromise() {
-    try {
-      // Obtain the OAID.
-      identifier.getOAID().then((data: string) => {
+  private getOaidByPromise(): void {
+    identifier.getOAID().then((data: string) => {
+      this.oaid = data;
+      hilog.info(0x0000, 'testTag', 'Succeeded in getting oaid by promise');
+    }).catch((e: BusinessError) => {
+      hilog.error(0x0000, 'testTag', `Failed to get oaid by promise. Code is ${e.code}, message is ${e.message}`);
+    });
+  }
+
+  private getOaidByCallback(): void {
+    identifier.getOAID((e: BusinessError, data: string) => {
+      if (e.code) {
+        hilog.error(0x0000, 'testTag', `Failed to get oaid by callback. Code is ${e.code}, message is ${e.message}`);
+      } else {
         this.oaid = data;
-        hilog.info(0x0000, 'testTag', '%{public}s', 'succeeded in getting adsIdentifierInfo by promise');
-      }).catch((err: BusinessError) => {
-        hilog.error(0x0000, 'testTag', '%{public}s',
-          `getAdsIdentifierInfo failed, message: ${(err as BusinessError).message}`);
-      })
-    } catch (err) {
-      hilog.error(0x0000, 'testTag', '%{public}s', `get oaid by callback catch error: ${err.code} ${err.message}`);
-    }
-  }
-
-  private getOaidByCallback() {
-    try {
-      identifier.getOAID((err: BusinessError, data: string) => {
-        if (err.code) {
-          hilog.error(0x0000, 'testTag', '%{public}s', `getAdsIdentifierInfo failed, message: ${err.message}`);
-        } else {
-          this.oaid = data;
-          hilog.info(0x0000, 'testTag', '%{public}s', 'succeeded in getting OaidFromOaidSaAPi by callback');
-        }
-      });
-    } catch (err) {
-      hilog.error(0x0000, 'testTag', '%{public}s', `get oaid by callback catch error: ${err.code} ${err.message}`);
-    }
-  }
-
-  @Builder
-  actionBar(title: Resource | string) {
-    Row() {
-      if (title) {
-        Text(title)
-          .fontSize(24)
-          .fontColor(Color.White)
-          .fontWeight(FontWeight.Medium)
-          .margin({ left: 16 })
+        hilog.info(0x0000, 'testTag', 'Succeeded in getting oaid by callback');
       }
-    }
-    .width('100%')
-    .height('10%')
-    .padding({
-      top: 16,
-      bottom: 16,
-      left: 24,
-      right: 24
-    })
-    .backgroundColor(Color.Black)
-  }
-
-  @Builder
-  customButton(mText: string | Resource, mOnClick: (event?: ClickEvent) => void) {
-    Column() {
-      Button(mText)
-        .backgroundColor($r('app.color.custom_button_background_color'))
-        .fontSize(20)
-        .fontColor($r('app.color.custom_button_font_color'))
-        .fontWeight(FontWeight.Normal)
-        .align(Alignment.Center)
-        .type(ButtonType.Capsule)
-        .width('90%')
-        .height(40)
-        .margin({ top: 10, bottom: 5 })
-        .onClick(mOnClick);
-    }
+    });
   }
 }
 
-@Component
-export struct FormItemText {
-  @Link @Watch('WatchValueChange') value: string | boolean;
-  label: Resource | string = '';
-  compId: string = '';
-
-  WatchValueChange() {
-    hilog.debug(0x0000, 'testTag', '%{public}s', `WatchValueChange value: ${this.value}`);
+async function requestAppTrackingConsentPermission(context: Context): Promise<void> {
+  let isPermissionGranted: boolean = false;
+  try {
+    const atManager: abilityAccessCtrl.AtManager = abilityAccessCtrl.createAtManager();
+    const result: PermissionRequestResult =
+      await atManager.requestPermissionsFromUser(context, ['ohos.permission.APP_TRACKING_CONSENT']);
+    isPermissionGranted = result.authResults[0] === abilityAccessCtrl.GrantStatus.PERMISSION_GRANTED;
+  } catch (err) {
+    hilog.error(0x0000, 'testTag', `Failed to request permission. Code is ${err.code}, message is ${err.message}`);
   }
-
-  build() {
-    Row() {
-      Text(this.label)
-        .fontSize(20)
-        .fontColor($r('app.color.form_item_text_font_color'))
-      Text(this.value + '')
-        .height(40)
-        .borderRadius(20)
-        .fontSize(14)
-        .backgroundColor($r('app.color.form_item_text_background_color'))
-        .textAlign(TextAlign.Center)
-        .layoutWeight(1)
-        .margin({ left: 5 })
-        .copyOption(CopyOptions.InApp)
-        .id(this.compId)
-    }
-    .justifyContent(FlexAlign.Start)
-    .alignItems(VerticalAlign.Center)
-    .width('100%')
-    .height(50)
+  if (isPermissionGranted) {
+    hilog.info(0x0000, 'testTag', 'Succeeded in requesting permission');
+  } else {
+    hilog.error(0x0000, 'testTag', 'Failed to request permission. User rejected');
   }
 }
 // [End sampleCode]

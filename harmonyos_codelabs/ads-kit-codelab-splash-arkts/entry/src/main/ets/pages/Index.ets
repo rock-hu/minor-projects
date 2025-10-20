@@ -18,6 +18,7 @@
 import { abilityAccessCtrl, common, PermissionRequestResult } from '@kit.AbilityKit';
 import { advertising, identifier } from '@kit.AdsKit';
 import { AppStorageV2 } from '@kit.ArkUI';
+import { BusinessError } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const TAG: string = 'Ads Demo-Index';
@@ -68,6 +69,8 @@ struct Index {
                 params: {
                   adRequestParams: repeatItem.item.adRequestParams
                 }
+              }).catch((e: BusinessError) => {
+                hilog.error(0x0000, TAG, `Failed to route to splash. Code is ${e.code}, message is ${e.message}`);
               });
             })
         })

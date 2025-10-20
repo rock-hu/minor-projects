@@ -41,10 +41,6 @@ export class InterstitialAdStatusHandler {
         }
         hilog.info(0x0000, TAG, 'Succeeded in creating subscriber');
         this.subscriber = commonEventSubscriber;
-        if (!this.subscriber) {
-          hilog.warn(0x0000, TAG, 'Need to create subscriber');
-          return;
-        }
         commonEventManager.subscribe(this.subscriber,
           (err: BusinessError, commonEventData: commonEventManager.CommonEventData) => {
             if (err) {

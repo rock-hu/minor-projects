@@ -15,9 +15,9 @@
  */
 
 // [Start sampleCode]
+import { common } from '@kit.AbilityKit';
 import { AdComponent, advertising } from '@kit.AdsKit';
 import { window } from '@kit.ArkUI';
-import { BusinessError } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { AdsViewModel } from '../viewmodel/AdsViewModel';
 
@@ -27,25 +27,22 @@ const TAG: string = 'Ads Demo-SplashAdPage';
 @ComponentV2
 struct SplashAdPage {
   private viewModel: AdsViewModel = new AdsViewModel(this.getUIContext());
+  private context: common.UIAbilityContext = this.getUIContext().getHostContext() as common.UIAbilityContext;
 
   aboutToAppear() {
-    window.getLastWindow(this.getUIContext().getHostContext(), (err: BusinessError, win: window.Window) => {
-      // Enable the full-screen immersive mode.
-      win.setWindowLayoutFullScreen(true);
-      // Set the screen to portrait.
-      win.setPreferredOrientation(window.Orientation.PORTRAIT);
-    });
+    // Enable the full-screen immersive mode.
+    this.setWindowLayoutFullScreen(true);
+    // Set the screen to portrait.
+    this.setWindowPreferredOrientation(window.Orientation.PORTRAIT);
     const adRequestParams: advertising.AdRequestParams = this.viewModel.getParamsFromRouter();
     this.viewModel.loadAd(adRequestParams);
   }
 
   aboutToDisappear() {
-    window.getLastWindow(this.getUIContext().getHostContext(), (err: BusinessError, win: window.Window) => {
-      // Disable the full-screen mode. Set the mode based on your needs.
-      win.setWindowLayoutFullScreen(false);
-      // Set screen orientation to the default value. You can change the value based on the actual situation.
-      win.setPreferredOrientation(window.Orientation.UNSPECIFIED);
-    });
+    // Disable the full-screen mode. Set the mode based on your needs.
+    this.setWindowLayoutFullScreen(false);
+    // Set screen orientation to the default value. You can change the value based on the actual situation.
+    this.setWindowPreferredOrientation(window.Orientation.UNSPECIFIED);
   }
 
   build() {
@@ -109,6 +106,10 @@ struct SplashAdPage {
               hilog.info(0x0000, TAG, 'Status is onAdClose');
               this.viewModel.routeToHome();
               break;
+            case 'onAdFail':
+              hilog.info(0x0000, TAG, 'Status is onAdFail');
+              this.viewModel.routeToHome();
+              break;
           }
         }
       }
@@ -139,6 +140,10 @@ struct SplashAdPage {
               hilog.info(0x0000, TAG, 'Status is onAdClose');
               this.viewModel.routeToHome();
               break;
+            case 'onAdFail':
+              hilog.info(0x0000, TAG, 'Status is onAdFail');
+              this.viewModel.routeToHome();
+              break;
           }
         }
       }
@@ -146,6 +151,24 @@ struct SplashAdPage {
       .zIndex(1)
       .width('100%')
       .height('100%')
+  }
+
+  private async setWindowLayoutFullScreen(isLayoutFullScreen: boolean): Promise<void> {
+    try {
+      const win: window.Window = await window.getLastWindow(this.context);
+      await win.setWindowLayoutFullScreen(isLayoutFullScreen);
+    } catch (e) {
+      hilog.error(0x0000, 'testTag', `Failed to set window layout. Code is ${e.code}, message is ${e.message}`);
+    }
+  }
+
+  private async setWindowPreferredOrientation(orientation: Orientation): Promise<void> {
+    try {
+      const win: window.Window = await window.getLastWindow(this.context);
+      await win.setPreferredOrientation(orientation);
+    } catch (e) {
+      hilog.error(0x0000, 'testTag', `Failed to set preferred orientation. Code is ${e.code}, message is ${e.message}`);
+    }
   }
 }
 // [End sampleCode]
