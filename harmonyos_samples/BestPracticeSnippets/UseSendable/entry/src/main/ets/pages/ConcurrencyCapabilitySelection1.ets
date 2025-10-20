@@ -20,19 +20,57 @@
 import { BusinessError } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { taskpool } from '@kit.ArkTS';
+
 // [StartExclude taskpool]
 const DOMAIN = 0x0000;
-const TAG = 'ConcurrencyCapabilitySelection2';
+const TAG = 'ConcurrencyCapabilitySelection1';
 const FORMAT = '%{public}s';
+
 // [EndExclude taskpool]
 @Concurrent
 async function foo(a: number, b: number) {
   return a + b;
 }
 
-taskpool.execute(foo, 1, 2).then((ret: Object) => { // Result processing
-  hilog.info(DOMAIN, TAG, FORMAT, 'Return:' + ret);
-}).catch((err: BusinessError) => {
-  hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
-});
+function executeTaskPool() {
+  taskpool.execute(foo, 1, 2).then((ret: Object) => { // Result processing
+    hilog.info(DOMAIN, TAG, FORMAT, 'Return:' + ret);
+  }).catch((err: BusinessError) => {
+    hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
+  });
+}
+
 // [End taskpool]
+
+@Component
+export struct ConcurrencyCapabilitySelection1 {
+  @Styles
+  buttonStyles() {
+    .width('100%')
+    .height(40)
+  }
+
+  build() {
+    NavDestination() {
+      Column() {
+        Button($r('app.string.time_consuming_task_title'))
+          .buttonStyles()
+          .margin({
+            bottom: 16
+          })
+          .onClick(() => {
+            executeTaskPool();
+          })
+      }
+      .width('100%')
+      .height('100%')
+      .justifyContent(FlexAlign.End)
+      .padding({
+        right: 24,
+        bottom: 16,
+        left: 24
+      })
+    }
+    .title($r('app.string.time_consuming_task_title'))
+  }
+}

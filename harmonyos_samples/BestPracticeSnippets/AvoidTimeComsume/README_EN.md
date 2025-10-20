@@ -3,8 +3,6 @@
 In application development practices, it is important to effectively prevent the main thread from performing redundant and time-consuming operations. This can effectively reduce the load of the main thread and speed up the UI response. In scenarios where high-frequency callbacks are frequently triggered in a short period of time, time-consuming operations in the APIs need to be avoided to ensure that the main thread is not occupied for a long time. This prevents UI rendering from being blocked to avoid frame freezing or frame loss.
 This sample describes common redundant operations, common high-frequency callback scenarios, and other main thread optimization methods during development.
 
-## Preview
-![](screenshots/output-15_16_3.gif)
 ## Project Directory
 ``` 
 ├──entry/src/main/ets                                   // Code
@@ -61,3 +59,14 @@ N/A
 * The DevEco Studio version must be DevEco Studio 5.0.5 Release or later.
 
 * The HarmonyOS SDK version must be HarmonyOS 5.0.5 Release SDK or later.
+
+## Download
+
+To download this project separately, execute the following command:
+```
+git init
+git config core.sparsecheckout true
+echo AvoidTimeComsume/ > .git/info/sparse-checkout
+git remote add origin https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+git pull origin master
+```

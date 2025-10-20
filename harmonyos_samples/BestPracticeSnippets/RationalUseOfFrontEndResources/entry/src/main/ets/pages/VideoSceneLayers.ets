@@ -16,7 +16,6 @@
 /**
  * 最佳实践: 视频场景图层低功耗建议
  */
-import { webview } from '@kit.ArkWeb';
 
 @Entry
 @Component

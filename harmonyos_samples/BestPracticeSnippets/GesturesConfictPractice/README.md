@@ -6,8 +6,7 @@
 
 #### 使用说明
 
-1. 修改EntryAbility.ets文件中windowStage.loadContent('pages/Index')方法的参数，为pages目录下的页面。
-2. 安装应用体验pages目录下不同页面的功能。
+安装运行应用，进入应用首页，点击不同的按钮跳转到不同的手势场景示例。
 
 ## 工程目录
 
@@ -28,7 +27,7 @@
 │     ├──GesturesConflictScene6.ets     // 动态控制自定义手势是否响应
 │     ├──GesturesConflictScene7.ets     // 父组件如何管理子组件手势
 │     ├──Index.ets                      // 应用首页
-│     └──TestCode.ets                   // 二级页面“图文列表”UI
+│     └──TestCode.ets                   // Web组件示例
 └──entry/src/main/resources             // 应用资源目录
 ```
 
@@ -42,3 +41,14 @@
 * HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
 * DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
 * HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。
+
+### 下载
+
+如需单独下载本工程，执行如下命令：
+```
+git init
+git config core.sparsecheckout true
+echo GesturesConfictPractice/ > .git/info/sparse-checkout
+git remote add origin https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+git pull origin master
+```

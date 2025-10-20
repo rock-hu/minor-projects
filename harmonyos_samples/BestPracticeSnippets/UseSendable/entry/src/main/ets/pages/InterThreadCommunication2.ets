@@ -17,10 +17,10 @@
 * 最佳实践: 应用并发设计 线程间通信 线程间模块共享（单例模式） （方案一）
 */
 // [Start store]
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import { taskpool } from '@kit.ArkTS';
 import singleton from 'libentry.so';
-import { hilog } from '@kit.PerformanceAnalysisKit';
-import { BusinessError } from '@kit.BasicServicesKit';
 
 // [StartExclude store]
 const DOMAIN = 0x0000;
@@ -49,7 +49,7 @@ export struct InterThreadCommunication2 {
   build() {
     NavDestination() {
       Column() {
-        Button('TestSingleton')
+        Button($r('app.string.singleton_pattern_title'))
           .width('100%')
           .onClick(() => {
             let address = singleton.getAddress();
@@ -80,11 +80,12 @@ export struct InterThreadCommunication2 {
       .alignItems(HorizontalAlign.Center)
       .padding({
         right: 24,
-        bottom: 12,
+        bottom: 32,
         left: 24
       })
       // [EndExclude store]
     }
+    .title($r('app.string.singleton_pattern_title'))
   }
 }
 // [End store]

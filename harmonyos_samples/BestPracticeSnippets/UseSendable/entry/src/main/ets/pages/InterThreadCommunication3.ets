@@ -30,25 +30,50 @@ const FORMAT = '%{public}s';
 function initSingleton(): void {
   let demo = Demo.getInstance();
   demo.init();
+  hilog.info(0x0000, 'InterThreadCommunication3', '%{public}s', `initSingleton success`);
   // Notify the main thread that initialization is complete
 }
 
 async function executeTaskPool(): Promise<void> {
   let task = new taskpool.Task(initSingleton);
-  await taskpool.execute(task).catch((err: BusinessError) => {
+  await taskpool.execute(task).then(() => {
+    hilog.info(0x0000, 'InterThreadCommunication3', '%{public}s', `executeTaskPool success`);
+  }).catch((err: BusinessError) => {
     hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
   });
 }
-
-executeTaskPool();
 // [End initsingleton]
 
 @Component
 export struct InterThreadCommunication3 {
+
+  @Styles
+  buttonStyles() {
+    .width('100%')
+    .height(40)
+  }
+
   build() {
     NavDestination() {
-      Text('Sendable实现线程间模块共享（单例模式）')
-        .margin({ top: 24 })
+      Column() {
+        Button($r('app.string.singleton_solution_two_title'))
+          .buttonStyles()
+          .margin({
+            bottom: 16
+          })
+          .onClick(() => {
+            executeTaskPool();
+          })
+      }
+      .width('100%')
+      .height('100%')
+      .justifyContent(FlexAlign.End)
+      .padding({
+        right: 24,
+        bottom: 16,
+        left: 24
+      })
     }
+    .title($r('app.string.singleton_solution_two_title'))
   }
 }

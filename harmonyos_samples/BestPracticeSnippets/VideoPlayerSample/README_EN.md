@@ -73,3 +73,14 @@ This sample demonstrates how to develop a video app using the AVPlayer and AVSes
 3. The DevEco Studio version must be DevEco Studio 6.0.0 Release or later.
 
 4. The HarmonyOS SDK version must be HarmonyOS 6.0.0 Release SDK or later.
+
+### Download
+
+To download this project separately, execute the following command:
+```
+git init
+git config core.sparsecheckout true
+echo VideoPlayerSample/ > .git/info/sparse-checkout
+git remote add origin https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+git pull origin master
+```

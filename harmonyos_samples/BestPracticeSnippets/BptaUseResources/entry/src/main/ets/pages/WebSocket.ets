@@ -11,7 +11,7 @@ import { BusinessError } from '@kit.BasicServicesKit';
 
 export default class EntryAbility extends UIAbility {
   // Create a websocket based on service requirements
-  ws = webSocket.createWebSocket();
+  ws: webSocket.WebSocket = webSocket.createWebSocket();
 
 
   onForeground(): void {

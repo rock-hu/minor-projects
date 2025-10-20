@@ -1,7 +1,7 @@
 // [Start use_node_controller]
 // Use the Page page of NodeController.
 // Index.ets
-import {createNWeb, getNWeb} from './common';
+import {getNWeb} from './common';
 
 @Entry
 @Component

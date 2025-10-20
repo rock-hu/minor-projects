@@ -30,8 +30,6 @@ function webBuilder(data: Data) {
   }
 }
 
-let wrap = wrapBuilder<Data[]>(webBuilder);
-
 // Used to control and feedback the behavior of nodes on the corresponding NodeContainer, which needs to be used together with NodeContainer
 export class MyNodeController extends NodeController {
   private rootNode: BuilderNode<Data[]> | null = null;
@@ -44,7 +42,7 @@ export class MyNodeController extends NodeController {
     console.info(' uicontext is undefined : ' + (uiContext === undefined));
     try {
       if (this.rootNode != null) {
-        const parent = this.rootNode.getFrameNode()?.getParent();
+        const parent: FrameNode = this.rootNode.getFrameNode()?.getParent() as FrameNode;
         if (parent) {
           console.info(JSON.stringify(parent.getInspectorInfo()));
           parent.removeChild(this.rootNode.getFrameNode());
@@ -63,23 +61,23 @@ export class MyNodeController extends NodeController {
   }
   
   // Callback when layout size changes.
-  aboutToResize(size: Size) {
+  aboutToResize(size: Size): void {
     console.info('aboutToResize width : ' + size.width + ' height : ' + size.height);
   }
 
   // Call back when the NodeContainer corresponding to the controller is in Appear.
-  aboutToAppear() {
+  aboutToAppear(): void {
     console.info('aboutToAppear');
   }
 
   // Call back when the NodeContainer corresponding to the controller is Disappear.
-  aboutToDisappear() {
+  aboutToDisappear(): void {
     console.info('aboutToDisappear');
   }
 
   // This function is a user-defined function and can be used as an initialization function.
   // Initialize builderNode through UIContext, and then initialize the contents in @Builder through the Build interface in BuilderNode.
-  initWeb(url: string, uiContext: UIContext, control: WebviewController) {
+  initWeb(url: string, uiContext: UIContext, control: WebviewController): void {
     if (this.rootNode != null) {
       return;
     }
@@ -88,11 +86,11 @@ export class MyNodeController extends NodeController {
     // Creating a node requires uiContext.
     this.rootNode = new BuilderNode(uiContext);
     // Create dynamic Web components
-    this.rootNode.build(wrap, { url: url, controller: control });
+    this.rootNode.build(wrapBuilder<Data[]>(webBuilder), { url: url, controller: control });
   }
   
   // This function is a user-defined function and can be used as an initialization function.
-  loadUrl(url: string) {
+  loadUrl(url: string): void {
     if (this.rootWebviewController !== null) {
       try {
         // Reuse the pre-created components and reload the url.
@@ -112,8 +110,8 @@ let controllerMap: Map<string, WebviewController | undefined> = new Map();
 // Initialization requires UIContext to be obtained in Ability.
 export const createNWeb = (url: string, uiContext: UIContext) => {
   // Create NodeController
-  let baseNode = new MyNodeController();
-  let controller = new webview.WebviewController();
+  let baseNode: MyNodeController = new MyNodeController();
+  let controller: WebviewController = new webview.WebviewController();
   // Initialize a custom web component
   baseNode.initWeb(url, uiContext, controller);
   controllerMap.set(url, controller);
@@ -125,7 +123,7 @@ export const getNWeb = (url: string): MyNodeController | undefined => {
   // When loading a new Url, it is recommended to reuse pre-created Web components.
   if (!NodeMap.get(url) && NodeMap.get('about://blank')) {
     // Get pre-created Web components
-    let webNode = NodeMap.get('about://blank') as MyNodeController;
+    let webNode: MyNodeController = NodeMap.get('about://blank') as MyNodeController;
     // Reload url
     webNode.loadUrl(url);
     return webNode;

@@ -1,6 +1,5 @@
 // [Start practical_case_two]
 import { webview } from '@kit.ArkWeb';
-import { hiTraceMeter } from '@kit.PerformanceAnalysisKit';
 
 interface Config {
   url: string,
@@ -34,18 +33,18 @@ struct Index {
         .onControllerAttached(async () => {
           // Read the configuration and precompile.
           for (const config of this.configs) {
-            let content = await this.getUIContext().getHostContext()?.resourceManager.getRawFileContentSync(config.localPath);
-
-            try {
-              this.controller.precompileJavaScript(config.url, content, config.options)
-                .then((errCode: number) => {
-                  console.log('precompile successfully!' );
-                }).catch((errCode: number) => {
-                console.error('precompile failed.' + errCode);
-              })
-            } catch (err) {
-              console.error('precompile failed!.' + err.code + err.message);
-            }
+            this.getUIContext()
+              .getHostContext()?.resourceManager.getRawFileContent(config.localPath)
+              .then((content: Uint8Array) => {
+                this.controller.precompileJavaScript(config.url, content, config.options)
+                  .then(() => {
+                    console.log('precompile successfully!');
+                  }).catch((errCode: number) => {
+                  console.error('precompile failed.' + errCode);
+                })
+              }).catch(() => {
+              console.error('precompile failed!.');
+            })
           }
         })
       // [End web_attach_controller]

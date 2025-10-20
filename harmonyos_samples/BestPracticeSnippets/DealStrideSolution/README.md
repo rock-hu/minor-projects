@@ -20,7 +20,7 @@
 
 2、父页面点击"处理stride：方案二"按钮，跳转子页面DealStrideTwo，子页面的预览界面展示相机预览流，无明显花屏现象。
 
-### 目录结构
+## 目录结构
 
 ```
 ├──entry/src/main/ets/
@@ -151,15 +151,15 @@ function onImageArrival(receiver: image.ImageReceiver): void {
   })
 }
 ```
-### 相关权限
+## 相关权限
 
 允许应用使用相机：ohos.permission.CAMERA
 
-### 依赖
+## 依赖
 
 不涉及。
 
-### 约束与限制
+## 约束与限制
 
 1.本示例仅支持标准系统上运行，支持设备：华为手机。
 
@@ -168,3 +168,14 @@ function onImageArrival(receiver: image.ImageReceiver): void {
 3.DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
 
 4.HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。
+
+## 下载
+
+如需单独下载本工程，执行如下命令：
+```
+git init
+git config core.sparsecheckout true
+echo DealStrideSolution/ > .git/info/sparse-checkout
+git remote add origin https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+git pull origin master
+```

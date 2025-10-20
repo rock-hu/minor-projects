@@ -3,21 +3,21 @@ import { BusinessError } from '@kit.BasicServicesKit';
 // Define ETS side objects and functions
 class TestObj {
   constructor() {}
-  test(testStr:string): string {
-    let start = Date.now();
+  test(): string {
+    let start: number = Date.now();
     // Simulate time-consuming operations
     for(let i = 0; i < 500000; i++) {}
-    let end = Date.now();
+    let end: number = Date.now();
     console.log('objName.test start: ' + start);
     return 'objName.test Sync function took ' + (end - start) + 'ms';
   }
-  asyncTestBool(testBol:boolean): Promise<string> {
+  asyncTestBool(): Promise<string> {
     return new Promise((resolve, reject) => {
-      let start = Date.now();
+      let start: number = Date.now();
       // Simulate time-consuming operation (asynchronous)
       setTimeout(() => {
         for(let i = 0; i < 500000; i++) {}
-        let end = Date.now();
+        let end: number = Date.now();
         console.log('objAsyncName.asyncTestBool start: ' + start);
         resolve('objName.asyncTestBool Async function took ' + (end - start) + 'ms');
       }, 0); // Use 0 ms delay to simulate an asynchronous operation that starts immediately
@@ -28,18 +28,18 @@ class TestObj {
 class WebObj {
   constructor() {}
   webTest(): string {
-    let start = Date.now();
+    let start: number = Date.now();
     // Simulate time-consuming operations
     for(let i = 0; i < 500000; i++) {}
-    let end = Date.now();
+    let end: number = Date.now();
     console.log('objTestName.webTest start: ' + start);
     return 'objTestName.webTest Sync function took ' + (end - start) + 'ms';
   }
   webString(): string {
-    let start = Date.now();
+    let start: number = Date.now();
     // Simulate time-consuming operations
     for(let i = 0; i < 500000; i++) {}
-    let end = Date.now();
+    let end: number = Date.now();
     console.log('objTestName.webString start: ' + start);
     return 'objTestName.webString Sync function took ' + (end - start) + 'ms';
   }
@@ -51,26 +51,26 @@ class AsyncObj {
 
   asyncTest(): Promise<string> {
     return new Promise((resolve, reject) => {
-      let start = Date.now();
+      let start: number = Date.now();
       // Simulate time-consuming operation (asynchronous)
       setTimeout(() => {
         for (let i = 0; i < 500000; i++) {
         }
-        let end = Date.now();
+        let end: number = Date.now();
         console.log('objAsyncName.asyncTest start: ' + start);
         resolve('objAsyncName.asyncTest Async function took ' + (end - start) + 'ms');
       }, 0); // Use 0 ms delay to simulate an asynchronous operation that starts immediately
     });
   }
 
-  asyncString(testStr:string): Promise<string> {
+  asyncString(): Promise<string> {
     return new Promise((resolve, reject) => {
-      let start = Date.now();
+      let start: number = Date.now();
       // Simulate time-consuming operation (asynchronous)
       setTimeout(() => {
         for (let i = 0; i < 500000; i++) {
         }
-        let end = Date.now();
+        let end: number = Date.now();
         console.log('objAsyncName.asyncString start: ' + start);
         resolve('objAsyncName.asyncString Async function took ' + (end - start) + 'ms');
       }, 0); // Use 0 millisecond delay to simulate immediate asynchronous operation

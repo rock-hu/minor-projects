@@ -40,6 +40,8 @@ export default class EntryAbility extends UIAbility {
         return;
       }
       hilog.info(DOMAIN, TAG, FORMAT, 'Succeeded in loading the content.');
+      // Immersive Adaptation
+      this.immersionFuc(windowStage);
     });
   }
 
@@ -56,5 +58,24 @@ export default class EntryAbility extends UIAbility {
   onBackground(): void {
     // Ability has back to background
     hilog.info(DOMAIN, TAG, FORMAT, 'Ability onBackground');
+  }
+
+  /**
+   * Page immersion.
+   */
+  immersionFuc(windowStage: window.WindowStage): void {
+    try {
+      let windowClass: window.Window = windowStage.getMainWindowSync();
+      windowClass.setWindowLayoutFullScreen(true);
+      let navigationBarArea: window.AvoidArea =
+        windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
+      let area: window.AvoidArea = windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
+      AppStorage.setOrCreate<number>('naviIndicatorHeight',
+        windowClass.getUIContext().px2vp(navigationBarArea.bottomRect.height));
+      AppStorage.setOrCreate<number>('statusBarHeight', windowClass.getUIContext().px2vp(area.topRect.height));
+      AppStorage.setOrCreate<window.Window>('windowClass', windowClass);
+    } catch (error) {
+      hilog.info(DOMAIN, TAG, FORMAT, `immersionFuc failed, error code=${error.code}, message=${error.message}`);
+    }
   }
 }

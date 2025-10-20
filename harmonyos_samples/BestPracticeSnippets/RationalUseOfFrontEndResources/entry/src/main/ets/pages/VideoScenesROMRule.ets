@@ -21,10 +21,10 @@ import { fileIo as fileIo } from '@kit.CoreFileKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
-const pathDir = ""
+const pathDir: string = "";
 // [Start filePath]
-let filePath = pathDir + "/test.txt";
-let file = fileIo.openSync(filePath, fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE);
+let filePath: string = pathDir + "/test.txt";
+let file: fileIo.File = fileIo.openSync(filePath, fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE);
 let str: string = "hello, world";
 // Use asynchronous methods to write files to the ROM
 fileIo.write(file.fd, str).then((writeLen: number) => {

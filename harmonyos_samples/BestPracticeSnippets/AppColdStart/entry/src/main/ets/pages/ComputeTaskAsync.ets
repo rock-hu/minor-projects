@@ -14,8 +14,8 @@
 */
 
 // [Start compute_task_async]
-const LARGE_NUMBER = 100000000;
-const DELAYED_TIME = 1000;
+const LARGE_NUMBER: number = 100000000;
+const DELAYED_TIME: number = 1000;
 
 @Entry
 @Component
@@ -41,7 +41,7 @@ struct Index {
   }
 
   private computeTask(): void {
-    let count = 0;
+    let count: number = 0;
     while (count < LARGE_NUMBER) {
       count++;
     }

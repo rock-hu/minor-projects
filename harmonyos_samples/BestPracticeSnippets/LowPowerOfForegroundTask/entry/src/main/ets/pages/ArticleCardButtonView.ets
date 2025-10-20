@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 import { LottieUtil } from "../utils/LottieUtil";
+import { AnimationItem } from "@ohos/lottie";
 
 @Component
 export struct ArticleCardButtonView {
@@ -31,8 +32,8 @@ export struct ArticleCardButtonView {
   private mainCanvasRenderingContext: CanvasRenderingContext2D =
     new CanvasRenderingContext2D(this.mainRenderingSettings);
 
-  startLottieAnimation() {
-    const animationItem = LottieUtil.loadAnimation({
+  startLottieAnimation(): void {
+    const animationItem: AnimationItem = LottieUtil.loadAnimation({
       container: this.mainCanvasRenderingContext,
       renderer: 'canvas',
       loop: false,

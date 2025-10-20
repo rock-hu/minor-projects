@@ -37,3 +37,14 @@ N/A
 3. The DevEco Studio version must be DevEco Studio NEXT Release or later.
 
 4. The HarmonyOS SDK version must be HarmonyOS NEXT Release SDK or later.
+
+### Download
+
+To download this project separately, execute the following command:
+```
+git init
+git config core.sparsecheckout true
+echo AppDataSecurity/ > .git/info/sparse-checkout
+git remote add origin https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+git pull origin master
+```

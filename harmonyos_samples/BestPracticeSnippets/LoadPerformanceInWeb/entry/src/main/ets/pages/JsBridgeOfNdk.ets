@@ -23,7 +23,7 @@ struct Index {
   controller: webview.WebviewController = new webview.WebviewController(this.webTag);
   @State testObjtest: testObj = new testObj();
 
-  aboutToAppear() {
+  aboutToAppear(): void {
     console.info("aboutToAppear");
     // init web ndk
     testNapi.nativeWebInit(this.webTag);

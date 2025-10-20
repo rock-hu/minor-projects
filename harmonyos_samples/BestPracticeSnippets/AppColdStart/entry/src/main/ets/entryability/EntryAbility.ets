@@ -13,19 +13,52 @@
 * limitations under the License.
 */
 
-// [Start my_ability_stage]
-// MyAbilityStage.ets
-import { AbilityStage, Want } from '@kit.AbilityKit';
-import { httpRequest } from '../utils/NetRequest';
-export default class MyAbilityStage extends AbilityStage {
-  onCreate(): void {
-    // Send a network request
-    httpRequest();
+// [Start entry_ability_demo]
+import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
+import { window } from '@kit.ArkUI'
+
+const LARGE_NUMBER: number = 100000000;
+const DELAYED_TIME: number = 1000;
+
+
+export default class EntryAbility extends UIAbility {
+  onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
+    // Time-consuming operation
+    // this.computeTask();
+    this.computeTaskAsync(); // Asynchronous tasks
   }
 
-  onAcceptWant(want: Want): string {
-    // Triggered in specified mode only.
-    return 'MyAbilityStage';
+  onWindowStageCreate(windowStage: window.WindowStage): void {
+    windowStage.loadContent('pages/Index', (err, data) => {
+      if (err.code) {
+        console.error('Failed to load the content. Cause: ' + JSON.stringify(err) ?? '');
+        return;
+      }
+      console.info('Succeeded in loading the content. Data: ' + JSON.stringify(data) ?? '');
+    });
+
+    // Time-consuming operation
+    // this.computeTask();
+    // this.computeTaskAsync(); // Asynchronous mission
+  }
+
+  onForeground(): void {
+    // Time-consuming operation
+    // this.computeTask();
+    // this.computeTaskAsync(); // Asynchronous mission
+  }
+
+  private computeTask(): void {
+    let count: number = 0;
+    while (count < LARGE_NUMBER) {
+      count++;
+    }
+  }
+
+  private computeTaskAsync(): void {
+    setTimeout(() => { // SetTimeout is used here to achieve asynchronous delayed operation.
+      this.computeTask();
+    }, DELAYED_TIME);
   }
 }
-// [End my_ability_stage]
+// [End entry_ability_demo]

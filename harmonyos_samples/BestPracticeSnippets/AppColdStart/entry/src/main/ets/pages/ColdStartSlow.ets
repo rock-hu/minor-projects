@@ -14,8 +14,7 @@
 */
 
 // [Start cold_start_slow]
-const LARGE_NUMBER = 200000000;
-const DELAYED_TIME = 1000;
+const LARGE_NUMBER: number = 200000000;
 
 @Entry
 @Component
@@ -28,7 +27,7 @@ struct Index {
   }
 
   computeTask(): void {
-    let count = 0;
+    let count: number = 0;
     while (count < LARGE_NUMBER) {
       count++;
     }

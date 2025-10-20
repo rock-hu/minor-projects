@@ -6,10 +6,10 @@ import { http } from '@kit.NetworkKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { image } from '@kit.ImageKit';
 // Download picture resources from the Internet through the http request method
-export function httpRequest() {
+export function httpRequest(): void {
   hiTraceMeter.startTrace('Http Request', 1);
   http.createHttp()
-    // The actual development needs to "https://www.example1.com/POST?e=f&g=h"replaced with the real website address to visit
+  // The actual development needs to "https://www.example1.com/POST?e=f&g=h"replaced with the real website address to visit
     .request('https://www.example1.com/POST?e=f&g=h',
       (error: BusinessError, data: http.HttpResponse) => {
         if (error) {
@@ -23,7 +23,7 @@ export function httpRequest() {
 }
 
 // Use createPixelMap to replace pictures of ArrayBuffer types with PixelMap types.
-function transcodePixelMap(data: http.HttpResponse) {
+function transcodePixelMap(data: http.HttpResponse): void {
   if (http.ResponseCode.OK === data.responseCode) {
     const imageData: ArrayBuffer = data.result as ArrayBuffer;
     // Create a picture source instance through ArrayBuffer

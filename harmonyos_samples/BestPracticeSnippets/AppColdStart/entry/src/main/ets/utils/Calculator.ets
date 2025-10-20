@@ -1,8 +1,9 @@
 // [Start request_in_home]
 // Calculator.ets
-const LARGE_NUMBER = 100000000;
+const LARGE_NUMBER: number = 100000000;
+
 function computeTask(): number {
-  let count = 0;
+  let count: number = 0;
   while (count < LARGE_NUMBER) {
     count++;
   }

@@ -19,7 +19,7 @@ import { http } from '@kit.NetworkKit';
 import { image } from '@kit.ImageKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { abilityAccessCtrl, common, Permissions } from '@kit.AbilityKit';
-import { fileIo as fs } from '@kit.CoreFileKit';
+import { fileIo, fileIo as fs } from '@kit.CoreFileKit';
 
 const PERMISSIONS: Array<Permissions> = [
   'ohos.permission.READ_MEDIA',
@@ -37,7 +37,7 @@ struct Index {
   /**
    * Download picture resources from the Internet through the http request method
    */
-  async getPicture() {
+  async getPicture(): Promise<void> {
     http.createHttp()
       .request('https://www.example1.com/POST?e=f&g=h',
         (error: BusinessError, data: http.HttpResponse) => {
@@ -57,7 +57,7 @@ struct Index {
    * Use createPixelMap to replace pictures of ArrayBuffer type with PixelMap type
    * @param data：Resources obtained from the network
    */
-  transcodePixelMap(data: http.HttpResponse) {
+  transcodePixelMap(data: http.HttpResponse): void {
     if (http.ResponseCode.OK === data.responseCode) {
       const imageData: ArrayBuffer = data.result as ArrayBuffer;
       // Create a picture source instance through ArrayBuffer
@@ -83,12 +83,17 @@ struct Index {
   }
 
   async saveImage(buffer: ArrayBuffer | string): Promise<void> {
-    const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
-    const filePath: string = context.cacheDir + '/test.jpg';
-    AppStorage.set('net_picture', filePath);
-    const file = await fs.open(filePath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
-    await fs.write(file.fd, buffer);
-    await fs.close(file.fd);
+    try {
+      const context:common.UIAbilityContext = this.getUIContext().getHostContext() as common.UIAbilityContext;
+      const filePath: string = context.cacheDir + '/test.jpg';
+      AppStorage.set('net_picture', filePath);
+      const file: fileIo.File = await fs.open(filePath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
+      await fs.write(file.fd, buffer);
+      await fs.close(file.fd);
+    } catch (err) {
+      let error = err as BusinessError;
+      console.error(`onAddForm err, code: ${error.code}, mesage: ${error.message}`);
+    }
   }
 
 
@@ -109,10 +114,9 @@ struct Index {
     }
   }
 
-
   async aboutToAppear(): Promise<void> {
-    const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
-    const atManager = abilityAccessCtrl.createAtManager();
+    const context: common.UIAbilityContext = this.getUIContext().getHostContext() as common.UIAbilityContext;
+    const atManager: abilityAccessCtrl.AtManager = abilityAccessCtrl.createAtManager();
     await atManager.requestPermissionsFromUser(context, PERMISSIONS);
     this.useCachePic(); // Get data from local storage
     this.getPicture(); // Obtain data from the network side

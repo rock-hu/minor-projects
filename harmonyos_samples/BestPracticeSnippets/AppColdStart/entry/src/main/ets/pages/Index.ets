@@ -25,15 +25,22 @@ PersistentStorage.persistProp('netData', undefined);
 @Entry
 @Component
 struct Index {
-  @State message: string = 'Hello World' + number; // In order to reflect the performance benefits, refer to the execution result number of the time-consuming function.
+  // In order to reflect the performance benefits, refer to the execution result number of the time-consuming function.
+  @State message: string = 'Hello World' + number;
   @StorageLink('netData') netData: PixelMap | undefined = undefined;
-  build(){
-    Row(){
+
+  build() {
+    Column() {
+      Text(this.message)
+        .fontSize(32)
       Image(this.netData)
         .objectFit(ImageFit.Contain)
         .width('50%')
         .height('50%')
     }
+    .width('100%')
+    .height('100%')
+    .justifyContent(FlexAlign.Center)
     .onAppear(() => {
       // Send a network request
       httpRequest();

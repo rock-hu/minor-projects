@@ -57,3 +57,14 @@
 
 4. HarmonyOS SDK版本：HarmonyOS 5.1.0 Release SDK及以上。
 
+### 下载
+
+如需单独下载本工程，执行如下命令：
+```
+git init
+git config core.sparsecheckout true
+echo HDRVivid/AVRecorder/ > .git/info/sparse-checkout
+git remote add origin https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+git pull origin master
+```
+

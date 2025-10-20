@@ -29,12 +29,13 @@ export struct InterThreadCommunication1 {
   build() {
     NavDestination() {
       Column() {
-        Button('click me')
+        Button($r('app.string.multithreaded_communication_title'))
           .width('100%')
           .onClick(() => {
             nativeModule.nativeCall((a: number) => {
               hilog.info(DOMAIN, TAG, FORMAT, 'Received data from thread-function: %{public}d', a);
             })
+            hilog.info(DOMAIN, TAG, FORMAT, `click nativeCall success`);
           })
       }
       // [StartExclude inter_thread_communication1]
@@ -44,25 +45,12 @@ export struct InterThreadCommunication1 {
       .alignItems(HorizontalAlign.Center)
       .padding({
         right: 24,
-        bottom: 12,
+        bottom: 32,
         left: 24
       })
       // [EndExclude inter_thread_communication1]
     }
+    .title($r('app.string.multithreaded_communication_title'))
   }
 }
 // [End inter_thread_communication1]
-
-@Component
-export struct TestCode {
-  // [Start index_btn]
-  build() {
-    Button('click me')
-      .onClick(() => {
-        nativeModule.nativeCall((a: number) => {
-          hilog.info(DOMAIN, TAG, FORMAT, 'Received data from thread-function: %{public}d', a);
-        })
-      })
-  }
-  // [End index_btn]
-}

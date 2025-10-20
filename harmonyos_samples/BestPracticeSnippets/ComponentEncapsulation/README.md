@@ -4,7 +4,7 @@
 
 本示例展示组件封装中的常见问题代码。
 
-##### 使用说明
+### 使用说明
 
 进入首面，点击按钮，分别进入示例页面。
 
@@ -43,3 +43,14 @@
 3. DevEco Studio版本：DevEco Studio 5.1.0 Release及以上。
 
 4. HarmonyOS SDK版本：HarmonyOS 5.1.0 Release SDK及以上。
+
+### 下载
+
+如需单独下载本工程，执行如下命令：
+```
+git init
+git config core.sparsecheckout true
+echo ComponentEncapsulation/ > .git/info/sparse-checkout
+git remote add origin https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+git pull origin master
+```

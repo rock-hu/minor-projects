@@ -22,7 +22,7 @@ import { worker } from '@kit.ArkTS';
 import { freezeObj } from './freezeObj';
 // [StartExclude globalconfig]
 const DOMAIN = 0x0000;
-const TAG = 'ConcurrencyCapabilitySelection2';
+const TAG = 'ConcurrencyCapabilitySelection4';
 const FORMAT = '%{public}s';
 // [EndExclude globalconfig]
 @Sendable
@@ -34,12 +34,48 @@ export class GlobalConfig {
   }
 }
 
-try {
-  let globalConfig = new GlobalConfig();
-  globalConfig.init();
-  const workerInstance = new worker.ThreadWorker('entry/ets/workers/Worker.ets`', { name: 'Worker1' });
-  workerInstance.postMessage(globalConfig);
-} catch (err) {
-  hilog.error(DOMAIN, TAG, FORMAT, `postMessage failed. Cause code: ${err.code},message: ${err.message}`);
+function executeTaskPool() {
+  try {
+    let globalConfig = new GlobalConfig();
+    globalConfig.init();
+    const workerInstance = new worker.ThreadWorker('entry/ets/workers/Worker.ets`', { name: 'Worker1' });
+    workerInstance.postMessage(globalConfig);
+    hilog.info(DOMAIN, TAG, FORMAT, `executeTaskPool success`);
+  } catch (err) {
+    hilog.error(DOMAIN, TAG, FORMAT, `postMessage failed. Cause code: ${err.code},message: ${err.message}`);
+  }
 }
 // [End globalconfig]
+
+@Component
+export struct InterThreadCommunication4 {
+  @Styles
+  buttonStyles() {
+    .width('100%')
+    .height(40)
+  }
+
+  build() {
+    NavDestination() {
+      Column() {
+        Button($r('app.string.immutable_data_sharing_title'))
+          .buttonStyles()
+          .margin({
+            bottom: 16
+          })
+          .onClick(() => {
+            executeTaskPool();
+          })
+      }
+      .width('100%')
+      .height('100%')
+      .justifyContent(FlexAlign.End)
+      .padding({
+        right: 24,
+        bottom: 16,
+        left: 24
+      })
+    }
+    .title($r('app.string.immutable_data_sharing_title'))
+  }
+}

@@ -16,7 +16,7 @@
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 export class Logger {
-  static error(arg0: string) {
+  static error(arg0: string): void {
     throw new Error('Method not implemented.');
   }
   private domain: number;

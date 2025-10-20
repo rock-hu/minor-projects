@@ -49,11 +49,9 @@ export struct StaticBlur {
     });
   }
 
-  async staticBlur() {
-    let context = this.getUIContext().getHostContext()!;
-    let resourceMgr = context.resourceManager; // retrieve the resourceManager object
-    // const fileData = await resourceMgr.getRawFileContent('test.png'); // retrieve images from the rawfile directory
-    await resourceMgr.getRawFileContent('test.png') // retrieve images from the rawfile directory
+  async staticBlur(): Promise<void> {
+    let context: Context = this.getUIContext().getHostContext()!;
+    await context.resourceManager.getRawFileContent('test.png') // retrieve images from the rawfile directory
       .then((fileData: Uint8Array) => {
         let buffer: ArrayBuffer = fileData.buffer.slice(0); // create an ArrayBuffer instance
         this.imgSource = image.createImageSource(buffer); // create an image source instance
@@ -73,8 +71,8 @@ export struct StaticBlur {
     };
     // create PixelMap
     await this.imgSource!.createPixelMap(opts).then((pixelMap: image.PixelMap) => {
-      const blurRadius = 3;
-      let headFilter = effectKit.createEffect(pixelMap); // create Filter Instance
+      const blurRadius: number = 3;
+      let headFilter: effectKit.Filter = effectKit.createEffect(pixelMap); // create Filter Instance
       if (headFilter !== null) {
         headFilter.blur(blurRadius); // set static blur. Add the blur effect to the effect list
         // retrieve the image of the source image with the added linked list effect PixelMap
@@ -127,5 +125,4 @@ export struct StaticBlur {
     .hideTitleBar(true)
   }
 }
-
 // [End static_start]

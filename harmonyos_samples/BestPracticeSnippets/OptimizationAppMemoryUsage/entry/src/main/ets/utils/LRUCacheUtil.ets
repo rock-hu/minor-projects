@@ -28,17 +28,17 @@ export class LRUCacheUtil {
   }
 
   // Reset the capacity of lruCache
-  public updateCapacity(newCapacity: number) {
+  public updateCapacity(newCapacity: number): void {
     this.lruCache.updateCapacity(newCapacity);
   }
 
   // Add cache to lruCache
-  public putCache(key: string, value: Object) {
+  public putCache(key: string, value: Object): void {
     this.lruCache.put(key, value);
   }
 
   // Delete the cache corresponding to the key
-  public remove(key: string) {
+  public remove(key: string): void {
     this.lruCache.remove(key);
   }
 
@@ -53,7 +53,7 @@ export class LRUCacheUtil {
   }
 
   // Clear the cached data and reset the size of lruCache
-  public clearCache() {
+  public clearCache(): void {
     this.lruCache.clear();
     this.lruCache.updateCapacity(64);
   }

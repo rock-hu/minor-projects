@@ -67,7 +67,39 @@ async function seqRunner() {
   await runner.execute(task4).catch((err: BusinessError) => {
     hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
   });
-  hilog.info(DOMAIN, TAG, FORMAT, 'SequenceRunner: result is ' + result);
+  hilog.info(DOMAIN, TAG, FORMAT, 'SequenceRunner: result is :' + result);
 }
 // [End seq_runner]
-seqRunner();
+
+@Component
+export struct ConcurrentTaskManagement1 {
+  @Styles
+  buttonStyles() {
+    .width('100%')
+    .height(40)
+  }
+
+  build() {
+    NavDestination() {
+      Column() {
+        Button($r('app.string.multitasking_title'))
+          .buttonStyles()
+          .margin({
+            bottom: 16
+          })
+          .onClick(() => {
+            seqRunner();
+          })
+      }
+      .width('100%')
+      .height('100%')
+      .justifyContent(FlexAlign.End)
+      .padding({
+        right: 24,
+        bottom: 16,
+        left: 24
+      })
+    }
+    .title($r('app.string.multitasking_title'))
+  }
+}

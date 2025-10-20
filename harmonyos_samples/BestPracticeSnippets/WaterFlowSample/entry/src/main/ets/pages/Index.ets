@@ -20,7 +20,7 @@ struct Index {
 
   build() {
     Column() {
-      Text('最佳实践配套工程')
+      Text(this.message)
     }
     .alignItems(HorizontalAlign.Center)
     .height('100%')

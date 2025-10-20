@@ -16,22 +16,46 @@
 import { AudioPlayerService } from '../components/AudioPlayerService';
 import { AudioPlayerStatus } from '../components/AudioPlayerStatus';
 import { ContinueModel } from '../components/ContinueModel';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 @Entry
 @Component
-struct Index {
-  @State message: string = 'Hello World';
+struct MainPage {
   @State currentIndex: number = 0;
 
   build() {
-    RelativeContainer() {
+    Column() {
       // [Start tabs]
       // products\phone\src\main\ets\pages\MainPage.ets
       Tabs({ index: this.currentIndex }) {
-        // ...
+        // [StartExclude tabs]
+        TabContent() {
+          Button('tabBar1')
+            .width('100%')
+            .onClick(() => {
+              this.getUIContext()
+                .getRouter()
+                .pushUrl({
+                  url: 'pages/page1'
+                })
+                .then(() => {
+                  hilog.info(0x000, 'testTag', `pushUrl succeed.`)
+                })
+                .catch((err: BusinessError) => {
+                  hilog.warn(0x000, 'testTag', `pushUrl failed. code=${err.code}, message=${err.message}`);
+                })
+            })
+        }
+        .tabBar('tabBar1')
+
+        TabContent() {
+          Text('tabBar2 content')
+        }
+        .tabBar('tabBar2')
+        // [EndExclude tabs]
       }
       .layoutWeight(1)
-      .barHeight(0)
       .scrollable(false)
       .onChange((index) => {
         this.currentIndex = index;
@@ -46,5 +70,6 @@ struct Index {
     }
     .height('100%')
     .width('100%')
+    .padding({ left: 12, right: 12 })
   }
 }

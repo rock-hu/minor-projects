@@ -5,14 +5,12 @@
 
 ## 效果预览
 
-不涉及。
+![home.png](screenshots/device/home.png)
 
 ## 工程目录
 
 ```
-├──entry/src/main/cpp
-│  ├──common
-│  │  └──log_common.h                                   
+├──entry/src/main/cpp                            
 │  ├──types/libndkDrawing
 │  │  ├──Index.d.ts
 │  │  └──oh-package.json5
@@ -34,7 +32,7 @@
 │  │  ├──Demo.ets
 │  │  ├──freezeObj.ts
 │  │  ├──InterThreadCommunication1.ets              // 跨语言多线程通信（C++与ArkTS）
-│  │  ├──InterThreadCommunication2.ets              // 线程间模块共享（单例模式）
+│  │  ├──InterThreadCommunication2.ets              // 线程间模块共享（单例模式）（方案一）
 │  │  ├──InterThreadCommunication3.ets              // 线程间模块共享（单例模式）
 │  │  └──InterThreadCommunication4.ets              // 线程间不可变数据共享
 │  └──workers
@@ -43,7 +41,17 @@
 ```
 
 ## 使用说明
-不涉及
+1. 点击“耗时任务并发执行场景”按钮，控制台打印“Return:3”。
+2. 点击“长时任务并发执行场景”按钮，控制台打印“execute success”。
+3. 点击“多任务关联执行（串行顺序依赖）”按钮，控制台打印“result is abc”。
+4. 点击“多任务关联执行（树状依赖）”按钮，控制台打印“taskpool:: execute task3 res: “100”、“taskpool:: execute task2 res: 200”、“taskpool:: execute task1 res: 300”。
+5. 点击“多任务同步等待结果（任务组）”按钮，控制台打印“res:”加上打印结果。
+6. 点击“多任务优先级调度”按钮，控制台打印“execColorInfo success”。
+7. 点击“任务延时调度”按钮，控制台打印“taskpool result: 100”。
+8. 点击“跨语言多线程通信（C++与ArkTS）”按钮，控制台打印“click nativeCall success”。
+9. 点击“线程间模块共享（单例模式） （方案一）”按钮，控制台打印“host thread address is”加上打印结果。
+10. 点击“线程间模块共享（单例模式）”按钮，控制台打印“executeTaskPool success”。
+11. 点击“线程间不可变数据共享”按钮，控制台打印“executeTaskPool success”。
 
 ## 相关权限
 不涉及。
@@ -58,3 +66,14 @@
 2. HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
 3. DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
 4. HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。
+
+## 下载
+
+如需单独下载本工程，执行如下命令：
+```
+git init
+git config core.sparsecheckout true
+echo UseSendable/ > .git/info/sparse-checkout
+git remote add origin https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+git pull origin master
+```

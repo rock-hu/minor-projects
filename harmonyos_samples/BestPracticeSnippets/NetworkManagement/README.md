@@ -39,16 +39,17 @@
 * 点击“切换视频到高清晰度”按钮时，会切换当前视频到较高的清晰度，当网络质量好的情况下可自行切换。
 
 注：此示例代码使用的是加载本地视频的方式，开发时，可以根据需要使用其他加载视频资源的方式，如加载沙箱路径视频、加载网络视频。具体请参见：[加载视频资源](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-common-components-video-player#加载视频资源)
+
 ## 相关权限
 
 * ohos.permission.SET_WIFI_INFO    设置WIFI信息
 
-
 * ohos.permission.GET_WIFI_INFO    获取WIFI信息
 
-
 * ohos.permission.GET_NETWORK_INFO   获取网络信息
+
 ## 约束与限制
+
 * 本示例仅支持标准系统上运行，支持设备：华为手机。
 
 * HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
@@ -56,3 +57,14 @@
 * DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
 
 * HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。
+
+## 下载
+
+如需单独下载本工程，执行如下命令：
+```
+git init
+git config core.sparsecheckout true
+echo NetworkManagement/ > .git/info/sparse-checkout
+git remote add origin https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+git pull origin master
+```

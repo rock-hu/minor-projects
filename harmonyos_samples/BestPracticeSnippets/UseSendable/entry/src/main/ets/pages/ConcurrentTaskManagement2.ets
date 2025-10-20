@@ -41,33 +41,69 @@ function updateSAB(args: Uint32Array) {
   return 0;
 }
 
-let sab = new SharedArrayBuffer(20);
-let typedArray = new Uint32Array(sab);
-let task1 = new taskpool.Task(updateSAB, typedArray);
-let task2 = new taskpool.Task(updateSAB, typedArray);
-let task3 = new taskpool.Task(updateSAB, typedArray);
-try {
-  task1.addDependency(task2);
-  task2.addDependency(task3);
-} catch (err) {
-  hilog.error(DOMAIN, TAG, FORMAT, `sendData failed. Cause code: ${err.code},message: ${err.message}`);
+function executeTaskPool() {
+  let sab = new SharedArrayBuffer(20);
+  let typedArray = new Uint32Array(sab);
+  let task1 = new taskpool.Task(updateSAB, typedArray);
+  let task2 = new taskpool.Task(updateSAB, typedArray);
+  let task3 = new taskpool.Task(updateSAB, typedArray);
+  try {
+    task1.addDependency(task2);
+    task2.addDependency(task3);
+  } catch (err) {
+    hilog.error(DOMAIN, TAG, FORMAT, `sendData failed. Cause code: ${err.code},message: ${err.message}`);
+  }
+
+  taskpool.execute(task1).then((res: object) => {
+    hilog.info(DOMAIN, TAG, FORMAT, 'taskpool:: execute task1 res: ' + res);
+  }).catch((err: BusinessError) => {
+    hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
+  });
+
+  taskpool.execute(task2).then((res: object) => {
+    hilog.info(DOMAIN, TAG, FORMAT, 'taskpool:: execute task2 res: ' + res);
+  }).catch((err: BusinessError) => {
+    hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
+  });
+
+  taskpool.execute(task3).then((res: object) => {
+    hilog.info(DOMAIN, TAG, FORMAT, 'taskpool:: execute task3 res: ' + res);
+  }).catch((err: BusinessError) => {
+    hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
+  });
 }
 
-taskpool.execute(task1).then((res: object) => {
-  hilog.info(DOMAIN, TAG, FORMAT, 'taskpool:: execute task1 res: ' + res);
-}).catch((err: BusinessError) => {
-  hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
-});
-
-taskpool.execute(task2).then((res: object) => {
-  hilog.info(DOMAIN, TAG, FORMAT, 'taskpool:: execute task2 res: ' + res);
-}).catch((err: BusinessError) => {
-  hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
-});
-
-taskpool.execute(task3).then((res: object) => {
-  hilog.info(DOMAIN, TAG, FORMAT, 'taskpool:: execute task3 res: ' + res);
-}).catch((err: BusinessError) => {
-  hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
-});
 // [End updatesab]
+
+@Component
+export struct ConcurrentTaskManagement2 {
+  @Styles
+  buttonStyles() {
+    .width('100%')
+    .height(40)
+  }
+
+  build() {
+    NavDestination() {
+      Column() {
+        Button($r('app.string.tree_like_dependency_title'))
+          .buttonStyles()
+          .margin({
+            bottom: 16
+          })
+          .onClick(() => {
+            executeTaskPool();
+          })
+      }
+      .width('100%')
+      .height('100%')
+      .justifyContent(FlexAlign.End)
+      .padding({
+        right: 24,
+        bottom: 16,
+        left: 24
+      })
+    }
+    .title($r('app.string.tree_like_dependency_title'))
+  }
+}

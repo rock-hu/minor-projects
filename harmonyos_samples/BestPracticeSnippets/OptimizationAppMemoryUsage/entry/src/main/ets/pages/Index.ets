@@ -1,7 +1,6 @@
 // [Start network_connection]
 import { connection } from '@kit.NetworkKit';
 import { BusinessError } from '@kit.BasicServicesKit';
-import { promptAction } from '@kit.ArkUI';
 import { Logger } from '../utils/Logger';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
@@ -14,8 +13,6 @@ struct Index {
   @State netStateMessage: string = '';
   @State hostName: string = '';
   @State ip: string = '';
-  private controller: TabsController = new TabsController();
-  private netHandle: connection.NetHandle | null = null;
   private netCon: connection.NetConnection | null = null;
   scroller: Scroller = new Scroller();
 
@@ -88,7 +85,7 @@ struct Index {
     .width(200)
   }
 
-  getConnectionProperties() {
+  getConnectionProperties(): void {
     connection.getDefaultNet().then((netHandle: connection.NetHandle) => {
       connection.getConnectionProperties(netHandle, (error: BusinessError, connectionProperties: connection.ConnectionProperties) => {
         if (error) {
@@ -108,7 +105,7 @@ struct Index {
     });
   }
 
-  useNetworkRegister() {
+  useNetworkRegister(): void {
     this.netCon = connection.createNetConnection();
     this.netStateMessage += '连接';
     this.netCon.register((error) => {
@@ -137,7 +134,7 @@ struct Index {
     })
   }
 
-  unUseNetworkRegister() {
+  unUseNetworkRegister(): void {
     if (this.netCon) {
       this.netCon.unregister((error: BusinessError) => {
         if (error) {

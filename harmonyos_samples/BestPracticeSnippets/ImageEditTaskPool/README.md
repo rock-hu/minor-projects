@@ -25,7 +25,9 @@
 │  ├──view
 │  │  ├──AdjustContentView.ets                   // 色域调整视图
 │  │  ├──CommBackgroundIcon.ets                  // 公共带背景色icon
-│  │  └──TitleBar.ets                            // 顶部工具栏
+│  │  ├──newBuffer1.ets                          
+│  │  ├──TitleBar.ets                            // 顶部工具栏
+│  │  └──WorkerPort.ets
 │  └──viewmodel
 │     ├──IconListViewModel.ets                   // icon数据
 │     ├──MessageItem.ets                         // 多线程封装消息
@@ -54,3 +56,14 @@
 2. HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
 3. DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
 4. HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。
+
+### 下载
+
+如需单独下载本工程，执行如下命令：
+```
+git init
+git config core.sparsecheckout true
+echo ImageEditTaskPool/ > .git/info/sparse-checkout
+git remote add origin https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+git pull origin master
+```

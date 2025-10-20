@@ -16,8 +16,6 @@
 // [Start color_picker]
 import { image } from '@kit.ImageKit';
 import { effectKit } from '@kit.ArkGraphics2D';
-import { hilog } from '@kit.PerformanceAnalysisKit';
-import { BusinessError } from '@kit.BasicServicesKit';
 
 @Component
 export struct ColorPickerMode {
@@ -33,11 +31,10 @@ export struct ColorPickerMode {
 
   async blurPix(resource: Resource) {
     try {
-      const context = this.getUIContext().getHostContext()!;
-      const resourceMgr = context.resourceManager
-      const fileData = await resourceMgr.getMediaContent(resource.id);
-      const buffer = fileData.buffer
-      let imageSource = image.createImageSource(buffer as ArrayBuffer)
+      const context: Context = this.getUIContext().getHostContext()!;
+      const fileData: Uint8Array = await context.resourceManager.getMediaContent(resource.id);
+      const buffer: ArrayBufferLike = fileData.buffer
+      let imageSource: image.ImageSource = image.createImageSource(buffer as ArrayBuffer)
       this.pixMap = await imageSource.createPixelMap();
       // create a color picker for color extraction
       this.kitColor = (await effectKit.createColorPicker(this.pixMap, [0, 0, 1, 1])).getAverageColor();

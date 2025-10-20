@@ -23,9 +23,7 @@ import { atomicService } from '@kit.ScenarioFusionKit';
 import { sim } from '@kit.TelephonyKit';*/
 
 
-import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
-import { hilog } from '@kit.PerformanceAnalysisKit';
-import { window } from '@kit.ArkUI';
+import { UIAbility } from '@kit.AbilityKit';
 
 
 export default class EntryAbility extends UIAbility {

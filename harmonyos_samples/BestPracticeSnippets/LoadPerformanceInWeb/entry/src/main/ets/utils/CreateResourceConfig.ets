@@ -19,8 +19,8 @@ export interface ExceptionResource {
 }
 
 
-export const baseURL = 'http://localhost:8083/resource/';
-export const baseURL1 = 'http://localhost:8083/resource/';
+export const baseURL: string = 'http://localhost:8083/resource/';
+export const baseURL1: string = 'http://localhost:8083/resource/';
 
 
 export const basicResources: Array<ResourceConfig> = [
@@ -89,7 +89,7 @@ export const basicResources: Array<ResourceConfig> = [
 
 // [Start inject_offline_resource]
 // Call the offline resource injection cache interface
-export async function injectOfflineResource(controller: WebviewController, resourceMapArr: Array<webview.OfflineResourceMap>) {
+export async function injectOfflineResource(controller: WebviewController, resourceMapArr: Array<webview.OfflineResourceMap>): Promise<void> {
   try {
     controller.injectOfflineResources(resourceMapArr);
   } catch (err) {

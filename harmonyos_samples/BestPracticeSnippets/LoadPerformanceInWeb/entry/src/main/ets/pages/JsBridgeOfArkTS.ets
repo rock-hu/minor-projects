@@ -6,7 +6,7 @@ import { webview } from '@kit.ArkWeb';
 struct WebComponent {
   webviewController: webview.WebviewController = new webview.WebviewController();
 
-  aboutToAppear() {
+  aboutToAppear(): void {
     // Configure the Web to open the debugging mode
     webview.WebviewController.setWebDebuggingAccess(true);
   }

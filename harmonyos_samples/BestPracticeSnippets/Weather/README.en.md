@@ -49,3 +49,14 @@ N/A
 * The DevEco Studio version must be DevEco Studio 5.0.5 Release or later.
 
 * The HarmonyOS SDK version must be HarmonyOS 5.0.5 Release SDK or later.
+
+### Download
+
+To download this project separately, execute the following command:
+```
+git init
+git config core.sparsecheckout true
+echo code/SuperFeature/MultiDeviceAppDev/Weather/ > .git/info/sparse-checkout
+git remote add origin https://gitee.com/openharmony/applications_app_samples.git
+git pull origin master
+```

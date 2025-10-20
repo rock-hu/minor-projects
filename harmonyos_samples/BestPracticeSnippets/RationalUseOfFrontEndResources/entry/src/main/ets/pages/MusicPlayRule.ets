@@ -71,10 +71,10 @@ audio.createAudioRenderer(audioRendererOptions, (err, data) => {
 const uiContext: UIContext | undefined = AppStorage.get('uiContext');
 let context: Context = uiContext?.getHostContext()!;
 
-async function setListener() {
+async function setListener(): Promise<void> {
   // Assuming that a session has been created, see the previous example for how to create a session
   let type: avSession.AVSessionType = 'audio';
-  let session = await avSession.createAVSession(context, 'SESSION_NAME', type);
+  let session: avSession.AVSession = await avSession.createAVSession(context, 'SESSION_NAME', type);
 
   // Set the duration of the property
   let metadata: avSession.AVMetadata = {

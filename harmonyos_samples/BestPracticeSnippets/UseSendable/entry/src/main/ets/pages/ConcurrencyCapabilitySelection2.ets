@@ -17,9 +17,9 @@
 * 最佳实践: 应用并发设计 并发能力选择 长时任务并发执行场景
 */
 // [Start execute_taskpool]
-import { taskpool } from '@kit.ArkTS';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { taskpool } from '@kit.ArkTS';
 // [StartExclude taskpool]
 const DOMAIN = 0x0000;
 const TAG = 'ConcurrencyCapabilitySelection2';
@@ -39,15 +39,46 @@ function executeTaskPool() {
   let longTask: taskpool.LongTask = new taskpool.LongTask(foo);
   longTask.onReceiveData((msg: Object) => {
     // Listening callback
-    hilog.info(DOMAIN, TAG, FORMAT, `onReceiveData, ${JSON.stringify(msg)}`);
+    hilog.info(DOMAIN, TAG, FORMAT, `onReceiveData, ${msg}`);
   });
 
   taskpool.execute(longTask).then(() => {
-    hilog.info(DOMAIN, TAG, FORMAT, 'execute');
+    hilog.info(DOMAIN, TAG, FORMAT, 'execute success');
   }).catch((err: BusinessError) => {
     hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
   });
 }
-
-executeTaskPool();
 // [End execute_taskpool]
+
+@Component
+export struct ConcurrencyCapabilitySelection2 {
+  @Styles
+  buttonStyles() {
+    .width('100%')
+    .height(40)
+  }
+
+  build() {
+    NavDestination() {
+      Column() {
+        Button($r('app.string.long_term_task_title'))
+          .buttonStyles()
+          .margin({
+            bottom: 16
+          })
+          .onClick(() => {
+            executeTaskPool();
+          })
+      }
+      .width('100%')
+      .height('100%')
+      .justifyContent(FlexAlign.End)
+      .padding({
+        right: 24,
+        bottom: 16,
+        left: 24
+      })
+    }
+    .title($r('app.string.long_term_task_title'))
+  }
+}

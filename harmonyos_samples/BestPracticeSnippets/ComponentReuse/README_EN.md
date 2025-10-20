@@ -27,7 +27,7 @@ You can use the Tools-AppAnalyzer health check tool,
 Verification Best Practices [Component Reuse Issue Diagnosis and Analysis](https://developer.huawei.com/consumer/cn/doc/best-practices/bpta-component-reuse-issue-diagnosis-and-analysis)
 negative examples or positive examples in code.
 
-## Project Directory
+### Project Directory
 
 ``` 
 ├──entry/src/main/ets                          
@@ -61,9 +61,20 @@ negative examples or positive examples in code.
 
 N/A
 
-## Constraints
+### Constraints
 
 * This sample is supported only on Huawei phones running the standard system.
 * The HarmonyOS version must be HarmonyOS 5.0.5 Release or later.
 * The DevEco Studio version must be DevEco Studio 5.0.5 Release or later.
 * The HarmonyOS SDK version must be HarmonyOS 5.0.5 Release SDK or later.
+
+### Download
+
+To download this project separately, execute the following command:
+```
+git init
+git config core.sparsecheckout true
+echo ComponentReuse/ > .git/info/sparse-checkout
+git remote add origin https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+git pull origin master
+```

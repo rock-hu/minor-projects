@@ -17,9 +17,9 @@
 * 最佳实践: 应用并发设计 并发任务管理 任务延时调度
 */
 // [Start quick_start]
+import { BusinessError } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { taskpool } from '@kit.ArkTS';
-import { BusinessError } from '@kit.BasicServicesKit';
 
 // [StartExclude quick_start]
 const DOMAIN = 0x0000;
@@ -32,13 +32,48 @@ function concurrentTask(num: number): number {
   return num;
 }
 
-// create a task
-let task: taskpool.Task = new taskpool.Task(concurrentTask, 100);
-// Delayed execution of task
-taskpool.executeDelayed(3000, task, taskpool.Priority.HIGH).then((value: Object) => {
-  // Processing delayed task results
-  hilog.info(DOMAIN, TAG, FORMAT, 'taskpool result: ' + value);
-}).catch((err: BusinessError) => {
-  hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
-});
+function executeTaskPool() {
+  // create a task
+  let task: taskpool.Task = new taskpool.Task(concurrentTask, 100);
+  // Delayed execution of task
+  taskpool.executeDelayed(3000, task, taskpool.Priority.HIGH).then((value: Object) => {
+    // Processing delayed task results
+    hilog.info(DOMAIN, TAG, FORMAT, 'taskpool result: ' + value);
+  }).catch((err: BusinessError) => {
+    hilog.error(DOMAIN, TAG, FORMAT, `taskpool execute error. Cause code: ${err.code},message: ${err.message}`);
+  });
+}
 // [End quick_start]
+
+@Component
+export struct ConcurrentTaskManagement5 {
+  @Styles
+  buttonStyles() {
+    .width('100%')
+    .height(40)
+  }
+
+  build() {
+    NavDestination() {
+      Column() {
+        Button($r('app.string.task_delay_scheduling_title'))
+          .buttonStyles()
+          .margin({
+            bottom: 16
+          })
+          .onClick(() => {
+            executeTaskPool();
+          })
+      }
+      .width('100%')
+      .height('100%')
+      .justifyContent(FlexAlign.End)
+      .padding({
+        right: 24,
+        bottom: 16,
+        left: 24
+      })
+    }
+    .title($r('app.string.task_delay_scheduling_title'))
+  }
+}

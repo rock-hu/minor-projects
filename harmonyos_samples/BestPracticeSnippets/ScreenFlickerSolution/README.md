@@ -35,7 +35,7 @@
 └──entry/src/main/resources                   // 应用静态资源目录
 ```
 
-# 具体实现
+## 具体实现
 
 1. 连续点击场景：当点击时，计数器加1，进行动画逻辑。动画结束时，计数器减1。全部动画结束时，根据计数器判断最后执行缩放的大小。
 2. Tabs切换场景：切换动画开始时触发下划线跟着页面一起滑动，同时宽度渐变（onAnimationStart方法）。切换动画结束时触发下划线动画停止（onAnimationEnd方法）。在页面跟手滑动过程中，逐帧触发下划线滑动距离、下划线宽度、下划线切换到不同页签等属性（getCurrentIndicatorInfo方法）。
@@ -49,7 +49,7 @@
 
 不涉及。
 
-### 约束与限制
+## 约束与限制
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机。
 
@@ -58,3 +58,14 @@
 3. DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
 
 4. HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。
+
+## 下载
+
+如需单独下载本工程，执行如下命令：
+```
+git init
+git config core.sparsecheckout true
+echo ScreenFlickerSolution/ > .git/info/sparse-checkout
+git remote add origin https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+git pull origin master
+```

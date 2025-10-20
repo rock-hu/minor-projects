@@ -43,3 +43,14 @@
 3. DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
 
 4. HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。
+
+### 下载
+
+如需单独下载本工程，执行如下命令：
+```
+git init
+git config core.sparsecheckout true
+echo HapAndHarDependHar/ > .git/info/sparse-checkout
+git remote add origin https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+git pull origin master
+```

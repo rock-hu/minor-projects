@@ -11,7 +11,7 @@ export default class EntryAbility extends UIAbility {
   // ...
   onForeground(): void {
     // Create an HTTP request based on the service requirements at the foreground
-    let httpRequest = http.createHttp();
+    let httpRequest: http.HttpRequest = http.createHttp();
     // ...
   }
 

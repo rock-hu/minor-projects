@@ -20,7 +20,7 @@ The images are for reference only. The actual camera preview and captured images
 
 2. Tap **Process stride: solution 2** on the parent page to redirect to the child page **DealStrideTwo**. The camera preview stream is displayed on the child page, and no artifact appears.
 
-### Project Directory
+## Project Directory
 
 ```
 ├──entry/src/main/ets/
@@ -151,15 +151,15 @@ function onImageArrival(receiver: image.ImageReceiver): void {
   })
 }
 ```
-### Required Permissions
+## Required Permissions
 
 **ohos.permission.CAMERA**: allows an application to use the camera.
 
-### Dependencies
+## Dependencies
 
 N/A
 
-### Constraints
+## Constraints
 
 1. This sample is supported only on Huawei phones with standard systems.
 
@@ -168,3 +168,14 @@ N/A
 3. The DevEco Studio version must be DevEco Studio 5.0.5 Release or later.
 
 4. The HarmonyOS SDK version must be HarmonyOS 5.0.5 Release SDK or later.
+
+## Download
+
+To download this project separately, execute the following command:
+```
+git init
+git config core.sparsecheckout true
+echo DealStrideSolution/ > .git/info/sparse-checkout
+git remote add origin https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+git pull origin master
+```

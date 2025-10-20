@@ -46,12 +46,12 @@ export class ContinueModel {
 
   private initFromStorage(): void {
     try {
-      const savedTabIndex = AppStorage.get('mainTabIndex');
+      const savedTabIndex: number = AppStorage.get('mainTabIndex');
       if (savedTabIndex !== undefined) {
         this.data.mainTabIndex = Number(savedTabIndex);
       }
 
-      const darkMode = AppStorage.get('darkMode');
+      const darkMode: boolean = AppStorage.get('darkMode');
       if (darkMode !== undefined) {
         this.data.userPreferences.darkMode = Boolean(darkMode);
       }

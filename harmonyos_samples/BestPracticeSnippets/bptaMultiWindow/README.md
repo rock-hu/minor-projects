@@ -43,3 +43,14 @@
 * DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
 
 * HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。
+
+### Download
+
+To download this project separately, execute the following command:
+```
+git init
+git config core.sparsecheckout true
+echo bptaMultiWindow/ > .git/info/sparse-checkout
+git remote add origin https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+git pull origin master
+```

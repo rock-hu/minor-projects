@@ -17,9 +17,9 @@
 * 最佳实践: 应用并发设计 并发任务管理 多任务同步等待结果（任务组）
 */
 // [Start image_processing]
-import { taskpool } from '@kit.ArkTS';
-import { hilog } from '@kit.PerformanceAnalysisKit';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { taskpool } from '@kit.ArkTS';
 
 // [StartExclude image_processing]
 const DOMAIN = 0x0000;
@@ -50,11 +50,48 @@ function histogramStatistic(pixelBuffer: ArrayBuffer): void {
       hilog.error(DOMAIN, TAG, FORMAT, `addTask failed. Cause code: ${err.code},message: ${err.message}`);
     }
   }
-  taskpool.execute(taskGroup, taskpool.Priority.HIGH).then((res: Object[]): void | Promise<void> => {
-    // Result data processing
-    hilog.info(DOMAIN, TAG, FORMAT, `res:${res}`);
-  }).catch((error: BusinessError) => {
+  try {
+    taskpool.execute(taskGroup, taskpool.Priority.HIGH).then((res: Object[]): void | Promise<void> => {
+      // Result data processing
+      hilog.info(DOMAIN, TAG, FORMAT, `res:${res}`);
+    }).catch((error: BusinessError) => {
+      hilog.error(DOMAIN, TAG, FORMAT, `taskpool excute error: ${error}`);
+    });
+  } catch (error) {
     hilog.error(DOMAIN, TAG, FORMAT, `taskpool excute error: ${error}`);
-  });
+  }
 }
 // [End image_processing]
+
+@Component
+export struct ConcurrentTaskManagement3 {
+  @Styles
+  buttonStyles() {
+    .width('100%')
+    .height(40)
+  }
+
+  build() {
+    NavDestination() {
+      Column() {
+        Button($r('app.string.task_set_title'))
+          .buttonStyles()
+          .margin({
+            bottom: 16
+          })
+          .onClick(() => {
+            histogramStatistic(new ArrayBuffer(32));
+          })
+      }
+      .width('100%')
+      .height('100%')
+      .justifyContent(FlexAlign.End)
+      .padding({
+        right: 24,
+        bottom: 16,
+        left: 24
+      })
+    }
+    .title($r('app.string.task_set_title'))
+  }
+}

@@ -39,11 +39,11 @@
 └──entry/src/main/resources                 // 应用静态资源目录
 ```
 
-## 相关权限
+### 相关权限
 
 不涉及。
 
-## 约束与限制
+### 约束与限制
 
 * 本示例仅支持标准系统上运行，支持设备：华为手机。
 
@@ -52,3 +52,14 @@
 * DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
 
 * HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。
+
+### 下载
+
+如需单独下载本工程，执行如下命令：
+```
+git init
+git config core.sparsecheckout true
+echo SimpleChatList/ > .git/info/sparse-checkout
+git remote add origin https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+git pull origin master
+```
