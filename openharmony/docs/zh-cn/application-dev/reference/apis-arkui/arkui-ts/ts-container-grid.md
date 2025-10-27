@@ -127,7 +127,7 @@ columnsTemplate(value: string | ItemFillPolicy)
 
 当value设置为ItemFillPolicy类型时，将根据Grid组件宽度对应[断点类型](../../../ui/arkts-layout-development-grid-layout.md#栅格容器断点)确定列数。
 
-例如，ItemFillPolicy.BREAKPOINT_DEFAULT在组件宽度相当于sm及更小的设备上显示2列，相当于md设备时显示3列，相当于lg及更大的设备时显示5列，且每列均为1fr。
+例如，ItemFillPolicy.BREAKPOINT_DEFAULT在组件宽度属于sm及更小的断点区间时显示2列，属于md断点区间时显示3列，属于lg及更大的断点区间时显示5列，且每列均为1fr。
 
 **原子化服务API：** 从API version 22开始，该接口支持在原子化服务中使用。
 
@@ -268,7 +268,7 @@ scrollBarColor(value: Color | number | string)
 
 scrollBarColor(color: Color | number | string | Resource)
 
-设置滚动条的颜色。
+设置滚动条的颜色。与[scrollBarColor](#scrollbarcolor)相比， 参数名改为color，并开始支持Resource类型。
 
 **原子化服务API：** 从API version 22开始，该接口支持在原子化服务中使用。
 
@@ -876,7 +876,7 @@ onScroll(event: (scrollOffset: number, scrollState: [ScrollState](ts-container-l
 
 | 参数名 | 类型 | 必填 | 说明 |
 | ------ | ------ | ------ | ------|
-| scrollOffset | number | 是 | 每帧滚动的偏移量，Grid的内容向上滚动时偏移量为正，向下滚动时偏移量为负。<br/>单位vp。 |
+| scrollOffset | number | 是 | 相对于上一帧的偏移量，Grid的内容向上滚动时偏移量为正，向下滚动时偏移量为负。<br/>单位vp。 |
 | scrollState | [ScrollState](ts-container-list.md#scrollstate枚举说明) | 是 | 当前滑动状态。 |
 
 ## ComputedBarAttribute<sup>10+</sup>对象说明
@@ -1971,7 +1971,7 @@ struct GridExample {
 
 ### 示例12（方向键走焦换行模式）
 
-该示例通过focusWrapMode接口，实现了Grid组件方向键走焦换行效果。
+从API version 20开始，该示例通过[focusWrapMode](#focuswrapmode20)接口，实现了Grid组件方向键走焦换行效果。
 
 ```ts
 // xxx.ets
@@ -2894,15 +2894,15 @@ struct GridExample {
   }
 }
 ```
-Grid宽度相当于sm及以下时显示2列。
+Grid宽度属于sm及更小的断点区间时显示2列。
 
 ![sm_grid](figures/grid_itemFillPolicy_SM.png)
 
-Grid宽度相当于sm及以下时显示2列。
+Grid宽度属于md断点区间时显示3列。
 
 ![md_grid](figures/grid_itemFillPolicy_MD.png)
 
-Grid宽度相当于sm及以下时显示2列。
+Grid宽度属于lg及更大的断点区间时显示5列。
 
 ![lg_grid](figures/grid_itemFillPolicy_LG.png)
 

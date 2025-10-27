@@ -22,6 +22,7 @@
       - [\@LocalBuilder装饰器：维持组件关系](../ui/state-management/arkts-localBuilder.md)
       - [\@BuilderParam装饰器：引用\@Builder函数](../ui/state-management/arkts-builderparam.md)
       - [wrapBuilder：封装全局@Builder](../ui/state-management/arkts-wrapBuilder.md)
+      - [mutableBuilder: 动态全局@Builder封装](../ui/state-management/arkts-mutableBuilder.md) 
     - [\@Styles装饰器：定义组件重用样式](../ui/state-management/arkts-style.md)
     - [\@Extend装饰器：定义扩展组件样式](../ui/state-management/arkts-extend.md)
     - [stateStyles：多态样式](../ui/state-management/arkts-statestyles.md)
@@ -82,14 +83,17 @@
         - [组件内状态变量迁移指导](state-management/arkts-v1-v2-migration-inner-component.md)
         - [数据对象状态变量的迁移指导](state-management/arkts-v1-v2-migration-inner-class.md)
         - [应用内状态变量和其他场景迁移指导](state-management/arkts-v1-v2-migration-application-and-others.md)
+        - [组件复用迁移指导](state-management/arkts-v1-v2-migration-reusable.md)
   - 学习UI范式渲染控制<!--arkts-rendering-control-->
       - [渲染控制概述](rendering-control/arkts-rendering-control-overview.md)
       - [if/else：条件渲染](rendering-control/arkts-rendering-control-ifelse.md)
       - [ForEach：循环渲染](rendering-control/arkts-rendering-control-foreach.md)
       - [LazyForEach：数据懒加载](rendering-control/arkts-rendering-control-lazyforeach.md)
       - [Repeat：可复用的循环渲染](rendering-control/arkts-new-rendering-control-repeat.md)
-      - [LazyForEach迁移Repeat指导文档](rendering-control/arkts-lazyforeach-repeat-migration-guide.md)
+      - [LazyForEach迁移Repeat指南](rendering-control/arkts-lazyforeach-repeat-migration-guide.md)
       - [ContentSlot：混合开发](rendering-control/arkts-rendering-control-contentslot.md)
+  - 学习响应式环境变量<!--arkts-env-property-->
+      - [\@Env：环境变量](arkts-env-system-property.md)
   - 设置组件导航和页面路由<!--arkts-set-navigation-routing-->
     - [组件导航和页面路由概述](arkts-navigation-introduction.md)
     - [组件导航(Navigation) (推荐)](arkts-navigation-navigation.md)
@@ -118,6 +122,7 @@
     - [图标小符号 (SymbolGlyph/SymbolSpan)](arkts-common-components-symbol.md)
     - [属性字符串 (StyledString/MutableStyledString)](arkts-styled-string.md)
     - [图文混排](arkts-text-image-layout.md)
+    - [管理软键盘](arkts-manage-keyboard.md)
   - 媒体展示<!--arkts-media-display-->
     - [显示图片 (Image)](arkts-graphics-display.md)
     - [视频播放 (Video)](arkts-common-components-video-player.md)
