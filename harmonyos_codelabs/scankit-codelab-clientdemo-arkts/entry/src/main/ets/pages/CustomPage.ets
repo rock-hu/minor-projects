@@ -388,8 +388,8 @@ struct CustomScanPage {
           Image($rawfile('scan_selected.svg'))
             .scanCenter(item, this.xComDisplay)
             .opacity(0)
-        }, (item: scanBarcode.ScanCodeRect, index: number) => {
-          return index + '__' + JSON.stringify(item);
+        }, (item: scanBarcode.ScanCodeRect) => {
+          return JSON.stringify(item);
         })
       }
 
@@ -418,8 +418,8 @@ struct CustomScanPage {
                 }
               });
             })
-        }, (item: scanBarcode.ScanCodeRect, index: number) => {
-          return index + '__' + JSON.stringify(item);
+        }, (item: scanBarcode.ScanCodeRect) => {
+          return JSON.stringify(item);
         })
       }
 

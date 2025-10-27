@@ -45,6 +45,8 @@ export default class EntryAbility extends UIAbility {
         } catch (error) {
           hilog.error(0x0000, TAG, `Failed to load the content. Code: ${error.code}.`);
         }
+      }).catch((error: BusinessError) => {
+        hilog.error(0x0000, TAG, `Failed to getMainWindow. Code: ${error.code}.`);
       });
     } catch (error) {
       hilog.error(0x0000, TAG, `Failed to getMainWindow. Code: ${error.code}.`);

@@ -59,6 +59,6 @@ Open the demo app. The level-1 menu screen will be displayed, showing buttons fo
 # Constraints
 
 1. This sample can only be run on standard-system Huawei phones and tablets.
-2. The HarmonyOS version must be HarmonyOS 5.0.3 Release or later.
-3. The DevEco Studio version must be DevEco Studio 5.0.3 Release or later.
-4. The HarmonyOS SDK version must be HarmonyOS 5.0.3 Release SDK SDK or later.
+2. The HarmonyOS version must be HarmonyOS 5.0.5 Release or later.
+3. The DevEco Studio version must be DevEco Studio 6.0.0 Release or later.
+4. The HarmonyOS SDK version must be HarmonyOS 6.0.0 Release SDK or later.
