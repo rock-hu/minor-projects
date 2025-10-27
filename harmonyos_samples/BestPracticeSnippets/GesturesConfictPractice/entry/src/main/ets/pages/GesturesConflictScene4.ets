@@ -14,6 +14,9 @@
 */
 
 // [Start gestures_conflict_scene4]
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+
 @Entry
 @Component
 struct GesturesConflictScene4 {
@@ -27,7 +30,12 @@ struct GesturesConflictScene4 {
           SwipeGesture({ direction: SwipeDirection.Horizontal })//水平方向滑动手势
             .onAction((event) => {
               if (event) {
-                console.info('Column SwipeGesture');
+                try {
+                  this.getUIContext().getPromptAction().showToast({ message: 'SwipeGesture' });
+                } catch (err) {
+                  let error = err as BusinessError;
+                  hilog.error(0x0000, 'testTag', `showToast err, code: ${error.code}, mesage: ${error.message}`);
+                }
               }
             })
         )

@@ -49,6 +49,8 @@ struct MainPage {
   @State currentIndex: TabBarType = TabBarType.DISCOVER;
   @State webViewController?: WebviewController = undefined;
   @State learnedId: string = '';
+  @State @Watch('changeColorMode') systemColorMode: ConfigurationConstant.ColorMode =
+    AppStorage.get<ConfigurationConstant.ColorMode>('systemColorMode')!;
   @StorageLink('currentBreakpoint') currentBreakpoint: string = BreakpointTypeEnum.MD;
   private breakpointSystem: BreakpointSystem = new BreakpointSystem();
   @Provide('appPathStack') appPathStack: NavPathStack = new NavPathStack();
@@ -82,6 +84,10 @@ struct MainPage {
       UserModel.getInstance().saveDistributedUserData(userData);
     }
     this.createProfile()
+  }
+
+  changeColorMode() {
+    DarkModeUtil.getInstance().checkDarkModeSetting();
   }
 
   async createProfile() {

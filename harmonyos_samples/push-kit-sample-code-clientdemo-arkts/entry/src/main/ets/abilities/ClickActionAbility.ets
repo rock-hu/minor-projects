@@ -16,6 +16,7 @@
 import { UIAbility, Want } from '@kit.AbilityKit';
 import { window } from '@kit.ArkUI';
 import Logger from '../utils/Logger';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 export default class ClickActionAbility extends UIAbility {
   private localStorage = new LocalStorage();
@@ -35,6 +36,8 @@ export default class ClickActionAbility extends UIAbility {
   }
 
   onWindowStageCreate(windowStage: window.WindowStage): void {
-    windowStage.loadContent('pages/ClickActionInnerPage', this.localStorage);
+      windowStage.loadContent('pages/ClickActionInnerPage', this.localStorage).catch((err: BusinessError) => {
+        Logger.error(`Failed to load inner page. Cause code: ${err.code}, message: ${err.message}`);
+      });
   }
 }

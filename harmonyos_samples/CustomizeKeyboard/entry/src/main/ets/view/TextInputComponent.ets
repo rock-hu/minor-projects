@@ -29,6 +29,7 @@ export struct TextInputComponent {
   @Provide systemKeyboardHeight: number = 0;
   @Provide customKeyboardHeight: number = 0;
   @Provide bottomRectHeight: number = 0;
+  @Link @Watch('onChangeKeyboard') isKeyboardShown: boolean;
   textInputController: TextInputController = new TextInputController();
 
   aboutToAppear(): void {
@@ -47,6 +48,13 @@ export struct TextInputComponent {
       })
     })
   }
+
+  onChangeKeyboard() {
+    if (this.isKeyboardShown === false) {
+      this.textInputController.stopEditing();
+    }
+  }
+
   // [EndExclude TextInputComponent_start]
 // [Start customKeyboard_start]
   build() {
@@ -79,10 +87,12 @@ export struct TextInputComponent {
           // [StartExclude TextInput_start]
         .onBlur(() => {
           this.isTabViewShow = false;
+          this.isKeyboardShown = false;
           this.keyboardController.changeAvoidHeight(0);
         })
         .onFocus(() => {
           this.isTabViewShow = true;
+          this.isKeyboardShown = true;
         })
         .onChange((value) => {
           this.inputText = value;

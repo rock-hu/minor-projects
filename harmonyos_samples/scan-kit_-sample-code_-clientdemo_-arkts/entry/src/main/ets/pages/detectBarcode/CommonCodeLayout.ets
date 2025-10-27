@@ -129,7 +129,7 @@ struct CodeLayout {
                 params: this.result[index]
               })
             })
-        }, (item: Array<number>) => item[0] + item[1] + item[2] + item[3] + 'codeLocation')
+        }, (item: Array<number>, _: number) => item[0] + item[1] + item[2] + item[3] + 'codeLocation')
       }
       .padding({
         top: this.windowService.topAvoidHeight

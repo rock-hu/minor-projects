@@ -20,6 +20,7 @@ import { pushService } from '@kit.PushKit';
 import Logger from '../utils/Logger';
 import { ExtraData } from './Model';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { VoipCallService } from '../service/VoipCallService';
 
 export default class MainAbility extends UIAbility {
   private localStorage = new LocalStorage();
@@ -38,9 +39,15 @@ export default class MainAbility extends UIAbility {
 
   async onWindowStageCreate(windowStage: window.WindowStage): Promise<void> {
     Logger.info('MainAbility onWindowStageCreate');
-    await windowStage.loadContent('pages/MainPage', this.localStorage).then(()=>{
-      this.promptAction = windowStage.getMainWindowSync()?.getUIContext()?.getPromptAction();
-    });
+    try {
+      await windowStage.loadContent('pages/MainPage', this.localStorage).then(()=>{
+        this.promptAction = windowStage.getMainWindowSync()?.getUIContext()?.getPromptAction();
+      }).catch((err: BusinessError) => {
+        Logger.error(`Failed to load the content. Cause code: ${err.code}, message: ${err.message}`);
+      });
+    } catch (e) {
+      Logger.error(`Failed to load the content. Cause code: ${e.code}, message: ${e.message}`);
+    }
     await this.requestEnableNotification();
   }
 
@@ -81,6 +88,42 @@ export default class MainAbility extends UIAbility {
     } catch (e) {
       const err: BusinessError = e;
       Logger.error('Failed to receive message: %{public}d %{public}s', err.code, err.message);
+    }
+
+    try {
+      pushService.receiveMessage('BACKGROUND', this, (payload) => {
+        try { // recommend to add try-catch block to capture exceptions
+          Logger.info(`receiveMessage, type: ${payload.type}`);
+          // get extraData passed by REST API
+          const extraData: string = JSON.parse(payload?.data)?.data;
+          Logger.info('receive background message, extraData: %{public}s', extraData);
+        } catch (e) {
+          let errRes: BusinessError = e as BusinessError;
+          Logger.error('Failed to process background message: %{public}d %{public}s', errRes.code, errRes.message);
+        }
+      });
+    } catch (err) {
+      let e: BusinessError = err as BusinessError;
+      Logger.error('Failed to get background message: %{public}d %{public}s', e.code, e.message);
+    }
+
+    try {
+      pushService.receiveMessage('VoIP', this, async (payload) => {
+        try { // recommend to add try-catch block to capture exceptions
+          Logger.info(`receiveMessage, type: ${payload.type}`);
+          if (canIUse('SystemCapability.Telephony.VoipCallManager')) {
+            await VoipCallService.processVoIPMainMsg(payload.data, this.context);
+          } else {
+            Logger.error('processVoIPMainMsg not by this device');
+          }
+        } catch (e) {
+          let errRes: BusinessError = e as BusinessError;
+          Logger.error('Failed to process VoIP message: %{public}d %{public}s', errRes.code, errRes.message);
+        }
+      });
+    } catch (err) {
+      let e: BusinessError = err as BusinessError;
+      Logger.error('Failed to register VOIP: %{public}d %{public}s', e.code, e.message);
     }
   }
 }

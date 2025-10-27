@@ -59,6 +59,14 @@
     {
       "name": "tabview_button_width",
       "value": "114vp"
+    },
+    {
+      "name": "keyboard_total_height_portrait",
+      "value": "283vp"
+    },
+    {
+      "name": "keyboard_total_height_landscape",
+      "value": "240vp"
     }
   ]
 }

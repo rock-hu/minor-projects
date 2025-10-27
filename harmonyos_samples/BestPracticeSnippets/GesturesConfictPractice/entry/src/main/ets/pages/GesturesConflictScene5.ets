@@ -14,6 +14,9 @@
 */
 
 // [Start gestures_conflict_scene5]
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+
 @Entry
 @Component
 struct GesturesConflictScene5 {
@@ -30,7 +33,12 @@ struct GesturesConflictScene5 {
           .width(200)
           .height(50)
           .onClick(() => {
-            console.info('GesturesConflictScene5 Button2 click');
+              try {
+                this.getUIContext().getPromptAction().showToast({ message: 'GesturesConflictScene5 Button2 click' });
+              } catch (err) {
+                let error = err as BusinessError;
+                hilog.error(0x0000, 'testTag', `showToast err, code: ${error.code}, mesage: ${error.message}`);
+              }
           })
       }
       .margin(20)
@@ -39,9 +47,6 @@ struct GesturesConflictScene5 {
         .margin(15)
     }
     .width('100%')
-    .onDragStart(() => {
-      console.info('GesturesConflictScene5 Drag start.');
-    })
     .gesture(
       TapGesture({ count: 1 })
         .onAction(() => {

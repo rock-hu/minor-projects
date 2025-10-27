@@ -39,7 +39,7 @@
 ## 开发准备
 1. 将app.json5文件中的包名替换为您自己应用的包名。
 2. 开通推送服务，详情请参考[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/push-config-setting#section13206419341)。
-3. 完成手动签名，详情请参考[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/ide-signing#section297715173233)。
+3. 完成应用签名，详情请参考[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/ide-signing)。
 4. 为实现消息展示后可以点击跳转到应用页面，本示例工程已经在module.json5文件中配置好skills标签，如有需要可以参考[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/push-send-alert#section697519219136)自行修改。
 
 ## 使用说明
@@ -71,6 +71,16 @@
 4. 将应用切换至后台，使用[消息通知-推送服务-服务端DEMO](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java)，或根据[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/push-send-extend-noti)使用Postman等其它调试工具，再次推送通知扩展消息。
 5. 下拉状态栏，在通知中心查看消息。
 6. 点击通知栏消息，跳转应用的落地页。
+
+### 推送后台消息
+1. 保持应用在前台，根据[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/push-background)使用Postman等其它调试工具，推送后台消息。
+2. 查看接收的后台消息数据。
+
+### 推送应用内通话消息
+1. 推送应用内通话消息前，请先完成[申请推送应用内通话消息权益](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/push-apply-right#section7291115452410)。
+2. 使用[消息通知-推送服务-服务端DEMO](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java)，或根据[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/push-voip)使用Postman等其它调试工具，推送应用内通话消息。
+3. 当终端处于锁屏状态时，查看锁屏通知的展示效果，可在锁屏上点击接听或拒绝按钮。锁屏状态下只支持接听语音。
+4. 当终端处于解锁状态时，查看网络音视频通话呼叫消息横幅展示效果，支持用户接听视频或语音。
 
 ## 相关权限
 不涉及

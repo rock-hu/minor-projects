@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { AbilityConstant, common, UIAbility, Want } from '@kit.AbilityKit';
+import { AbilityConstant, common, Configuration, ConfigurationConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { buffer } from '@kit.ArkTS';
 import { webview } from '@kit.ArkWeb';
 import { window } from '@kit.ArkUI';
@@ -35,8 +35,12 @@ export default class EntryAbility extends UIAbility {
     this.handleParams(want);
     this.restoringData(want, launchParam);
     this.initWebEngine();
-    AppStorage.setOrCreate('systemColorMode', this.context.config.colorMode);
-    this.onConfigurationUpdate(this.context.config);
+    try {
+      this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
+    } catch {
+      Logger.error(TAG, `onCreate setColorMode failed`);
+    }
+    AppStorage.setOrCreate('systemColorMode', ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
     WindowUtil.setMissionContinueActive(this.context, false);
   }
 
@@ -86,6 +90,17 @@ export default class EntryAbility extends UIAbility {
     AppStorage.setOrCreate<window.WindowStage>('windowStage', windowStage);
     WindowUtil.requestFullScreen(windowStage, this.context);
     Logger.info(TAG, 'Ability onWindowStageRestore');
+  }
+
+  onConfigurationUpdate(newConfig: Configuration): void {
+    Logger.info(TAG, 'Ability onConfigurationUpdate');
+    const newColorMode: ConfigurationConstant.ColorMode =
+      newConfig.colorMode || ConfigurationConstant.ColorMode.COLOR_MODE_DARK;
+    const currentColorMode = AppStorage.get<ConfigurationConstant.ColorMode>('systemColorMode');
+    // When the system dark/light color mode is different form the app color mode,modify the app's color mode.
+    if (newColorMode !== currentColorMode) {
+      AppStorage.setOrCreate('systemColorMode', newColorMode);
+    }
   }
 
   onNewWant(want: Want, launchParam: AbilityConstant.LaunchParam): void {

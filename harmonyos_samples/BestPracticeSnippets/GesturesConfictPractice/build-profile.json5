@@ -1,20 +1,6 @@
 {
   "app": {
-    "signingConfigs": [
-      {
-        "name": "default",
-        "type": "HarmonyOS",
-        "material": {
-          "certpath": "C:\\Users\\kl\\.ohos\\config\\default_GesturesConfictPractice_KFdURs0XiEcbni4lqvihGLgRTxLgrZwBY9K9w_2bgF4=.cer",
-          "keyAlias": "debugKey",
-          "keyPassword": "0000001B98687470C41AD5D2395DCA999D14C0AAD483063F11D9A44283733D9145D8FAB29F7075B9E1C485",
-          "profile": "C:\\Users\\kl\\.ohos\\config\\default_GesturesConfictPractice_KFdURs0XiEcbni4lqvihGLgRTxLgrZwBY9K9w_2bgF4=.p7b",
-          "signAlg": "SHA256withECDSA",
-          "storeFile": "C:\\Users\\kl\\.ohos\\config\\default_GesturesConfictPractice_KFdURs0XiEcbni4lqvihGLgRTxLgrZwBY9K9w_2bgF4=.p12",
-          "storePassword": "0000001B2E7BF5B01846D1CD2407B30E356F865D761E823FC9734C4605952FCDAEF60A27691C417B37D324"
-        }
-      }
-    ],
+    "signingConfigs": [],
     "products": [
       {
         "name": "default",

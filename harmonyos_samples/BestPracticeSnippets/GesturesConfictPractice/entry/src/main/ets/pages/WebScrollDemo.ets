@@ -15,21 +15,32 @@
 
 import { webview } from '@kit.ArkWeb';
 
+@Entry
 @Component
-struct StackA {
+struct WebScrollDemo {
   controller: webview.WebviewController = new webview.WebviewController();
 
   build() {
     // [Start web_nested_scroll]
-    Web(
-      // [StartExclude web_nested_scroll]
-      { src: 'https://developer.huawei.com/consumer/cn/', controller: this.controller }
-      // [EndExclude web_nested_scroll]
-    )
-      .nestedScroll({
-        scrollForward: NestedScrollMode.PARENT_FIRST,
-        scrollBackward: NestedScrollMode.SELF_FIRST
-      })
+    Scroll() {
+      Column() {
+        Text('Text')
+          .fontSize(50)
+          .backgroundColor(Color.Red)
+          .width('100%')
+          .height('40%')
+        Web(
+          // [StartExclude web_nested_scroll]
+          { src: 'https://developer.huawei.com/consumer/cn/', controller: this.controller }
+          // [EndExclude web_nested_scroll]
+        )
+          .nestedScroll({
+            scrollForward: NestedScrollMode.PARENT_FIRST,
+            scrollBackward: NestedScrollMode.SELF_FIRST
+          })
+
+      }
+    }
     // [End web_nested_scroll]
   }
 }

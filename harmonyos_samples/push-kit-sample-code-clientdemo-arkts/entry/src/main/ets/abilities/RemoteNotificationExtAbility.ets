@@ -29,7 +29,7 @@ export default class RemoteNotificationExtAbility extends RemoteNotificationExte
       // get extraData passed by REST API
       const extraData: ExtraData = JSON.parse(JSON.parse(remoteNotificationInfo.data)?.data);
       const resourceMgr = (this.context as common.ExtensionContext).resourceManager;
-      const content = await resourceMgr.getMediaContent($r('app.media.overlay'));
+      const content = await resourceMgr.getMediaContent($r('app.media.overlay').id);
       const overlayIcon = await image.createImageSource(content.buffer).createPixelMap();
 
       // Return the replaced message content.

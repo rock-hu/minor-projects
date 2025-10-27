@@ -22,6 +22,7 @@ import { TextInputComponent } from '../view/TextInputComponent';
 @Component
 struct MainPage {
   @State bottomPadding: number = 210;
+  @State isKeyboardShown: boolean = false;
 
   aboutToAppear(): void {
     let event: emitter.InnerEvent = {
@@ -49,7 +50,7 @@ struct MainPage {
           .borderRadius(12)
           .padding({ left: $r('app.float.main_page_margin'), right: $r('app.float.main_page_margin') })
 
-        TextInputComponent()
+        TextInputComponent({ isKeyboardShown: this.isKeyboardShown })
         // [EndExclude MainPage_start]
       }
       .padding({ bottom: this.bottomPadding })
@@ -59,6 +60,11 @@ struct MainPage {
       .expandSafeArea([SafeAreaType.KEYBOARD, SafeAreaType.SYSTEM])
       // [EndExclude MainPage_start]
     }
+    .onClick(() => {
+      if (this.isKeyboardShown) {
+        this.isKeyboardShown = false;
+      }
+    })
     .mode(NavigationMode.Stack)
     .titleMode(NavigationTitleMode.Full)
     .title($r('app.string.main_page_title'))

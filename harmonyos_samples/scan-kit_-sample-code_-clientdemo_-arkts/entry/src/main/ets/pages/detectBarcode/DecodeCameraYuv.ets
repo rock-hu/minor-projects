@@ -107,7 +107,9 @@ struct DecodeCameraYuv {
     if (this.photoSession) {
       // Stop the current camera session.
       try {
-        this.photoSession.stop();
+        this.photoSession.stop().catch((error: BusinessError) => {
+          Logger.error(TAG, `Failed to stop photoSession. Code: ${error.code}.`);
+        });
       } catch (error) {
         let err = error as BusinessError;
         Logger.error(TAG, `Failed to stop photoSession. Code: ${err.code}.`);
@@ -116,7 +118,9 @@ struct DecodeCameraYuv {
       // close CameraInput.
       if (this.cameraInput) {
         try {
-          this.cameraInput.close();
+          this.cameraInput.close().catch((error: BusinessError) => {
+            Logger.error(TAG, `Failed to close cameraInput. Code: ${error.code}.`);
+          });
         } catch (error) {
           let err = error as BusinessError;
           Logger.error(TAG, `Failed to close cameraInput. Code: ${err.code}.`);
@@ -126,7 +130,9 @@ struct DecodeCameraYuv {
       // Release the camera preview stream.
       if (this.previewOutput) {
         try {
-          this.previewOutput.release();
+          this.previewOutput.release().catch((error: BusinessError) => {
+            Logger.error(TAG, `Failed to release previewOutput. Code: ${error.code}.`);
+          });
         } catch (error) {
           let err = error as BusinessError;
           Logger.error(TAG, `Failed to release previewOutput. Code: ${err.code}.`);
@@ -135,7 +141,9 @@ struct DecodeCameraYuv {
       // Release the second camera preview stream.
       if (this.previewOutput2) {
         try {
-          this.previewOutput2.release();
+          this.previewOutput2.release().catch((error: BusinessError) => {
+            Logger.error(TAG, `Failed to release previewOutput2. Code: ${error.code}.`);
+          });
         } catch (error) {
           let err = error as BusinessError;
           Logger.error(TAG, `Failed to release previewOutput2. Code: ${err.code}.`);
@@ -143,7 +151,9 @@ struct DecodeCameraYuv {
       }
       // Release the camera session.
       try {
-        this.photoSession.release();
+        this.photoSession.release().catch((error: BusinessError) => {
+          Logger.error(TAG, `Failed to release photoSession. Code: ${error.code}.`);
+        });
       } catch (error) {
         Logger.error(TAG, `Failed to release photoSession. Code: ${error?.code}.`);
       }

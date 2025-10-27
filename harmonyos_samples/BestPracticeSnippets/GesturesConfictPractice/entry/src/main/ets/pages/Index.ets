@@ -83,6 +83,12 @@ struct Index {
         .onClick(() => {
           this.jumperPage('GesturesConflictScene7');
         })
+
+      Button('WebScrollDemo')
+        .width('100%')
+        .onClick(() => {
+          this.jumperPage('WebScrollDemo');
+        })
     }
     .height('100%')
     .width('100%')

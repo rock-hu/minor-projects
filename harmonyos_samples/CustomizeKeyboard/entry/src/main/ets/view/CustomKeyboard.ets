@@ -17,6 +17,7 @@ import { Constants } from '../constants/Constants';
 import { KeyboardController } from '../model/KeyboardController';
 import { EnglishKeyboard } from './EnglishKeyboard';
 import { NumberKeyboard } from './NumberKeyboard';
+import display from '@ohos.display';
 
 // [Start customKeyboard_start1]
 // [Start avoidHeight_start]
@@ -32,6 +33,59 @@ export struct CustomKeyboard {
   @Consume bottomRectHeight: number;
   // [EndExclude avoidHeight_start]
   // [EndExclude customKeyboard_start1]
+
+  @State isLandscape: boolean = false;
+  private onDisplayChange = () => {
+    this.updateOrientation();
+  };
+
+  aboutToAppear(): void {
+    this.updateOrientation();
+    try {
+      display.on('change', this.onDisplayChange);
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  aboutToDisappear(): void {
+    try {
+      display.off('change', this.onDisplayChange);
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  private updateOrientation() {
+    try {
+      const d = display.getDefaultDisplaySync();
+      this.isLandscape = d.width > d.height;
+    } catch (e) {
+      this.isLandscape = false;
+    }
+  }
+
+  private getKeyboardHeightVp(): number | Resource {
+    try {
+      const d = display.getDefaultDisplaySync();
+      const ui = this.getUIContext();
+      const screenHeightVp = ui.px2vp(d.height);
+      const shortSideVp = ui.px2vp(Math.min(d.width, d.height));
+      const isLargeScreen = shortSideVp >= 600; // 近似判定平板/大屏
+  
+      // 手机：竖屏横屏 36%(不支持横竖屏切换)
+      // 平板：竖屏 22%，横屏 33%（降低高度以适配大屏）
+      const ratio = isLargeScreen
+          ? (this.isLandscape ? 0.33 : 0.22)
+          :  0.36;
+  
+      return Math.floor(screenHeightVp * ratio);
+    } catch (e) {
+      // 显示信息不可用时的兜底，仍使用旧的资源高度
+      return $r('app.float.keyboard_total_height');
+    }
+  }
+
   build() {
     Column() {
       // [StartExclude avoidHeight_start]
@@ -58,7 +112,7 @@ export struct CustomKeyboard {
     // [StartExclude avoidHeight_start]
     .padding({ left: $r('app.float.keyboard_padding'), right: $r('app.float.keyboard_padding') })
     // [EndExclude customKeyboard_start1]
-    .height($r('app.float.keyboard_total_height')) // Set the total keyboard height by referencing the definition in the resource file.
+    .height(this.getKeyboardHeightVp())
     // [StartExclude customKeyboard_start1]
     .width('100%')
     .backgroundColor($r('app.color.keyboard_background_color'))

@@ -148,7 +148,7 @@ export struct CodeLayout {
       } else {
         ForEach(this.multiCodeScanLocation, (item: Array<number>, index: number) => {
           this.MultiCodeLayout(item, index)
-        }, (item: number) => item.toString())
+        }, (item: number, _: number) => item.toString())
         Image($rawfile('scan_selected.svg'))
           .selected(true, this.singleCodeX, this.singleCodeY)
           .scale({ x: this.singleCodeScale, y: this.singleCodeScale })
