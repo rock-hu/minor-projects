@@ -12,11 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { router } from '@kit.ArkUI';
+
 
 @Entry
 @Component
 struct Click {
-  @State message: string = 'Hello World'
+  @State message: string = 'Hello World';
 
   build() {
     Row() {
@@ -27,7 +29,7 @@ struct Click {
           .id("result_text")
         Button("singleClick")
           .id("click_bt")
-          .onClick(() => {
+          .onClick(() =>{
             this.message = "singleClick";
           })
         Button() {
@@ -38,15 +40,22 @@ struct Click {
         .type(ButtonType.Capsule)
         .margin({ top: 20 })
         .gesture(
-          TapGesture({ count: 2 })
-            .onAction(() => {
-              this.getUIContext().getRouter().pushUrl({ url: 'pages/Third' });
-            })
+        TapGesture({ count: 2 })
+          .onAction(() => {
+            router.pushUrl({ url: 'pages/Third' });
+          })
         )
+        Button() {
+          Text('LongClick')
+            .fontSize(25)
+            .fontWeight(FontWeight.Bold)
+        }
+        .type(ButtonType.Capsule)
+        .margin({ top: 20 })
         .gesture(
           LongPressGesture({ repeat: false })
-            .onAction((event: GestureEvent) => {
-              this.getUIContext().getRouter().pushUrl({ url: 'pages/Fourth' });
+            .onAction(() => {
+              router.pushUrl({ url: 'pages/Fourth' });
             })
         )
       }

@@ -11,9 +11,9 @@ This demo illustrates how to implement the function of obtaining a push token ba
 - pushService: This module provides basic capabilities of Push Kit, including obtaining and deleting push tokens, binding and unbinding accounts, and receiving scenario-specific messages.
 
 ## Effect Preview
-| Home Page Displayed                                             | Token Application Page                                  | Token Application Success                              | Page Displayed upon Notification Tapping                     |
-|-----------------------------------------------------------------|---------------------------------------------------------|--------------------------------------------------------|--------------------------------------------------------------|
-| <img src="./screenshots/clickLandingPage_en.png" width="300px"> | <img src="./screenshots/getToken_en.png" width="300px"> | <img src="./screenshots/success_en.png" width="300px"> | <img src="./screenshots/extendedToast_en.png" width="300px"> |
+| Home Page                                                          | Token Application Page                                           | Token Application Success                                          | In-app Page Displayed upon Notification Tapping                                               |
+|--------------------------------------------------------------|------------------------------------------------------|-----------------------------------------------------|-----------------------------------------------------------|
+| <img src="./screenshots/clickLandingPage.png" width="300px"> | <img src="./screenshots/getToken.png" width="300px"> | <img src="./screenshots/success.png" width="300px"> | <img src="./screenshots/extendedToast.png" width="300px"> |
 
 ## Project Directory
 
@@ -23,7 +23,7 @@ This demo illustrates how to implement the function of obtaining a push token ba
 │ │ ├─ClickActionAbility.ets       // Notification bar click event capability class.
 │ │ ├─FormAbility.ets              // Widget capability class.
 │ │ ├─MainAbility.ets              // Entry point class.
-│ │ ├─model.ets                    // Common API definition.
+│ │ ├─Model.ets                    // Common API definition.
 │ │ └─RemoteNotificationExtAbility.ets // Entry point class of the extended notification process.
 │ ├─pages                          // Directory for storing app UI files.               
 │ │ ├─ClickActionInnerPage.ets     // Landing page displayed upon a tap.           
@@ -33,14 +33,14 @@ This demo illustrates how to implement the function of obtaining a push token ba
 │ │ └─Logger.ets                   // Log class, which is used to manage system logs.
 │ ├─widget/pages                   // Directory for storing widget pages.
 │ │ └─WidgetCard.ets               // Widget page.
-└─entry/src/main/resources         // Directory of resource files.
+└─entry/src/main/resources         // Directory for storing resource files.
 ```
 
 ## Preparations
 1. Replace the package name in the **app.json5** file with the package name of your app.
 2. Enable Push Kit. For details, please refer to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/push-config-setting#section13206419341).
-3. Manually configure the signature. For details, please refer to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/ide-signing#section297715173233).
-4. To achieve the functionality of clicking on a message to jump to an application page, this sample project has already configured the skills tag in the module.json5 file. If needed, you can refer to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/push-send-alert#section697519219136) and modify it yourself.
+3. Sign your app. For details, please refer to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/ide-signing).
+4. To redirect users to an in-app page when they tap a message, the **skills** section has been preconfigured in the **module.json5** file in the demo project. You can modify the **skills** section by referring to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/push-send-alert#section697519219136) based on your service needs.
 
 ## How to Use
 ### Applying for a Token
@@ -72,11 +72,21 @@ This demo illustrates how to implement the function of obtaining a push token ba
 5. Swipe down from the status bar and check the received message on the notification panel.
 6. Tap the message to go to the specified landing page in the app.
 
-## Required Permissions
-N/A
+### Pushing a Background Message
+1. Keep the app running in the foreground. Then push a background message using the debugging tools such as Postman by referring to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/push-background).
+2. Check the received background message.
+
+### Pushing an In-App Call Message
+1. Apply for the [in-app call message permission](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/push-apply-right#section7291115452410) first.
+2. Push an in-app call message using the [notification - Push Kit - server-side demo](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java) or using other debugging tools such as Postman by referring to the [guide](https://developer.huawei.com/consumer/en/doc/harmonyos-guides/push-voip).
+3. When the device screen is locked, check the lock screen notification effect. A user can tap the answer or reject button on the lock screen. In this situation, only voice calls are supported.
+4. When the device screen is unlocked, check the banner notification effect upon an incoming video or voice call. In this situation, users can choose to answer the voice or video call.
+
+## Permissions
+None
 
 ## Constraints
-1. The sample app is only supported on Huawei phones, 2-in-1 devices, and tablets with standard systems. 
+1. This sample code can only run on standard-system devices, which are Huawei phones, 2-in-1 devices, and tablets.
 2. The HarmonyOS version must be HarmonyOS NEXT Developer Beta5 or later.
 3. The DevEco Studio version must be DevEco Studio NEXT Developer Beta5 or later.
 4. The HarmonyOS SDK version must be HarmonyOS NEXT Developer Beta5 or later.

@@ -296,22 +296,22 @@ struct LocationService {
 
   locationFailedAlert(errCode: number) {
     try {
-      if (errCode === CommonConstants.LOCATION_SWITCH_OFF) {
+      if (errCode == CommonConstants.LOCATION_SWITCH_OFF) {
         this.getUIContext().getPromptAction().showToast({
           message: $r('app.string.location_switch'),
           duration: 2000
         });
-      } else if (errCode === CommonConstants.LOCATION_FAILED) {
+      } else if (errCode == CommonConstants.LOCATION_FAILED) {
         this.getUIContext().getPromptAction().showToast({
           message: $r('app.string.internet_switch'),
           duration: 2000
         });
-      } else if (errCode === CommonConstants.REVERSE_GEOCODING_FAILED) {
+      } else if (errCode == CommonConstants.REVERSE_GEOCODING_FAILED) {
         this.getUIContext().getPromptAction().showToast({
           message: $r('app.string.internet_switch'),
           duration: 2000
         });
-      } else if (errCode === CommonConstants.WIFI_BLUETOOTH_OFF) {
+      } else if (errCode == CommonConstants.WIFI_BLUETOOTH_OFF) {
         this.getUIContext().getPromptAction().showToast({
           message: $r('app.string.wifi_bluetooth_switch'),
           duration: 2000

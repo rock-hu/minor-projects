@@ -18,10 +18,9 @@
 struct Fling {
   @State message: string = 'Hello World';
   private swiperController: SwiperController = new SwiperController();
-  private result = ["jsunit", "uitest", "arkUI", "tdd"];
+  private  result = ["jsunit", "uitest", "arkUI", "tdd"];
   private scroller: Scroller = new Scroller();
   private arr: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-
   build() {
     Row() {
       Column() {
@@ -30,20 +29,13 @@ struct Fling {
             .fontSize(25)
             .fontWeight(FontWeight.Bold)
         }
-
         Text(this.message)
           .fontSize(50)
           .fontWeight(FontWeight.Bold)
           .id("swiper_text")
         Swiper(this.swiperController) {
           ForEach(this.result, (item: string) => {
-            Text(item)
-              .width('90%')
-              .height(160)
-              .backgroundColor(0xAFEEEE)
-              .textAlign(TextAlign.Center)
-              .fontSize(30)
-              .id("swiper_text")
+            Text(item).width('90%').height(160).backgroundColor(0xAFEEEE).textAlign(TextAlign.Center).fontSize(30)
           }, (item: string) => item)
         }
         .id("swiper")
@@ -60,8 +52,7 @@ struct Fling {
           this.message = this.result[index];
           console.info(index.toString());
         })
-
-        Column() {
+        Column(){
           Scroll(this.scroller) {
             Flex({ direction: FlexDirection.Column }) {
               ForEach(this.arr, (item: number) => {
@@ -82,25 +73,20 @@ struct Fling {
           .scrollBar(BarState.Off)
           .scrollable(ScrollDirection.Vertical)
         }.height("300").width("100%")
-
-        Column() {
+        Column(){
           List({ space: 20, initialIndex: 0 }) {
             ForEach(this.arr, (item: number) => {
               ListItem() {
                 Text('' + item)
-                  .width('100%')
-                  .height(100)
-                  .fontSize(16)
-                  .textAlign(TextAlign.Center)
-                  .borderRadius(10)
-                  .backgroundColor("#CC0000")
-              }
+                  .width('100%').height(100).fontSize(16)
+                  .textAlign(TextAlign.Center).borderRadius(10).backgroundColor("#CC0000")
+              }.editable(true)
             }, (item: string) => item)
           }
-          .listDirection(Axis.Vertical)
-          .divider({ strokeWidth: 2, color: 0xFFFFFF, startMargin: 20, endMargin: 20 })
-          .edgeEffect(EdgeEffect.None)
-          .chainAnimation(false)
+          .listDirection(Axis.Vertical) // 排列方向
+          .divider({ strokeWidth: 2, color: 0xFFFFFF, startMargin: 20, endMargin: 20 }) // 每行之间的分界线
+          .edgeEffect(EdgeEffect.None) // 滑动到边缘无效果
+          .chainAnimation(false) // 联动特效关闭
           .onScrollIndex((firstIndex: number, lastIndex: number) => {
             console.info('first' + firstIndex);
             console.info('last' + lastIndex);

@@ -13,21 +13,28 @@
  * limitations under the License.
  */
 
-import { describe, beforeAll, it, expect, TestType } from '@ohos/hypium';
+import { describe, beforeAll, it, expect, TestType, Level, Size } from '@ohos/hypium';
 import { abilityDelegatorRegistry, Driver, ON } from '@kit.TestKit';
 import { Want } from '@kit.AbilityKit';
+import { BusinessError } from '@ohos.base';
+import { display } from '@kit.ArkUI';
 
 const delegator = abilityDelegatorRegistry.getAbilityDelegator();
 const bundleName = abilityDelegatorRegistry.getArguments().bundleName;
 const WAIT_UI_READYMS = 1000;
+const waitUiReadyMs : number = 1000;
+
+async function startAbility(bundleName: string, abilityName: string) {
+  await delegator.executeShellCommand(`aa start -b ${bundleName} -a ${abilityName}`);
+}
 
 export default function SwipeEventTest() {
   describe('SwipeEvent', () => {
     beforeAll(async () => {
       let want: Want = {
         bundleName : bundleName,
-        abilityName : "SwipeAbility"
-      }
+        abilityName : 'SwipeAbility'
+      };
       await delegator.startAbility(want);
     })
 
@@ -35,7 +42,7 @@ export default function SwipeEventTest() {
      * @tc.number:SwipeEventTest_001
      * @tc.name: testSwipe_h
      * @tc.type: 0 || TestType.FUNCTION || Size.SMALLTEST || Level.LEVEL0
-     * @tc.desc: Detect uitest swipe level to function.
+     * @tc.desc: 检测 uitest swipe 水平滑到功能 坐标点仅支持RK3568
      */
     it('testSwipe_h', TestType.FUNCTION, async (done: Function) => {
       let driver = Driver.create();
@@ -43,12 +50,12 @@ export default function SwipeEventTest() {
       let swiper = await driver.findComponent(ON.id('swiper'));
       let point = await swiper.getBounds();
       await driver.delayMs(WAIT_UI_READYMS);
-      await driver.swipe(point.left + 100, 700, point.right - 100, 700);
+      await driver.swipe(point.left, 300, point.right, 300);
       await driver.delayMs(WAIT_UI_READYMS);
-      await driver.swipe(point.left + 100, 700, point.right - 100, 700);
+      await driver.swipe(point.left, 300, point.right, 300);
       await driver.delayMs(WAIT_UI_READYMS);
       let text = await driver.findComponent(ON.id('swiper_text'));
-      expect(await text.getText()).assertEqual("arkUI");
+      expect(await text.getText()).assertEqual('arkUI');
       done();
     })
 
@@ -56,20 +63,39 @@ export default function SwipeEventTest() {
      * @tc.number:SwipeEventTest_002
      * @tc.name: testSwipe_h
      * @tc.type: 0 || TestType.FUNCTION || Size.SMALLTEST || Level.LEVEL0
-     * @tc.desc: Detect uitest swipe to vertically.
+     * @tc.desc: 检测 uitest swipe 竖着滑到功能 坐标点仅支持RK3568
      */
     it('testSwipe_v', TestType.FUNCTION, async (done: Function) => {
       let driver = Driver.create();
       await driver.delayMs(WAIT_UI_READYMS);
-      let scroll = await driver.findComponent(ON.id('scroll_item'));
-      let point = await scroll.getBounds();
-      let midX = (point.left + point.right) / 2;
-      let midY = (point.top + point.bottom) / 2;
-      await driver.swipe(midX, midY, midX, midY - 300, 2000);
-      await driver.delayMs(WAIT_UI_READYMS);
-      let text = await driver.findComponent(ON.id('scroll_item'));
-      expect(await text.getText()).not().assertEqual("0");
+      let textZero = await driver.findComponent(ON.id('scroll_item_0'));
+      expect(await textZero.getText()).assertEqual("0");
+      await driver.swipe(400, 700, 400, 300);
+      await driver.delayMs(WAIT_UI_READYMS * 2);
+      let textZeroNot = await driver.findComponent(ON.id('scroll_item_0')); // 滑动导致组件不可见,查找失败。
+      expect(textZeroNot).assertNull();
       done();
+    })
+
+    /*
+     * @tc.name: test_swipeBetween
+     * @tc.type: 0 || TestType.FUNCTION || Size.SMALLTEST || Level.LEVEL0
+     * @tc.desc: 检测 uitest swipe 竖着滑到功能 坐标点仅支持RK3568
+     */
+    it('test_swipeBetween', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async () => {
+      await startAbility(bundleName, 'DemoAbility')
+      let driver = Driver.create()
+      await driver.delayMs(waitUiReadyMs)
+      let disPlay = display.getDefaultDisplaySync();
+      let scoll = await driver.findComponent(ON.type('Scroll'))
+      let rect = await scoll.getBounds()
+      let center = await scoll.getBoundsCenter()
+      await driver.swipeBetween({x: center.x, y: Math.floor(center.y + (rect.bottom - rect.top) / 4)
+      , displayId: disPlay.id},
+        {x: center.x, y: Math.floor(center.y - (rect.bottom - rect.top) / 4), displayId: disPlay.id})
+      await driver.delayMs(waitUiReadyMs)
+      let text = await driver.findComponent(ON.text('toast'))
+      expect(text == null).assertTrue()
     })
   })
 }

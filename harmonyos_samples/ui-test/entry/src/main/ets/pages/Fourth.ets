@@ -13,9 +13,12 @@
 * limitations under the License.
 */
 
+import { router } from '@kit.ArkUI';
+
 @Entry
 @Component
-struct Fourth {
+struct Fourth
+{
   private content: string = "Fourth Page";
 
   build() {
@@ -33,7 +36,7 @@ struct Fourth {
       })
       .backgroundColor('#0D9FFB')
       .onClick(() => {
-        this.getUIContext().getRouter().back()
+        router.back()
       })
     }
     .width('100%')

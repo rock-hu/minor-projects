@@ -12,11 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { hilog } from '@kit.PerformanceAnalysisKit';
-
 const TAG = "[Sample_Test]";
-
 class Logger {
     private domain: number;
     private prefix: string;

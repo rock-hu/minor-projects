@@ -14,9 +14,7 @@
  */
 
 import { hilog } from '@kit.PerformanceAnalysisKit';
-
 const TAG = '[Sample_UiTest]';
-
 class Logger {
     private domain: number;
     private prefix: string;

@@ -13,13 +13,21 @@
  * limitations under the License.
  */
 
-import { describe, beforeAll, it, expect, TestType } from '@ohos/hypium';
+import { describe, it, expect, TestType, beforeAll, Level, Size } from '@ohos/hypium';
 import { abilityDelegatorRegistry, Driver, ON, UiDirection } from '@kit.TestKit';
 import { Want } from '@kit.AbilityKit';
+import { BusinessError } from '@ohos.base';
+import display from '@ohos.display';
+import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 
-const delegator = abilityDelegatorRegistry.getAbilityDelegator();
-const bundleName = abilityDelegatorRegistry.getArguments().bundleName;
+const delegator : AbilityDelegatorRegistry.AbilityDelegator = abilityDelegatorRegistry.getAbilityDelegator();
+const bundleName : string = abilityDelegatorRegistry.getArguments().bundleName;
+const waitUiReadyMs : number = 1000;
 const WAIT_UI_READYMS = 1000;
+
+async function startAbility(bundleName: string, abilityName: string) {
+  await delegator.executeShellCommand(`aa start -b ${bundleName} -a ${abilityName}`);
+}
 
 export default function FlingEventTest() {
   describe('FlingEvent', () => {
@@ -27,7 +35,7 @@ export default function FlingEventTest() {
       let want: Want = {
         bundleName : bundleName,
         abilityName : 'FlingAbility'
-      }
+      };
       await delegator.startAbility(want);
     })
 
@@ -35,19 +43,19 @@ export default function FlingEventTest() {
      * @tc.number:FlingEventTest_001
      * @tc.name: FlingEvent_h
      * @tc.type: 0 || TestType.FUNCTION || Size.SMALLTEST || Level.LEVEL0
-     * @tc.desc: Check the uitest fling function.
+     * @tc.desc: 检测uitest fling水平抛滑功能坐标点仅支持RK3568
      */
     it('FlingEvent_h', TestType.FUNCTION, async (done: Function) => {
       let driver = Driver.create();
       await driver.delayMs(WAIT_UI_READYMS);
       let swiper = await driver.findComponent(ON.id('swiper'));
       let point = await swiper.getBounds();
-      await driver.fling({x: point.left + 100 , y:700},{x:point.right - 100, y:700}, 20, 2000);
+      await driver.fling({x: point.left, y:300},{x:point.right, y:300}, 20, 600);
       await driver.delayMs(WAIT_UI_READYMS);
-      await driver.fling({x: point.left + 100 , y:700},{x:point.right - 100, y:700}, 20, 2000);
+      await driver.fling({x: point.left, y:300},{x:point.right, y:300}, 20, 600);
       await driver.delayMs(WAIT_UI_READYMS);
       let text = await driver.findComponent(ON.id('swiper_text'));
-      expect(await text.getText()).assertEqual("arkUI");
+      expect(await text.getText()).assertEqual('arkUI');
       done();
     })
 
@@ -55,16 +63,12 @@ export default function FlingEventTest() {
      * @tc.number:FlingEventTest_002
      * @tc.name: FlingEvent_v
      * @tc.type: 0 || TestType.FUNCTION || Size.SMALLTEST || Level.LEVEL0
-     * @tc.desc: Check the uitest fling function.
+     * @tc.desc: 检测uitest fling 竖直抛滑功能坐标点仅支持RK3568
      */
     it('FlingEvent_v', TestType.FUNCTION, async (done: Function) => {
       let driver = Driver.create();
       await driver.delayMs(WAIT_UI_READYMS);
-      let scroll = await driver.findComponent(ON.id('scroll_item'));
-      let point = await scroll.getBounds();
-      let midX = (point.left + point.right) / 2;
-      let midY = (point.top + point.bottom) / 2;
-      await driver.fling({x:midX, y:midY + 80},{x:midX, y:midY - 80}, 20, 2000 );
+      await driver.fling({x:400, y:700},{x:400, y:200}, 20, 600 );
       await driver.delayMs(WAIT_UI_READYMS);
       let text = await driver.findComponent(ON.id('scroll_item'));
       expect(await text.getText()).not().assertEqual('0');
@@ -75,7 +79,7 @@ export default function FlingEventTest() {
      * @tc.number:FlingEventTest_003
      * @tc.name: FlingEvent_d
      * @tc.type: 0 || TestType.FUNCTION || Size.SMALLTEST || Level.LEVEL0
-     * @tc.desc: Check the uitest fling direction test.
+     * @tc.desc: 检测uitest fling 垂直滑动功能 坐标点仅支持RK3568
      */
     it('FlingEvent_d', TestType.FUNCTION, async (done: Function) => {
       let driver = Driver.create();
@@ -90,6 +94,43 @@ export default function FlingEventTest() {
       let text = await driver.findComponent(ON.text('next page'));
       expect(text !== null).assertTrue();
       done();
+    })
+
+    /**
+     * @tc.name: FlingEvent_WithId
+     * @tc.type: 0 || TestType.FUNCTION || Size.SMALLTEST || Level.LEVEL0
+     * @tc.desc: 检测uitest fling 垂直滑动功能 坐标点仅支持RK3568
+     */
+    it('FlingEvent_WithId', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async () => {
+      await startAbility(bundleName, 'DemoAbility')
+      let driver = Driver.create()
+      await driver.delayMs(waitUiReadyMs)
+      let disPlay = display.getDefaultDisplaySync();
+      if (disPlay.id == 999) {
+        return
+      }
+      let window = await driver.findWindow({bundleName: bundleName})
+      try {
+        await window.maximize()
+        await driver.delayMs(500)
+      } catch (error) {
+      }
+      await driver.fling(UiDirection.DOWN, 39000, disPlay.id)
+      await driver.delayMs(waitUiReadyMs)
+      let button = await driver.findComponents(ON.belongingDisplay(disPlay.id).text('next page'))
+      expect (button).assertNull()
+      await driver.fling(UiDirection.LEFT, 39000, disPlay.id)
+      await driver.delayMs(waitUiReadyMs)
+      let text = await driver.findComponents(ON.belongingDisplay(disPlay.id).text('1'))
+      expect (text).assertNull()
+      await driver.fling(UiDirection.RIGHT, 39000, disPlay.id)
+      await driver.delayMs(waitUiReadyMs)
+      let text2 = await driver.findComponents(ON.belongingDisplay(disPlay.id).text('1'))
+      expect (text2).assertNull()
+      await driver.fling(UiDirection.UP, 39000, disPlay.id)
+      await driver.delayMs(2000)
+      let button2 = await driver.findComponents(ON.belongingDisplay(disPlay.id).text('bottom'))
+      expect (button2 == null).assertTrue()
     })
   })
 }

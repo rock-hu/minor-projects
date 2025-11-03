@@ -15,35 +15,33 @@
 /*
 
 * >查找控件属性
-* | No. | API                                | Function description.                       |
+* | No. | API                                | 功能描述                       |
 * |-----|------------------------------------|----------------------------|
-* | 1   | getBundleName():Promise<string>    | Get the bundleName.                     |
-* | 2   | getBounds():Promise<Rect>          | Gets the area of window.            |
-* | 3   | getTitle():Promise<string>         | Gets the specified window title.                   |
-* | 4   | getWindowMode():Promise<WindowMode> | Gets the window type.                 |
-* | 5   | isFocused():Promise<boolean>       | Goods window status.                |
-* | 6   | isActived():Promise<boolean>       | Gets whether the current window is active.                |
+* | 1   | getBundleName():Promise<string>    | 获取bundleName                      |
+* | 2   | getBounds():Promise<Rect>          | 获取window的区域            |
+* | 3   | getTitle():Promise<string>         | 获取指定window title                    |
+* | 4   | getWindowMode():Promise<WindowMode> | 获取window类型。                  |
+* | 5   | isFocused():Promise<boolean>       | 货物window状态。                 |
+* | 6   | isActived():Promise<boolean>       | 获取当前window是否active。                 |
 *
  */
 
-import { describe, beforeAll, it, expect, TestType } from '@ohos/hypium';
+import { describe, it, expect, TestType, beforeAll } from '@ohos/hypium';
 import { abilityDelegatorRegistry, Driver } from '@kit.TestKit';
 import { Want } from '@kit.AbilityKit';
 import Logger from '../../../util/Logger';
-
 const delegator = abilityDelegatorRegistry.getAbilityDelegator();
 const bundleName = abilityDelegatorRegistry.getArguments().bundleName;
 const WAIT_UI_READYMS = 1000;
-const TAG = "WindowAttr_Test";
-const BUNDLE = "WindowAttr_";
-
+const TAG = 'WindowAttr_Test';
+const BUNDLE = 'WindowAttr_';
 export default function WindowAttr() {
   describe('WindowAttr',  () => {
     beforeAll(async () => {
       let want: Want = {
         bundleName : bundleName,
-        abilityName : "EntryAbility"
-      }
+        abilityName : 'EntryAbility'
+      };
       await delegator.startAbility(want);
     })
 
@@ -51,16 +49,18 @@ export default function WindowAttr() {
      * @tc.number:WindowAttr_001
      * @tc.name: WindowAttr_Test_001
      * @tc.type: 0 || TestType.FUNCTION || Size.SMALLTEST || Level.LEVEL0
-     * @tc.desc: Sets the size and orientation test specified by window.
+     * @tc.desc: 设置window指定的大小与方向测试
      */
     it("WindowAttr_Test_001", TestType.FUNCTION, async (done: Function) => {
-      Logger.info(TAG, BUNDLE + "Test_001 start");
+      Logger.info(TAG, BUNDLE + 'Test_001 start');
       let driver = Driver.create();
       await driver.delayMs(WAIT_UI_READYMS);
       let window = await driver.findWindow({bundleName: bundleName});
+      // 获取widow bundle名称;
       let name = await window.getBundleName();
+      // 断言bundleName
       expect(name == bundleName).assertTrue();
-      Logger.info(TAG, BUNDLE + "Test_001 end");
+      Logger.info(TAG, BUNDLE + 'Test_001 end');
       done();
     })
   })

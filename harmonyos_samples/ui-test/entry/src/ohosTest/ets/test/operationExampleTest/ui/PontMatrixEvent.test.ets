@@ -13,10 +13,9 @@
  * limitations under the License.
  */
 
-import { describe, beforeAll, it, expect, TestType } from '@ohos/hypium';
+import { describe, it, expect, TestType, beforeAll } from '@ohos/hypium';
 import { abilityDelegatorRegistry, Driver, ON, PointerMatrix } from '@kit.TestKit';
 import { Want } from '@kit.AbilityKit';
-
 const delegator = abilityDelegatorRegistry.getAbilityDelegator();
 const bundleName = abilityDelegatorRegistry.getArguments().bundleName;
 const WAIT_UI_READYMS = 1000;
@@ -26,8 +25,8 @@ export default function PontMatrixEventTest() {
     beforeAll(async () => {
       let want: Want = {
         bundleName : bundleName,
-        abilityName : "PointMatrixAbility"
-      }
+        abilityName : 'PointMatrixAbility'
+      };
       await delegator.startAbility(want);
     })
 
@@ -35,7 +34,7 @@ export default function PontMatrixEventTest() {
      * @tc.number:PontMatrixEventTest_001
      * @tc.name: testInjectMultiPointerAction
      * @tc.type: 0 || TestType.FUNCTION || Size.SMALLTEST || Level.LEVEL0
-     * @tc.desc: Check the uitest injectMultiPointerAction function.
+     * @tc.desc: 检测uitest injectMultiPointerAction 功能
      */
     it('testInjectMultiPointerAction', TestType.FUNCTION, async (done: Function) => {
       let driver = Driver.create();

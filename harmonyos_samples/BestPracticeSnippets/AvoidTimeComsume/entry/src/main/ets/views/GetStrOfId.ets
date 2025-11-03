@@ -23,7 +23,7 @@ struct GetStrOfId {
 
   aboutToAppear(): void {
     hiTraceMeter.startTrace('getStringSyncAfter', 1);
-    // The input parameter of the getStringSync operation directly uses the resource and does use the resource ID
+    // The input parameter of the getStringSync operation directly uses the resource and resource ID
     try {
       this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.test').id)
     } catch (error) {

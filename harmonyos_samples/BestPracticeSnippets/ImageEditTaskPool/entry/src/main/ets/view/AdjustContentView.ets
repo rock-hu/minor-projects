@@ -16,12 +16,12 @@ import { worker } from '@kit.ArkTS';
 import { taskpool } from '@kit.ArkTS';
 import { image } from '@kit.ImageKit';
 import { adjustIconList, IconStatus } from '../viewModel/IconListViewModel';
-import { adjustImageValue, adjustSaturation } from '../utils/AdjustUtil';
+import { execColorInfo } from '../utils/AdjustUtil';
 import { AdjustId } from '../viewModel/OptionViewModel';
-import { adjustOpacity } from '../utils/OpacityUtil';
 import { MessageItem } from '../viewModel/MessageItem';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { CommonConstants } from '../common/constant/CommonConstants';
 
 @Component
 export default struct AdjustContentView {
@@ -122,6 +122,7 @@ struct SliderCustom {
   @Prop max: number;
   @Consume('pixelMap') pixelMap?: image.PixelMap;
   @Consume('isPixelMapChange') isPixelMapChange: boolean;
+  private startEditPixelMap?: PixelMap;
   private postState: boolean = true;
   saturationLastSlider: number = 100;
   brightnessLastSlider: number = 100;
@@ -131,6 +132,10 @@ struct SliderCustom {
     autoCancel: false,
     customStyle: true
   });
+
+  aboutToAppear(): void {
+    this.startEditPixelMap = this.pixelMap;
+  }
 
   build() {
     Column() {
@@ -164,31 +169,67 @@ struct SliderCustom {
     }
   }
 
-  sliderChange(value: number, mode: SliderChangeMode): void {
+  // [Start handleImage]
+  async sliderChange(value: number, mode: SliderChangeMode) {
     if ((mode === SliderChangeMode.End) && (value !== this.currentAdjustData[this.currentIndex])) {
-      this.currentAdjustData[this.currentIndex] = Math.round(value);
-      switch (this.currentIndex) {
-        case AdjustId.BRIGHTNESS:
-          this.postProcess(AdjustId.BRIGHTNESS, value);
-          break;
-        case AdjustId.TRANSPARENCY:
-          if (this.pixelMap) {
-            adjustOpacity(this.pixelMap, Math.round(value))
-              .then((pixelMap?: image.PixelMap) => {
-                if (pixelMap) {
-                  this.pixelMap = pixelMap;
-                  this.isPixelMapChange = !this.isPixelMapChange;
-                }
-              });
-          }
-          break;
-        case AdjustId.SATURATION:
-          this.postProcess(AdjustId.SATURATION, value);
-          break;
-        default:
-          break;
+      if (this.postState) {
+        this.deviceListDialogController.open();
       }
+      this.postState = false;
+
+      this.currentAdjustData[this.currentIndex] = Math.round(value);
+      const px = this.getStartEditPixelMap();
+      let buffer = new ArrayBuffer(px.getPixelBytesNumber());
+      px.readPixelsToBufferSync(buffer);
+
+      const needBrightness = this.currentAdjustData[AdjustId.BRIGHTNESS] !== CommonConstants.SLIDER_MAX;
+      const needSaturation = this.currentAdjustData[AdjustId.SATURATION] !== CommonConstants.SLIDER_MAX;
+
+      if (needBrightness || needSaturation) {
+        try {
+          if (needBrightness) {
+            buffer = await this.execImageProcessing(buffer, AdjustId.BRIGHTNESS, this.currentAdjustData[AdjustId.BRIGHTNESS]);
+          }
+          if (needSaturation) {
+            buffer = await this.execImageProcessing(buffer, AdjustId.SATURATION, this.currentAdjustData[AdjustId.SATURATION]);
+          }
+          px.writeBufferToPixelsSync(buffer);
+        } catch (err) {
+          let error = err as BusinessError;
+          hilog.error(0x0000, 'testTag', `${error.code}, ${error.message}`);
+        }
+      }
+
+      if (this.currentAdjustData[AdjustId.TRANSPARENCY] !== CommonConstants.SLIDER_MAX) {
+        const opacity = this.currentAdjustData[AdjustId.TRANSPARENCY] / CommonConstants.SLIDER_MAX;
+        try {
+          px.opacitySync(opacity);
+        } catch (err) {
+          let error = err as BusinessError;
+          hilog.error(0x0000, 'testTag', `${error.code}, ${error.message}`);
+        }
+      }
+
+      this.pixelMap = px;
+      this.isPixelMapChange = !this.isPixelMapChange;
+      this.deviceListDialogController.close();
+      this.postState = true;
     }
+  }
+  // [End handleImage]
+
+  private async execImageProcessing(buffer: ArrayBuffer, type: AdjustId, value: number): Promise<ArrayBuffer> {
+    // [Start execImageProcessing]
+    const processParam: ImageProcessing = { value, buffer, type };
+    const task = new taskpool.Task(imageProcessing, processParam);
+    try {
+      return await taskpool.execute(task, taskpool.Priority.HIGH) as ArrayBuffer;
+    } catch (err) {
+      let error = err as BusinessError;
+      hilog.error(0x0000, 'AdjustContentView', `${error.code}, ${error.message}`);
+      return buffer;
+    }
+    // [End execImageProcessing]
   }
 
   // [Start postProcess_start]
@@ -241,6 +282,28 @@ struct SliderCustom {
 
   // [EndExclude postProcess_start]
   // [End postProcess_start]
+
+  getStartEditPixelMap() {
+    return this.clonePixelMap(this.startEditPixelMap as image.PixelMap);
+  }
+
+  clonePixelMap(pixelMap: PixelMap, desiredPixelFormat?: image.PixelMapFormat): PixelMap {
+    try {
+      const imageInfo = pixelMap.getImageInfoSync();
+      const buffer = new ArrayBuffer(pixelMap.getPixelBytesNumber());
+      pixelMap.readPixelsToBufferSync(buffer);
+      const options: image.InitializationOptions = {
+        srcPixelFormat: imageInfo.pixelFormat,
+        pixelFormat: desiredPixelFormat ?? imageInfo.pixelFormat,
+        size: imageInfo.size
+      };
+      return image.createPixelMapSync(buffer, options);
+    } catch (err) {
+      let error = err as BusinessError;
+      hilog.error(0x0000, 'testTag', `${error.code}, ${error.message}`);
+      return pixelMap;
+    }
+  }
 }
 
 @CustomDialog
@@ -285,23 +348,13 @@ function splitTask(buffers: ArrayBuffer[], type: AdjustId, sliderValue: number, 
 
 @Concurrent
 async function imageProcessing(args: ImageProcessing) {
-  const type: AdjustId = args.type;
-  const bufferArray: ArrayBuffer = args.bufferArray;
-  const value: number = args.value;
-  const sliderValue: number = args.sliderValue;
-  if (type === AdjustId.BRIGHTNESS) {
-    return adjustImageValue(bufferArray, sliderValue, value);
-  } else if (type === AdjustId.SATURATION) {
-    return adjustSaturation(bufferArray, sliderValue, value);
-  } else {
-    return undefined;
-  }
+  const buf = execColorInfo(args.buffer, CommonConstants.SLIDER_MAX, args.value, args.type) as ArrayBuffer;
+  return buf;
 }
 
 interface ImageProcessing {
   type: AdjustId;
-  bufferArray: ArrayBuffer;
-  sliderValue: number;
+  buffer: ArrayBuffer;
   value: number;
 }
 

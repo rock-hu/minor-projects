@@ -13,29 +13,7 @@
  * limitations under the License.
  */
 
-import { RGBIndex, HSVIndex, AngelRange } from '../viewModel/OptionViewModel';
-
-/**
- * Saturation adjust.
- *
- * @param pixelMap.
- * @param value saturation's value.
- * @return arrayBuffer.
- */
-export function adjustSaturation(bufferArray: ArrayBuffer, last: number, cur: number): ArrayBuffer | undefined {
-  return execColorInfo(bufferArray, last, cur, HSVIndex.SATURATION);
-}
-
-/**
- * Image brightness adjust.
- *
- * @param pixelMap.
- * @param value image's brigtness.
- * @return arrayBuffer.
- */
-export function adjustImageValue(bufferArray: ArrayBuffer, last: number, cur: number): ArrayBuffer | undefined {
-  return execColorInfo(bufferArray, last, cur, HSVIndex.VALUE);
-}
+import { AdjustId } from '../viewModel/OptionViewModel';
 
 /**
  * Exec color transform.
@@ -46,141 +24,63 @@ export function adjustImageValue(bufferArray: ArrayBuffer, last: number, cur: nu
  * @param hsvIndex.
  * @return arrayBuffer.
  */
-export function execColorInfo(bufferArray: ArrayBuffer, last: number, cur: number,
-  hsvIndex: number): ArrayBuffer | undefined {
-  if (!bufferArray) {
-    return;
+export function execColorInfo(bufferArray: ArrayBuffer, last: number, cur: number, hsvIndex: number) {
+  if (!bufferArray || bufferArray.byteLength === 0) {
+    return null;
   }
-  const newBufferArr = bufferArray;
-  let colorInfo = new Uint8Array(newBufferArr);
-  for (let i = 0; i < colorInfo?.length; i += 4) {
-    const hsv = rgb2hsv(colorInfo[i + RGBIndex.RED], colorInfo[i + RGBIndex.GREEN], colorInfo[i + RGBIndex.BLUE]);
-    let rate = cur / last;
-    hsv[hsvIndex] *= rate;
-    const rgb = hsv2rgb(hsv[HSVIndex.HUE], hsv[HSVIndex.SATURATION], hsv[HSVIndex.VALUE]);
-    colorInfo[i + RGBIndex.RED] = rgb[RGBIndex.RED];
-    colorInfo[i + RGBIndex.GREEN] = rgb[RGBIndex.GREEN];
-    colorInfo[i + RGBIndex.BLUE] = rgb[RGBIndex.BLUE];
-  }
-  return newBufferArr;
-}
 
-/**
- * Color transform.
- *
- * @param rgbValue 0 - 255.
- * @return 0 - 1.
- */
-function colorTransform(rgbValue: number): number {
-  return Number((rgbValue / 255).toFixed(2));
-}
+  if (last <= 0 || cur < 0) {
+    return null;
+  }
 
-/**
- * RGB transform to HSV.
- *
- * @param red 0- 255.
- * @param green 0- 255.
- * @param blue 0- 255.
- * @return h (0 - 360) s(0 - 100) v (0 - 100).
- */
-function rgb2hsv(red: number, green: number, blue: number): number[] {
-  let hsvH: number = 0, hsvS: number = 0, hsvV: number = 0;
-  const rgbR: number = colorTransform(red);
-  const rgbG: number = colorTransform(green);
-  const rgbB: number = colorTransform(blue);
-  const maxValue = Math.max(rgbR, Math.max(rgbG, rgbB));
-  const minValue = Math.min(rgbR, Math.min(rgbG, rgbB));
-  hsvV = maxValue * 100;
-  if (maxValue === 0) {
-    hsvS = 0;
-  } else {
-    hsvS = Number((1 - minValue / maxValue).toFixed(2)) * 100;
-  }
-  if (maxValue === minValue) {
-    hsvH = 0;
-  }
-  if (maxValue === rgbR && rgbG >= rgbB) {
-    hsvH = Math.floor(60 * ((rgbG - rgbB) / (maxValue - minValue)));
-  }
-  if (maxValue === rgbR && rgbG < rgbB) {
-    hsvH = Math.floor(60 * ((rgbG - rgbB) / (maxValue - minValue)) + 360);
-  }
-  if (maxValue === rgbG) {
-    hsvH = Math.floor(60 * ((rgbB - rgbR) / (maxValue - minValue)) + 120);
-  }
-  if (maxValue === rgbB) {
-    hsvH = Math.floor(60 * ((rgbR - rgbG) / (maxValue - minValue)) + 240);
-  }
-  return [hsvH, hsvS, hsvV];
-}
+  try {
+    const pixelData = new Uint8ClampedArray(bufferArray);
+    const adjustedData = new Uint8ClampedArray(pixelData.length);
+    const bytesPerPixel = 4;
+    const factor = cur / 100; // Regulatory factor
+    for (let i = 0; i < pixelData.length; i += bytesPerPixel) {
+      // Reserve the alpha channel
+      adjustedData[i + 3] = pixelData[i + 3];
 
-/**
- *  HSV to RGB conversion formula:
- *  When 0 <= H <= 360, 0 <= S <= 1 and 0 <= V <= 1:
- *  C = V * S
- *  X = C * (1 - Math.abs((H / 60) mod 2 - 1))
- *  m = V - C
- *                   | (C, X ,0),  0 <= H < 60
- *                   | (X, C, 0),  60 <= H < 120
- *                   | (0, C, X),  120 <= H < 180
- *  (R', G', B') =   | (0, X, C),  180 <= H < 240
- *                   | (X, 0, C),  240 <= H < 300
- *                   | (C, 0, X),  300 <= H < 360
- *
- *  (R, G, B) = ((R' + m) * 255, (G' + m) * 255, (B' + m) * 255)
- *
- * @param h hue 0 ~ 360.
- * @param s saturation 0 ~ 100.
- * @param v value 0 ~ 100.
- * @return rgb value.
- */
-function hsv2rgb(hue: number, saturation: number, value: number) {
-  let rgbR: number = 0, rgbG: number = 0, rgbB: number = 0;
-  if (saturation === 0) {
-    rgbR = rgbG = rgbB = Math.round((value * 255) / 100);
-    return { rgbR, rgbG, rgbB };
+      // Skip the pixels that are completely transparent
+      if (pixelData[i + 3] < 1) {
+        continue;
+      }
+
+      if (hsvIndex === AdjustId.BRIGHTNESS) {
+        // Calculate adjusted RGB values (keep relative proportions)
+        let r = pixelData[i] * factor;
+        let g = pixelData[i + 1] * factor;
+        let b = pixelData[i + 2] * factor;
+
+        // Ensure the value is in the valid range (0-255)
+        adjustedData[i] = Math.max(0, Math.min(255, Math.round(r)));
+        adjustedData[i + 1] = Math.max(0, Math.min(255, Math.round(g)));
+        adjustedData[i + 2] = Math.max(0, Math.min(255, Math.round(b)));
+      }
+      if (hsvIndex === AdjustId.SATURATION) {
+        // Extract the RGB value and normalize it
+        const r = pixelData[i] / 255;
+        const g = pixelData[i + 1] / 255;
+        const b = pixelData[i + 2] / 255;
+
+        // Calculate the grayscale value
+        const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+        // Adjust saturation: move closer or further away from the grayscale value
+        const adjustedR = luminance + (r - luminance) * factor;
+        const adjustedG = luminance + (g - luminance) * factor;
+        const adjustedB = luminance + (b - luminance) * factor;
+
+        // Convert back to the 0-255 range and write to the buffer
+        adjustedData[i] = Math.max(0, Math.min(255, Math.round(adjustedR * 255)));
+        adjustedData[i + 1] = Math.max(0, Math.min(255, Math.round(adjustedG * 255)));
+        adjustedData[i + 2] = Math.max(0, Math.min(255, Math.round(adjustedB * 255)));
+      }
+    }
+    return adjustedData.buffer;
+  } catch (error) {
+    console.log(`Failed to set adjustedData: ${JSON.stringify(error.message)}`);
+    return null;
   }
-  const cxmC = (value * saturation) / (100 * 100);
-  const cxmX = cxmC * (1 - Math.abs((hue / 60) % 2 - 1));
-  const cxmM = (value - cxmC * 100) / 100;
-  const hsvHRange = Math.floor(hue / 60);
-  switch (hsvHRange) {
-    case AngelRange.ANGEL_0_60:
-      rgbR = (cxmC + cxmM) * 255;
-      rgbG = (cxmX + cxmM) * 255;
-      rgbB = (0 + cxmM) * 255;
-      break;
-    case AngelRange.ANGEL_60_120:
-      rgbR = (cxmX + cxmM) * 255;
-      rgbG = (cxmC + cxmM) * 255;
-      rgbB = (0 + cxmM) * 255;
-      break;
-    case AngelRange.ANGEL_120_180:
-      rgbR = (0 + cxmM) * 255;
-      rgbG = (cxmC + cxmM) * 255;
-      rgbB = (cxmX + cxmM) * 255;
-      break;
-    case AngelRange.ANGEL_180_240:
-      rgbR = (0 + cxmM) * 255;
-      rgbG = (cxmX + cxmM) * 255;
-      rgbB = (cxmC + cxmM) * 255;
-      break;
-    case AngelRange.ANGEL_240_300:
-      rgbR = (cxmX + cxmM) * 255;
-      rgbG = (0 + cxmM) * 255;
-      rgbB = (cxmC + cxmM) * 255;
-      break;
-    case AngelRange.ANGEL_300_360:
-      rgbR = (cxmC + cxmM) * 255;
-      rgbG = (0 + cxmM) * 255;
-      rgbB = (cxmX + cxmM) * 255;
-      break;
-    default:
-      break;
-  }
-  return [
-    Math.round(rgbR),
-    Math.round(rgbG),
-    Math.round(rgbB)
-  ];
 }

@@ -28,13 +28,13 @@ export default function findWindowExampleTest() {
      * @tc.number:findWindowExampleTest_001
      * @tc.name: findWindowExampleTest_bundleName
      * @tc.type: 0 || TestType.FUNCTION || Size.SMALLTEST || Level.LEVEL0
-     * @tc.desc: Gets the specified window object.
+     * @tc.desc: 获取指定的window对象
      */
     it('findWindowExampleTest_bundleName', TestType.FUNCTION, async (done: Function) => {
       let want: Want = {
         bundleName : bundleName,
-        abilityName : "EntryAbility"
-      }
+        abilityName :'EntryAbility'
+      };
       await delegator.startAbility(want);
       let driver = Driver.create();
       await driver.delayMs(DELAYMS);

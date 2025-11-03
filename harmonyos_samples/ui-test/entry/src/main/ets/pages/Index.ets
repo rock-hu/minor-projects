@@ -13,13 +13,14 @@
 * limitations under the License.
 */
 
+import {promptAction, router } from "@kit.ArkUI";
 @Entry
 @Component
 struct Index {
   @State message: string = 'Hello World';
-  @State count: number = 0;
   private scroller: Scroller = new Scroller();
   private arr: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  @State count: number = 0;
 
   build() {
     Row() {
@@ -37,7 +38,7 @@ struct Index {
           .id("idTest")
           .fontSize(10)
           .fontWeight(FontWeight.Bold)
-        Column() {
+        Column(){
           Scroll(this.scroller) {
             Flex({ direction: FlexDirection.Column }) {
               ForEach(this.arr, (item: number) => {
@@ -58,80 +59,94 @@ struct Index {
           .scrollBar(BarState.Off)
           .scrollable(ScrollDirection.Vertical)
         }.height("300").width("100%")
-
-        Row() {
-          Button() {
+        Row(){
+          Button(){
             Text("ButtonTest")
           }.id("btnTest")
-          .onClick(() => {
-            this.getUIContext().getRouter().replaceUrl({
-              url: 'pages/Scroller'
-            })
+          .onClick(() =>{
+            router.replaceUrl({
+              url:'pages/Scroller'
+            });
           })
-
-          Button() {
+          Button(){
             Text("ButtonTest1")
           }.id("btnTest")
-          .onClick(() => {
+          .onClick(() =>{
 
           })
-          .margin({ left: 10 })
-
-          Button() {
+          Button('showToast', { type: ButtonType.Normal, stateEffect: true })
+            .borderRadius(8)
+            .backgroundColor(0x317aff)
+            .width(90)
+            .onClick(() => {
+              console.log('ButtonType.Normal');
+              promptAction.showToast({
+                message: "testMessage",
+                duration: 2000
+              });
+            })
+          Button('showDialog', { type: ButtonType.Normal, stateEffect: true })
+            .borderRadius(8)
+            .backgroundColor(0x317aff)
+            .width(90)
+            .onClick(() => {
+              console.log('ButtonType.Normal dialog');
+              promptAction.showDialog({
+                title: "testDialog",
+                message: "testMessage"
+              })
+            });
+          Button(){
             Text("Drag")
           }.id("drag")
-          .onClick(() => {
-            this.getUIContext().getRouter().pushUrl({
-              url: 'pages/Drag'
-            })
+          .onClick(() =>{
+            router.push({
+              url:'pages/Drag'
+            });
           })
-
-          Button() {
+          Button(){
             Text("Pinch")
           }.id("inch")
-          .onClick(() => {
-            this.getUIContext().getRouter().pushUrl({
-              url: 'pages/Pinch'
-            })
+          .onClick(() =>{
+            router.push({
+              url:'pages/Pinch'
+            });
           })
-          .margin({ left: 10 })
-        }.margin({ top: 10 })
-
-        Row() {
+          .margin({left: 10})
+        }.margin({top: 10})
+        Row(){
           Toggle({ type: ToggleType.Switch, isOn: false })
             .selectedColor('#007DFF')
             .switchPointColor('#FFFFFF')
             .onChange((isOn: boolean) => {
-              console.info('Component status:' + isOn)
+              console.info('Component status:' + isOn);
             }).id("Toggle_switch_false")
 
           Toggle({ type: ToggleType.Switch, isOn: true })
             .selectedColor('#007DFF')
             .switchPointColor('#FFFFFF')
             .onChange((isOn: boolean) => {
-              console.info('Component status:' + isOn)
+              console.info('Component status:' + isOn);
             })
             .id("Toggle_switch_true")
 
-        }.margin({ top: 10 })
-
-        Row() {
-          Checkbox({ name: 'checkbox1', group: 'checkboxGroup' })
+        }.margin({top: 10})
+        Row(){
+          Checkbox({name: 'checkbox1',  group: 'checkboxGroup'})
             .select(true)
             .selectedColor(0xed6f21)
             .onChange((value: boolean) => {
-              console.info('Checkbox1 change is' + value)
+              console.info('Checkbox1 change is'+ value)
             }).id("check_test_checked")
-          Checkbox({ name: 'checkbox2', group: 'checkboxGroup' })
+          Checkbox({name: 'checkbox2',  group: 'checkboxGroup'})
             .select(false)
             .selectedColor(0x39a2db)
             .onChange((value: boolean) => {
-              console.info('Checkbox2 change is' + value)
+              console.info('Checkbox2 change is'+ value);
             }).id("check_test_not_checked")
 
-        }.margin({ top: 10 })
-
-        Row() {
+        }.margin({top: 10})
+        Row(){
           Select([{ value: 'aaa', icon: "/common/1.png" },
             { value: 'bbb', icon: "/common/2.png" },
             { value: 'ccc', icon: "/common/3.png" },
@@ -142,25 +157,23 @@ struct Index {
             .selectedOptionFont({ size: 40, weight: 500, family: 'serif', style: FontStyle.Normal })
             .optionFont({ size: 30, weight: 400, family: 'serif', style: FontStyle.Normal })
             .onSelect((index: number) => {
-              console.info("Select:" + index)
+              console.info("Select:" + index);
             })
-        }.margin({ top: 10 })
-
-        Row() {
+        }.margin({top: 10})
+        Row(){
           Radio({ value: 'Radio1', group: 'radioGroup' })
             .checked(false).id("radio_test")
           Radio({ value: 'Radio2', group: 'radioGroup' })
             .checked(true).id("radio_test1")
-        }.margin({ top: 10 })
-
+        }.margin({top: 10})
         Text("unit_jsunit")
           .fontSize(30)
           .fontWeight(FontWeight.Bold)
           .gesture(
-            TapGesture({ count: 2 })
-              .onAction(() => {
-                this.getUIContext().getRouter().pushUrl({ url: 'pages/Swipe' })
-              })
+          TapGesture({ count: 2 })
+            .onAction(() => {
+              router.push({url: 'pages/Swipe'});
+            })
           )
       }
       .width('100%').height("100%").alignItems(HorizontalAlign.Start).backgroundColor("#800000")

@@ -13,17 +13,17 @@
 * limitations under the License.
 */
 
-import Logger from '../util/Logger'
-import { abilityDelegatorRegistry, TestRunner } from '@kit.TestKit';
+import Logger from '../util/Logger';
+import { TestRunner, abilityDelegatorRegistry } from '@kit.TestKit';
 
-let abilityDelegator: abilityDelegatorRegistry.AbilityDelegator | undefined = undefined;
-let abilityDelegatorArguments: abilityDelegatorRegistry.AbilityDelegatorArgs | undefined = undefined;
+var abilityDelegator = undefined;
+var abilityDelegatorArguments = undefined;
 
 async function onAbilityCreateCallback() {
     Logger.info('testTag', '%{public}s', 'onAbilityCreateCallback');
 }
 
-async function addAbilityMonitorCallback(err: Error) {
+async function addAbilityMonitorCallback(err: any) {
     Logger.info('testTag', 'addAbilityMonitorCallback : %{public}s', JSON.stringify(err) ?? '');
 }
 
@@ -39,23 +39,24 @@ export default class OpenHarmonyTestRunner implements TestRunner {
         Logger.info('testTag', '%{public}s', 'OpenHarmonyTestRunner onRun run');
         abilityDelegatorArguments = abilityDelegatorRegistry.getArguments();
         abilityDelegator = abilityDelegatorRegistry.getAbilityDelegator();
-        let testAbilityName = abilityDelegatorArguments.bundleName + '.TestAbility';
-        let lMonitor: abilityDelegatorRegistry.AbilityMonitor = {
+        var testAbilityName = abilityDelegatorArguments.bundleName + '.TestAbility';
+        let lMonitor = {
             abilityName: testAbilityName,
             onAbilityCreate: onAbilityCreateCallback,
         };
         abilityDelegator.addAbilityMonitor(lMonitor, addAbilityMonitorCallback);
-        let cmd = 'aa start -d 0 -a TestAbility' + ' -b ' + abilityDelegatorArguments.bundleName;
-        let debug = abilityDelegatorArguments.parameters['-D'];
+        var cmd = 'aa start -d 0 -a TestAbility' + ' -b ' + abilityDelegatorArguments.bundleName;
+        var debug = abilityDelegatorArguments.parameters['-D'];
         if (debug == 'true')
         {
-            cmd += ' -D';
+            cmd += ' -D'
         }
         Logger.info('testTag', 'cmd : %{public}s', cmd);
         abilityDelegator.executeShellCommand(cmd,
-            (err, data) => {
+            (err: any, d: any) => {
                 Logger.info('testTag', 'executeShellCommand : err : %{public}s', JSON.stringify(err) ?? '');
-                Logger.info('testTag', 'executeShellCommand : err : %{public}s', JSON.stringify(data) ?? '');
+                Logger.info('testTag', 'executeShellCommand : data : %{public}s', d.stdResult ?? '');
+                Logger.info('testTag', 'executeShellCommand : data : %{public}s', d.exitCode ?? '');
             })
         Logger.info('testTag', '%{public}s', 'OpenHarmonyTestRunner onRun end');
     }

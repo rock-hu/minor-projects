@@ -14,10 +14,9 @@
  */
 
 
-import { describe, beforeAll, it, expect, TestType } from '@ohos/hypium';
+import { describe, it, expect, TestType, beforeAll } from '@ohos/hypium';
 import { abilityDelegatorRegistry, Driver, ON } from '@kit.TestKit';
 import { Want } from '@kit.AbilityKit';
-
 const delegator = abilityDelegatorRegistry.getAbilityDelegator();
 const bundleName = abilityDelegatorRegistry.getArguments().bundleName;
 const WAIT_UI_READYMS = 1000;
@@ -27,8 +26,8 @@ export default function ScrollerEventTest() {
     beforeAll(async () => {
       let want: Want = {
         bundleName : bundleName,
-        abilityName : "ScrollerAbility"
-      }
+        abilityName : 'ScrollerAbility'
+      };
       await delegator.startAbility(want);
     })
 
@@ -36,7 +35,7 @@ export default function ScrollerEventTest() {
      * @tc.number:ScrollerEventTest_001
      * @tc.name: ScrollerEvent_bottom
      * @tc.type: 0 || TestType.FUNCTION || Size.SMALLTEST || Level.LEVEL0
-     * @tc.desc:Detects the uitest scrollToBottom slide function.
+     * @tc.desc: 检测 uitest scrollToBottom 滑到底部功能
      */
     it('ScrollerEvent_bottom', TestType.FUNCTION, async (done: Function) => {
       let driver = Driver.create();
@@ -44,7 +43,7 @@ export default function ScrollerEventTest() {
       let scroll = await driver.findComponent(ON.type('Scroll'));
       await scroll.scrollToBottom();
       await driver.delayMs(WAIT_UI_READYMS);
-      let text = await driver.findComponent(ON.id("scroller_item_text"));
+      let text = await driver.findComponent(ON.id('scroller_item_text'));
       expect(await text.getText()).not().assertEqual("0");
       done();
     })
@@ -53,7 +52,7 @@ export default function ScrollerEventTest() {
      * @tc.number:ScrollerEventTest_002
      * @tc.name: ScrollerEvent_top
      * @tc.type: 0 || TestType.FUNCTION || Size.SMALLTEST || Level.LEVEL0
-     * @tc.desc: Detects the uitest scrollToTop slide to top function.
+     * @tc.desc: 检测 uitest scrollToTop 滑到顶部功能
      */
     it('ScrollerEvent_top', TestType.FUNCTION, async (done: Function) => {
       let driver = Driver.create();
@@ -62,8 +61,8 @@ export default function ScrollerEventTest() {
       await scroll.scrollToBottom();
       await driver.delayMs(WAIT_UI_READYMS);
       await scroll.scrollToTop();
-      let text = await driver.findComponent(ON.id("scroller_item_text"));
-      expect(await text.getText()).assertEqual("0");
+      let text = await driver.findComponent(ON.id('scroller_item_text'));
+      expect(await text.getText()).assertEqual('0');
       done();
     })
   })

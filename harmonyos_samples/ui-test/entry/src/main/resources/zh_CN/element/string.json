@@ -10,7 +10,7 @@
     },
     {
       "name": "EntryAbility_label",
-      "value": "UiTest"
+      "value": "label"
     },
     {
       "name": "clickability_desc",
@@ -98,6 +98,14 @@
     },
     {
       "name": "DragAbility_label",
+      "value": "label"
+    },
+    {
+      "name": "WebAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "WebAbility_label",
       "value": "label"
     }
   ]
