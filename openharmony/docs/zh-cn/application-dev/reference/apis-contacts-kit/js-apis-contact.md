@@ -4512,11 +4512,19 @@ promise.then((data) => {
 
 ### 常量
 
+**原子化服务API**：从API version 11 开始，该接口支持在原子化服务中使用。
+
+**系统能力**：SystemCapability.Applications.ContactsData
+
 | 名称               | 类型   | 值   | 说明             |
 | ------------------ | ---- | ---- | ---------------- |
 | INVALID_CONTACT_ID | number   | -1   | 默认联系人的id。 |
 
 ### 属性
+
+**原子化服务API**：从API version 11 开始，该接口支持在原子化服务中使用。
+
+**系统能力**：SystemCapability.Applications.ContactsData
 
 |       名称        |                   类型                  | 只读 | 可选 | 说明                                   |
 | ----------------- | --------------------------------------- | ---- | ---- | -------------------------------------- |
@@ -4592,22 +4600,22 @@ let contactAttributes: contact.ContactAttributes = {
 
 **系统能力**：SystemCapability.Applications.ContactsData
 
-| 名称                  | 说明                               |
-| --------------------- | ---------------------------------- |
-| ATTR_CONTACT_EVENT    | 联系人的生日、周年纪念等重要日期。 |
-| ATTR_EMAIL            | 联系人的邮箱地址。                 |
-| ATTR_GROUP_MEMBERSHIP | 联系人的群组。                     |
-| ATTR_IM               | 联系人的即时消息地址。             |
-| ATTR_NAME             | 联系人的姓名。                     |
-| ATTR_NICKNAME         | 联系人的昵称。                     |
-| ATTR_NOTE             | 联系人的备注。                     |
-| ATTR_ORGANIZATION     | 联系人的组织信息。                 |
-| ATTR_PHONE            | 联系人的电话号码。                 |
-| ATTR_PORTRAIT         | 联系人的头像。                     |
-| ATTR_POSTAL_ADDRESS   | 联系人的邮政地址。                 |
-| ATTR_RELATION         | 联系人的关系。                     |
-| ATTR_SIP_ADDRESS      | 联系人的会话发起协议(SIP)地址。  |
-| ATTR_WEBSITE          | 联系人的网站。                     |
+| 名称                  | 值 | 说明                               |
+| --------------------- | ---- | ---------------------------------- |
+| ATTR_CONTACT_EVENT    | 0 | 联系人的生日、周年纪念等重要日期。 |
+| ATTR_EMAIL            | 1 | 联系人的邮箱地址。                 |
+| ATTR_GROUP_MEMBERSHIP | 2 | 联系人的群组。                     |
+| ATTR_IM               | 3 | 联系人的即时消息地址。             |
+| ATTR_NAME             | 4 | 联系人的姓名。                     |
+| ATTR_NICKNAME         | 5 | 联系人的昵称。                     |
+| ATTR_NOTE             | 6 | 联系人的备注。                     |
+| ATTR_ORGANIZATION     | 7 | 联系人的组织信息。                 |
+| ATTR_PHONE            | 8 | 联系人的电话号码。                 |
+| ATTR_PORTRAIT         | 9 | 联系人的头像。                     |
+| ATTR_POSTAL_ADDRESS   | 10 | 联系人的邮政地址。                 |
+| ATTR_RELATION         | 11 | 联系人的关系。                     |
+| ATTR_SIP_ADDRESS      | 12 | 联系人的会话发起协议(SIP)地址。  |
+| ATTR_WEBSITE          | 13 | 联系人的网站。                     |
 
 **对象创建示例：**
 
@@ -4627,6 +4635,10 @@ let attributes = [contact.Attribute.ATTR_EMAIL, contact.Attribute.ATTR_NAME, con
 
 ### 常量
 
+**原子化服务API**：从API version 11 开始，该接口支持在原子化服务中使用。
+
+**系统能力**：SystemCapability.Applications.ContactsData
+
 | 名称             | 类型   | 值   | 说明             |
 | ---------------- | ---- | ---- | ---------------- |
 | CUSTOM_LABEL     | number    |  0    |自定义邮箱类型。 |
@@ -4636,6 +4648,10 @@ let attributes = [contact.Attribute.ATTR_EMAIL, contact.Attribute.ATTR_NAME, con
 | INVALID_LABEL_ID | number    | -1   | 无效邮箱类型。   |
 
 ### 属性
+
+**原子化服务API**：从API version 11 开始，该接口支持在原子化服务中使用。
+
+**系统能力**：SystemCapability.Applications.ContactsData
 
 | 名称        |   类型   | 只读 | 可选 | 说明             |
 | ----------- | -------- | ---- | ---- | ---------------- |
@@ -4697,6 +4713,10 @@ let holder: contact.Holder = {
 
 ### 常量
 
+**原子化服务API**：从API version 11 开始，该接口支持在原子化服务中使用。
+
+**系统能力**：SystemCapability.Applications.ContactsData
+
 | 名称              |   类型   |  值   | 说明               |
 | ----------------- | ---- | ---- | ------------------ |
 | CUSTOM_LABEL      | number   | 0    | 自定义事件类型。   |
@@ -4706,6 +4726,10 @@ let holder: contact.Holder = {
 | INVALID_LABEL_ID  | number   | -1   | 无效事件类型。     |
 
 ### 属性
+
+**原子化服务API**：从API version 11 开始，该接口支持在原子化服务中使用。
+
+**系统能力**：SystemCapability.Applications.ContactsData
 
 |    名称   |   类型   | 只读 | 可选 | 说明           |
 | --------- | -------- | ---- | ---- | -------------- |
@@ -4764,6 +4788,10 @@ let group: contact.Group = {
 
 ### 常量
 
+**原子化服务API**：从API version 11 开始，该接口支持在原子化服务中使用。
+
+**系统能力**：SystemCapability.Applications.ContactsData
+
 | 名称             |   类型   | 值   | 说明                 |
 | ---------------- | ---- | ---- | -------------------- |
 | CUSTOM_LABEL     | number   | -1   | 自定义即时消息类型。 |
@@ -4777,6 +4805,10 @@ let group: contact.Group = {
 | INVALID_LABEL_ID | number   | -2   | 无效的即时消息类型。 |
 
 ### 属性
+
+**原子化服务API**：从API version 11 开始，该接口支持在原子化服务中使用。
+
+**系统能力**：SystemCapability.Applications.ContactsData
 
 | 名称      |   类型   | 只读 | 可选 | 说明               |
 | --------- | -------- | ---- | ---- | ------------------ |
@@ -4913,6 +4945,10 @@ let organization: contact.Organization = {
 
 ### 常量
 
+**原子化服务API**：从API version 11 开始，该接口支持在原子化服务中使用。
+
+**系统能力**：SystemCapability.Applications.ContactsData
+
 | 名称             |  类型  | 值   | 说明                                             |
 | ---------------- | ---- | ---- | ------------------------------------------------ |
 | CUSTOM_LABEL     |  number  | 0    | 自定义电话类型。                                 |
@@ -4939,6 +4975,10 @@ let organization: contact.Organization = {
 | INVALID_LABEL_ID |  number  | -1   | 无效电话类型。                                   |
 
 ### 属性
+
+**原子化服务API**：从API version 11 开始，该接口支持在原子化服务中使用。
+
+**系统能力**：SystemCapability.Applications.ContactsData
 
 | 名称        |   类型   | 只读 | 可选 | 说明               |
 | ----------- | -------- | ---- | ---- | ------------------ |
@@ -4999,6 +5039,10 @@ let portrait: contact.Portrait = {
 
 ### 常量
 
+**原子化服务API**：从API version 11 开始，该接口支持在原子化服务中使用。
+
+**系统能力**：SystemCapability.Applications.ContactsData
+
 | 名称             |   类型   | 值   | 说明                 |
 | ---------------- | ---- | ---- | -------------------- |
 | CUSTOM_LABEL     | number   | 0    | 自定义邮政地址类型。 |
@@ -5008,6 +5052,10 @@ let portrait: contact.Portrait = {
 | INVALID_LABEL_ID | number   | -1   | 无效地址类型。       |
 
 ### 属性
+
+**原子化服务API**：从API version 11 开始，该接口支持在原子化服务中使用。
+
+**系统能力**：SystemCapability.Applications.ContactsData
 
 | 名称          |   类型   | 只读 | 可选 | 说明                       |
 | ------------- | -------- | ---- | ---- | -------------------------- |
@@ -5051,6 +5099,10 @@ postalAddress.postalAddress = "postalAddress";
 
 ### 常量
 
+**原子化服务API**：从API version 11 开始，该接口支持在原子化服务中使用。
+
+**系统能力**：SystemCapability.Applications.ContactsData
+
 | 名称                      |  类型   | 值   | 说明               |
 | ------------------------- | ---- | ---- | ------------------ |
 | CUSTOM_LABEL              | number   | 0    | 自定义关系类型。   |
@@ -5071,6 +5123,10 @@ postalAddress.postalAddress = "postalAddress";
 | INVALID_LABEL_ID          | number   | -1   | 无效的关系类型。   |
 
 ### 属性
+
+**原子化服务API**：从API version 11 开始，该接口支持在原子化服务中使用。
+
+**系统能力**：SystemCapability.Applications.ContactsData
 
 | 名称         |   类型   | 只读 | 可选 | 说明           |
 | ------------ | -------- | ---- | ---- | -------------- |
@@ -5107,6 +5163,10 @@ relation.labelId = contact.Relation.RELATION_ASSISTANT;
 
 ### 常量
 
+**原子化服务API**：从API version 11 开始，该接口支持在原子化服务中使用。
+
+**系统能力**：SystemCapability.Applications.ContactsData
+
 | 名称             |   类型   | 值   | 说明                                |
 | ---------------- | ---- | ---- | ----------------------------------- |
 | CUSTOM_LABEL     | number   | 0    | 自定义会话发起协议(SIP)地址类型。 |
@@ -5116,6 +5176,10 @@ relation.labelId = contact.Relation.RELATION_ASSISTANT;
 | INVALID_LABEL_ID | number   | -1   | 无效会话发起协议(SIP)地址类型。   |
 
 ### 属性
+
+**原子化服务API**：从API version 11 开始，该接口支持在原子化服务中使用。
+
+**系统能力**：SystemCapability.Applications.ContactsData
 
 | 名称       |   类型   | 只读 | 可选 | 说明                              |
 | ---------- | -------- | ---- | ---- | --------------------------------- |
