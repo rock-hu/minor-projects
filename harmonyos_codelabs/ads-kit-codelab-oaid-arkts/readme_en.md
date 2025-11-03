@@ -59,6 +59,7 @@ The sample code includes the following file for you to obtain the OAID:
 ## Constraints
 
 1. This sample is only supported on Huawei phones, tablets, 2-in-1 devices, and Vision devices with standard systems.
-2. The HarmonyOS version must be HarmonyOS NEXT Developer Beta1 or later.
-3. The DevEco Studio version must be DevEco Studio NEXT Developer Beta1 or later.
-4. The HarmonyOS SDK version must be HarmonyOS NEXT Developer Beta1 or later.
+2. The HarmonyOS version must be HarmonyOS 5.0.5 Release or later.
+3. The DevEco Studio version must be DevEco Studio 6.0.0 Release or later.
+4. The HarmonyOS SDK version must be HarmonyOS 6.0.0 Release SDK or later.
+
