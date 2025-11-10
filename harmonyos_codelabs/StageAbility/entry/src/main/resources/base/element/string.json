@@ -22,23 +22,23 @@
     },
     {
       "name": "put_in_shopping_cart",
-      "value": "加入购物车"
+      "value": "Add to Cart"
     },
     {
       "name": "buy_now",
-      "value": "立即购买"
+      "value": "Buy Now"
     },
     {
       "name": "homepage_tab_more",
-      "value": "分类"
+      "value": "Category"
     },
     {
       "name": "homepage_search_hot_word",
-      "value": "儿童餐椅"
+      "value": "Baby eating chair"
     },
     {
       "name": "detail_comment",
-      "value": "和描述相符合很喜欢，做工细致，颜色好看，原装正品"
+      "value": "Exactly as described—love it! Great workmanship, nice color, 100% authentic."
     },
     {
       "name": "detail_comment_phone",
@@ -46,35 +46,35 @@
     },
     {
       "name": "detail_comment_header_left",
-      "value": "用户评价 （2万+）"
+      "value": "User Reviews (20k+)"
     },
     {
       "name": "detail_comment_header_right",
-      "value": "好评"
+      "value": "Good Reviews"
     },
     {
       "name": "detail_enjoy",
-      "value": "分享"
+      "value": "Share"
     },
     {
       "name": "detail_collection",
-      "value": "收藏"
+      "value": "Save"
     },
     {
       "name": "detail_price_notify",
-      "value": "降价通知"
+      "value": "Discount Alert"
     },
     {
       "name": "detail_address_text",
-      "value": "送至"
+      "value": "Ship to"
     },
     {
       "name": "detail_address_holder_text",
-      "value": "请选择您的收货地址"
+      "value": "Choose your shipping address"
     },
     {
       "name": "detail_goods_picker_left_text",
-      "value": "已选"
+      "value": "Selected"
     },
     {
       "name": "detail_price_symbol",
@@ -86,155 +86,155 @@
     },
     {
       "name": "home_tab_index",
-      "value": "首页"
+      "value": "Index"
     },
     {
       "name": "home_tab_phone",
-      "value": "手机"
+      "value": "Phone"
     },
     {
       "name": "home_tab_food",
-      "value": "食品"
+      "value": "Food"
     },
     {
       "name": "home_tab_men_clothing",
-      "value": "男装"
+      "value": "Menswear"
     },
     {
       "name": "home_tab_fresh_food",
-      "value": "生鲜"
+      "value": "Fresh"
     },
     {
       "name": "home_tab_furniture",
-      "value": "家具"
+      "value": "Furniture"
     },
     {
       "name": "home_tab_mom_and_infant",
-      "value": "母婴"
+      "value": "Maternity-Baby"
     },
     {
       "name": "home_tab_kitchen_things",
-      "value": "厨具"
+      "value": "cooking"
     },
     {
       "name": "home_menu_all",
-      "value": "全部"
+      "value": "ALL"
     },
     {
       "name": "home_menu_all_content",
-      "value": "为你推荐"
+      "value": "Recommended"
     },
     {
       "name": "home_menu_select",
-      "value": "精选"
+      "value": "Premium"
     },
     {
       "name": "home_menu_select_content",
-      "value": "发现好货"
+      "value": "Discover Great Finds"
     },
     {
       "name": "home_menu_new",
-      "value": "新品"
+      "value": "New"
     },
     {
       "name": "home_menu_new_content",
-      "value": "新品首发"
+      "value": "New Launch"
     },
     {
       "name": "home_menu_discounts",
-      "value": "实惠"
+      "value": "Cost-Effective"
     },
     {
       "name": "home_menu_discounts_content",
-      "value": "便宜好货"
+      "value": "bargain"
     },
     {
       "name": "goods_list_item_1",
-      "value": "新款手机！ 新品优惠！"
+      "value": "New Phones! New Deals!"
     },
     {
       "name": "goods_list_item_2",
-      "value": "送给亲人 快速购买！"
+      "value": "Purchase for your family!"
     },
     {
       "name": "goods_list_item_3",
-      "value": "儿童座椅"
+      "value": "child seat"
     },
     {
       "name": "goods_list_item_4",
-      "value": "背包"
+      "value": "backpack"
     },
     {
       "name": "goods_list_item_1_save",
-      "value": "限时省1000"
+      "value": "Limited Time: ¥1000 Off"
     },
     {
       "name": "goods_list_item_2_save",
-      "value": "限时省200"
+      "value": "Limited Time: ¥200 Off"
     },
     {
       "name": "goods_list_item_3_save",
-      "value": "限时省100"
+      "value": "Limited Time: ¥100 Off"
     },
     {
       "name": "goods_list_item_4_save",
-      "value": "限时省100"
+      "value": "Limited Time: ¥100 Off"
     },
     {
       "name": "goods_list_item_1_desc",
-      "value": "仲夏紫·8GB+128GB·4G全网通·官方标配·x1"
+      "value": "MidSum Purple · 8+128 · 4G · Official · x1"
     },
     {
       "name": "goods_list_item_2_desc",
-      "value": "固态硬盘·官方标配·x1"
+      "value": "SSD·Official Pack x1"
     },
     {
       "name": "goods_list_item_3_desc",
-      "value": "纯色·儿童座椅·x1"
+      "value": "Solid·Child Seat x1"
     },
     {
       "name": "goods_list_item_4_desc",
-      "value": "灰色·背包·电脑背包·x1"
+      "value": "Gray Laptop Bag x1"
     },
     {
       "name": "goods_list_activity_new",
-      "value": "新品"
+      "value": "New"
     },
     {
       "name": "goods_list_activity_time",
-      "value": "限时"
+      "value": "Limited Time"
     },
     {
       "name": "nav_index",
-      "value": "主页"
+      "value": "Index"
     },
     {
       "name": "nav_new",
-      "value": "新品"
+      "value": "New"
     },
     {
       "name": "nav_shopping_cart",
-      "value": "购物车"
+      "value": "Cart"
     },
     {
       "name": "nav_mine",
-      "value": "我的"
+      "value": "Mine"
     },
     {
       "name": "goods_service_1_name",
-      "value": "服务"
+      "value": "Service"
     },
     {
       "name": "goods_service_1_desc",
-      "value": "免运费（请以提交订单时为准）"
+      "value": "Free Shipping (Final at Checkout)"
     },
     {
       "name": "goods_service_2_desc",
-      "value": "店铺发货&售后"
+      "value": "Store Shipping & After-Sales"
     },
     {
       "name": "goods_service_3_desc",
-      "value": "7天无理由退货"
+      "value": "7-Day Free Return"
     }
   ]
 }

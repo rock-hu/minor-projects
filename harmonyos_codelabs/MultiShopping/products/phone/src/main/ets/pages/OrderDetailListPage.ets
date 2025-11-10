@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
 import { OrderDetailList } from '@ohos/orderdetail';
 import { LocalDataManager, Order, Commodity } from '@ohos/common';
 

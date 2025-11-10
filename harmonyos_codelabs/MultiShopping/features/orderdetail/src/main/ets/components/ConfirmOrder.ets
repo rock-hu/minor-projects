@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-import { promptAction } from '@kit.ArkUI';
-import { router } from '@kit.ArkUI';
 import { AddressInfo } from './AddressInfo';
 import { HeaderBar } from '../components/HeaderBar';
 import { OrderDetailConstants } from '../constants/OrderDetailConstants';

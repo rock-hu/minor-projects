@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-import { promptAction } from '@kit.ArkUI';
-import { router } from '@kit.ArkUI';
 import { Order, ProductSpecification } from '@ohos/common';
 import { FinishType } from '../viewmodel/TypeModel';
 import { SpecificationDialog } from './SpecificationDialog';
@@ -66,11 +64,22 @@ export struct CommodityDetail {
     customStyle: true
   })
 
+  private getStringTitle(id: Resource | undefined): string {
+    let res = '';
+    try {
+      res = this.getUIContext().getHostContext()!.resourceManager.getStringSync(id?.id);
+      return res;
+    } catch (err) {
+      Logger.error(JSON.stringify(err));
+    }
+    return res;
+  }
+
   onSelectKeysChange() {
     this.productOptions = '';
     if (this.selectKeys !== undefined) {
       this.selectKeys.forEach((item) => {
-        this.productOptions += this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.value) + ' ';
+        this.productOptions += this.getStringTitle(item.value) + ' ';
       })
     }
   }

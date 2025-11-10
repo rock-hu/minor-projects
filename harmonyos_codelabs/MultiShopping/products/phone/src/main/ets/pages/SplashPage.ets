@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { router, UIContext } from '@kit.ArkUI';
 import { StyleConstants, Logger, BreakpointSystem, BreakPointType } from '@ohos/common';
 import { PageConstants } from '../constants/PageConstants';
 

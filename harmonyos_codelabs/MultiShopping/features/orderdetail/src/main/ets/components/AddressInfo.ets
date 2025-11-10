@@ -27,7 +27,7 @@ export struct AddressInfo {
   private getStringTitle(id: Resource | undefined): string {
     let res = '';
     try {
-      res = this.getUIContext().getHostContext()!.resourceManager.getStringSync(id);
+      res = this.getUIContext().getHostContext()!.resourceManager.getStringSync(id?.id);
       return res;
     } catch (err) {
       Logger.error(JSON.stringify(err));

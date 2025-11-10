@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
 import { Logger, OrderType, StyleConstants, BreakpointConstants } from '@ohos/common';
 import { orderButton, memberButton, activityButton, liveData } from '../viewmodel/PersonalData';
 import { IconButton } from '../components/IconButton';

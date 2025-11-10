@@ -77,47 +77,45 @@ struct Index {
           }) {
             Column({ space: HomeConstants.COLUMN_SPACE }) {
               ForEach(this.indexItemList, (item: IndexItem) => {
-                Stack() {
-                  Image(item.icon)
-                    .width('100%')
-                    .aspectRatio(2.18)
-                    .borderRadius($r('app.float.item_border_radius'))
+                Column() {
+                  Text(item.title)
+                    .fontSize($r('app.float.title_font_size'))
+                    .fontColor(Color.White)
+                  Text(item.description)
+                    .fontSize($r('app.float.description_font_size'))
+                    .opacity(HomeConstants.TEXT_OPACITY)
+                    .fontColor(Color.White)
+                    .margin({
+                      top: $r('app.float.description_margin_top')
+                    })
+                  Blank()
                   Column() {
-                    Text(item.title)
-                      .fontSize($r('app.float.title_font_size'))
-                      .fontColor(Color.White)
-                    Text(item.description)
-                      .fontSize($r('app.float.description_font_size'))
-                      .opacity(HomeConstants.TEXT_OPACITY)
-                      .fontColor(Color.White)
-                      .margin({
-                        top: $r('app.float.description_margin_top')
-                      })
-                    Blank()
-                    Column() {
-                      Button() {
-                        Text(item.button)
-                          .fontSize($r('app.float.button_font_size'))
-                          .fontColor(Color.White)
-                      }
-                      .backgroundColor($r('app.color.button_background_color'))
-                      .borderRadius($r('app.float.button_border_radius'))
-                      .width($r('app.float.button_width'))
-                      .height($r('app.float.button_height'))
-                      .onClick(() => {
-                        this.pageIndexInfos.pushPathByName(item.url, null);
-                      })
+                    Button() {
+                      Text(item.button)
+                        .fontSize($r('app.float.button_font_size'))
+                        .fontColor(Color.White)
                     }
-                    .alignItems(HorizontalAlign.End)
-                    .width(StyleConstants.FULL_WIDTH)
+                    .backgroundColor($r('app.color.button_background_color'))
+                    .borderRadius($r('app.float.button_border_radius'))
+                    .width($r('app.float.button_width'))
+                    .height($r('app.float.button_height'))
+                    .margin({
+                      top: $r('app.float.description_margin_top')
+                    })
+                    .onClick(() => {
+                      this.pageIndexInfos.pushPathByName(item.url, null);
+                    })
                   }
+                  .alignItems(HorizontalAlign.End)
                   .width(StyleConstants.FULL_WIDTH)
-                  .aspectRatio(2.18)
-                  .padding($r('app.float.item_padding'))
-                  .alignItems(HorizontalAlign.Start)
-                  .justifyContent(FlexAlign.SpaceBetween)
                 }
+                .width(StyleConstants.FULL_WIDTH)
+                .padding($r('app.float.item_padding'))
+                .alignItems(HorizontalAlign.Start)
+                .justifyContent(FlexAlign.SpaceBetween)
                 .borderRadius($r('app.float.item_border_radius'))
+                .backgroundImage(item.icon)
+                .backgroundImageSize(ImageSize.Cover)
               }, (item: IndexItem, index?: number) => index + JSON.stringify(item))
             }
           }

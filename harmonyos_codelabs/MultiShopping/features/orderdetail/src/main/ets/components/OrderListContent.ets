@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-import { promptAction } from '@kit.ArkUI';
-import { router } from '@kit.ArkUI';
 import { CommodityOrderItem } from './CommodityOrderItem';
 import { payEnum, statusEnum } from '../viewmodel/OrderData';
 import { OrderDetailConstants } from '../constants/OrderDetailConstants';
@@ -47,8 +45,8 @@ export struct OrderListContent {
       this.getUIContext()
         .getPromptAction()
         .showToast({
-          message: `${this.getUIContext().getHostContext()!.resourceManager.getStringSync(msg)}${this.getUIContext()
-            .getHostContext()!.resourceManager.getStringSync(OrderDetailConstants.SUCCESS)}`
+          message: `${this.getUIContext().getHostContext()!.resourceManager.getStringSync(msg.id)}${this.getUIContext()
+            .getHostContext()!.resourceManager.getStringSync(OrderDetailConstants.SUCCESS.id)}`
         });
     } catch (err) {
       Logger.error(JSON.stringify(err));

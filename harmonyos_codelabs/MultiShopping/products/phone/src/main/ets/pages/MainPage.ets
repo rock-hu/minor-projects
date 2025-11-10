@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
 import {
   BreakpointSystem,
   LocalDataManager,

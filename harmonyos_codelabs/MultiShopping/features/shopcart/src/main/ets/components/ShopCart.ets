@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
 import { ShopCartConstants } from '../constants/ShopCartConstants';
 import {
   LocalDataManager,
@@ -67,6 +66,17 @@ export struct ShopCart {
       }
     })
     this.sumPrice = tempPrice;
+  }
+
+  private getStringTitle(id: Resource | undefined): string {
+    let res = '';
+    try {
+      res = this.getUIContext().getHostContext()!.resourceManager.getStringSync(id?.id);
+      return res;
+    } catch (err) {
+      Logger.error(JSON.stringify(err));
+    }
+    return res;
   }
 
   settleAccounts() {
@@ -187,11 +197,11 @@ export struct ShopCart {
           .maxLines(StyleConstants.TWO_TEXT_LINE)
           .width(StyleConstants.FULL_WIDTH)
         Text(item.specifications.length === 2 ?
-            this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.specifications[0].value) + '，' + this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.specifications[1].value):
+            this.getStringTitle(item.specifications[0].value) + '，' + this.getStringTitle(item.specifications[1].value):
             item.specifications.length === 3 ?
-              this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.specifications[0].value) + '，' + this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.specifications[1].value) + '，' + this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.specifications[2].value) :
+              this.getStringTitle(item.specifications[0].value) + '，' + this.getStringTitle(item.specifications[1].value) + '，' + this.getStringTitle(item.specifications[2].value) :
             item.specifications.length === 4 ?
-              this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.specifications[0].value) + '，' +this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.specifications[1].value) + '，' +this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.specifications[2].value) + '，' + this.getUIContext().getHostContext()!.resourceManager.getStringSync(item.specifications[3].value) : ''
+              this.getStringTitle(item.specifications[0].value) + '，' + this.getStringTitle(item.specifications[1].value) + '，' + this.getStringTitle(item.specifications[2].value) + '，' + this.getStringTitle(item.specifications[3].value) : ''
         )
           .fontSize($r('app.float.smaller_font_size'))
           .maxLines(1)

@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-import { promptAction } from '@kit.ArkUI';
-import { router } from '@kit.ArkUI';
 import { CommodityOrderList } from './CommodityOrderList';
 import { AddressInfo } from './AddressInfo';
 import { HeaderBar } from './HeaderBar';
@@ -25,7 +23,8 @@ import {
   Order,
   OrderOperationStatus,
   StyleConstants,
-  GridConstants
+  GridConstants,
+  Logger
 } from '@ohos/common';
 import { updateOrderProps } from '@ohos/common/src/main/ets/viewmodel/OrderModel';
 
@@ -122,9 +121,13 @@ export struct PayOrder {
                 this.localDataManager.updateOrder(UpdateOrderParameter);
               }
             })
-            this.getUIContext().getPromptAction().showToast({
-              message: $r('app.string.info_success', this.getUIContext().getHostContext()!.resourceManager.getStringSync(OrderDetailConstants.PAYMENT_ENUM[OrderOperationStatus.UN_PAY]))
-            });
+            try {
+              this.getUIContext().getPromptAction().showToast({
+                message: $r('app.string.info_success', this.getUIContext().getHostContext()!.resourceManager.getStringSync(OrderDetailConstants.PAYMENT_ENUM[OrderOperationStatus.UN_PAY].id))
+              });
+            } catch (err) {
+              Logger.error(JSON.stringify(err));
+            }
             this.getUIContext().getRouter().back();
           })
       } else if (this.data[0].status === OrderOperationStatus.DELIVERED) {
@@ -139,9 +142,13 @@ export struct PayOrder {
                 status: OrderOperationStatus.RECEIPT
               }
               this.localDataManager.updateOrder(UpdateOrderParameter);
-              this.getUIContext().getPromptAction().showToast({
-                message: $r('app.string.info_success', this.getUIContext().getHostContext()!.resourceManager.getStringSync(OrderDetailConstants.PAYMENT_ENUM[OrderOperationStatus.DELIVERED]))
-              });
+              try {
+                this.getUIContext().getPromptAction().showToast({
+                  message: $r('app.string.info_success', this.getUIContext().getHostContext()!.resourceManager.getStringSync(OrderDetailConstants.PAYMENT_ENUM[OrderOperationStatus.DELIVERED].id))
+                });
+              } catch (err) {
+                Logger.error(JSON.stringify(err));
+              }
               this.getUIContext().getRouter().back();
             }
           })

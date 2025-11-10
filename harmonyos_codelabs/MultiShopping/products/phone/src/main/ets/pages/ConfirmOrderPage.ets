@@ -13,10 +13,8 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
 import { ConfirmOrder } from '@ohos/orderdetail';
 import { Order, Logger } from '@ohos/common';
-import { PageConstants } from '../constants/PageConstants';
 
 @Entry
 @Component

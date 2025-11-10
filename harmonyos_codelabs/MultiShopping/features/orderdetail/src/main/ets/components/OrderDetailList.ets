@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
 import { HeaderBar } from './HeaderBar';
 import { OrderListContent } from './OrderListContent';
 import { OrderDetailConstants } from '../constants/OrderDetailConstants'

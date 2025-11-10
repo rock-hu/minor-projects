@@ -32,7 +32,7 @@ export struct SpecificationDialog {
   @Link selectTags: ProductSpecification[];
   @Link productOptions: string;
   controller?: CustomDialogController;
-  private onFinish?: (type: FinishType, count: number, selectKeys: ProductSpecification[]) => void;
+  onFinish?: (type: FinishType, count: number, selectKeys: ProductSpecification[]) => void;
   aboutToAppear(){
     this.selectTags.forEach((item) => {
       switch (this.getStringTitle(item.name)) {
@@ -57,7 +57,7 @@ export struct SpecificationDialog {
   private getStringTitle(id: Resource | undefined): string {
     let res = '';
     try {
-      res = this.getUIContext().getHostContext()!.resourceManager.getStringSync(id);
+      res = this.getUIContext().getHostContext()!.resourceManager.getStringSync(id?.id);
       return res;
     } catch (err) {
       Logger.error(JSON.stringify(err));

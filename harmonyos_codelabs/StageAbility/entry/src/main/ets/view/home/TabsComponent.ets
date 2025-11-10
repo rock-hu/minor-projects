@@ -29,6 +29,7 @@ export default struct TabsComponent {
           .tabBar(this.tabBuilder(index ? index : 0))
         }, (item: Resource) => JSON.stringify(item))
       }
+      .fadingEdge(false)
       .vertical(false)
       .scrollable(true)
       .barMode(BarMode.Scrollable)
@@ -43,7 +44,7 @@ export default struct TabsComponent {
         Blank()
           .width(GoodsTabs.SETTING_BLANK_WIDTH)
         Text($r('app.string.homepage_tab_more'))
-          .fontSize(AppFontSize.MIDDLE)
+          .fontSize(AppFontSize.SMALLER)
           .fontColor(Color.White)
           .fontWeight(AppFontWeight.BOLD)
       }
