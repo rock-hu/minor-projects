@@ -19,8 +19,11 @@ Text可通过以下两种方式来创建：
 
 - string字符串。
 
-  ```ts
-  Text('我是一段文本')
+  <!-- @[create_a_text_in_one_way](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/TextComponent/entry/src/main/ets/pages/text/CreateText.ets) -->
+  
+  ``` TypeScript
+  // 'app.string.CreateText_Text_new'资源文件中的value值为'我是一段文本'
+  Text($r('app.string.CreateText_Text_new'))
   ```
 
 
@@ -42,7 +45,10 @@ Text可通过以下两种方式来创建：
   }
   ```
 
-  ```ts
+  <!-- @[create_a_text_in_another_way](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/TextComponent/entry/src/main/ets/pages/text/CreateText.ets) -->
+  
+  ``` TypeScript
+  // 'app.string.module_desc'资源文件中的value值为'模块描述'
   Text($r('app.string.module_desc'))
     .baselineOffset(0)
     .fontSize(30)
@@ -63,9 +69,13 @@ Text可通过以下两种方式来创建：
   Span组件需嵌入在Text组件中才能显示，单独使用时不会显示任何内容。Text与Span同时配置文本内容时，Span内容将覆盖Text内容。
 
 
-  ```ts
-  Text('我是Text') {
-    Span('我是Span')
+  <!-- @[create_span](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/TextComponent/entry/src/main/ets/pages/text/TextSpan.ets) -->
+  
+  ``` TypeScript
+  // 'app.string.TextSpan_textContent_text'资源文件中的value值为'我是Text'
+  Text($r('app.string.TextSpan_textContent_text')) {
+    // 'app.string.TextSpan_textContent_span'资源文件中的value值为'我是Span'
+    Span($r('app.string.TextSpan_textContent_span'))
   }
   .padding(10)
   .borderWidth(1)
@@ -78,14 +88,25 @@ Text可通过以下两种方式来创建：
   通过[decoration](../reference/apis-arkui/arkui-ts/ts-basic-components-span.md#decoration)设置文本装饰线及颜色。
 
 
-  ```ts
+  <!-- @[create_span_with_lines](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/TextComponent/entry/src/main/ets/pages/text/TextSpan.ets) -->
+  
+  ``` TypeScript
   Text() {
-    Span('我是Span1，').fontSize(16).fontColor(Color.Grey)
+    // 'app.string.TextSpan_textContent_span_one'资源文件中的value值为'我是Span1，'
+    Span($r('app.string.TextSpan_textContent_span_one'))
+      .fontSize(16)
+      .fontColor(Color.Grey)
       .decoration({ type: TextDecorationType.LineThrough, color: Color.Red })
-    Span('我是Span2').fontColor(Color.Blue).fontSize(16)
+    // 'app.string.TextSpan_textContent_span_two'资源文件中的value值为'我是Span2'
+    Span($r('app.string.TextSpan_textContent_span_two'))
+      .fontColor(Color.Blue)
+      .fontSize(16)
       .fontStyle(FontStyle.Italic)
       .decoration({ type: TextDecorationType.Underline, color: Color.Black })
-    Span('，我是Span3').fontSize(16).fontColor(Color.Grey)
+    // 'app.string.TextSpan_textContent_span_three'资源文件中的value值为'，我是Span3'
+    Span($r('app.string.TextSpan_textContent_span_three'))
+      .fontSize(16)
+      .fontColor(Color.Grey)
       .decoration({ type: TextDecorationType.Overline, color: Color.Green })
   }
   .borderWidth(1)
@@ -96,7 +117,9 @@ Text可通过以下两种方式来创建：
 
 - 通过[textCase](../reference/apis-arkui/arkui-ts/ts-basic-components-span.md#textcase)设置文字一直保持大写或者小写状态。
 
-  ```ts
+  <!-- @[create_span_with_upper_case](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/TextComponent/entry/src/main/ets/pages/text/TextSpan.ets) -->
+  
+  ``` TypeScript
   Text() {
     Span('I am Upper-span').fontSize(12)
       .textCase(TextCase.UpperCase)
@@ -112,38 +135,45 @@ Text可通过以下两种方式来创建：
   由于Span组件无尺寸信息，仅支持添加点击事件[onClick](../reference/apis-arkui/arkui-ts/ts-universal-events-click.md#onclick)、悬浮事件[onHover](../reference/apis-arkui/arkui-ts/ts-universal-events-hover.md#onhover)。
 
 
-  ```ts
+  <!-- @[textspan_onhover](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/TextComponent/entry/src/main/ets/pages/text/TextSpanOnHover.ets) -->
+  
+  ``` TypeScript
   // xxx.ets
+  import { hilog } from '@kit.PerformanceAnalysisKit';
+  
   @Entry
   @Component
-  struct Index {
+  export struct TextSpanOnHover {
     @State textStr1: string = '';
     @State textStr2: string = '';
-
+  
     build() {
-      Row() {
-        Column() {
-          Text() {
-            Span('I am Upper-span')
-              .textCase(TextCase.UpperCase)
-              .fontSize(30)
-              .onClick(() => {
-                console.info('Span onClick is triggering');
-                this.textStr1 = 'Span onClick is triggering';
-              })
-              .onHover(() => {
-                console.info('Span onHover is triggering');
-                this.textStr2 = 'Span onHover is triggering';
-              })
-          }
-
-          Text('onClick：' + this.textStr1)
-            .fontSize(20)
-          Text('onHover：' + this.textStr2)
-            .fontSize(20)
-        }.width('100%')
+      NavDestination() {
+        Row() {
+          Column() {
+            Text() {
+              Span('I am Upper-span')
+                .textCase(TextCase.UpperCase)
+                .fontSize(30)
+                .onClick(() => {
+                  hilog.info(0x0000, 'Sample_TextComponent', 'Span onClick is triggering');
+                  this.textStr1 = 'Span onClick is triggering';
+                })
+                .onHover(() => {
+                  hilog.info(0x0000, 'Sample_TextComponent', 'Span onHover is triggering');
+                  this.textStr2 = 'Span onHover is triggering';
+                })
+            }
+  
+            Text('onClick：' + this.textStr1)
+              .fontSize(20)
+            Text('onHover：' + this.textStr2)
+              .fontSize(20)
+          }.width('100%')
+        }
+        .height('100%')
       }
-      .height('100%')
+      // ···
     }
   }
   ```
@@ -193,18 +223,23 @@ Text组件支持创建自定义文本样式，以下为修改文本样式的主�
 
 - 通过[textAlign](../reference/apis-arkui/arkui-ts/ts-basic-components-text.md#textalign)属性设置文本对齐样式。
 
-  ```ts
-  Text('左对齐')
+  <!-- @[custom_text_align](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/TextComponent/entry/src/main/ets/pages/text/CustomTextStyle.ets) -->
+  
+  ``` TypeScript
+  // 'app.string.TextAlign_Start'资源文件中的value值为'左对齐'
+  Text($r('app.string.TextAlign_Start'))
     .width(300)
     .textAlign(TextAlign.Start)
     .border({ width: 1 })
     .padding(10)
-  Text('中间对齐')
+  // 'app.string.TextAlign_Center'资源文件中的value值为'中间对齐'
+  Text($r('app.string.TextAlign_Center'))
     .width(300)
     .textAlign(TextAlign.Center)
     .border({ width: 1 })
     .padding(10)
-  Text('右对齐')
+  // 'app.string.TextAlign_End'资源文件中的value值为'右对齐'
+  Text($r('app.string.TextAlign_End'))
     .width(300)
     .textAlign(TextAlign.End)
     .border({ width: 1 })
@@ -215,29 +250,41 @@ Text组件支持创建自定义文本样式，以下为修改文本样式的主�
 
 - 通过[textOverflow](../reference/apis-arkui/arkui-ts/ts-basic-components-text.md#textoverflow)属性控制文本超长处理，textOverflow需配合[maxLines](../reference/apis-arkui/arkui-ts/ts-basic-components-text.md#maxlines)一起使用（默认情况下文本自动折行）。从API version 18开始，文本超长时设置跑马灯的方式展示时，支持设置跑马灯的配置项，比如开关、步长、循环次数、方向等。
 
-  ```ts
-  Text('This is the setting of textOverflow to Clip text content This is the setting of textOverflow to None text content. This is the setting of textOverflow to Clip text content This is the setting of textOverflow to None text content.')
+  <!-- @[custom_text_overflow](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/TextComponent/entry/src/main/ets/pages/text/CustomTextStyle.ets) -->
+  
+  ``` TypeScript
+  Text('This is the setting of textOverflow to Clip text content This is the setting of textOverflow ' +
+    'to None text content. This is the setting of textOverflow to Clip text content This is the setting ' +
+    'of textOverflow to None text content.')
     .width(250)
     .textOverflow({ overflow: TextOverflow.None })
     .maxLines(1)
     .fontSize(12)
     .border({ width: 1 })
     .padding(10)
-  Text('我是超长文本，超出的部分显示省略号。I am an extra long text, with ellipses displayed for any excess.')
+  // 'app.string.CustomTextStyle_textContent_epsis'资源文件中的value值为
+  // '我是超长文本，超出的部分显示省略号 I am an extra long text, with ellipses displayed for any excess。'
+  Text($r('app.string.CustomTextStyle_textContent_epsis'))
     .width(250)
     .textOverflow({ overflow: TextOverflow.Ellipsis })
     .maxLines(1)
     .fontSize(12)
     .border({ width: 1 })
     .padding(10)
-  Text('当文本溢出其尺寸时，文本将滚动显示。When the text overflows its dimensions, the text will scroll for displaying.')
+  // 'app.string.CustomTextStyle_textContent_marq'资源文件中的value值为
+  // '当文本溢出其尺寸时，文本将滚动显示
+  // When the text overflows its dimensions,the text will scroll for displaying.'
+  Text($r('app.string.CustomTextStyle_textContent_marq'))
     .width(250)
     .textOverflow({ overflow: TextOverflow.MARQUEE })
     .maxLines(1)
     .fontSize(12)
     .border({ width: 1 })
     .padding(10)
-  Text('当文本溢出其尺寸时，文本将滚动显示，支持设置跑马灯配置项。When the text overflows its dimensions, the text will scroll for displaying.')
+  // 'app.string.CustomTextStyle_textContent_marq_def'资源文件中的value值为
+  // '当文本溢出其尺寸时，文本将滚动显示，支持设置跑马灯配置项
+  // When the text overflows its dimensions, the text will scroll for displaying.'
+  Text($r('app.string.CustomTextStyle_textContent_marq_def'))
     .width(250)
     .textOverflow({ overflow: TextOverflow.MARQUEE })
     .maxLines(1)
@@ -252,18 +299,23 @@ Text组件支持创建自定义文本样式，以下为修改文本样式的主�
       delay: 0,
       fadeout: false,
       marqueeStartPolicy: MarqueeStartPolicy.DEFAULT
-    })                      
+    })
   ```
 
   ![zh-cn_image_0000001563060701](figures/zh-cn_image_0000001563060701.gif)
 
 - 通过[lineHeight](../reference/apis-arkui/arkui-ts/ts-basic-components-text.md#lineheight)属性设置文本行高。
 
-  ```ts
+  <!-- @[custom_line_height](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/TextComponent/entry/src/main/ets/pages/text/CustomTextStyle.ets) -->
+  
+  ``` TypeScript
   Text('This is the text with the line height set. This is the text with the line height set.')
     .width(300).fontSize(12).border({ width: 1 }).padding(10)
   Text('This is the text with the line height set. This is the text with the line height set.')
-    .width(300).fontSize(12).border({ width: 1 }).padding(10)
+    .width(300)
+    .fontSize(12)
+    .border({ width: 1 })
+    .padding(10)
     .lineHeight(20)
   ```
 
@@ -271,7 +323,9 @@ Text组件支持创建自定义文本样式，以下为修改文本样式的主�
 
 - 通过[decoration](../reference/apis-arkui/arkui-ts/ts-basic-components-text.md#decoration)属性设置文本装饰线样式、颜色及其粗细。
 
-  ```ts
+  <!-- @[custom_text_line_and_color](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/TextComponent/entry/src/main/ets/pages/text/CustomTextStyle.ets) -->
+  
+  ``` TypeScript
   Text('This is the text')
     .decoration({
       type: TextDecorationType.LineThrough,
@@ -325,7 +379,9 @@ Text组件支持创建自定义文本样式，以下为修改文本样式的主�
 
 - 通过[baselineOffset](../reference/apis-arkui/arkui-ts/ts-basic-components-text.md#baselineoffset)属性设置文本基线的偏移量。
 
-  ```ts
+  <!-- @[custom_text_baseline_offset](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/TextComponent/entry/src/main/ets/pages/text/CustomTextStyle.ets) -->
+  
+  ``` TypeScript
   Text('This is the text content with baselineOffset 0.')
     .baselineOffset(0)
     .fontSize(12)
@@ -353,7 +409,9 @@ Text组件支持创建自定义文本样式，以下为修改文本样式的主�
 
 - 通过[letterSpacing](../reference/apis-arkui/arkui-ts/ts-basic-components-text.md#letterspacing)属性设置文本字符间距。
 
-  ```ts
+  <!-- @[custom_text_letter_space](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/TextComponent/entry/src/main/ets/pages/text/CustomTextStyle.ets) -->
+  
+  ``` TypeScript
   Text('This is the text content with letterSpacing 0.')
     .letterSpacing(0)
     .fontSize(12)
@@ -383,8 +441,11 @@ Text组件支持创建自定义文本样式，以下为修改文本样式的主�
 
   minFontSize用于设置文本的最小显示字号，maxFontSize用于设置文本的最大显示字号。这两个属性必须同时设置才能生效，并且需要与[maxLines](../reference/apis-arkui/arkui-ts/ts-basic-components-text.md#maxlines)属性或布局大小限制配合使用，单独设置任一属性将不会产生效果。
 
-  ```ts
-  Text('我的最大字号为30，最小字号为5，宽度为250，maxLines为1')
+  <!-- @[custom_the_size_of_text](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/TextComponent/entry/src/main/ets/pages/text/CustomTextStyle.ets) -->
+  
+  ``` TypeScript
+  // 'app.string.CustomTextStyle_textContent_one_style'资源文件中的value值为'我的最大字号为30，最小字号为5，宽度为250，maxLines为1'
+  Text($r('app.string.CustomTextStyle_textContent_one_style'))
     .width(250)
     .maxLines(1)
     .maxFontSize(30)
@@ -392,7 +453,8 @@ Text组件支持创建自定义文本样式，以下为修改文本样式的主�
     .border({ width: 1 })
     .padding(10)
     .margin(5)
-  Text('我的最大字号为30，最小字号为5，宽度为250，maxLines为2')
+  // 'app.string.CustomTextStyle_textContent_two_style'资源文件中的value值为'我的最大字号为30，最小字号为5，宽度为250，maxLines为2'
+  Text($r('app.string.CustomTextStyle_textContent_two_style'))
     .width(250)
     .maxLines(2)
     .maxFontSize(30)
@@ -400,7 +462,8 @@ Text组件支持创建自定义文本样式，以下为修改文本样式的主�
     .border({ width: 1 })
     .padding(10)
     .margin(5)
-  Text('我的最大字号为30，最小字号为15，宽度为250,高度为50')
+  // 'app.string.CustomTextStyle_textContent_no_max'资源文件中的value值为'我的最大字号为30，最小字号为15，宽度为250,高度为50'
+  Text($r('app.string.CustomTextStyle_textContent_no_max'))
     .width(250)
     .height(50)
     .maxFontSize(30)
@@ -408,7 +471,8 @@ Text组件支持创建自定义文本样式，以下为修改文本样式的主�
     .border({ width: 1 })
     .padding(10)
     .margin(5)
-  Text('我的最大字号为30，最小字号为15，宽度为250,高度为100')
+  // 'app.string.CustomTextStyle_textContent_high'资源文件中的value值为'我的最大字号为30，最小字号为15，宽度为250,高度为100'
+  Text($r('app.string.CustomTextStyle_textContent_high'))
     .width(250)
     .height(100)
     .maxFontSize(30)
@@ -422,19 +486,23 @@ Text组件支持创建自定义文本样式，以下为修改文本样式的主�
 
 - 通过[textCase](../reference/apis-arkui/arkui-ts/ts-basic-components-text.md#textcase)属性设置文本大小写。
 
-  ```ts
+  <!-- @[custom_the_text_by_text_case](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/TextComponent/entry/src/main/ets/pages/text/CustomTextStyle.ets) -->
+  
+  ``` TypeScript
   Text('This is the text content with textCase set to Normal.')
     .textCase(TextCase.Normal)
     .padding(10)
     .border({ width: 1 })
     .padding(10)
     .margin(5)
+  
   // 文本全小写展示
   Text('This is the text content with textCase set to LowerCase.')
     .textCase(TextCase.LowerCase)
     .border({ width: 1 })
     .padding(10)
     .margin(5)
+  
   // 文本全大写展示
   Text('This is the text content with textCase set to UpperCase.')
     .textCase(TextCase.UpperCase)
@@ -442,13 +510,16 @@ Text组件支持创建自定义文本样式，以下为修改文本样式的主�
     .padding(10)
     .margin(5)
   ```
-
+  
   ![zh-cn_image_0000001562940529](figures/zh-cn_image_0000001562940529.png)
 
 - 通过[copyOption](../reference/apis-arkui/arkui-ts/ts-basic-components-text.md#copyoption9)属性设置文本是否可复制粘贴。
 
-  ```ts
-  Text("这是一段可复制文本")
+  <!-- @[custom_the_text_by_copy_option](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/TextComponent/entry/src/main/ets/pages/text/CustomTextStyle.ets) -->
+  
+  ``` TypeScript
+  // 'app.string.CustomTextStyle_textContent_incopy'资源文件中的value值为'这是一段可复制文本。'
+  Text($r('app.string.CustomTextStyle_textContent_incopy'))
     .fontSize(30)
     .copyOption(CopyOptions.InApp)
   ```
@@ -457,8 +528,10 @@ Text组件支持创建自定义文本样式，以下为修改文本样式的主�
 
 - 通过[fontFamily](../reference/apis-arkui/arkui-ts/ts-basic-components-text.md#fontfamily)属性设置字体列表。应用当前支持'HarmonyOS Sans'字体和[注册自定义字体](../reference/apis-arkui/js-apis-font.md)。
 
-  ```ts
-  Text("This is the text content with fontFamily")
+  <!-- @[custom_the_text_fontFamily](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/TextComponent/entry/src/main/ets/pages/text/CustomTextStyle.ets) -->
+  
+  ``` TypeScript
+  Text('This is the text content with fontFamily')
     .fontSize(30)
     .fontFamily('HarmonyOS Sans')
   ```
@@ -467,28 +540,34 @@ Text组件支持创建自定义文本样式，以下为修改文本样式的主�
 
 - 从API version 20开始，支持通过[contentTransition](../reference/apis-arkui/arkui-ts/ts-basic-components-text.md#contenttransition20)属性设置数字翻牌效果。
 
-  ```ts
+  <!-- @[Content_Transition](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/TextComponent/entry/src/main/ets/pages/text/ContentTransition.ets) -->
+  
+  ``` TypeScript
+  
   @Entry
   @Component
-  struct demo {
-    @State number: number = 98;
+  export struct ContentTransition {
+    private static readonly INITIAL_SCORE: number = 98;
+    @State number: number = ContentTransition.INITIAL_SCORE;
     @State numberTransition: NumericTextTransition =
       new NumericTextTransition({ flipDirection: FlipDirection.DOWN, enableBlur: false });
-
     build() {
-      Column() {
-        Text(this.number + "")
-          .borderWidth(1)
-          .fontSize(40)
-          .contentTransition(this.numberTransition)
-        Button("chang number")
-          .onClick(() => {
-            this.number++
-          })
-          .margin(10)
+      NavDestination() {
+        Column() {
+          Text(this.number + '')
+            .borderWidth(1)
+            .fontSize(40)
+            .contentTransition(this.numberTransition)
+          Button('chang number')
+            .onClick(() => {
+              this.number++
+            })
+            .margin(10)
+        }
+        .width('100%')
+        .height('100%')
       }
-      .width('100%')
-      .height('100%')
+      // ···
     }
   }
   ```
@@ -496,17 +575,19 @@ Text组件支持创建自定义文本样式，以下为修改文本样式的主�
 
 - 从API version 20开始，支持通过[optimizeTrailingSpace](../reference/apis-arkui/arkui-ts/ts-basic-components-text.md#optimizetrailingspace20)设置是否在文本布局过程中优化每行末尾的空格，可解决行尾空格影响对齐显示效果问题。
 
-  ```ts
+  <!-- @[Last_space](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/TextComponent/entry/src/main/ets/pages/text/TextLayout.ets) -->
+  
+  ``` TypeScript
   Column() {
-    //启用优化行尾空格功能
-    Text("Trimmed space enabled     ")
+    // 启用优化行尾空格功能
+    Text('Trimmed space enabled     ')
       .fontSize(30)
       .fontWeight(FontWeight.Bold)
       .margin({ top: 20 })
       .optimizeTrailingSpace(true)
       .textAlign(TextAlign.Center)
-    //不启用优化行尾空格功能
-    Text("Trimmed space disabled     ")
+    // 不启用优化行尾空格功能
+    Text('Trimmed space disabled     ')
       .fontSize(30)
       .fontWeight(FontWeight.Bold)
       .margin({ top: 20 })
@@ -514,11 +595,14 @@ Text组件支持创建自定义文本样式，以下为修改文本样式的主�
       .textAlign(TextAlign.Center)
   }
   ```
+
   ![Text_optimize_trailing_space](figures/Text_optimize_trailing_space.jpg)
 
 - 从API version 20开始，支持通过[lineSpacing](../reference/apis-arkui/arkui-ts/ts-basic-components-text.md#linespacing20)设置文本的行间距。当不配置[LineSpacingOptions](../reference/apis-arkui/arkui-ts/ts-text-common.md#linespacingoptions20对象说明)时，首行上方和尾行下方默认会有行间距，当onlyBetweenLines设置为true时，行间距仅适用于行与行之间，首行上方无额外的行间距。
 
-  ```ts
+  <!-- @[Line_Spacing](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/TextComponent/entry/src/main/ets/pages/text/LineSpacing.ets) -->
+  
+  ``` TypeScript
   import { LengthMetrics } from '@kit.ArkUI';
   
   @Extend(Text)
@@ -532,35 +616,44 @@ Text组件支持创建自定义文本样式，以下为修改文本样式的主�
   
   @Entry
   @Component
-  struct demo {
+  export struct LineSpacing {
     build() {
-      Column() {
-        Text('The line spacing of this context is set to 20_px, and the spacing is effective only between the lines.')
-          .lineSpacing(LengthMetrics.px(20), { onlyBetweenLines: true })
-          .style()
+      NavDestination() {
+        Column() {
+          Text('The line spacing of this context is set to 20_px, and the spacing is effective only between the lines.')
+            .lineSpacing(LengthMetrics.px(20), { onlyBetweenLines: true })
+            .style()
+        }
       }
+      // ···
     }
   }
   ```
+
   ![Text_line_spacing](figures/Text_line_spacing.jpg)
 
 - 从API version 20开始，支持通过[enableAutoSpacing](../reference/apis-arkui/arkui-ts/ts-basic-components-text.md#enableautospacing20)设置是否开启中文与西文的自动间距。
 
-  ```ts
+  <!-- @[Enable_AutoSpacing](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/TextComponent/entry/src/main/ets/pages/text/EnableAutoSpacing.ets) -->
+  
+  ``` TypeScript
   @Entry
   @Component
-  struct TextExample {
+  export struct EnableAutoSpacing {
     @State enableSpacing: boolean = false;
   
     build() {
+      NavDestination() {
       Column() {
         Row({ space: 20 }) {
-          Button("开启自动间距")
+          // 'app.string.Enable_automatic_spacing'资源文件中的value值为'开启自动间距'
+          Button($r('app.string.Enable_automatic_spacing'))
             .onClick(() => this.enableSpacing = true)
             .backgroundColor(this.enableSpacing ? '#4CAF50' : '#E0E0E0')
             .fontColor(this.enableSpacing ? Color.White : Color.Black)
   
-          Button("关闭自动间距")
+          // 'app.string.off_automatic_spacing'资源文件中的value值为'关闭自动间距'
+          Button($r('app.string.off_automatic_spacing'))
             .onClick(() => this.enableSpacing = false)
             .backgroundColor(!this.enableSpacing ? '#F44336' : '#E0E0E0')
             .fontColor(!this.enableSpacing ? Color.White : Color.Black)
@@ -569,13 +662,16 @@ Text组件支持创建自定义文本样式，以下为修改文本样式的主�
         .justifyContent(FlexAlign.Center)
         .margin({ top: 30, bottom: 20 })
   
-        Text(this.enableSpacing ? "当前状态：已开启自动间距" : "当前状态：已关闭自动间距")
+        // 'app.string.Automatic_spacing_has_been_enabled'资源文件中的value值为'当前状态:已开启自动间距'
+        // 'app.string.Automatic_spacing_has_been_turned_off'资源文件中的value值为'当前状态:已关闭自动间距'
+        Text(this.enableSpacing ? $r('app.string.Automatic_spacing_has_been_enabled') : $r('app.string.Automatic_spacing_has_been_turned_off'))
           .fontSize(16)
           .fontColor(this.enableSpacing ? '#4CAF50' : '#F44336')
           .margin({ bottom: 20 })
   
         // 设置是否应用中西文自动间距
-        Text('中西文Auto Spacing自动间距')
+        // 'app.string.Chinese_and_Western_Auto_Spacing_automatic_spacing'资源文件中的value值为'中西文Auto Spacing自动间距'
+        Text($r('app.string.Chinese_and_Western_Auto_Spacing_automatic_spacing'))
           .fontSize(24)
           .padding(15)
           .backgroundColor('#F5F5F5')
@@ -585,9 +681,12 @@ Text组件支持创建自定义文本样式，以下为修改文本样式的主�
       .width('100%')
       .height('100%')
       .padding(20)
+      }
+      // ···
     }
   }
   ```
+
   ![Text_enable_auto_spacing](figures/Text_enable_auto_spacing.gif)
 
 - 从API version 20开始，支持通过[shaderStyle](../reference/apis-arkui/arkui-ts/ts-basic-components-text.md#shaderstyle20)设置渐变色。
@@ -1395,7 +1494,7 @@ struct TextExample {
   static getEmojiImg(emojis: string[]): Resource[] { // 根据正则匹配结果返回自定义表情资源
     let emojisImg: Resource[] = []
     for (let i = 0; i < emojis.length; i++) {
-      switch (emojis[i]) {
+      switch (emojis[i]) { // $r("...")需要替换为开发者所需的图像资源
         case 'rolling_on_the_floor_laughing':
           emojisImg.push($r("app.media.rolling_on_the_floor_laughing"))
         case 'slightly_smiling_face':

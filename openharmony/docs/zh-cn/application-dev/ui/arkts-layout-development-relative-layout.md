@@ -76,7 +76,7 @@ RelativeContainer是一种采用相对布局的容器，支持容器内部的子
   
   @Entry
   @Component
-  struct Index {
+  struct ParentRefRelativeContainer {
     build() {
       RelativeContainer() {
         Row() {
@@ -125,7 +125,7 @@ RelativeContainer是一种采用相对布局的容器，支持容器内部的子
   
   @Entry
   @Component
-  struct Index {
+  struct SiblingRefRelativeContainer {
     build() {
       RelativeContainer() {
         Row() {
@@ -163,7 +163,7 @@ RelativeContainer是一种采用相对布局的容器，支持容器内部的子
   ``` TypeScript
   @Entry
   @Component
-  struct Index {
+  struct ChildRefRelativeContainer {
     build() {
       Row() {
         RelativeContainer() {
@@ -235,7 +235,7 @@ RelativeContainer是一种采用相对布局的容器，支持容器内部的子
   ``` TypeScript
   @Entry
   @Component
-  struct Index {
+  struct ChildComponentOffsetExample {
     build() {
       Row() {
         RelativeContainer() {
@@ -359,7 +359,7 @@ Row、Column、Flex、Stack等多种布局组件，可按照RelativeContainer组
   ``` TypeScript
   @Entry
   @Component
-  struct Index {
+  struct RelativeContainerExample {
     @State value: number = 0
   
     build() {
@@ -440,7 +440,7 @@ Row、Column、Flex、Stack等多种布局组件，可按照RelativeContainer组
 ``` TypeScript
 @Entry
 @Component
-struct Index {
+struct RelativeAlignRulesExample {
   build() {
     Row() {
       RelativeContainer() {
@@ -546,7 +546,7 @@ struct Index {
 ``` TypeScript
 @Entry
 @Component
-struct Index {
+struct RelativeChainModeExample {
   build() {
     Row() {
       RelativeContainer() {
@@ -705,7 +705,7 @@ struct Index {
 ``` TypeScript
 @Entry
 @Component
-struct Index {
+struct RelativeGuideLineExample {
   build() {
     Row() {
       RelativeContainer() {
@@ -757,10 +757,6 @@ struct Index {
         .width(100)
         .height(100)
         .backgroundColor('#a3cf62')
-        .alignRules({
-          top: { anchor: '__container__', align: VerticalAlign.Top },
-          left: { anchor: '__container__', align: HorizontalAlign.Start }
-        })
         .id('row1')
 
         Row() {
@@ -768,11 +764,11 @@ struct Index {
         }
         .justifyContent(FlexAlign.Center)
         .width(100)
+        .height(100)
         .backgroundColor('#00ae9d')
         .alignRules({
-          top: { anchor: '__container__', align: VerticalAlign.Top },
-          right: { anchor: '__container__', align: HorizontalAlign.End },
-          bottom: { anchor: 'row1', align: VerticalAlign.Center },
+          middle: { anchor: 'row1', align: HorizontalAlign.End },
+          top: { anchor: 'row1', align: VerticalAlign.Bottom }
         })
         .id('row2')
 
@@ -780,57 +776,34 @@ struct Index {
           Text('row3')
         }
         .justifyContent(FlexAlign.Center)
+        .width(100)
         .height(100)
         .backgroundColor('#0a59f7')
         .alignRules({
-          top: { anchor: 'row1', align: VerticalAlign.Bottom },
-          left: { anchor: 'row1', align: HorizontalAlign.End },
-          right: { anchor: 'row2', align: HorizontalAlign.Start }
+          left: { anchor: 'barrier1', align: HorizontalAlign.End },
+          top: { anchor: 'row1', align: VerticalAlign.Top }
         })
         .id('row3')
 
         Row() {
           Text('row4')
-        }.justifyContent(FlexAlign.Center)
-        .backgroundColor('#2ca9e0')
-        .alignRules({
-          top: { anchor: 'row3', align: VerticalAlign.Bottom },
-          bottom: { anchor: '__container__', align: VerticalAlign.Bottom },
-          left: { anchor: '__container__', align: HorizontalAlign.Start },
-          right: { anchor: 'row1', align: HorizontalAlign.End }
-        })
-        .id('row4')
-
-        Row() {
-          Text('row5')
-        }.justifyContent(FlexAlign.Center)
-        .backgroundColor('#30c9f7')
-        .alignRules({
-          top: { anchor: 'row3', align: VerticalAlign.Bottom },
-          bottom: { anchor: '__container__', align: VerticalAlign.Bottom },
-          left: { anchor: 'row2', align: HorizontalAlign.Start },
-          right: { anchor: 'row2', align: HorizontalAlign.End }
-        })
-        .id('row5')
-
-        Row() {
-          Text('row6')
         }
         .justifyContent(FlexAlign.Center)
-        .backgroundColor('#ff33ffb5')
+        .width(50)
+        .height(50)
+        .backgroundColor('#2ca9e0')
         .alignRules({
-          top: { anchor: 'row3', align: VerticalAlign.Bottom },
-          bottom: { anchor: 'row4', align: VerticalAlign.Bottom },
-          left: { anchor: 'row3', align: HorizontalAlign.Start },
-          right: { anchor: 'row3', align: HorizontalAlign.End }
+          left: { anchor: 'row1', align: HorizontalAlign.Start },
+          top: { anchor: 'barrier2', align: VerticalAlign.Bottom }
         })
-        .id('row6')
-        .backgroundImagePosition(Alignment.Bottom)
-        .backgroundImageSize(ImageSize.Cover)
+        .id('row4')
       }
-      .width(300).height(300)
+      .width(300)
+      .height(300)
       .margin({ left: 50 })
       .border({ width: 2, color: '#6699FF' })
+      .barrier([{ id: 'barrier1', direction: BarrierDirection.RIGHT, referencedId: ['row1', 'row2'] },
+        { id: 'barrier2', direction: BarrierDirection.BOTTOM, referencedId: ['row1', 'row2'] }])
     }
     .height('100%')
   }
