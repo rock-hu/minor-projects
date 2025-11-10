@@ -11,13 +11,16 @@
 ## 工程目录
 
 ```
-├──entry/src/main                                   
-│  └──ets 
-│     └──pages     
-│        ├──field.glsl                                     // GLSL样例代码    
-│        ├──Index.ets                                      // 首页                
-│        └──shader.frag                                    // GLSL样例代码                              
-└──entry/src/main/resources                                // 资源文件目录 
+├──entry/src/main/ets                                // 代码区
+│  ├──entryability
+│  │  └──EntryAbility.ets                            // 程序入口类
+│  ├──entrybackupability
+│  │  └──EntryBackupAbility.ets                      // 应用数据备份和恢复        
+│  └──pages     
+│     ├──field.glsl                                  // GLSL样例代码    
+│     ├──Index.ets                                   // 首页                
+│     └──shader.frag                                 // GLSL样例代码                              
+└──entry/src/main/resources                          // 资源文件目录 
 ```
 
 ## 具体实现
@@ -46,9 +49,9 @@
 
 如需单独下载本工程，执行如下命令：
 ```
-git init
-git config core.sparsecheckout true
-echo MaliangGPU/ > .git/info/sparse-checkout
-git remote add origin https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
-git pull origin master
+git clone --filter=blob:none --no-checkout https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+cd BestPracticeSnippets
+git sparse-checkout init --cone
+git sparse-checkout set MaliangGPU
+git checkout
 ```

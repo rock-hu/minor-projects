@@ -65,19 +65,19 @@
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机。
 
-2. HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
+2. HarmonyOS系统：HarmonyOS 6.0.0 Release及以上。
 
-3. DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
+3. DevEco Studio版本：DevEco Studio 6.0.0 Release及以上。
 
-4. HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。
+4. HarmonyOS SDK版本：HarmonyOS 6.0.0 Release SDK及以上。
 
 ### 下载
 
 如需单独下载本工程，执行如下命令：
 ```
-git init
-git config core.sparsecheckout true
-echo HDRVivid/AVPlayer/ > .git/info/sparse-checkout
-git remote add origin https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
-git pull origin master
+git clone --filter=blob:none --no-checkout https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+cd BestPracticeSnippets
+git sparse-checkout init --cone
+git sparse-checkout set HDRVivid/AVPlayer
+git checkout
 ```

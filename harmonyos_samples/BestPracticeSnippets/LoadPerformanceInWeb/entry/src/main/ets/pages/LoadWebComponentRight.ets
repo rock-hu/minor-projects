@@ -15,7 +15,7 @@ struct WebComponent {
         .onClick(() => {
           // Performance dot
           hiTraceMeter.startTrace('getMessageData', 1);
-          // Please replace url with real address.
+          // Please replace the URL with the real address.
           this.controller.loadUrl('https://www.example1.com/');
         })
       Web({ src: 'https://www.example.com/', controller: this.webviewController })

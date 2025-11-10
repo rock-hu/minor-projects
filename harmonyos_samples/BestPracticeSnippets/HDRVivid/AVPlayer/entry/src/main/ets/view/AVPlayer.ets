@@ -96,38 +96,25 @@ export struct VideoPlayer {
     let audioManager = audio.getAudioManager();
     let audioVolumeManger: audio.AudioVolumeManager = audioManager.getVolumeManager();
 
+    try {
+      this.volume = audioVolumeManger.getVolumeByStream(audio.StreamUsage.STREAM_USAGE_MOVIE);
+
+      let maxNum = audioVolumeManger.getMaxVolumeByStream(audio.StreamUsage.STREAM_USAGE_MUSIC);
+      hilog.info(0x0000, 'AVPlayer', `Callback invoked to indicate that the maximum volume is obtained. ${maxNum}`);
+
+      let minNum = audioVolumeManger.getMinVolumeByStream(audio.StreamUsage.STREAM_USAGE_MUSIC);
+      hilog.info(0x0000, 'AVPlayer', `Callback invoked to indicate that the maximum volume is obtained. ${minNum}`);
+    } catch (err) {
+      let error = err as BusinessError;
+      hilog.error(0x0000, 'AVPlayer', `code=${error.code}, message=${error.message}`);
+    }
+
     audioVolumeManger.getVolumeGroupManager(groupId, (err: BusinessError, value: audio.AudioVolumeGroupManager) => {
       if (err) {
         hilog.error(0x0000, 'AVPlayer', `Failed to obtain the colume group infos list. ${err}`);
         return;
       }
-      let audioVolumeGroupManager = value;
       hilog.info(0x0000, 'AVPlayer', `Callback invoked to indicate that the volume group infos list is obtained.`);
-
-      audioVolumeGroupManager.getVolume(audio.AudioVolumeType.MEDIA, (err: BusinessError, value: number) => {
-        if (err) {
-          hilog.error(0x0000, 'AVPlayer', `Failed to obtain the volume. ${err}`);
-          return;
-        }
-        this.volume = value;
-        hilog.info(0x0000, 'AVPlayer', `Callback invoked to indicate that the volume is obtained. ${value}`);
-      });
-
-      audioVolumeGroupManager.getMaxVolume(audio.AudioVolumeType.MEDIA, (err: BusinessError, value: number) => {
-        if (err) {
-          hilog.error(0x0000, 'AVPlayer', `Failed to obtain the maximum volume. ${err}`);
-          return;
-        }
-        hilog.info(0x0000, 'AVPlayer', `Callback invoked to indicate that the maximum volume is obtained. ${value}`);
-      });
-
-      audioVolumeGroupManager.getMinVolume(audio.AudioVolumeType.MEDIA, (err: BusinessError, value: number) => {
-        if (err) {
-          hilog.error(0x0000, 'AVPlayer', `Failed to obtain the minimum volume. ${err}`);
-          return;
-        }
-        hilog.info(0x0000, 'AVPlayer', `Callback invoked to indicate that the minimum volume is obtained. ${value}`);
-      });
     });
   }
 
@@ -198,7 +185,7 @@ export struct VideoPlayer {
               .width(this.isFloatWindow ? $r('app.float.size_24') : $r('app.float.icon_size_large'))
               .aspectRatio(1)
               .visibility(this.isFullScreen || this.isFullLandscapeScreen || this.isFloatWindow ?
-              Visibility.Visible : Visibility.Hidden)
+                Visibility.Visible : Visibility.Hidden)
             Image($r('app.media.ic_video_menu_forward'))
               .monopolizeEvents(true)
               .width(this.isFloatWindow ? $r('app.float.size_24') : $r('app.float.icon_size_large'))
@@ -307,7 +294,8 @@ export struct VideoPlayer {
           .onActionUpdate((event: GestureEvent) => {
             if (event.fingerList[0].globalX > (820 / 2)) {
               this.visible = true;
-              let curBrightness = this.screenBrightness - this.uiContext.vp2px(event.offsetY) / this.uiContext.vp2px(this.screenHeight);
+              let curBrightness =
+                this.screenBrightness - this.uiContext.vp2px(event.offsetY) / this.uiContext.vp2px(this.screenHeight);
               curBrightness = curBrightness >= 1.0 ? 1.0 : curBrightness;
               curBrightness = curBrightness <= 0.0 ? 0.0 : curBrightness;
               this.screenBrightness = curBrightness;
@@ -458,7 +446,7 @@ export struct VideoPlayer {
       Column() {
         Row() {
           Image(this.avPlayerController.isPlaying ? $r('sys.media.ohos_ic_public_pause') :
-          $r('app.media.ic_video_menu_play'))
+            $r('app.media.ic_video_menu_play'))
             .width($r('app.float.size_24'))
             .height($r('app.float.size_24'))
             .fillColor(Color.White)
@@ -488,12 +476,13 @@ export struct VideoPlayer {
             .zIndex(CommonConstants.SLIDER_INDEX)
             .onAreaChange(() => {
               try {
-                let videoSlider: componentUtils.ComponentInfo = this.getUIContext().getComponentUtils().getRectangleById('video_slider');
+                let videoSlider: componentUtils.ComponentInfo =
+                  this.getUIContext().getComponentUtils().getRectangleById('video_slider');
                 this.slideWidth = this.uiContext.px2vp(videoSlider.size.width);
                 this.offsetY = this.uiContext.px2vp(videoSlider.localOffset.y);
                 this.beginX = this.uiContext.px2vp(videoSlider.localOffset.x);
               } catch (error) {
-                hilog.error(0x0000, 'testTag',`getRectangleById failed, Code:${error.code}, message:${error.message}`);
+                hilog.error(0x0000, 'testTag', `getRectangleById failed, Code:${error.code}, message:${error.message}`);
               }
             })
             .onChange((value: number, mode: SliderChangeMode) => {
@@ -571,14 +560,14 @@ export struct VideoPlayer {
       let context = this.uiContext.getHostContext() as common.UIAbilityContext;
       await window.getLastWindow(context)
         .then((windowClass: window.Window) => {
-           windowClass.setWindowKeepScreenOn(false)
+          windowClass.setWindowKeepScreenOn(false)
             .catch((err: BusinessError) => {
-              hilog.error(0x0000, 'testTag',`setWindowKeepScreenOn failed, Code:${err.code}, message:${err.message}`);
+              hilog.error(0x0000, 'testTag', `setWindowKeepScreenOn failed, Code:${err.code}, message:${err.message}`);
             })
         })
-         .catch((err: BusinessError) => {
-           hilog.error(0x0000, 'testTag',`getLastWindow failed, Code:${err.code}, message:${err.message}`);
-         })
+        .catch((err: BusinessError) => {
+          hilog.error(0x0000, 'testTag', `getLastWindow failed, Code:${err.code}, message:${err.message}`);
+        })
       return;
     }
     if (this.avPlayerController.isReady === true) {
@@ -601,12 +590,12 @@ export struct VideoPlayer {
     await window.getLastWindow(context)
       .then((windowClass: window.Window) => {
         windowClass.setWindowKeepScreenOn(true)
-        .catch((err: BusinessError) => {
-          hilog.error(0x0000, 'testTag',`setWindowKeepScreenOn failed, Code:${err.code}, message:${err.message}`);
-        })
+          .catch((err: BusinessError) => {
+            hilog.error(0x0000, 'testTag', `setWindowKeepScreenOn failed, Code:${err.code}, message:${err.message}`);
+          })
       })
       .catch((err: BusinessError) => {
-        hilog.error(0x0000, 'testTag',`getLastWindow failed, Code:${err.code}, message:${err.message}`);
+        hilog.error(0x0000, 'testTag', `getLastWindow failed, Code:${err.code}, message:${err.message}`);
       })
   }
 

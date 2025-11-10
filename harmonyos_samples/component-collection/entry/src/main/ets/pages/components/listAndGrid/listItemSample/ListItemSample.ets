@@ -71,7 +71,7 @@ struct RowSample {
             }
             .selectable(this.selectable)
             .onSelect((b) => {
-              this.output = b === true ? this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.enter_range')) : this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.remove_range'));
+              this.output = b === true ? this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.enter_range').id) : this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.remove_range').id);
             })
             .swipeAction({
               end: this.swipeAction(index)

@@ -63,9 +63,9 @@ This sample demonstrates the use of Camera Kit to customize a camera and use the
 
 To download this project separately, execute the following command:
 ```
-git init
-git config core.sparsecheckout true
-echo HDRVivid/AVRecorder/ > .git/info/sparse-checkout
-git remote add origin https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
-git pull origin master
+git clone --filter=blob:none --no-checkout https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+cd BestPracticeSnippets
+git sparse-checkout init --cone
+git sparse-checkout set HDRVivid/AVRecorder
+git checkout
 ```

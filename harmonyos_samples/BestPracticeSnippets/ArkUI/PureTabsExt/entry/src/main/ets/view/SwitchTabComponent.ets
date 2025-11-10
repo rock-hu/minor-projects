@@ -33,7 +33,7 @@ export default struct SwitchTabComponent {
 
   private async updateTabItems() {
     await this.getUIContext()
-      .getHostContext()?.resourceManager.getStringArrayValue($r('app.strarray.switch_tabs_items'))
+      .getHostContext()?.resourceManager.getStringArrayValue($r('app.strarray.switch_tabs_items').id)
       .then((strarray: string[]) => {
         this.tabItems = strarray;
       })

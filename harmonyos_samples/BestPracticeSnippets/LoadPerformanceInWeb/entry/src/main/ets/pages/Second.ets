@@ -19,7 +19,7 @@ export struct Second {
     NavDestination() {
       Row() {
         Column() {
-          // Please replace url with real address.
+          // Please replace the URL with the real address.
           NodeContainer(getNWeb('https://www.example.com'))
             .height('100%')
             .width('100%')

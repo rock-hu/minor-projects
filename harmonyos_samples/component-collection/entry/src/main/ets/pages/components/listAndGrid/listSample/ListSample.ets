@@ -63,9 +63,9 @@ struct ListSample {
   getStatusBarContext() : string {
     let context = '';
     try {
-      context = this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.status_bar_desc1')) +
+      context = this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.status_bar_desc1').id) +
       String(this.initIndex) +
-      this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.status_bar_desc2'))
+      this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.status_bar_desc2').id)
     } catch (error) {
       Logger.error(`callback getStatusBarContext failed, error code: ${(error as BusinessError).code}, message: ${(error as BusinessError).message}.`);
     }

@@ -125,7 +125,7 @@ export struct CommonItemSelect {
   private selectIndex: number = 0;
   private fontSize: Font = { size: 15, weight: FontWeight.Medium };
   private isItemStyle: boolean = true;
-  private text: string = this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.choose_please'));
+  private text: string = this.getUIContext().getHostContext()!.resourceManager.getStringSync($r('app.string.choose_please').id);
 
   aboutToAppear() {
     this.selects.forEach((selects, index) => {

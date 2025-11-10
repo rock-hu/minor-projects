@@ -54,9 +54,9 @@ N/A
 
 To download this project separately, execute the following command:
 ```
-git init
-git config core.sparsecheckout true
-echo code/SuperFeature/MultiDeviceAppDev/Weather/ > .git/info/sparse-checkout
-git remote add origin https://gitee.com/openharmony/applications_app_samples.git
-git pull origin master
+git clone --filter=blob:none --no-checkout https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+cd BestPracticeSnippets
+git sparse-checkout init --cone
+git sparse-checkout set Weather
+git checkout
 ```

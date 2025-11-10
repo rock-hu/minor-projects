@@ -21,7 +21,7 @@
 
 安装运行应用，进入应用首页，点击不同的按钮跳转到不同的手势场景示例。
 
-## 工程目录
+### 工程目录
 
 ``` 
 ├──entry/src/main/ets                          
@@ -48,7 +48,7 @@
 
 * 允许使用Internet网络：ohos.permission.INTERNET。
 
-## 约束与限制
+### 约束与限制
 
 * 本示例仅支持标准系统上运行，支持设备：华为手机。
 * HarmonyOS系统：HarmonyOS 5.0.5 Release及以上。
@@ -59,9 +59,9 @@
 
 如需单独下载本工程，执行如下命令：
 ```
-git init
-git config core.sparsecheckout true
-echo GesturesConfictPractice/ > .git/info/sparse-checkout
-git remote add origin https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
-git pull origin master
+git clone --filter=blob:none --no-checkout https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+cd BestPracticeSnippets
+git sparse-checkout init --cone
+git sparse-checkout set GesturesConfictPractice
+git checkout
 ```

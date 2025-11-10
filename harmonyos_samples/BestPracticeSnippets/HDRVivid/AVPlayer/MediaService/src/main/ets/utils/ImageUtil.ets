@@ -22,11 +22,7 @@ export class ImageUtil {
   public static async getPixmapFromMedia(resource: Resource, UIContext: UIContext) {
     let unit8Array: Uint8Array | undefined = undefined;
     try {
-       unit8Array = await UIContext.getHostContext()?.resourceManager?.getMediaContent({
-        bundleName: resource.bundleName,
-        moduleName: resource.moduleName,
-        id: resource.id
-      });
+       unit8Array = await UIContext.getHostContext()?.resourceManager?.getMediaContent(resource.id);
     } catch (error) {
       Logger.error(`getMediaContent failed Cause:  ${JSON.stringify(error)}`);
     }

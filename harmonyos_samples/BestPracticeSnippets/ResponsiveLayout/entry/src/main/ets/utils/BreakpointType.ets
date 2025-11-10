@@ -24,11 +24,11 @@ export class BreakpointType<T> {
     this.lg = lg;
   }
 
-  getValue(currentWidthBreakpoint: string): T {
-    if (currentWidthBreakpoint === 'md') {
+  getValue(currentWidthBreakpoint: WidthBreakpoint): T {
+    if (currentWidthBreakpoint === WidthBreakpoint.WIDTH_MD) {
       return this.md;
     }
-    if (currentWidthBreakpoint === 'lg') {
+    if (currentWidthBreakpoint === WidthBreakpoint.WIDTH_LG) {
       return this.lg;
     } else {
       return this.sm;

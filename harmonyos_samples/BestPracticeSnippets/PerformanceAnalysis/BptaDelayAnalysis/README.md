@@ -48,9 +48,9 @@ animationDuration属性有300ms的动画时长，当该属性值设置过长时�
 
 如需单独下载本工程，执行如下命令：
 ```
-git init
-git config core.sparsecheckout true
-echo PerformanceAnalysis/BptaDelayAnalysis/ > .git/info/sparse-checkout
-git remote add origin https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
-git pull origin master
+git clone --filter=blob:none --no-checkout https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+cd BestPracticeSnippets
+git sparse-checkout init --cone
+git sparse-checkout set PerformanceAnalysis/BptaDelayAnalysis
+git checkout
 ```

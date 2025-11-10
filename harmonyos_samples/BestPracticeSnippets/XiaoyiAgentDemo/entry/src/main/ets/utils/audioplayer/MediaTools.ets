@@ -24,7 +24,7 @@ export class MediaTools {
     name: resourceManager.Resource): Promise<PixelMap> {
     let resourceMgr = context.resourceManager;
     let fileData: Uint8Array | null = null;
-    resourceMgr.getMediaContent(name)
+    resourceMgr.getMediaContent(name.id)
       .then((data: Uint8Array) => {
         fileData = data;
       })

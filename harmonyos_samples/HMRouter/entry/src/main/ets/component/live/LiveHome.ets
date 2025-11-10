@@ -110,7 +110,7 @@ export class LiveInteractiveAnimator implements IHMAnimator {
     }).finish((modifier: AttributeUpdater<NavDestinationAttribute>) => {
       modifier.attribute?.translate({ x: '100%' }).opacity(0.4)
     }).onFinish((modifier: AttributeUpdater<NavDestinationAttribute>) => {
-      modifier.attribute?.translate({ x: '100%' }).opacity(0.4)
+      modifier.attribute?.translate({ x: '0' }).opacity(1)
     })
     // [EndExclude live_inter_active]
   }
@@ -118,8 +118,9 @@ export class LiveInteractiveAnimator implements IHMAnimator {
   interactive(handle: HMAnimatorHandle): void {
     handle.actionStart((event: GestureEvent) => {
       if (event.offsetX > 0) {
-        HMRouterMgr.pop();
+        HMRouterMgr.popAsync();
       }
+      handle.startOffset = event.fingerList[0].localX;
     });
     handle.updateProgress((event, proxy, operation, startOffset) => {
       if (!proxy?.updateTransition || !startOffset) {
@@ -127,7 +128,7 @@ export class LiveInteractiveAnimator implements IHMAnimator {
       }
       let offset = 0;
       if (event.fingerList[0]) {
-        offset = event.fingerList[0].localX - startOffset;
+        offset = Math.abs(event.fingerList[0].localX - startOffset);
       }
       if (offset < 0) {
         proxy?.updateTransition(0);
@@ -144,7 +145,7 @@ export class LiveInteractiveAnimator implements IHMAnimator {
       let rectWidth = event.target.area.width as number;
       let rate = 0;
       if (event.fingerList[0]) {
-        rate = (event.fingerList[0].localX - startOffset) / rectWidth;
+        rate = Math.abs(event.fingerList[0].localX - startOffset) / rectWidth;
       }
       if (rate > 0.4) {
         proxy?.finishTransition();

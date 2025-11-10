@@ -23,6 +23,8 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { CommonConstants } from '../common/constant/CommonConstants';
 
+const TAG = `AdjustContentView`;
+
 @Component
 export default struct AdjustContentView {
   @State currentAdjustIndex: number = 0;
@@ -170,7 +172,9 @@ struct SliderCustom {
   }
 
   // [Start handleImage]
+  // ImageEditTaskPool/entry/src/main/ets/view/AdjustContentView.ets
   async sliderChange(value: number, mode: SliderChangeMode) {
+    // [StartExclude handleImage]
     if ((mode === SliderChangeMode.End) && (value !== this.currentAdjustData[this.currentIndex])) {
       if (this.postState) {
         this.deviceListDialogController.open();
@@ -182,9 +186,9 @@ struct SliderCustom {
       let buffer = new ArrayBuffer(px.getPixelBytesNumber());
       px.readPixelsToBufferSync(buffer);
 
+      // [EndExclude handleImage]
       const needBrightness = this.currentAdjustData[AdjustId.BRIGHTNESS] !== CommonConstants.SLIDER_MAX;
       const needSaturation = this.currentAdjustData[AdjustId.SATURATION] !== CommonConstants.SLIDER_MAX;
-
       if (needBrightness || needSaturation) {
         try {
           if (needBrightness) {
@@ -196,7 +200,7 @@ struct SliderCustom {
           px.writeBufferToPixelsSync(buffer);
         } catch (err) {
           let error = err as BusinessError;
-          hilog.error(0x0000, 'testTag', `${error.code}, ${error.message}`);
+          hilog.error(0x0000, TAG, `${error.code}, ${error.message}`);
         }
       }
 
@@ -206,31 +210,33 @@ struct SliderCustom {
           px.opacitySync(opacity);
         } catch (err) {
           let error = err as BusinessError;
-          hilog.error(0x0000, 'testTag', `${error.code}, ${error.message}`);
+          hilog.error(0x0000, TAG, `${error.code}, ${error.message}`);
         }
       }
+      // [StartExclude handleImage]
 
       this.pixelMap = px;
       this.isPixelMapChange = !this.isPixelMapChange;
       this.deviceListDialogController.close();
       this.postState = true;
+      // [EndExclude handleImage]
     }
   }
   // [End handleImage]
 
+  // [Start execImageProcessing]
   private async execImageProcessing(buffer: ArrayBuffer, type: AdjustId, value: number): Promise<ArrayBuffer> {
-    // [Start execImageProcessing]
-    const processParam: ImageProcessing = { value, buffer, type };
-    const task = new taskpool.Task(imageProcessing, processParam);
+    const buffers = splitArrayBuffer(buffer, 240);
+    const group = splitTask(buffers, type, value);
     try {
-      return await taskpool.execute(task, taskpool.Priority.HIGH) as ArrayBuffer;
+      return mergeArrayBuffers(await taskpool.execute(group, taskpool.Priority.HIGH) as ArrayBuffer[]);
     } catch (err) {
       let error = err as BusinessError;
-      hilog.error(0x0000, 'AdjustContentView', `${error.code}, ${error.message}`);
+      hilog.error(0x0000, TAG, `${error.code}, ${error.message}`);
       return buffer;
     }
-    // [End execImageProcessing]
   }
+  // [End execImageProcessing]
 
   // [Start postProcess_start]
   // ImageEditTaskPool/entry/src/main/ets/view/AdjustContentView.ets
@@ -245,7 +251,7 @@ struct SliderCustom {
     this.pixelMap.readPixelsToBuffer(bufferArray)
       .then(() => {
         const buffers: ArrayBuffer[] = splitArrayBuffer(bufferArray, 240);
-        const group = splitTask(buffers, type, sliderValue, value);
+        const group = splitTask(buffers, type, value);
         // [StartExclude postProcess_start]
         // [Start execute_start]
         taskpool.execute(group, taskpool.Priority.HIGH).catch((err: BusinessError) => {
@@ -321,21 +327,21 @@ export struct Dialog {
 }
 
 // [Start postProcess_start]
+// [Start execImageProcessing]
 /**
  * Each task processes a portion of the pixel data and adds the task to the task group.
  *
  */
-function splitTask(buffers: ArrayBuffer[], type: AdjustId, sliderValue: number, value: number): taskpool.TaskGroup {
+function splitTask(buffers: ArrayBuffer[], type: AdjustId, value: number): taskpool.TaskGroup {
   // Creating a Task Group
   let group: taskpool.TaskGroup = new taskpool.TaskGroup();
   for (const buffer of buffers) {
     try {
       group.addTask(imageProcessing, {
         // Add a task to a task group
-        type,
-        bufferArray: buffer,
-        sliderValue,
-        value
+        value: value,
+        buffer: buffer,
+        type: type
       });
     } catch (err) {
       hilog.error(0x0000, 'AdjustContentView', 'Failed to add the task: ', JSON.stringify(err) ?? '');
@@ -343,7 +349,7 @@ function splitTask(buffers: ArrayBuffer[], type: AdjustId, sliderValue: number, 
   }
   return group;
 }
-
+// [End execImageProcessing]
 // [End postProcess_start]
 
 @Concurrent
@@ -360,17 +366,17 @@ interface ImageProcessing {
 
 // [Start split_buffer1]
 //Split the picture pixel data ArrayBuffer according to the number of tasks N.
-function splitArrayBuffer(buffer: ArrayBuffer, n: number): ArrayBuffer[] {
-  let num = Math.floor(buffer.byteLength / n);
-  while (num % 4 !== 0) {
-    num += 1;
-  }
+function splitArrayBuffer(buffer: ArrayBuffer, taskCount: number): ArrayBuffer[] {
+  const BYTES_PER_PIXEL = 4; // RGBA
+  const bytesPerTask = Math.floor(buffer.byteLength / taskCount / BYTES_PER_PIXEL) * BYTES_PER_PIXEL;
+  
   let result: ArrayBuffer[] = [];
-  for (let index = 0; index < n; index++) {
-    if (index === n - 1) {
-      result[index] = buffer.slice(index * num);
+  for (let i = 0; i < taskCount; i++) {
+    if (i === taskCount - 1) {
+      // The final block contains all the remaining data
+      result[i] = buffer.slice(i * bytesPerTask);
     } else {
-      result[index] = buffer.slice(index * num, (index + 1) * num);
+      result[i] = buffer.slice(i * bytesPerTask, (i + 1) * bytesPerTask);
     }
   }
   return result;

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AbilityConstant,Configuration } from "@kit.AbilityKit";
+import { AbilityConstant, common,Configuration } from "@kit.AbilityKit";
 import { BusinessError } from '@kit.BasicServicesKit';
 import { hilog } from "@kit.PerformanceAnalysisKit";
 
@@ -40,7 +40,7 @@ export default struct InTabComponent {
   }
 
   private async updateTabItems(){
-    await this.getUIContext().getHostContext()?.resourceManager.getStringArrayValue($r('app.strarray.in_tabs_items'))
+    await this.getUIContext().getHostContext()?.resourceManager.getStringArrayValue($r('app.strarray.in_tabs_items').id)
       .then((strarray: string[]) => {
         this.tabItems = strarray;
       })

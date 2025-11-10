@@ -14,14 +14,14 @@
 
 ## 工程目录
 ```
-ets
-├──entryability
-│  └──EntryAbility.ets                      // 程序入口类
-├──entrybackupability
-│  └──EntryBackupAbility.ets                // 备份能力
-├──pages
-│  └──ZipUploadPage.ets                     // 数据压缩页面
-└── resources                               // 资源目录内容不展开
+├──entry/src/main/ets                                   // 代码区
+│  ├──entryability
+│  │  └──EntryAbility.ets                               // 程序入口类
+│  ├──entrybackupability
+│  │  └──EntryBackupAbility.ets                         // 备份能力
+│  └──pages                              
+│     └──ZipUploadPage.ets                              // 数据压缩页面
+└──entry/src/main/resources                             // 应用资源目录
 ```
 
 ### 相关权限
@@ -37,3 +37,14 @@ ets
 3. DevEco Studio版本：DevEco Studio 5.0.5 Release及以上。
 
 4. HarmonyOS SDK版本：HarmonyOS 5.0.5 Release SDK及以上。
+
+### 下载
+
+如需单独下载本工程，执行如下命令：
+```
+git clone --filter=blob:none --no-checkout https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+cd BestPracticeSnippets
+git sparse-checkout init --cone
+git sparse-checkout set FileUploadAndDownloadSlow
+git checkout
+```

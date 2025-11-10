@@ -15,13 +15,13 @@
 
 @Component
 export struct UpdateWidthExample {
-  @StorageLink('currentWidthBreakpoint') currentWidthBreakpoint: string = 'lg';
+  @StorageLink('currentWidthBreakpoint') currentWidthBreakpoint: WidthBreakpoint = WidthBreakpoint.WIDTH_SM;
 
   build() {
     Column() {
       // [Start example_text_test]
       Text('Test')
-        .fontSize(this.currentWidthBreakpoint === 'lg' ? '16fp' : '14fp')
+        .fontSize(this.currentWidthBreakpoint === WidthBreakpoint.WIDTH_LG ? '16fp' : '14fp')
       // [End example_text_test]
     }
   }

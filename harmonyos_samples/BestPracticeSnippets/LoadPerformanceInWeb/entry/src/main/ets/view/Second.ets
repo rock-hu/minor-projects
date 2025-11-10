@@ -20,7 +20,7 @@ export struct Second {
     NavDestination() {
       Row() {
         Column() {
-          // Please replace url with real address.
+          // Please replace the URL with the real address.
           Web({ src: 'https://www.example.com', controller: this.webviewController })
             .height('100%')
             .width('100%')

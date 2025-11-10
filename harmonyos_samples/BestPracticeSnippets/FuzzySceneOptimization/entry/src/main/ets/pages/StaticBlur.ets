@@ -28,7 +28,7 @@ export struct StaticBlur {
   @State imgSource: image.ImageSource | undefined = undefined;
   @State bottomSafeHeight: number = 0; // bottom navigation bar height
 
-  aboutToAppear() {
+  aboutToAppear(): void {
     window.getLastWindow(this.getUIContext().getHostContext()!, (err, windowBar) => {
       if (err.code) {
         return;
@@ -39,7 +39,7 @@ export struct StaticBlur {
           this.getUIContext()
             .px2vp(windowBar.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR).bottomRect.height);
       } catch (error) {
-        let err = error as BusinessError;
+        let err: BusinessError = error as BusinessError;
         hilog.warn(0x000, 'testTag', `getWindowAvoidArea failed, code=${err.code}, message=${err.message}`);
       }
       windowBar.setWindowLayoutFullScreen(true)

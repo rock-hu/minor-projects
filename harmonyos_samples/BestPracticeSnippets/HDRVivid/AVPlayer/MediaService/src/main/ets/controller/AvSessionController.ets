@@ -80,7 +80,7 @@ export class AvSessionController {
     try {
       let metadata: avSession.AVMetadata = {
         assetId: `${curSource.index}`,
-        title: this.context?.resourceManager.getStringSync(curSource.name),
+        title: this.context?.resourceManager.getStringSync(curSource.name.id),
         mediaImage: imagePixMap,
         duration: duration
       };

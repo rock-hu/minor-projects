@@ -47,9 +47,9 @@ Canvas画布组件是用来显示自绘内容的组件，它具有保留历史�
 
 如需单独下载本工程，执行如下命令：
 ```
-git init
-git config core.sparsecheckout true
-echo NdkDrawing/ > .git/info/sparse-checkout
-git remote add origin https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
-git pull origin master
+git clone --filter=blob:none --no-checkout https://gitee.com/harmonyos_samples/BestPracticeSnippets.git
+cd BestPracticeSnippets
+git sparse-checkout init --cone
+git sparse-checkout set NdkDrawing
+git checkout
 ```

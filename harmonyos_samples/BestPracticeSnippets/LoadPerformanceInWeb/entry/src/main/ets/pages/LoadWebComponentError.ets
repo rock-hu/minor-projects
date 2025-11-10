@@ -11,7 +11,7 @@ struct WebComponent {
       // Load the business Web component at an appropriate time. This example takes the Button click trigger as an example.
       Button('加载页面')
         .onClick(() => {
-          // Please replace url with real address.
+          // Please replace the URL with the real address.
           this.webviewController.loadUrl('https://www.example1.com/');
         })
       Web({ src: 'https://www.example.com/', controller: this.webviewController })
