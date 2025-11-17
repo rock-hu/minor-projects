@@ -902,6 +902,7 @@
             - [ArkTS卡片为组件添加动效](form/arkts-ui-widget-page-animation.md)
             - [ArkTS卡片使用画布组件绘制自定义图形](form/arkts-ui-widget-page-custom-drawing.md)
             - [ArkTS卡片界面适配深浅色模式](form/arkts-ui-widget-dark-light-color-adapt.md)
+            - [ArkTS卡片使用自定义字体](form/arkts-ui-widget-load-custom-font.md)
           - ArkTS卡片页面刷新<!--arkts-ui-widget-interaction-->
             - [ArkTS卡片页面刷新概述](form/arkts-ui-widget-interaction-overview.md)
             - [ArkTS卡片主动刷新](form/arkts-ui-widget-active-refresh.md)
@@ -1631,14 +1632,14 @@
         - [使用TonePlayer开发音频播放功能(仅对系统应用开放)](media/audio/using-toneplayer-for-playback-sys.md)
         <!--DelEnd-->
         - [使用OHAudio开发音频播放功能(C/C++)](media/audio/using-ohaudio-for-playback.md)
+        - [低时延音频播放(C/C++)](media/audio/audio-fast-playback.md)
         - [低功耗音频播放](media/audio/power-saving-for-playback.md)
         - [使用AudioHaptic开发音振协同播放功能](media/audio/using-audiohaptic-for-playback.md)
         - [播放音量管理](media/audio/volume-management.md)
         - [提升音频性能体验](media/audio/audio-performance.md)
         - [音频时延管理](media/audio/audio-latency.md)
         - [音频工作组管理](media/audio/audio-workgroup.md)
-        - [音效管理](media/audio/audio-effect-management.md)
-        - [空间音频管理](media/audio/public-audio-spatialization-management.md)
+        - [空间音频能力查询和状态订阅](media/audio/public-audio-spatialization-management.md)
         <!--Del-->
         - [空间音频管理(仅对系统应用开放)](media/audio/audio-spatialization-management-sys.md)
         <!--DelEnd-->
@@ -1650,6 +1651,7 @@
         - [音频录制开发概述](media/audio/audio-recording-overview.md)
         - [使用AudioCapturer开发音频录制功能](media/audio/using-audiocapturer-for-recording.md)
         - [使用OHAudio开发音频录制功能(C/C++)](media/audio/using-ohaudio-for-recording.md)
+        - [低时延音频录制(C/C++)](media/audio/audio-fast-recording.md)
         - [管理麦克风](media/audio/mic-management.md)
         - [音频录制流管理](media/audio/audio-recording-stream-management.md)
         - [共享音频输入](media/audio/audio-recording-concurrency.md)
@@ -1977,9 +1979,9 @@
         - [通知消息跨设备协同管理（仅对系统应用开放）](notification/notification-distributed-notdistributed-sys.md)
         <!--DelEnd-->
         - [清除跨设备场景下的重复通知](notification/notification-distributed-messageid.md)
-      - 通知订阅拓展能力<!--notification-subscriber-extension-ability-->
-        - [通知订阅拓展能力概述](notification/notification-subscriber-extension-ability.md)
-        - [通知订阅拓展能力开发步骤](notification/notification-subscriber-extension-ability-development-steps.md)
+      - 通知订阅扩展能力<!--notification-subscriber-extension-ability-->
+        - [通知订阅扩展能力概述](notification/notification-subscriber-extension-ability.md)
+        - [通知订阅扩展能力开发步骤](notification/notification-subscriber-extension-ability-development-steps.md)
   - AI<!--ai-->
     - MindSpore Lite Kit（昇思推理框架服务）<!--mindspore-lite-kit-->
       - [MindSpore Lite Kit简介](ai/mindspore/MindSpore-Lite-Kit-Introduction.md)
@@ -2589,6 +2591,7 @@
         - [@ohos.data.dataShareResultSet (数据共享结果集)(系统接口)](reference/apis-arkdata/js-apis-data-DataShareResultSet-sys.md)
         - [@ohos.data.distributedKVStore (分布式键值数据库)(系统接口)](reference/apis-arkdata/js-apis-distributedKVStore-sys.md)
         - [@ohos.data.relationalStore (关系型数据库)(系统接口)](reference/apis-arkdata/js-apis-data-relationalStore-sys.md)
+        - [@ohos.data.uniformTypeDescriptor (标准化数据定义与描述)(系统接口)](reference/apis-arkdata/js-apis-data-uniformTypeDescriptor-sys.md)
         <!--DelEnd-->
         - 已停止维护的接口<!--arkdata-arkts-dep-->
           - [@ohos.data.distributedData (分布式数据管理)](reference/apis-arkdata/js-apis-distributed-data.md)
@@ -3636,6 +3639,7 @@
           - [图像AI分析错误码](reference/apis-arkui/arkui-ts/errorcode-image-analyzer.md)
           - [焦点错误码](reference/apis-arkui/errorcode-focus.md)
           - [系统资源错误码](reference/apis-arkui/errorcode-system-resource.md)
+          - [附属节点错误码](reference/apis-arkui/errorcode-adopt.md)
           - [半模态错误码](reference/apis-arkui/errorcode-bindSheet.md)
           - [滚动类组件错误码](reference/apis-arkui/errorcode-scroll.md)
           - [截图错误码](reference/apis-arkui/errorcode-snapshot.md)
@@ -4684,6 +4688,15 @@
           <!--DelEnd-->
         - 错误码<!--mdm-arkts-errcode-->
           - [企业设备管理错误码](reference/apis-mdm-kit/errorcode-enterpriseDeviceManager.md)
+      - Kernel Enhance Kit（内核增强能力）<!--kernel-api-->
+        - C API<!--kernel-c-->
+          - 模块<!--kernel-moudle-->
+            - [QoS](reference/apis-kernel-enhance-kit/capi-qos.md)
+          - 头文件<!--kernel-headerfile-->
+            - [qos.h](reference/apis-kernel-enhance-kit/capi-qos-h.md)
+          - 结构体<!--kernel-struct-->
+            - [OH_QoS_GewuCreateSessionResult](reference/apis-kernel-enhance-kit/capi-qos-oh-qos-gewucreatesessionresult.md)
+            - [OH_QoS_GewuSubmitRequestResult](reference/apis-kernel-enhance-kit/capi-qos-oh-qos-gewusubmitrequestresult.md)  
     - 硬件<!--system-hardware-api-->
       - Driver Development Kit（驱动开发服务）<!--driver-development-api-->
         - ArkTS API<!--driver-development-arkts-->
@@ -5296,6 +5309,8 @@
           - [ImageEffect_Size](reference/apis-image-kit/capi-imageeffect-imageeffect-size.md)
           - [ImageProcessing_ColorSpaceInfo](reference/apis-image-kit/capi-imageprocessing-imageprocessing-colorspaceinfo.md)
           - [OH_ImageProcessing](reference/apis-image-kit/capi-imageprocessing-oh-imageprocessing.md)
+          - [Image_PositionArea](reference/apis-image-kit/capi-image-nativemodule-image-positionarea.md)
+          - [Image_Scale](reference/apis-image-kit/capi-image-nativemodule-image-scale.md)
       - 错误码<!--image-arkts-errcode-->
         - [Image错误码](reference/apis-image-kit/errorcode-image.md)
         - [视频处理引擎错误码](reference/apis-image-kit/errorcode-videoprocessingengine.md)
@@ -5901,4 +5916,4 @@
       - [Native api中导出的EGL符号列表](reference/native-lib/egl-symbol.md)
       - [Native api中导出的ICU4C符号列表](reference/native-lib/icu4c-symbol.md)
       - [Native api中导出的OpenGL ES 3.2符号列表](reference/native-lib/openglesv3-symbol.md)
-      - [Native api中导出的OpenGL 3.0符号列表](reference/native-lib/opengl-symbol.md)
+      - [Native api中导出的OpenGL符号列表](reference/native-lib/opengl-symbol.md)

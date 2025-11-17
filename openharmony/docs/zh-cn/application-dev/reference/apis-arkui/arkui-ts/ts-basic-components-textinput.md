@@ -67,7 +67,7 @@ type(value: InputType)
 
 设置输入框类型。
 
-不同的InputType会拉起对应类型的键盘，同时限制输入。<!--RP4--><!--RP4End-->
+不同的InputType会拉起对应类型的键盘，同时限制输入。
 
 **原子化服务API：** 从API version 11开始，该接口支持在原子化服务中使用。
 
@@ -118,7 +118,7 @@ placeholderFont(value?: Font)
 
 > **说明：**
 >
-> 推荐使用[loadFontSync](../../apis-arkgraphics2d/js-apis-graphics-text.md#loadfontsync)注册自定义字体。
+> 可以使用[loadFontSync](../../apis-arkgraphics2d/js-apis-graphics-text.md#loadfontsync)注册自定义字体。
 
 ### enterKeyType
 
@@ -261,7 +261,7 @@ inputFilter(value: ResourceStr, error?: Callback\<string>)
 
 通过正则表达式设置输入过滤器。匹配表达式的输入允许显示，不匹配的输入将被过滤。
 
-单字符输入场景仅支持单字符匹配，多字符输入场景支持字符串匹配，例如粘贴。<!--RP5--><!--RP5End-->
+单字符输入场景仅支持单字符匹配，多字符输入场景支持字符串匹配，例如粘贴。
 
 从API version 11开始，设置inputFilter且输入的字符不为空字符，会导致[type](#type)接口附带的文本过滤效果失效。
 
@@ -566,6 +566,10 @@ customKeyboard(value: CustomBuilder | ComponentContent | undefined, options?: Ke
 
 当设置自定义键盘时，可以通过绑定[onKeyPrelme](ts-universal-events-key.md#onkeypreime12)事件规避物理键盘的输入。
 
+> **说明：**
+>
+> 该接口不支持在[attributeModifier](ts-universal-attributes-attribute-modifier.md#attributemodifier)中调用。
+
 **原子化服务API：** 从API version 11开始，该接口支持在原子化服务中使用。
 
 **系统能力：** SystemCapability.ArkUI.ArkUI.Full
@@ -581,7 +585,7 @@ customKeyboard(value: CustomBuilder | ComponentContent | undefined, options?: Ke
 
 enableAutoFill(value: boolean)
 
-设置是否启用自动填充。
+设置是否启用自动填充。<!--RP6--><!--RP6End-->
 
 **原子化服务API：** 从API version 12开始，该接口支持在原子化服务中使用。
 
@@ -674,6 +678,10 @@ showCounter(value: boolean, options?: InputCounterOptions)
 
 [示例5（设置计数器）](#示例5设置计数器)展示了设置showCounter的效果。
 
+>**说明：**
+>
+> 从API version 12开始，该接口支持在[attributeModifier](ts-universal-attributes-attribute-modifier.md#attributemodifier)中调用。
+
 **原子化服务API：** 从API version 11开始，该接口支持在原子化服务中使用。
 
 **系统能力：** SystemCapability.ArkUI.ArkUI.Full
@@ -689,7 +697,7 @@ showCounter(value: boolean, options?: InputCounterOptions)
 
 contentType(value: ContentType)
 
-设置自动填充类型。
+设置自动填充类型。<!--RP7--><!--RP7End-->
 
 **原子化服务API：** 从API version 12开始，该接口支持在原子化服务中使用。
 
@@ -1072,7 +1080,7 @@ autoCapitalizationMode(mode: AutoCapitalizationMode)
 
 keyboardAppearance(appearance: Optional\<KeyboardAppearance>)
 
-设置输入框拉起的键盘样式。
+设置输入框拉起的键盘样式，需要输入法适配后生效。具体参考[输入法应用沉浸模式](../../../inputmethod/inputmethod-immersive-mode-guide.md)。
 
 **原子化服务API：** 从API version 15开始，该接口支持在原子化服务中使用。
 
@@ -1253,13 +1261,13 @@ enableAutoSpacing(enabled: Optional\<boolean>)
 | 名称                          |  值   | 说明                       |
 | ----------------------------- | ----- | --------------------------- |
 | Normal                        | - | 基本输入模式，无特殊限制。<br/>内联输入风格只支持InputType.Normal类型。<br/>**原子化服务API：** 从API version 11开始，该接口支持在原子化服务中使用。 |
-| Password                      | - | 密码输入模式。<br/>默认输入文字短暂显示后变成圆点。从API version 12开始，PC设备上输入文字直接显示为圆点。<br/>TV设备上输入框末尾默认不显示小眼睛图标，其他设备输入框末尾默认显示小眼睛图标。<br/>密码输入模式中，[decoration](#decoration12)、[showUnderline](#showunderline10)不生效。<br/>在已启用密码保险箱的情况下，支持用户名、密码的自动保存和自动填充。<br/>**原子化服务API：** 从API version 11开始，该接口支持在原子化服务中使用。 |
+| Password                      | - | 密码输入模式。<br/>默认输入文字短暂显示后变成圆点。从API version 12开始，PC/2in1设备上输入文字直接显示为圆点。<br/>TV设备上输入框末尾默认不显示小眼睛图标，其他设备输入框末尾默认显示小眼睛图标。<br/>密码输入模式中，[decoration](#decoration12)、[showUnderline](#showunderline10)不生效。<br/>在已启用密码保险箱的情况下，支持用户名、密码的自动保存和自动填充。<br/>**原子化服务API：** 从API version 11开始，该接口支持在原子化服务中使用。 |
 | Email                         | - | 邮箱地址输入模式。<br/>支持数字、字母、下划线、小数点、!、#、$、%、&、'、"、*、+、-、/、=、?、^、`、\{、\|、\}、~，以及@字符（只能存在一个@字符）。<br/>**原子化服务API：** 从API version 11开始，该接口支持在原子化服务中使用。 |
 | Number                        | - | 纯数字输入模式。<br/>不支持负数、小数。<br/>**原子化服务API：** 从API version 11开始，该接口支持在原子化服务中使用。 |
 | PhoneNumber<sup>9+</sup>      | - | 电话号码输入模式。<br/>支持输入数字、空格、+ 、-、*、#、(、)，长度不限。<br/>**原子化服务API：** 从API version 11开始，该接口支持在原子化服务中使用。 |
-| NUMBER_PASSWORD<sup>11+</sup> | 8 | 纯数字密码输入模式。<br/>默认输入文字短暂显示后变成圆点。从API version 12开始，PC设备上输入文字直接显示为圆点。<br/>TV设备上输入框末尾默认不显示小眼睛图标，其他设备输入框末尾默认显示小眼睛图标。<br/>密码输入模式不支持下划线样式。在已启用密码保险箱的情况下，支持用户名、密码的自动保存和自动填充。<br/>**原子化服务API：** 从API version 12开始，该接口支持在原子化服务中使用。 |
+| NUMBER_PASSWORD<sup>11+</sup> | 8 | 纯数字密码输入模式。<br/>默认输入文字短暂显示后变成圆点。从API version 12开始，PC/2in1设备上输入文字直接显示为圆点。<br/>TV设备上输入框末尾默认不显示小眼睛图标，其他设备输入框末尾默认显示小眼睛图标。<br/>密码输入模式不支持下划线样式。在已启用密码保险箱的情况下，支持用户名、密码的自动保存和自动填充。<br/>**原子化服务API：** 从API version 12开始，该接口支持在原子化服务中使用。 |
 | USER_NAME<sup>11+</sup>       | 10 | 用户名输入模式，无特殊限制。<br/>在已启用密码保险箱的情况下，支持用户名、密码的自动保存和自动填充。<br/>**原子化服务API：** 从API version 12开始，该接口支持在原子化服务中使用。 |
-| NEW_PASSWORD<sup>11+</sup>    | 11 | 新密码输入模式，无特殊限制。<br/>默认输入文字短暂显示后变成圆点。从API version 12开始，PC设备上输入文字直接显示为圆点。<br/>TV设备上输入框末尾默认不显示小眼睛图标，其他设备输入框末尾默认显示小眼睛图标。<br/>在已启用密码保险箱的情况下，支持自动生成新密码。<br/>**原子化服务API：** 从API version 12开始，该接口支持在原子化服务中使用。 |
+| NEW_PASSWORD<sup>11+</sup>    | 11 | 新密码输入模式，无特殊限制。<br/>默认输入文字短暂显示后变成圆点。从API version 12开始，PC/2in1设备上输入文字直接显示为圆点。<br/>TV设备上输入框末尾默认不显示小眼睛图标，其他设备输入框末尾默认显示小眼睛图标。<br/>在已启用密码保险箱的情况下，支持自动生成新密码。<br/>**原子化服务API：** 从API version 12开始，该接口支持在原子化服务中使用。 |
 | NUMBER_DECIMAL<sup>11+</sup>  | 12 | 带小数点的数字输入模式。<br/>支持数字，小数点（只能存在一个小数点）。不支持负数小数，负数小数的数字输入模式请使用inputFilter实现。<br/>**原子化服务API：** 从API version 11开始，该接口支持在原子化服务中使用。 |
 | URL<sup>12+</sup>  | 13 | 带URL的输入模式，无特殊限制。<br/>**原子化服务API：** 从API version 12开始，该接口支持在原子化服务中使用。 |
 | ONE_TIME_CODE<sup>20+</sup>  | 14 | 验证码输入模式，无特殊限制。<br/>**原子化服务API：** 从API version 20开始，该接口支持在原子化服务中使用。 |
@@ -1501,6 +1509,10 @@ onSecurityStateChange(callback: Callback\<boolean>)
 
 密码显隐状态切换时，触发该回调。
 
+>**说明：**
+>
+> 从API version 20开始，该接口支持在[attributeModifier](ts-universal-attributes-attribute-modifier.md#attributemodifier)中调用。
+
 **原子化服务API：** 从API version 12开始，该接口支持在原子化服务中使用。
 
 **系统能力：** SystemCapability.ArkUI.ArkUI.Full
@@ -1607,6 +1619,10 @@ onWillAttachIME(callback: Callback\<IMEClient>)
 在输入框将要绑定输入法前，可以通过`UIContext`的系统接口[setKeyboardAppearanceConfig](../js-apis-arkui-UIContext-sys.md#setkeyboardappearanceconfig20)设置键盘的样式。<!--DelEnd-->
 
 调用[IMEClient](ts-text-common.md#imeclient20对象说明)的[setExtraConfig](ts-text-common.md#setextraconfig22)方法设置输入法扩展信息。在绑定输入法成功后，输入法会收到扩展信息，输入法可以依据此信息实现自定义功能。
+
+> **说明：**
+>
+> 该接口不支持在[attributeModifier](ts-universal-attributes-attribute-modifier.md#attributemodifier)中调用。
 
 **原子化服务API：** 从API version 20开始，该接口支持在原子化服务中使用。
 
@@ -1813,7 +1829,10 @@ type OnContentScrollCallback = (totalOffsetX: number, totalOffsetY: number) => v
 @Component
 struct TextInputExample {
   @State text: string = '';
-  @State positionInfo: CaretOffset = { index: 0, x: 0, y: 0 };
+  // index：光标所在位置的索引值
+  // x：光标相对输入框的x坐标位值，单位px
+  // y：光标相对输入框的y坐标位值，单位px
+  @State positionInfo: CaretOffset = { index: 0, x: 0, y: 0 }; 
   @State passwordState: boolean = false;
   controller: TextInputController = new TextInputController();
 
@@ -1841,6 +1860,7 @@ struct TextInputExample {
       Button('Get CaretOffset')
         .margin(15)
         .onClick(() => {
+          // 获取光标相对输入框的位置
           this.positionInfo = this.controller.getCaretOffset();
         })
       // 密码输入框
@@ -2560,6 +2580,8 @@ struct TextInputExample {
   @State insertOffset: number = 0;
   @State deleteOffset: number = 0;
   @State deleteDirection: number = 0;
+  @State currentValue_1: string = "";
+  @State currentValue_2: string = "";
 
   build() {
     Row() {
@@ -2573,8 +2595,13 @@ struct TextInputExample {
           .onDidInsert((info: InsertValue) => {
             this.insertOffset = info.insertOffset;
           })
+          .onWillChange((info: EditableTextChangeValue) => {
+            this.currentValue_1 = info.content
+            return true
+          })
 
         Text("insertValue:" + this.insertValue + "  insertOffset:" + this.insertOffset).height(30)
+        Text("currentValue_1:" + this.currentValue_1).height(30)
 
         TextInput({ text: "TextInput支持删除回调文本b" })
           .height(60)
@@ -2587,9 +2614,14 @@ struct TextInputExample {
             this.deleteOffset = info.deleteOffset;
             this.deleteDirection = info.direction;
           })
+          .onWillChange((info: EditableTextChangeValue) => {
+            this.currentValue_2 = info.content
+            return true
+          })
 
         Text("deleteValue:" + this.deleteValue + "  deleteOffset:" + this.deleteOffset).height(30)
         Text("deleteDirection:" + (this.deleteDirection == 0 ? "BACKWARD" : "FORWARD")).height(30)
+        Text("currentValue_2:" + this.currentValue_2).height(30)
 
       }.width('100%')
     }
@@ -3218,3 +3250,34 @@ struct TextInputExample {
   }
 }
 ```
+
+### 示例25（设置内联输入风格编辑态时滚动条的显示模式）
+
+从API version 10开始，该示例通过[barState](#barstate10)接口设置内联输入风格编辑态时滚动条的显示或隐藏状态。
+
+```ts
+@Entry
+@Component
+struct demo {
+  @State message: string = '这里是一段长文本'.repeat(10)
+
+  build() {
+    Column({ space: 20 }) {
+      TextInput({ text: '内联模式，设置BarState.On，' + this.message })
+        .style(TextInputStyle.Inline)
+        .barState(BarState.On)
+
+      TextInput({ text: '内联模式，设置BarState.Off，' + this.message })
+        .style(TextInputStyle.Inline)
+        .barState(BarState.Off)
+    }
+    .width('100%')
+    .height('100%')
+    .padding(20)
+    .justifyContent(FlexAlign.Center)
+  }
+}
+
+```
+
+![textInput_barState](figures/textInput_barState.gif)

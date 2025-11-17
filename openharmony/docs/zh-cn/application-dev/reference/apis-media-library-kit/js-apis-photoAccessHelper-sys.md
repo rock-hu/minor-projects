@@ -1822,7 +1822,7 @@ getDataAnalysisProgress(analysisType?: AnalysisType): Promise&lt;string&gt;
 
 | 参数名  | 类型             | 必填   | 说明    |
 | ---- | -------------- | ---- | ----- |
-| analysisType | [AnalysisType](#analysistype11) | 否    | 需要获取的智慧分析类型，默认为空值。<br>该参数在API 12-21为必选参数，从API 22开始及以后为可选参数。 |
+| analysisType | [AnalysisType](#analysistype11) | 否    | 需要获取的智慧分析类型，默认为空值。<br>该参数在API version 12-21为必选参数，从API version 22开始及以后为可选参数。 |
 
 **返回值：**
 
@@ -1934,7 +1934,7 @@ startAssetAnalysis(type: AnalysisType, assetUris?: Array&lt;string&gt;): Promise
 
 | 参数名    | 类型                | 必填 | 说明                                                         |
 | --------- | ------------------- | ---- | ------------------------------------------------------------ |
-| type      | [AnalysisType](#analysistype11) | 是   | 需要启动的智慧分析类型。                                     |
+| type      | [AnalysisType](#analysistype11) | 是   | 需要启动的智慧分析类型，仅支持ANALYSIS_SEARCH_INDEX。                                     |
 | assetUris | Array&lt;string&gt; | 否   | 资产uri的数组。<br>- 填写：仅分析指定资产。<br>- 不填：全量分析。 |
 
 **返回值：**
@@ -6763,10 +6763,10 @@ enum linkType {
   LINK_EXIST = 2
 }
 
-async function example(asset: photoAccessHelper.PhotoAsset, hasAppLink: linkType) {
+async function example(asset: photoAccessHelper.PhotoAsset, hasAppLink: linkType, context: Context) {
     try {
       let phAccessHelper: photoAccessHelper.PhotoAccessHelper =
-        photoAccessHelper.getPhotoAccessHelper(getContext());
+        photoAccessHelper.getPhotoAccessHelper(context);
       let assetChangeRequest: photoAccessHelper.MediaAssetChangeRequest =
         new photoAccessHelper.MediaAssetChangeRequest(asset);
       assetChangeRequest.setHasAppLink(hasAppLink);
@@ -6811,10 +6811,10 @@ setAppLinkInfo(appLink: string): void
 import { photoAccessHelper } from '@kit.MediaLibraryKit';
 
 
-async function example(asset: photoAccessHelper.PhotoAsset, appLinkInfo: string) {
+async function example(asset: photoAccessHelper.PhotoAsset, appLinkInfo: string, context: Context) {
     try {
       let phAccessHelper: photoAccessHelper.PhotoAccessHelper =
-        photoAccessHelper.getPhotoAccessHelper(getContext());
+        photoAccessHelper.getPhotoAccessHelper(context);
       let assetChangeRequest: photoAccessHelper.MediaAssetChangeRequest =
         new photoAccessHelper.MediaAssetChangeRequest(asset);
       assetChangeRequest.setAppLinkInfo(appLinkInfo);
@@ -6822,6 +6822,64 @@ async function example(asset: photoAccessHelper.PhotoAsset, appLinkInfo: string)
     } catch (error) {
       console.error('set appLinkInfo error: ' + error);
       return;
+    }
+}
+```
+
+### setCompositeDisplayMode<sup>22+</sup>
+
+setCompositeDisplayMode(compositeDisplayMode: CompositeDisplayMode): Promise\<void\>
+
+设置复合图的展示模式。使用Promise异步回调。
+
+
+**系统接口**：此接口为系统接口。
+
+**系统能力**：SystemCapability.FileManagement.PhotoAccessHelper.Core
+
+**参数：**
+
+| 参数名  | 类型             | 必填   | 说明    |
+| ---- | -------------- | ---- | ----- |
+| compositeDisplayMode | [CompositeDisplayMode](#compositedisplaymode22) | 是    | 设置复合图的展示模式。 |
+
+**返回值：**
+
+| 类型                                    | 说明              |
+| --------------------------------------- | ----------------- |
+| Promise\<void\> | Promise对象，无返回结果。 |
+
+**错误码：**
+
+以下错误码的详细介绍请参见[通用错误码](../errorcode-universal.md)和[媒体库错误码](errorcode-medialibrary.md)。
+
+| 错误码ID | 错误信息 |
+| -------- | ---------------------------------------- |
+| 202   | Called by non-system application.       |
+| 23800151 | Scene parameters validate failed. Possible causes: 1. The CompositeDisplayMode is not within the supported range; 2.The original file does not exist locally in PhotoAsset; 3. The PhotoAsset is not composite Asset; 4. The original file format is not within the supported range; 5. The original file has been edited. |
+| 23800301 | Internal system error. It is recommended to retry and check the logs. Possible causes: 1. Database corrupted; 2. The file system is abnormal; 3. The IPC request timed out. |
+
+**示例：**
+
+```ts
+import { photoAccessHelper } from '@kit.MediaLibraryKit';
+
+async function example(phAccessHelper: photoAccessHelper.PhotoAccessHelper) {
+    console.info('setCompositeDisplayModeDemo');
+    let predicates: dataSharePredicates.DataSharePredicates = new dataSharePredicates.DataSharePredicates();
+    let fetchOptions: photoAccessHelper.FetchOptions = {
+      fetchColumns: [],
+      predicates: predicates
+    };
+    try {
+      let fetchResult: photoAccessHelper.FetchResult<photoAccessHelper.PhotoAsset> = await phAccessHelper.getAssets(fetchOptions);
+      let asset = await fetchResult.getFirstObject();
+      let assetChangeRequest: photoAccessHelper.MediaAssetChangeRequest = new photoAccessHelper.MediaAssetChangeRequest(asset);
+      assetChangeRequest.setCompositeDisplayMode(photoAccessHelper.CompositeDisplayMode.DEFAULT);
+      await phAccessHelper.applyChanges(assetChangeRequest);
+      console.info('apply setCompositeDisplayModeDemo successfully');
+    } catch (err) {
+      console.error(`apply setCompositeDisplayModeDemo failed with error: ${err.code}, ${err.message}`);
     }
 }
 ```
@@ -11069,9 +11127,10 @@ async function example(context: Context) {
 | EXIF_ROTATE<sup>21+</sup>  | 'exif_rotate' | 文件的旋转角度信息。**系统接口**：此接口为系统接口。 |
 | HAS_APPLINK<sup>21+</sup>  | 'has_applink' | 文件记忆链接的状态信息。**系统接口**：此接口为系统接口。 |
 | APPLINK<sup>21+</sup>  | 'applink' | 文件记忆链接的信息。**系统接口**：此接口为系统接口。 |
-| HDR_MODE<sup>21+</sup>  | 'hdr_mode' | 文件的HDR模式。**系统接口**：此接口为系统接口。 |
+| HDR_MODE<sup>22+</sup>  | 'hdr_mode' | 文件的HDR模式。**系统接口**：此接口为系统接口。 |
 | EXIST_COMPATIBLE_DUPLICATE<sup>22+</sup>  | 'exist_compatible_duplicate' | 兼容副本的状态信息。**系统接口**：此接口为系统接口。 |
 | CLOUD_ID<sup>22+</sup>  | 'cloud_id' | 文件在云端的唯一标识。**系统接口**：此接口为系统接口。 |
+| COMPOSITE_DISPLAY_STATUS<sup>22+</sup> | 'composite_display_status' | 复合图资产显示状态。**系统接口**：此接口为系统接口。 |
 
 ## AlbumKeys
 
@@ -11593,6 +11652,19 @@ async function example(context: Context) {
 | ------------------------- | ---- | -------------------------------- |
 | NORMAL                    | 0    | 普通图片类型。     |
 | CLOUD_ENHANCEMENT         | 1    | 云增强图片类型。     |
+
+## CompositeDisplayMode<sup>22+</sup>
+
+枚举，表示复合图显示模式。
+
+**系统接口**：此接口为系统接口。
+
+**系统能力**：SystemCapability.FileManagement.PhotoAccessHelper.Core
+
+| 名称                      | 值   | 说明                             |
+| ------------------------- | ---- | -------------------------------- |
+| DEFAULT                   | 0    | 复合图显示模式为原图。     |
+| CLOUD_ENHANCEMENT         | 1    | 复合图显示模式为云增强。     |
 
 ## PhotoAssetChangeInfo<sup>20+</sup>
 

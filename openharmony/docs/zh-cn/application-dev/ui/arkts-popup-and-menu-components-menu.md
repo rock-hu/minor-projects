@@ -27,7 +27,7 @@ Menu是菜单接口，一般用于鼠标右键弹窗、点击弹窗等。具体�
 
 菜单需要调用bindMenu接口来实现。bindMenu响应绑定组件的点击事件，绑定组件后手势点击对应组件后即可弹出。
 
-<!-- @[call_bind_menu](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/DialogProject/entry/src/main/ets/pages/Menu/CreateMenu.ets) -->
+<!-- @[create_default_menu](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/DialogProject/entry/src/main/ets/pages/Menu/CreateDefaultMenu.ets) -->
 
 ``` TypeScript
 Button('click for Menu')
@@ -35,7 +35,7 @@ Button('click for Menu')
     {
       value: 'Menu1',
       action: () => {
-        hilog.info(DOMAIN_NUMBER, TAG, 'handle Menu1 select');
+        hilog.info(0xFF00, 'DialogProject', 'handle Menu1 select');
       }
     }
   ])
@@ -49,17 +49,14 @@ Button('click for Menu')
 
 ### 使用@Builder自定义菜单内容
 
-<!-- @[builder_menu_content](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/DialogProject/entry/src/main/ets/pages/Menu/CreateMenu.ets) -->
+<!-- @[builder_custom_menu](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/DialogProject/entry/src/main/ets/pages/Menu/BuilderCustomMenu.ets) -->
 
 ``` TypeScript
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
-const TAG: string = 'DialogProject';
-const DOMAIN_NUMBER: number = 0xFF00;
-
 // $r('app.media.xxx')需要替换为开发者所需的图像资源文件。
 class Tmp {
-  private iconStr2: ResourceStr = $r('app.media.view_list_filled')
+  public iconStr2: ResourceStr = $r('app.media.view_list_filled');
 
   set(val: Resource) {
     this.iconStr2 = val;
@@ -68,7 +65,7 @@ class Tmp {
 
 @Entry
 @Component
-export struct menuExample  {
+export struct BuilderCustomMenuExample {
   @State select: boolean = true;
   private iconStr: ResourceStr = $r('app.media.view_list_filled');
   private iconStr2: ResourceStr = $r('app.media.view_list_filled');
@@ -105,7 +102,7 @@ export struct menuExample  {
           .selectIcon(true)
           .selected(this.select)
           .onChange((selected) => {
-            hilog.info(DOMAIN_NUMBER, TAG, 'menuItem select' + selected);
+            hilog.info(0xFF00, 'DialogProject', 'menuItem select' + selected);
             let str: Tmp = new Tmp();
             str.set($r('app.media.icon'));
           })
@@ -117,6 +114,7 @@ export struct menuExample  {
           builder: this.SubMenu
         })
       }
+
       // 'app.string.menu_selection'资源文件中的value值为"菜单选项"。
       MenuItem({
         startIcon: this.iconStr2,
@@ -125,14 +123,16 @@ export struct menuExample  {
       })
     }
   }
+
   build() {
     // ···
+  }
 }
 ```
 
 ### 使用bindMenu属性绑定组件
 
-<!-- @[bind_menu_property](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/DialogProject/entry/src/main/ets/pages/Menu/CreateMenu.ets) -->
+<!-- @[bind_menu](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/DialogProject/entry/src/main/ets/pages/Menu/BuilderCustomMenu.ets) -->
 
 ``` TypeScript
 Button('click for Menu')
@@ -291,7 +291,6 @@ export struct SupportAvoidCentralAxisMenuExample {
       .height('100%')
       .width('100%')
     }
-    .backgroundColor('#f1f2f3')
     // ···
 ```
 
@@ -320,7 +319,7 @@ export struct EventTransSubWindowMenuExample {
       })
       .width('100%')
       .height('100%')
-    }.backgroundColor('#f1f2f3')
+    }
     // ···
   }
 
@@ -394,7 +393,7 @@ export struct BindComponentMenuExample {
       .width('100%')
       .height('100%')
       .backgroundColor('#F5F5F5')
-    }.backgroundColor('#f1f2f3')
+    }
     // ···
   }
 }

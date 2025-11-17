@@ -139,6 +139,9 @@
 | [int32_t OH_ArkUI_NodeUtils_GetAttachedNodeHandleById(const char* id, ArkUI_NodeHandle* node)](#oh_arkui_nodeutils_getattachednodehandlebyid) | - | 根据用户id获取目标节点。 |
 | [int32_t OH_ArkUI_NodeUtils_GetNodeHandleByUniqueId(const uint32_t uniqueId, ArkUI_NodeHandle* node)](#oh_arkui_nodeutils_getnodehandlebyuniqueid) | - | 通过uniqueId获取节点。 |
 | [int32_t OH_ArkUI_NodeUtils_GetNodeUniqueId(ArkUI_NodeHandle node, int32_t* uniqueId)](#oh_arkui_nodeutils_getnodeuniqueid) | - | 获取目标节点的uniqueId。 |
+| [int32_t OH_ArkUI_NativeModule_AdoptChild(ArkUI_NodeHandle node, ArkUI_NodeHandle child)](#oh_arkui_nativemodule_adoptchild) | - | 当前节点接纳目标节点为附属节点。被接纳的节点不能已有父节点。此操作实际上不会将其添加为子节点，而仅是允许其接收生命周期回调，就像它是子节点一样。 |
+| [int32_t OH_ArkUI_NativeModule_RemoveAdoptedChild(ArkUI_NodeHandle node, ArkUI_NodeHandle child)](#oh_arkui_nativemodule_removeadoptedchild) | - | 移除目标被接纳的附属节点。 |
+| [int32_t OH_ArkUI_NativeModule_IsInRenderState(ArkUI_NodeHandle node, bool* isInRenderState)](#oh_arkui_nativemodule_isinrenderstate) | - | 获取节点是否处于渲染状态，如果一个节点的对应RenderNode在渲染树上，则处于渲染状态。 |
 | [int32_t OH_ArkUI_NodeUtils_SetCrossLanguageOption(ArkUI_NodeHandle node, ArkUI_CrossLanguageOption* option)](#oh_arkui_nodeutils_setcrosslanguageoption) | - | 设置目标节点跨语言设置属性的能力。 |
 | [int32_t OH_ArkUI_NodeUtils_GetCrossLanguageOption(ArkUI_NodeHandle node, ArkUI_CrossLanguageOption* option)](#oh_arkui_nodeutils_getcrosslanguageoption) | - | 获取目标节点跨语言设置属性的配置项。 |
 | [int32_t OH_ArkUI_NodeUtils_GetFirstChildIndexWithoutExpand(ArkUI_NodeHandle node, uint32_t* index)](#oh_arkui_nodeutils_getfirstchildindexwithoutexpand) | - | 获取目标节点在树上的第一个子节点的下标。 |
@@ -638,7 +641,7 @@ enum ArkUI_NodeAttributeType
 | NODE_LIST_FOCUS_WRAP_MODE = 1003015 | List组件走焦换行模式，支持属性设置，属性重置和属性获取接口。<br>属性设置方法参数[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br> .value[0].i32：List组件走焦换行模式，参数类型[ArkUI_FocusWrapMode](capi-native-type-h.md#arkui_focuswrapmode)。默认值：ARKUI_FOCUS_WRAP_MODE_DEFAULT<br> 属性获取方法返回值[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br> .value[0].i32:List组件走焦换行模式，参数类型[ArkUI_FocusWrapMode](capi-native-type-h.md#arkui_focuswrapmode)。<br>**起始版本：** 20  |
 | NODE_LIST_SYNC_LOAD = 1003016 | List组件是否同步加载子节点，支持属性设置，属性重置和属性获取接口。<br>属性设置方法参数[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br> .value[0].i32：List组件是否同步加载子节点。0：分帧加载，1：同步加载，默认值为1。<br> 属性获取方法返回值[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式： <br> .value[0].i32：List组件是否同步加载子节点。0：分帧加载，1：同步加载。<br>**起始版本：** 20   |
 | NODE_LIST_SCROLL_SNAP_ANIMATION_SPEED = 1003017 | List组件限位滚动动画速度，支持属性设置，属性重置和属性获取接口。<br>属性设置方法参数[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br> .value[0].i32：List组件限位滚动动画速度，数据类型[ArkUI_ScrollSnapAnimationSpeed](capi-native-type-h.md#arkui_scrollsnapanimationspeed)。默认值：ARKUI_SCROLL_SNAP_ANIMATION_NORMAL。<br> 属性获取方法返回值[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式： <br> .value[0].i32：List组件限位滚动动画速度，数据类型[ArkUI_ScrollSnapAnimationSpeed](capi-native-type-h.md#arkui_scrollsnapanimationspeed)。<br>**起始版本：** 22   |
-| NODE_LIST_LANES_ITEMFILLPOLICY = 1003018 | List组件的响应式列数布局策略，支持属性设置，属性重置和属性获取接口。<br/>属性设置方法参数[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br/> .value[0].i32：在不同断点规格下的列数，数据类型[ArkUI_ItemFillPolicy](capi-native-type-h.md#arkui_itemfillpolicy)；<br/> .value[1]?.f32：列间距，默认值：0，单位vp。<br/> 属性获取方法返回值[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br/> .value[0].i32：在不同断点规格下的列数，数据类型[ArkUI_ItemFillPolicy](capi-native-type-h.md#arkui_itemfillpolicy)；<br/> .value[1].f32：列间距，单位vp。<br/>**起始版本：** 22 |
+| NODE_LIST_LANES_ITEMFILLPOLICY = 1003018 | List组件的响应式列数布局策略，支持属性设置，属性重置和属性获取接口。<br/>属性设置方法参数[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br/> .value[0].i32：在不同断点规格下的列数，数据类型[ArkUI_ItemFillPolicy](capi-native-type-h.md#arkui_itemfillpolicy)；<br/> .value[1]?.f32：列间距，单位vp。默认值：0。<br/> 属性获取方法返回值[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br/> .value[0].i32：在不同断点规格下的列数，数据类型[ArkUI_ItemFillPolicy](capi-native-type-h.md#arkui_itemfillpolicy)；<br/> .value[1].f32：列间距，单位vp。<br/>**起始版本：** 22 |
 | NODE_SWIPER_LOOP = MAX_NODE_SCOPE_NUM * ARKUI_NODE_SWIPER | Swiper是否开启循环，支持属性设置，属性重置和属性获取接口。<br>属性设置方法参数[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式： <br> .value[0].i32：控制是否开启循环，0表示不循环，1表示循环，默认值为1。 <br> 属性获取方法返回值[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式： <br> .value[0].i32：控制是否开启循环，0表示不循环，1表示循环，默认值为1。   |
 | NODE_SWIPER_AUTO_PLAY | Swiper子组件是否自动播放，支持属性设置，属性重置和属性获取接口。<br>属性设置方法参数[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式： <br> .value[0].i32：控制子组件是否自动播放，0表示不自动播放，1表示自动播放，默认值为0。 <br> .value[1]?.i32：手指按下是否停止自动播放，0表示停止，1表示不停止，默认值为0。该参数从API version 16开始支持。 <br> 属性获取方法返回值[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式： <br> .value[0].i32：控制子组件是否自动播放，0表示不自动播放，1表示自动播放，默认值为0。 <br> .value[1].i32：手指按下是否停止自动播放，0表示停止，1表示不停止。该参数从API version 16开始支持。  |
 | NODE_SWIPER_SHOW_INDICATOR | Swiper是否显示导航点指示器，支持属性设置，属性重置和属性获取接口。<br>属性设置方法参数[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式： <br> .value[0].i32：是否显示导航点指示器，0表示不显示导航点指示器，1表示显示导航点指示器，默认值为1。 <br> 属性获取方法返回值[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式： <br> .value[0].i32：是否显示导航点指示器，0表示不显示导航点指示器，1表示显示导航点指示器，默认值为1。  |
@@ -708,7 +711,12 @@ enum ArkUI_NodeAttributeType
 | NODE_GRID_ALIGN_ITEMS = 1013008 | 设置Grid中GridItem的对齐方式，支持属性设置，属性重置和属性获取接口。<br>属性设置方法参数[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br> .value[0].i32：Grid中GridItem的对齐方式，参数类型[ArkUI_GridItemAlignment](capi-native-type-h.md#arkui_griditemalignment)。默认值：GRID_ITEM_ALIGNMENT_DEFAULT。<br> 设置异常值时，按默认值显示。<br> 属性获取方法返回值[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br> .value[0].i32：Grid中GridItem的对齐方式，参数类型[ArkUI_GridItemAlignment](capi-native-type-h.md#arkui_griditemalignment)。<br>**起始版本：** 22   |
 | NODE_GRID_LAYOUT_OPTIONS = 1013009 | 设置Grid布局选项，支持属性设置，属性重置和属性获取接口。<br>属性设置方法[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)参数格式：<br> .object：参数格式为[ArkUI_GridLayoutOptions](capi-arkui-nativemodule-arkui-gridlayoutoptions.md)。<br> 属性获取方法返回值[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br> .object：返回值格式为[ArkUI_GridLayoutOptions](capi-arkui-nativemodule-arkui-gridlayoutoptions.md)。<br>**起始版本：** 22  |
 | NODE_GRID_COLUMN_TEMPLATE_ITEMFILLPOLICY = 1013010 | Grid组件的响应式列数布局策略，支持属性设置，属性重置和属性获取接口。<br>属性设置方法参数[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br> .value[0].i32：在不同断点规格下的列数，数据类型[ArkUI_ItemFillPolicy](capi-native-type-h.md#arkui_itemfillpolicy)。<br> 属性获取方法返回值[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br> .value[0].i32：在不同断点规格下的列数，数据类型[ArkUI_ItemFillPolicy](capi-native-type-h.md#arkui_itemfillpolicy)。<br>**起始版本：** 22   |
+| NODE_GRID_EDIT_MODE = 1013011 | Grid组件是否进入编辑模式，进入编辑模式可以通过NODE_GRID_ON_ITEM_DRAG_START事件拖拽GridItem。支持属性设置，属性重置和属性获取接口。<br>属性设置方法参数[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br> .value[0].i32：Grid组件是否进入编辑模式。0：不可编辑，1：可以编辑。默认值：0<br> 属性获取方法返回值[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br> .value[0].i32：Grid组件是否进入编辑模式。0：不可编辑，1：可以编辑。<br>**起始版本：** 23   |
+| NODE_GRID_DRAG_ANIMATION = 1013012 | Grid组件是否启用GridItem拖拽动画。支持属性设置，属性重置和属性获取接口。<br>仅在滚动模式下（只设置NODE_GRID_ROW_TEMPLATE、NODE_GRID_COLUMN_TEMPLATE其中一个）支持动画。<br>仅在大小规则的Grid中支持拖拽动画，跨行或跨列场景不支持。<br>属性设置方法参数[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br> .value[0].i32：Grid组件是否启用GridItem拖拽动画。0：不启用，1：启用。默认值：0<br> 属性获取方法返回值[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br> .value[0].i32：Grid组件是否启用GridItem拖拽动画。0：不启用，1：启用。<br>**起始版本：** 23   |
+| NODE_GRID_MULTI_SELECTABLE = 1013013 | Grid组件是否启用鼠标框选。支持属性设置，属性重置和属性获取接口。<br>启用后在Grid范围内鼠标框选会触发GridItem的NODE_GRID_ITEM_EVENT_ON_SELECT事件。<br>属性设置方法参数[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br> .value[0].i32：Grid组件是否启用鼠标框选。0：不启用，1：启用。默认值：0<br> 属性获取方法返回值[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br> .value[0].i32：Grid组件是否启用鼠标框选。0：不启用，1：启用。<br>**起始版本：** 23   |
 |  NODE_GRID_ITEM_STYLE = MAX_NODE_SCOPE_NUM * ARKUI_NODE_GRID_ITEM | 设置GridItem样式，支持属性设置，属性重置和属性获取。<br>属性设置方法[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)参数格式：<br> .value[0].i32：GridItem样式，参数类型[ArkUI_GridItemStyle](capi-native-type-h.md#arkui_griditemstyle)。默认值：GRID_ITEM_STYLE_NONE。<br> 设置异常值时，按默认值显示。<br> 属性获取方法返回值[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br> .value[0].i32：GridItem样式，参数类型[ArkUI_GridItemStyle](capi-native-type-h.md#arkui_griditemstyle)。<br>**起始版本：** 22   |
+|  NODE_GRID_ITEM_SELECTABLE = 1014001 | 设置GridItem是否可以被鼠标框选。支持属性设置，属性重置和属性获取接口。<br>属性设置方法[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)参数格式：<br> .value[0].i32：GridItem是否可以被鼠标框选。0：不可以，1：可以。默认值：1<br> 属性获取方法返回值[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br> .value[0].i32：GridItem是否可以被鼠标框选。0：不可以，1：可以。<br>**起始版本：** 23   |
+|  NODE_GRID_ITEM_SELECTED = 1014002 | 设置GridItem选中状态。支持属性设置，属性重置和属性获取接口。<br>属性设置方法[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)参数格式：<br> .value[0].i32：GridItem选中状态。0：未选中，1：已选中。默认值：0<br> 属性获取方法返回值[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br> .value[0].i32：GridItem选中状态。0：未选中，1：已选中。<br>**起始版本：** 23   |
 | NODE_TEXT_PICKER_COLUMN_WIDTHS = 15009 | 设置每一个选择项列宽，支持属性设置，属性重置和属性获取接口。<br>属性设置方法参数[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式：<br> .value[0].f32: 设置的第1个选择项列宽，为总宽度的百分比。默认情况下，所有选择项的列宽相等。<br> .value[1]?.f32: 设置的第2个选择项列宽，为总宽度的百分比。默认情况下，所有选择项的列宽相等。<br> .value[2]?.f32: 设置的第3个选择项列宽，为总宽度的百分比。默认情况下，所有选择项的列宽相等。<br> ...<br> .value[n]?.f32: 设置的第n+1个选择项列宽，为总宽度的百分比。默认情况下，所有选择项的列宽相等。<br> 属性获取方法返回值[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式： <br> value[0].f32: 第1列宽度，总宽度的百分比。<br> value[1].f32: 第2列宽度，总宽度的百分比。<br> value[2].f32: 第3列宽度，总宽度的百分比。<br> ...<br> value[n].f32: 第n+1列宽度，总宽度的百分比。<br>**起始版本：** 18  |
 | NODE_IMAGE_ANIMATOR_IMAGES = ARKUI_NODE_IMAGE_ANIMATOR * MAX_NODE_SCOPE_NUM | 设置帧动画组件的图片帧信息集合。不支持动态更新。支持属性设置，属性重置和属性获取接口。<br>属性设置方法参数[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式： <br> .size：图片帧的数量； <br> .object：图片帧数组，参数类型为[ArkUI_ImageAnimatorFrameInfo](capi-arkui-nativemodule-arkui-imageanimatorframeinfo.md)数组； <br> 属性获取方法返回值[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式： <br> .size：图片帧的数量； <br> .object：图片帧数组，参数类型为[ArkUI_ImageAnimatorFrameInfo](capi-arkui-nativemodule-arkui-imageanimatorframeinfo.md)数组；  |
 | NODE_IMAGE_ANIMATOR_STATE = 19001 | 控制帧动画组件的播放状态。支持属性设置，属性重置和属性获取接口。<br>属性设置方法参数[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式： <br> .value[0].i32：控制动画的播放状态，参数类型为[ArkUI_AnimationStatus](capi-native-type-h.md#arkui_animationstatus)，默认值为初始状态。 <br>     属性获取方法返回值[ArkUI_AttributeItem](capi-arkui-nativemodule-arkui-attributeitem.md)格式： <br> .value[0].i32：控制动画的播放状态，参数类型为[ArkUI_AnimationStatus](capi-native-type-h.md#arkui_animationstatus)。   |
@@ -826,15 +834,15 @@ enum ArkUI_NodeEventType
 | NODE_SWIPER_EVENT_ON_UNSELECTED = 1001006 | 定义当ARKUI_NODE_SWIPER页面切换事件回调。满足以下任一条件，即可触发该事件：<br> 1. 滑动离手时满足翻页阈值，并且开始切换动画。<br> 2. 通过NODE_SWIPER_INDEX或NODE_SWIPER_SWIPE_TO_INDEX切换页面。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md) 中包含1个参数:<br> <b>ArkUI_NodeComponentEvent.data[0].i32</b>: 表示将要隐藏元素的索引。<br>**起始版本：** 18    |
 | NODE_SWIPER_EVENT_ON_CONTENT_WILL_SCROLL = 1001007 | 定义ARKUI_NODE_SWIPER滑动行为拦截事件。使用说明: 在页面滑动前, </b>ContentWillScrollCallback</b> 回调会触发。<br> 事件回调发生时， 事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含3个参数:<br> <b>ArkUI_NodeComponentEvent.data[0].i32</b>: 当前显示元素的索引。修改该值作为拦截本次事件的结果，设置为0表示拦截，设置为1表示不拦截。<br> <b>ArkUI_NodeComponentEvent.data[1].i32</b>: 切换动画目标元素的索引。<br> <b>ArkUI_NodeComponentEvent.data[2].f32</b>: 每帧的滑动偏移量。正数表示向后滑动（例如从index=1到index=0），负数表示向前滑动（例如从index=0到index=1）。<br>**起始版本：** 15   |
 | NODE_SWIPER_EVENT_ON_SCROLL_STATE_CHANGED = 1001008 | 定义ARKUI_NODE_SWIPER滑动状态变化事件。触发该事件的条件 ：<br> Swiper在跟手滑动、离手动画、停止三种滑动状态变化时触发。事件回调发生时， 事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含1个参数:<br> <b>ArkUI_NodeComponentEvent.data[0].i32</b>: 当前滑动状态，参数类型[ArkUI_ScrollState](capi-native-type-h.md#arkui_scrollstate)。<br>**起始版本：** 20  |
-| NODE_SCROLL_EVENT_ON_SCROLL = MAX_NODE_SCOPE_NUM * ARKUI_NODE_SCROLL | 定义滚动容器组件的滚动事件枚举值。触发该事件的条件 ：<br> 1、滚动组件触发滚动时触发，支持键鼠操作等其他触发滚动的输入设置。<br> 2、通过滚动控制器API接口调用。<br> 3、越界回弹。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含2个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：表示距离上一次事件触发的X轴增量。<br> <b>ArkUI_NodeComponentEvent.data[1].f32</b>：表示距离上一次事件触发的Y轴增量。  |
-| NODE_SCROLL_EVENT_ON_SCROLL_FRAME_BEGIN | 定义滚动容器组件的滚动帧始事件枚举值。List/Scroll/WaterFlow从API version 12开始支持，Grid从API version 22开始支持。<br>触发该事件的条件 ：<br> 1、滚动组件触发滚动时触发，包括键鼠操作等其他触发滚动的输入设置。<br> 2、调用控制器接口时不触发。<br> 3、越界回弹不触发。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含2个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：表示即将发生的滚动量。<br> <b>ArkUI_NodeComponentEvent.data[1].i32</b>：表示当前滚动状态。<br> <b>::ArkUI_NodeComponentEvent</b>中包含1个返回值：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：事件处理函数中可根据应用场景计算实际需要的滚动量并存于data[0].f32中，Scroll将按照返回值的实际滚动量进行滚动。 |
-| NODE_SCROLL_EVENT_ON_WILL_SCROLL | 定义滚动容器组件的滑动前触发事件枚举值。触发该事件的条件 ：<br> 1、滚动组件触发滚动时触发，支持键鼠操作等其他触发滚动的输入设置。<br> 2、通过滚动控制器API接口调用。<br> 3、越界回弹。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含4个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：每帧滚动的偏移量，内容向左滚动时偏移量为正，向右滚动时偏移量为负，单位vp。 <br> <b>ArkUI_NodeComponentEvent.data[1].f32</b>：每帧滚动的偏移量，内容向上滚动时偏移量为正，向下滚动时偏移量为负，单位vp。 <br> <b>ArkUI_NodeComponentEvent.data[2].i32</b>：当前滑动状态，参数类型[ArkUI_ScrollState](capi-native-type-h.md#arkui_scrollstate)。<br> <b>ArkUI_NodeComponentEvent.data[3].i32</b>：当前滚动的来源，参数类型[ArkUI_ScrollSource](capi-native-type-h.md#arkui_scrollsource)。  |
-| NODE_SCROLL_EVENT_ON_DID_SCROLL | 定义滚动容器组件的滑动时触发事件枚举值。触发该事件的条件 ：<br> 1、滚动组件触发滚动时触发，支持键鼠操作等其他触发滚动的输入设置。<br> 2、通过滚动控制器API接口调用。<br> 3、越界回弹。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含3个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：每帧滚动的偏移量，内容向左滚动时偏移量为正，向右滚动时偏移量为负，单位vp。 <br> <b>ArkUI_NodeComponentEvent.data[1].f32</b>：每帧滚动的偏移量，内容向上滚动时偏移量为正，向下滚动时偏移量为负，单位vp。 <br> <b>ArkUI_NodeComponentEvent.data[2].i32</b>：当前滑动状态，参数类型[ArkUI_ScrollState](capi-native-type-h.md#arkui_scrollstate)。  |
-| NODE_SCROLL_EVENT_ON_SCROLL_START | 定义滚动容器组件的滚动开始事件枚举值。List/Scroll/WaterFlow从API version 12开始支持，Grid从API version 22开始支持。<br>触发该事件的条件 ：<br> 1、滚动组件开始滚动时触发，支持键鼠操作等其他触发滚动的输入设置。<br> 2、通过滚动控制器API接口调用后开始，带过渡动效。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中不包含参数。  |
-| NODE_SCROLL_EVENT_ON_SCROLL_STOP | 定义滚动容器组件的滚动停止事件枚举值。List/Scroll/WaterFlow从API version 12开始支持，Grid从API version 22开始支持。<br>触发该事件的条件 ：<br> 1、滚动组件触发滚动后停止，支持键鼠操作等其他触发滚动的输入设置。<br> 2、通过滚动控制器API接口调用后停止，带过渡动效。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中不包含参数。   |
-| NODE_SCROLL_EVENT_ON_SCROLL_EDGE | 定义滚动容器组件的滚动边缘事件枚举值。触发该事件的条件 ：<br> 1、滚动组件滚动到边缘时触发，支持键鼠操作等其他触发滚动的输入设置。<br> 2、通过滚动控制器API接口调用。<br> 3、越界回弹。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含1个参数。<br> <b>ArkUI_NodeComponentEvent.data[0].i32</b>：表示当前碰到的是上下左右哪个边。 |
-| NODE_SCROLL_EVENT_ON_REACH_START | 定义滚动容器组件到达起始位置时触发回调。触发该事件的条件 ：<br> 1、组件到达起始位置时触发。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中不包含参数。 |
-| NODE_SCROLL_EVENT_ON_REACH_END | 定义滚动容器组件到底末尾位置时触发回调。触发该事件的条件 ：<br> 1、组件到底末尾位置时触发。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中不包含参数。   |
+| NODE_SCROLL_EVENT_ON_SCROLL = MAX_NODE_SCOPE_NUM * ARKUI_NODE_SCROLL | 定义滚动容器组件的滚动事件枚举值。触发该事件的条件 ：<br> 1. 滚动组件触发滚动时触发，支持键鼠操作等其他触发滚动的输入设置。<br> 2. 通过滚动控制器API接口调用。<br> 3. 越界回弹。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含2个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：表示距离上一次事件触发的X轴增量。<br> <b>ArkUI_NodeComponentEvent.data[1].f32</b>：表示距离上一次事件触发的Y轴增量。  |
+| NODE_SCROLL_EVENT_ON_SCROLL_FRAME_BEGIN | 定义滚动容器组件的滚动帧始事件枚举值。List/Scroll/WaterFlow从API version 12开始支持，Grid从API version 22开始支持。<br>触发该事件的条件 ：<br> 1. 滚动组件触发滚动时触发，包括键鼠操作等其他触发滚动的输入设置。<br> 2. 调用控制器接口时不触发。<br> 3. 越界回弹不触发。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含2个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：表示即将发生的滚动量。<br> <b>ArkUI_NodeComponentEvent.data[1].i32</b>：表示当前滚动状态。<br> <b>::ArkUI_NodeComponentEvent</b>中包含1个返回值：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：事件处理函数中可根据应用场景计算实际需要的滚动量并存于data[0].f32中，Scroll将按照返回值的实际滚动量进行滚动。 |
+| NODE_SCROLL_EVENT_ON_WILL_SCROLL | 定义滚动容器组件的滑动前触发事件枚举值。触发该事件的条件 ：<br> 1. 滚动组件触发滚动时触发，支持键鼠操作等其他触发滚动的输入设置。<br> 2. 通过滚动控制器API接口调用。<br> 3. 越界回弹。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含4个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：每帧滚动的偏移量，内容向左滚动时偏移量为正，向右滚动时偏移量为负，单位vp。 <br> <b>ArkUI_NodeComponentEvent.data[1].f32</b>：每帧滚动的偏移量，内容向上滚动时偏移量为正，向下滚动时偏移量为负，单位vp。 <br> <b>ArkUI_NodeComponentEvent.data[2].i32</b>：当前滑动状态，参数类型[ArkUI_ScrollState](capi-native-type-h.md#arkui_scrollstate)。<br> <b>ArkUI_NodeComponentEvent.data[3].i32</b>：当前滚动的来源，参数类型[ArkUI_ScrollSource](capi-native-type-h.md#arkui_scrollsource)。  |
+| NODE_SCROLL_EVENT_ON_DID_SCROLL | 定义滚动容器组件的滑动时触发事件枚举值。触发该事件的条件 ：<br> 1. 滚动组件触发滚动时触发，支持键鼠操作等其他触发滚动的输入设置。<br> 2. 通过滚动控制器API接口调用。<br> 3. 越界回弹。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含3个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：每帧滚动的偏移量，内容向左滚动时偏移量为正，向右滚动时偏移量为负，单位vp。 <br> <b>ArkUI_NodeComponentEvent.data[1].f32</b>：每帧滚动的偏移量，内容向上滚动时偏移量为正，向下滚动时偏移量为负，单位vp。 <br> <b>ArkUI_NodeComponentEvent.data[2].i32</b>：当前滑动状态，参数类型[ArkUI_ScrollState](capi-native-type-h.md#arkui_scrollstate)。  |
+| NODE_SCROLL_EVENT_ON_SCROLL_START | 定义滚动容器组件的滚动开始事件枚举值。List/Scroll/WaterFlow从API version 12开始支持，Grid从API version 22开始支持。<br>触发该事件的条件 ：<br> 1. 滚动组件开始滚动时触发，支持键鼠操作等其他触发滚动的输入设置。<br> 2. 通过滚动控制器API接口调用后开始，带过渡动效。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中不包含参数。  |
+| NODE_SCROLL_EVENT_ON_SCROLL_STOP | 定义滚动容器组件的滚动停止事件枚举值。List/Scroll/WaterFlow从API version 12开始支持，Grid从API version 22开始支持。<br>触发该事件的条件 ：<br> 1. 滚动组件触发滚动后停止，支持键鼠操作等其他触发滚动的输入设置。<br> 2. 通过滚动控制器API接口调用后停止，带过渡动效。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中不包含参数。   |
+| NODE_SCROLL_EVENT_ON_SCROLL_EDGE | 定义滚动容器组件的滚动边缘事件枚举值。触发该事件的条件 ：<br> 1. 滚动组件滚动到边缘时触发，支持键鼠操作等其他触发滚动的输入设置。<br> 2. 通过滚动控制器API接口调用。<br> 3. 越界回弹。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含1个参数。<br> <b>ArkUI_NodeComponentEvent.data[0].i32</b>：表示当前碰到的是上下左右哪个边。 |
+| NODE_SCROLL_EVENT_ON_REACH_START | 定义滚动容器组件到达起始位置时触发回调。触发该事件的条件 ：<br> 1. 组件到达起始位置时触发。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中不包含参数。 |
+| NODE_SCROLL_EVENT_ON_REACH_END | 定义滚动容器组件到底末尾位置时触发回调。触发该事件的条件 ：<br> 1. 组件到底末尾位置时触发。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中不包含参数。   |
 | NODE_SCROLL_EVENT_ON_WILL_STOP_DRAGGING | 定义滚动容器组件拖划即将离手回调。触发该事件的条件： <br> 滚动容器组件拖划即将离手时触发。 <br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。 <br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含1个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：划动离手速度，单位vp/s。 <br>**起始版本：** 20  |
 | NODE_SCROLL_EVENT_ON_DID_ZOOM | 定义Scroll组件缩放回调。触发该事件的条件：Scroll组件缩放每帧完成时触发。 <br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。 <br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含1个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：当前缩放比例。 <br>**起始版本：** 20  |
 | NODE_SCROLL_EVENT_ON_ZOOM_START | 定义Scroll组件缩放开始回调。触发该事件的条件：Scroll组件缩放开始时触发。 <br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。 <br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中不包含参数。<br>**起始版本：** 20    |
@@ -844,19 +852,24 @@ enum ArkUI_NodeEventType
 | NODE_SCROLL_EVENT_ON_WILL_START_FLING | 定义滚动容器组件滑动动画即将开始回调。触发该事件的条件：滚动容器组件滑动动画即将开始时触发。 <br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。 <br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中不包含参数。<br>**起始版本：** 21    |
 | NODE_SCROLL_EVENT_ON_DID_STOP_FLING | 定义滚动容器组件滑动动画结束回调。触发该事件的条件：滚动容器组件滑动动画结束后触发。 <br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。 <br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中不包含参数。<br>**起始版本：** 21    |
 | NODE_LIST_ON_SCROLL_INDEX = MAX_NODE_SCOPE_NUM * ARKUI_NODE_LIST | 定义ARKUI_NODE_LIST有子组件划入或划出List显示区域时触发事件枚举值。触发该事件的条件 ：<br> 列表初始化时会触发一次，List显示区域内第一个子组件的索引值或最后一个子组件的索引值有变化时会触发。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含3个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].i32</b>：List显示区域内第一个子组件的索引值。<br> <b>ArkUI_NodeComponentEvent.data[1].i32</b>：List显示区域内最后一个子组件的索引值。<br> <b>ArkUI_NodeComponentEvent.data[2].i32</b>：List显示区域内中间位置子组件的索引值。 |
-| NODE_LIST_ON_WILL_SCROLL | 定义ARKUI_NODE_LIST组件的滑动前触发事件枚举值。触发该事件的条件 ：<br> 1、滚动组件触发滚动时触发，支持键鼠操作等其他触发滚动的输入设置。<br> 2、通过滚动控制器API接口调用。<br> 3、越界回弹。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含3个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：每帧滚动的偏移量，list内容向上滚动时偏移量为正，向下滚动时偏移量为负。 <br> <b>ArkUI_NodeComponentEvent.data[1].i32</b>：当前滑动状态，参数类型[ArkUI_ScrollState](capi-native-type-h.md#arkui_scrollstate)。<br> <b>ArkUI_NodeComponentEvent.data[2].i32</b>：当前滚动的来源，参数类型[ArkUI_ScrollSource](capi-native-type-h.md#arkui_scrollsource)。 |
-| NODE_LIST_ON_DID_SCROLL | 定义ARKUI_NODE_LIST组件的滑动时触发事件枚举值。触发该事件的条件 ：<br> 1、滚动组件触发滚动时触发，支持键鼠操作等其他触发滚动的输入设置。<br> 2、通过滚动控制器API接口调用。<br> 3、越界回弹。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含2个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：每帧滚动的偏移量，list内容向上滚动时偏移量为正，向下滚动时偏移量为负。 <br> <b>ArkUI_NodeComponentEvent.data[1].i32</b>：当前滑动状态。  |
+| NODE_LIST_ON_WILL_SCROLL | 定义ARKUI_NODE_LIST组件的滑动前触发事件枚举值。触发该事件的条件 ：<br> 1. 滚动组件触发滚动时触发，支持键鼠操作等其他触发滚动的输入设置。<br> 2. 通过滚动控制器API接口调用。<br> 3. 越界回弹。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含3个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：每帧滚动的偏移量，list内容向上滚动时偏移量为正，向下滚动时偏移量为负。 <br> <b>ArkUI_NodeComponentEvent.data[1].i32</b>：当前滑动状态，参数类型[ArkUI_ScrollState](capi-native-type-h.md#arkui_scrollstate)。<br> <b>ArkUI_NodeComponentEvent.data[2].i32</b>：当前滚动的来源，参数类型[ArkUI_ScrollSource](capi-native-type-h.md#arkui_scrollsource)。 |
+| NODE_LIST_ON_DID_SCROLL | 定义ARKUI_NODE_LIST组件的滑动时触发事件枚举值。触发该事件的条件 ：<br> 1. 滚动组件触发滚动时触发，支持键鼠操作等其他触发滚动的输入设置。<br> 2. 通过滚动控制器API接口调用。<br> 3. 越界回弹。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含2个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：每帧滚动的偏移量，list内容向上滚动时偏移量为正，向下滚动时偏移量为负。 <br> <b>ArkUI_NodeComponentEvent.data[1].i32</b>：当前滑动状态。  |
 | NODE_LIST_ON_SCROLL_VISIBLE_CONTENT_CHANGE | 定义ARKUI_NODE_LIST当前显示内容发生改变的时候触发事件枚举值。触发该事件的条件 ：<br> 列表初始化时会触发一次，List显示区域内第一个子组件的索引值或最后一个子组件的索引值有变化时会触发。计算触发条件时，每一个ListItem、ListItemGroup中的header或footer都算一个子组件。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含3个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].i32</b>：List显示区域内第一个子组件的索引值。 <br> <b>ArkUI_NodeComponentEvent.data[1].i32</b>：List显示区域起始端在ListItemGroup中的区域。类型为[ArkUI_ListItemGroupArea](capi-native-type-h.md#arkui_listitemgrouparea)。<br> <b>ArkUI_NodeComponentEvent.data[2].i32</b>：List显示区域起始端在ListItemGroup中的ListItem索引号，如果List显示区域起始端不在ListItem上，该值为-1。 <br> <b>ArkUI_NodeComponentEvent.data[4].i32</b>：List显示区域内最后一个子组件的索引值。 <br> <b>ArkUI_NodeComponentEvent.data[5].i32</b>：List显示区域末尾端在ListItemGroup中的区域。类型为[ArkUI_ListItemGroupArea](capi-native-type-h.md#arkui_listitemgrouparea)。<br> <b>ArkUI_NodeComponentEvent.data[6].i32</b>：List显示区域末尾端在ListItemGroup中的ListItem索引号，如果List显示区域末尾端不在ListItem上，该值为-1。 <br>**起始版本：** 15     |
 | NODE_REFRESH_STATE_CHANGE = MAX_NODE_SCOPE_NUM * ARKUI_NODE_REFRESH | 定义ARKUI_NODE_REFRESH刷新状态变更触发该事件。事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含1个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].i32</b>：刷新状态。<br/>0：Inactive，默认未下拉状态。<br/>1：Drag，下拉中，下拉距离小于刷新距离。若此时松手，组件进入Inactive状态；若此时继续下拉使下拉距离超过刷新距离，组件进入OverDrag状态。<br/>2：OverDrag，下拉中，下拉距离超过刷新距离。若此时松手，组件进入Refresh状态；若此时上滑使下拉距离小于刷新距离，组件进入Drag状态。<br/>3：Refresh，下拉结束，回弹至刷新距离，进入刷新中状态。<br/>4：Done，刷新结束，返回初始状态（顶部）。  |
 | NODE_REFRESH_ON_REFRESH | 定义ARKUI_NODE_REFRESH进入刷新状态时触发该事件。事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中不包含参数：  |
 | NODE_REFRESH_ON_OFFSET_CHANGE | 定义ARKUI_NODE_REFRESH下拉距离发生变化时触发该事件。事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含1个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：下拉距离。   |
-| NODE_ON_WILL_SCROLL = MAX_NODE_SCOPE_NUM * ARKUI_NODE_WATER_FLOW | 定义ARKUI_NODE_WATER_FLOW组件的滑动前触发事件枚举值。触发该事件的条件 ：<br> 1、滚动组件触发滚动时触发，支持键鼠操作等其他触发滚动的输入设置。<br> 2、通过滚动控制器API接口调用。<br> 3、越界回弹。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含3个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：每帧滚动的偏移量，内容向上滚动时偏移量为正，向下滚动时偏移量为负。 <br> <b>ArkUI_NodeComponentEvent.data[1].i32</b>：当前滑动状态，参数类型[ArkUI_ScrollState](capi-native-type-h.md#arkui_scrollstate)。<br> <b>ArkUI_NodeComponentEvent.data[2].i32</b>：当前滚动的来源，参数类型[ArkUI_ScrollSource](capi-native-type-h.md#arkui_scrollsource)。  |
-| NODE_WATER_FLOW_ON_DID_SCROLL | 定义ARKUI_NODE_WATER_FLOW组件的滑动时触发事件枚举值。触发该事件的条件 ：<br> 1、滚动组件触发滚动时触发，支持键鼠操作等其他触发滚动的输入设置。<br> 2、通过滚动控制器API接口调用。<br> 3、越界回弹。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含2个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：每帧滚动的偏移量，内容向上滚动时偏移量为正，向下滚动时偏移量为负。 <br> <b>ArkUI_NodeComponentEvent.data[1].i32</b>：当前滑动状态。  |
+| NODE_ON_WILL_SCROLL = MAX_NODE_SCOPE_NUM * ARKUI_NODE_WATER_FLOW | 定义ARKUI_NODE_WATER_FLOW组件的滑动前触发事件枚举值。触发该事件的条件 ：<br> 1. 滚动组件触发滚动时触发，支持键鼠操作等其他触发滚动的输入设置。<br> 2. 通过滚动控制器API接口调用。<br> 3. 越界回弹。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含3个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：每帧滚动的偏移量，内容向上滚动时偏移量为正，向下滚动时偏移量为负。 <br> <b>ArkUI_NodeComponentEvent.data[1].i32</b>：当前滑动状态，参数类型[ArkUI_ScrollState](capi-native-type-h.md#arkui_scrollstate)。<br> <b>ArkUI_NodeComponentEvent.data[2].i32</b>：当前滚动的来源，参数类型[ArkUI_ScrollSource](capi-native-type-h.md#arkui_scrollsource)。  |
+| NODE_WATER_FLOW_ON_DID_SCROLL | 定义ARKUI_NODE_WATER_FLOW组件的滑动时触发事件枚举值。触发该事件的条件 ：<br> 1. 滚动组件触发滚动时触发，支持键鼠操作等其他触发滚动的输入设置。<br> 2. 通过滚动控制器API接口调用。<br> 3. 越界回弹。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含2个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：每帧滚动的偏移量，内容向上滚动时偏移量为正，向下滚动时偏移量为负。 <br> <b>ArkUI_NodeComponentEvent.data[1].i32</b>：当前滑动状态。  |
 | NODE_WATER_FLOW_ON_SCROLL_INDEX | 定义ARKUI_NODE_WATER_FLOW当前瀑布流显示的起始位置/终止位置的子组件发生变化时触发事件枚举值。触发该事件的条件 ：<br> 瀑布流显示区域上第一个子组件/最后一个组件的索引值有变化就会触发。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含3个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].i32</b>：当前显示的WaterFlow起始位置的索引值。 <br> <b>ArkUI_NodeComponentEvent.data[1].i32</b>：当前显示的瀑布流终止位置的索引值。 |
 | NODE_GRID_ON_SCROLL_INDEX = MAX_NODE_SCOPE_NUM * ARKUI_NODE_GRID | 定义ARKUI_NODE_GRID有子组件滑入或滑出Grid显示区域时触发事件枚举值。触发该事件的条件 ：<br> Grid初始化时会触发一次，Grid显示区域内第一个子组件的索引值或最后一个子组件的索引值有变化时会触发。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含2个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].i32</b>：Grid显示区域内第一个子组件的索引值。 <br> <b>ArkUI_NodeComponentEvent.data[1].i32</b>：Grid显示区域内最后一个子组件的索引值。 <br>**起始版本：** 22 |
 | NODE_GRID_ON_WILL_SCROLL = 1013001 | 定义ARKUI_NODE_GRID组件的滑动前触发事件枚举值。触发该事件的条件 ：<br>  1. 滚动组件触发滚动时触发，支持键鼠操作等其他触发滚动的输入设置。<br> 2. 通过滚动控制器API接口调用。<br> 3. 越界回弹。<br>   事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含3个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：每帧滚动的偏移量，Grid内容向上滚动时偏移量为正，向下滚动时偏移量为负。 <br> <b>ArkUI_NodeComponentEvent.data[1].i32</b>：当前滑动状态，参数类型[ArkUI_ScrollState](capi-native-type-h.md#arkui_scrollstate)。<br> <b>ArkUI_NodeComponentEvent.data[2].i32</b>：当前滚动的来源，参数类型[ArkUI_ScrollSource](capi-native-type-h.md#arkui_scrollsource)。 <br>**起始版本：** 22 |
-| NODE_GRID_ON_DID_SCROLL = 1013002 | 定义ARKUI_NODE_GRID组件的滑动时触发事件枚举值。触发该事件的条件 ：<br>  1、滚动组件触发滚动时触发，支持键鼠操作等其他触发滚动的输入设置。<br> 2、通过滚动控制器API接口调用。<br> 3、越界回弹。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含2个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：每帧滚动的偏移量，Grid内容向上滚动时偏移量为正，向下滚动时偏移量为负。 <br> <b>ArkUI_NodeComponentEvent.data[1].i32</b>：当前滑动状态，参数类型[ArkUI_ScrollState](capi-native-type-h.md#arkui_scrollstate)。<br>**起始版本：** 22 |
+| NODE_GRID_ON_DID_SCROLL = 1013002 | 定义ARKUI_NODE_GRID组件的滑动时触发事件枚举值。触发该事件的条件 ：<br>  1. 滚动组件触发滚动时触发，支持键鼠操作等其他触发滚动的输入设置。<br> 2. 通过滚动控制器API接口调用。<br> 3. 越界回弹。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含2个参数：<br> <b>ArkUI_NodeComponentEvent.data[0].f32</b>：每帧滚动的偏移量，Grid内容向上滚动时偏移量为正，向下滚动时偏移量为负。 <br> <b>ArkUI_NodeComponentEvent.data[1].i32</b>：当前滑动状态，参数类型[ArkUI_ScrollState](capi-native-type-h.md#arkui_scrollstate)。<br>**起始版本：** 22 |
 | NODE_GRID_ON_SCROLL_BAR_UPDATE = 1013003 | 定义ARKUI_NODE_GRID组件每帧布局结束时，触发用于设置滚动条的位置及长度的事件枚举值。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)。通过OH_ArkUI_NodeEvent_GetNumberValue获取到index为0的value.i32：当前显示的网格起始位置的索引值。<br>通过OH_ArkUI_NodeEvent_GetNumberValue获取到index为1的value.f32：当前显示的网格起始位置元素相对网格显示起始位置的偏移，单位vp。<br>**起始版本：** 22 |
+| NODE_GRID_ON_ITEM_DRAG_START = 1013004 | 定义ARKUI_NODE_GRID组件拖拽子组件开始事件枚举值。<br>触发该事件的条件：<br>1. 设置NODE_GRID_EDIT_MODE为1。<br>2. 在Grid子组件上长按并拖动产生足够位移距离时触发。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)。<br>通过OH_ArkUI_NodeEvent_GetNumberValue获取到index为0的value.f32：当前拖拽点相对Grid组件的x坐标，单位vp。<br>通过OH_ArkUI_NodeEvent_GetNumberValue获取到index为1的value.f32：当前拖拽点相对Grid组件的y坐标，单位vp。<br>通过OH_ArkUI_NodeEvent_GetNumberValue获取到index为2的value.i32：被拖拽子组件在Grid组件中的索引值。<br>可通过OH_ArkUI_NodeEvent_SetReturnNumberValue设置返回值。<br>返回值中index为0的value.i32表示是否可以拖拽，0表示不可以拖拽，1表示可以拖拽。<br>**起始版本：** 23 |
+| NODE_GRID_ON_ITEM_DRAG_ENTER = 1013005 | 定义拖拽子组件进入当前Grid组件范围事件枚举值。<br>触发该事件的条件：<br>通过NODE_GRID_ON_ITEM_DRAG_START事件成功拖拽的子组件进入当前Grid组件范围。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含2个参数：<br><b>ArkUI_NodeComponentEvent.data[0].f32</b>：当前拖拽点相对Grid组件的x坐标，单位vp。<br><b>ArkUI_NodeComponentEvent.data[1].f32</b>：当前拖拽点相对Grid组件的y坐标，单位vp。<br>**起始版本：** 23 |
+| NODE_GRID_ON_ITEM_DRAG_MOVE = 1013006 | 定义拖拽子组件在当前Grid组件范围内移动事件枚举值。<br>触发该事件的条件：<br>通过NODE_GRID_ON_ITEM_DRAG_START事件成功拖拽的子组件进入当前Grid组件范围。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含4个参数：<br><b>ArkUI_NodeComponentEvent.data[0].f32</b>：当前拖拽点相对Grid组件的x坐标，单位vp。<br><b>ArkUI_NodeComponentEvent.data[1].f32</b>：当前拖拽点相对Grid组件的y坐标，单位vp。<br><b>ArkUI_NodeComponentEvent.data[2].i32</b>：被拖拽子组件在被拖拽Grid组件中的索引值。<br><b>ArkUI_NodeComponentEvent.data[3].i32</b>：被拖拽子组件当前位置在当前Grid组件中的索引值。<br>**起始版本：** 23 |
+| NODE_GRID_ON_ITEM_DRAG_LEAVE = 1013007 | 定义拖拽子组件离开当前Grid组件范围事件枚举值。<br>触发该事件的条件：<br>通过NODE_GRID_ON_ITEM_DRAG_START事件成功拖拽的子组件离开当前Grid组件范围。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含3个参数：<br><b>ArkUI_NodeComponentEvent.data[0].f32</b>：当前拖拽点相对Grid组件的x坐标，单位vp。<br><b>ArkUI_NodeComponentEvent.data[1].f32</b>：当前拖拽点相对Grid组件的y坐标，单位vp。<br><b>ArkUI_NodeComponentEvent.data[2].i32</b>：被拖拽子组件在被拖拽Grid组件中的索引值。<br>**起始版本：** 23 |
+| NODE_GRID_ON_ITEM_DROP = 1013008 | 定义松手释放拖拽子组件事件枚举值。<br>触发该事件的条件：<br>松手释放通过NODE_GRID_ON_ITEM_DRAG_START事件成功拖拽的子组件。<br> 事件回调发生时，事件参数[ArkUI_NodeEvent](capi-arkui-nativemodule-arkui-nodeevent.md)对象中的联合体类型为[ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)。<br> [ArkUI_NodeComponentEvent](capi-arkui-nativemodule-arkui-nodecomponentevent.md)中包含5个参数：<br><b>ArkUI_NodeComponentEvent.data[0].f32</b>：当前拖拽点相对Grid组件的x坐标，单位vp。<br><b>ArkUI_NodeComponentEvent.data[1].f32</b>：当前拖拽点相对Grid组件的y坐标，单位vp。<br><b>ArkUI_NodeComponentEvent.data[2].i32</b>：被拖拽子组件在被拖拽Grid组件中的索引值。<br><b>ArkUI_NodeComponentEvent.data[3].i32</b>：被拖拽子组件当前位置在当前Grid组件中的索引值。<br><b>ArkUI_NodeComponentEvent.data[4].i32</b>：被拖拽子组件是否成功释放，1表示释放位置在Grid组件范围内，0表示释放位置在Grid组件范围外。<br>**起始版本：** 23 |
 
 ### ArkUI_NodeDirtyFlag
 
@@ -1062,7 +1075,7 @@ ArkUI_UIInputEvent* OH_ArkUI_NodeEvent_GetInputEvent(ArkUI_NodeEvent* event)
 
 | 类型 | 说明 |
 | -- | -- |
-| ArkUI_UIInputEvent* | ArkUI_UIInputEvent 输入事件数据指针。 |
+| [ArkUI_UIInputEvent*](capi-arkui-eventmodule-arkui-uiinputevent.md) | ArkUI_UIInputEvent 输入事件数据指针。 |
 
 ### OH_ArkUI_NodeEvent_GetNodeComponentEvent()
 
@@ -1088,7 +1101,7 @@ ArkUI_NodeComponentEvent* OH_ArkUI_NodeEvent_GetNodeComponentEvent(ArkUI_NodeEve
 
 | 类型 | 说明 |
 | -- | -- |
-| ArkUI_NodeComponentEvent* | ArkUI_NodeComponentEvent 数字类型数据指针。 |
+| [ArkUI_NodeComponentEvent*](capi-arkui-nativemodule-arkui-nodecomponentevent.md) | ArkUI_NodeComponentEvent 数字类型数据指针。 |
 
 ### OH_ArkUI_NodeEvent_GetStringAsyncEvent()
 
@@ -1114,7 +1127,7 @@ ArkUI_StringAsyncEvent* OH_ArkUI_NodeEvent_GetStringAsyncEvent(ArkUI_NodeEvent* 
 
 | 类型 | 说明 |
 | -- | -- |
-| ArkUI_StringAsyncEvent* | ArkUI_StringAsyncEvent 字符串数据指针。 |
+| [ArkUI_StringAsyncEvent*](capi-arkui-nativemodule-arkui-stringasyncevent.md) | ArkUI_StringAsyncEvent 字符串数据指针。 |
 
 ### OH_ArkUI_NodeEvent_GetTextChangeEvent()
 
@@ -1140,7 +1153,7 @@ ArkUI_TextChangeEvent* OH_ArkUI_NodeEvent_GetTextChangeEvent(ArkUI_NodeEvent* ev
 
 | 类型 | 说明 |
 | -- | -- |
-| ArkUI_TextChangeEvent* | 返回ArkUI_TextChangeEvent对象的指针。 |
+| [ArkUI_TextChangeEvent*](capi-arkui-nativemodule-arkui-textchangeevent.md) | 返回ArkUI_TextChangeEvent对象的指针。 |
 
 ### OH_ArkUI_NodeEvent_GetUserData()
 
@@ -1364,7 +1377,7 @@ ArkUI_NodeAdapterHandle handle, void* userData, void (*receiver)(ArkUI_NodeAdapt
 
 | 参数项 | 描述 |
 | -- | -- |
-| ArkUI_NodeAdapterHandle handle | 组件适配器对象。 |
+| [ArkUI_NodeAdapterHandle](capi-arkui-nativemodule-arkui-nodeadapter8h.md) handle | 组件适配器对象。 |
 | void* userData | 自定义数据。 |
 | receiver | 事件接收回调。 |
 
@@ -1823,7 +1836,7 @@ ArkUI_DrawContext* OH_ArkUI_NodeCustomEvent_GetDrawContextInDraw(ArkUI_NodeCusto
 
 | 类型 | 说明 |
 | -- | -- |
-| ArkUI_DrawContext* | 绘制上下文。 |
+| [ArkUI_DrawContext*](capi-arkui-nativemodule-arkui-drawcontext.md) | 绘制上下文。 |
 
 ### OH_ArkUI_NodeCustomEvent_GetEventTargetId()
 
@@ -2187,7 +2200,7 @@ int32_t OH_ArkUI_NodeContent_AddNode(ArkUI_NodeContentHandle content, ArkUI_Node
 
 | 类型 | 说明 |
 | -- | -- |
-| int32_t | 错误码。<br>         [ARKUI_ERROR_CODE_NO_ERROR](capi-native-type-h.md#arkui_errorcode) 成功。<br>         [ARKUI_ERROR_CODE_PARAM_INVALID](capi-native-type-h.md#arkui_errorcode) 函数参数异常。 |
+| int32_t | 错误码。<br>         [ARKUI_ERROR_CODE_NO_ERROR](capi-native-type-h.md#arkui_errorcode) 成功。<br>         [ARKUI_ERROR_CODE_PARAM_INVALID](capi-native-type-h.md#arkui_errorcode) 函数参数异常。<br>             [ARKUI_ERROR_CODE_NODE_IS_ADOPTED](capi-native-type-h.md#arkui_errorcode) 子节点已经被接纳。从API version 23开始支持。 |
 
 ### OH_ArkUI_NodeContent_RemoveNode()
 
@@ -2242,7 +2255,7 @@ int32_t OH_ArkUI_NodeContent_InsertNode(ArkUI_NodeContentHandle content, ArkUI_N
 
 | 类型 | 说明 |
 | -- | -- |
-| int32_t | 错误码。<br>         [ARKUI_ERROR_CODE_NO_ERROR](capi-native-type-h.md#arkui_errorcode) 成功。<br>         [ARKUI_ERROR_CODE_PARAM_INVALID](capi-native-type-h.md#arkui_errorcode) 函数参数异常。 |
+| int32_t | 错误码。<br>         [ARKUI_ERROR_CODE_NO_ERROR](capi-native-type-h.md#arkui_errorcode) 成功。<br>         [ARKUI_ERROR_CODE_PARAM_INVALID](capi-native-type-h.md#arkui_errorcode) 函数参数异常。<br>             [ARKUI_ERROR_CODE_NODE_IS_ADOPTED](capi-native-type-h.md#arkui_errorcode) 子节点已经被接纳。从API version 23开始支持。 |
 
 ### OH_ArkUI_NodeUtils_GetLayoutSize()
 
@@ -2688,7 +2701,7 @@ int32_t OH_ArkUI_NodeUtils_MoveTo(ArkUI_NodeHandle node, ArkUI_NodeHandle target
 
 | 类型 | 说明 |
 | -- | -- |
-| int32_t | 错误码。<br>         [ARKUI_ERROR_CODE_NO_ERROR](capi-native-type-h.md#arkui_errorcode) 成功。<br>         [ARKUI_ERROR_CODE_PARAM_INVALID](capi-native-type-h.md#arkui_errorcode) 函数参数异常。<br>         [ARKUI_ERROR_CODE_CAPI_INIT_ERROR](capi-native-type-h.md#arkui_errorcode) CAPI初始化错误。 |
+| int32_t | 错误码。<br>         [ARKUI_ERROR_CODE_NO_ERROR](capi-native-type-h.md#arkui_errorcode) 成功。<br>         [ARKUI_ERROR_CODE_PARAM_INVALID](capi-native-type-h.md#arkui_errorcode) 函数参数异常。<br>         [ARKUI_ERROR_CODE_CAPI_INIT_ERROR](capi-native-type-h.md#arkui_errorcode) CAPI初始化错误。<br>             [ARKUI_ERROR_CODE_NODE_IS_ADOPTED](capi-native-type-h.md#arkui_errorcode) 子节点已经被接纳。从API version 23开始支持。 |
 
 ### OH_ArkUI_NativeModule_InvalidateAttributes()
 
@@ -3139,6 +3152,81 @@ int32_t OH_ArkUI_NodeUtils_GetNodeUniqueId(ArkUI_NodeHandle node, int32_t* uniqu
 | -- | -- |
 | int32_t | 错误码。<br>         [ARKUI_ERROR_CODE_NO_ERROR](capi-native-type-h.md#arkui_errorcode) 成功。<br>         [ARKUI_ERROR_CODE_PARAM_INVALID](capi-native-type-h.md#arkui_errorcode) 方法参数错误。<br>         [ARKUI_ERROR_CODE_CAPI_INIT_ERROR](capi-native-type-h.md#arkui_errorcode) CAPI初始化错误。 |
 
+### OH_ArkUI_NativeModule_AdoptChild()
+
+```
+int32_t OH_ArkUI_NativeModule_AdoptChild(ArkUI_NodeHandle node, ArkUI_NodeHandle child)
+```
+
+**描述：**
+
+当前节点接纳目标节点为附属节点。被接纳的节点不能已有父节点。此操作实际上不会将其添加为子节点，而仅是允许其接收生命周期回调，就像它是子节点一样。
+
+**起始版本：** 23
+
+**参数：**
+
+| 参数项 | 描述 |
+| -- | -- |
+| [ArkUI_NodeHandle](capi-arkui-nativemodule-arkui-node8h.md) node | ArkUI_NodeHandle指针，将要接纳节点的父节点。 |
+| [ArkUI_NodeHandle](capi-arkui-nativemodule-arkui-node8h.md) child | ArkUI_NodeHandle指针，将要被接纳的子节点。 |
+
+**返回：**
+
+| 类型 | 说明 |
+| -- | -- |
+| int32_t | 错误码。<br>         [ARKUI_ERROR_CODE_NO_ERROR](capi-native-type-h.md#arkui_errorcode) 成功。<br>         [ARKUI_ERROR_CODE_CAPI_INIT_ERROR](capi-native-type-h.md#arkui_errorcode) CAPI初始化错误。<br>         [ARKUI_ERROR_CODE_NODE_HAS_PARENT](capi-native-type-h.md#arkui_errorcode) 被接纳的节点已有父节点。<br>         [ARKUI_ERROR_CODE_NODE_CAN_NOT_BE_ADOPTED](capi-native-type-h.md#arkui_errorcode) 节点无法被接纳为附属节点。<br>         [ARKUI_ERROR_CODE_NODE_CAN_NOT_ADOPT_TO](capi-native-type-h.md#arkui_errorcode) 节点无法接纳其它附属节点。 |
+
+### OH_ArkUI_NativeModule_RemoveAdoptedChild()
+
+```
+int32_t OH_ArkUI_NativeModule_RemoveAdoptedChild(ArkUI_NodeHandle node, ArkUI_NodeHandle child)
+```
+
+**描述：**
+
+移除目标接纳的附属节点。
+
+**起始版本：** 23
+
+**参数：**
+
+| 参数项 | 描述 |
+| -- | -- |
+| [ArkUI_NodeHandle](capi-arkui-nativemodule-arkui-node8h.md) node | ArkUI_NodeHandle指针，父节点。 |
+| [ArkUI_NodeHandle](capi-arkui-nativemodule-arkui-node8h.md) child | ArkUI_NodeHandle指针，将要被移除的节点。 |
+
+**返回：**
+
+| 类型 | 说明 |
+| -- | -- |
+| int32_t | 错误码。<br>         [ARKUI_ERROR_CODE_NO_ERROR](capi-native-type-h.md#arkui_errorcode) 成功。<br>         [ARKUI_ERROR_CODE_CAPI_INIT_ERROR](capi-native-type-h.md#arkui_errorcode) CAPI初始化错误。<br>         [ARKUI_ERROR_CODE_NODE_IS_NOT_IN_ADOPTED_CHILDREN](capi-native-type-h.md#arkui_errorcode) 节点不是被目标节点接纳的附属节点。|
+
+### OH_ArkUI_NativeModule_IsInRenderState()
+
+```
+int32_t OH_ArkUI_NativeModule_IsInRenderState(ArkUI_NodeHandle node, bool* isInRenderState)
+```
+
+**描述：**
+
+获取节点是否处于渲染状态，如果一个节点的对应RenderNode在渲染树上，则处于渲染状态。
+
+**起始版本：** 23
+
+**参数：**
+
+| 参数项 | 描述 |
+| -- | -- |
+| [ArkUI_NodeHandle](capi-arkui-nativemodule-arkui-node8h.md) node | ArkUI节点指针。 |
+| bool*  isInRenderState | 节点是否处于渲染状态。true：处于渲染状态；false：不处于渲染状态。 |
+
+**返回：**
+
+| 类型 | 说明 |
+| -- | -- |
+| int32_t | 错误码。<br>         [ARKUI_ERROR_CODE_NO_ERROR](capi-native-type-h.md#arkui_errorcode) 成功。<br>  [ARKUI_ERROR_CODE_PARAM_INVALID](capi-native-type-h.md#arkui_errorcode) 方法参数异常。<br>  [ARKUI_ERROR_CODE_CAPI_INIT_ERROR](capi-native-type-h.md#arkui_errorcode) CAPI初始化错误。 |
+
 ### OH_ArkUI_NodeUtils_SetCrossLanguageOption()
 
 ```
@@ -3406,8 +3494,8 @@ int32_t OH_ArkUI_PostAsyncUITask(ArkUI_ContextHandle context, void* asyncUITaskD
 
 | 名称 | 描述 |
 | -------- | -------- |
-| context | UI实例对象指针。 |
-| asyncUITaskData | 开发者自定义数据指针，作为asyncUITask和onFinish的入参。可以传入空指针。 |
+| [ArkUI_ContextHandle](capi-arkui-nativemodule-arkui-context8h.md) context | UI实例对象指针。 |
+| void* asyncUITaskData | 开发者自定义数据指针，作为asyncUITask和onFinish的入参。可以传入空指针。 |
 | asyncUITask| 在非UI线程执行的函数。|
 | onFinish | asyncUITask执行完成后，在UI线程执行的函数。可以传入空指针。 |
 
@@ -3433,8 +3521,8 @@ int32_t OH_ArkUI_PostUITask(ArkUI_ContextHandle context, void* taskData, void (*
 
 | 名称 | 描述 |
 | -------- | -------- |
-| context | UI实例对象指针。  |
-| taskData | 开发者自定义数据指针，作为task的入参。可以传入空指针。 |
+| [ArkUI_ContextHandle](capi-arkui-nativemodule-arkui-context8h.md) context | UI实例对象指针。  |
+| void* taskData | 开发者自定义数据指针，作为task的入参。可以传入空指针。 |
 | task | 在UI线程执行的函数。 |
 
 **返回：**
@@ -3462,8 +3550,8 @@ int32_t OH_ArkUI_PostUITaskAndWait(ArkUI_ContextHandle context, void* taskData, 
 
 | 名称 | 描述 |
 | -------- | -------- |
-| context | UI实例对象指针。  |
-| taskData | 开发者自定义数据指针，作为task的入参。可以传入空指针。 |
+| [ArkUI_ContextHandle](capi-arkui-nativemodule-arkui-context8h.md) context | UI实例对象指针。  |
+| void* taskData | 开发者自定义数据指针，作为task的入参。可以传入空指针。 |
 | task | 在UI线程执行的函数。 |
 
 **返回：**
@@ -3489,9 +3577,9 @@ int32_t OH_ArkUI_NativeModule_RegisterCommonEvent(ArkUI_NodeHandle node, ArkUI_N
 
 | 名称 | 描述 |
 | -------- | -------- |
-| node | 目标节点。  |
-| eventType | 事件类型。 |
-| userData | 开发者自定义的数据指针，以便在回调函数中处理自定义数据，需确保自定义函数执行时数据有效。 |
+| [ArkUI_NodeHandle](capi-arkui-nativemodule-arkui-node8h.md) node | 目标节点。  |
+| [ArkUI_NodeEventType](capi-native-node-h.md#arkui_nodeeventtype) eventType | 事件类型。 |
+| void* userData | 开发者自定义的数据指针，以便在回调函数中处理自定义数据，需确保自定义函数执行时数据有效。 |
 | callback | 开发者自定义的回调函数。 |
 
 **返回：**
@@ -3517,8 +3605,8 @@ int32_t OH_ArkUI_NativeModule_UnregisterCommonEvent(ArkUI_NodeHandle node, ArkUI
 
 | 名称 | 描述 |
 | -------- | -------- |
-| node | 目标节点。  |
-| eventType | 事件类型。 |
+| [ArkUI_NodeHandle](capi-arkui-nativemodule-arkui-node8h.md) node | 目标节点。  |
+| [ArkUI_NodeEventType](capi-native-node-h.md#arkui_nodeeventtype) eventType | 事件类型。 |
 
 **返回：**
 
@@ -3541,11 +3629,11 @@ int32_t OH_ArkUI_NativeModule_RegisterCommonVisibleAreaApproximateChangeEvent(Ar
 
 | 名称 | 描述 |
 | -------- | -------- |
-| node | 目标节点。  |
-| ratios | 阈值数组，表示组件的可见区域。 |
-| size | 阈值数组的大小。 |
-| expectedUpdateInterval | 开发人员预期的计算间隔。 |
-| userData | 开发者自定义的数据指针，以便在回调函数中处理自定义数据，需确保自定义函数执行时数据有效。 |
+| [ArkUI_NodeHandle](capi-arkui-nativemodule-arkui-node8h.md) node | 目标节点。  |
+| float* ratios | 阈值数组，表示组件的可见区域。 |
+| int32_t size | 阈值数组的大小。 |
+| float expectedUpdateInterval | 开发人员预期的计算间隔。 |
+| void* userData | 开发者自定义的数据指针，以便在回调函数中处理自定义数据，需确保自定义函数执行时数据有效。 |
 | callback | 开发者自定义的回调函数。 |
 
 **返回：**
@@ -3621,8 +3709,8 @@ int32_t OH_ArkUI_SetForceDarkConfig(ArkUI_ContextHandle uiContext, bool forceDar
 
 | 参数项 | 描述 |
 | -- | -- |
-| uiContext | UI实例对象指针。<br>  如果该值为null，则该功能适用于整个应用进程。|
-| forceDark | 是否使用反色能力。取值为true：组件使用反色能力，取值为false：组件不使用反色能力。 |
+| [ArkUI_ContextHandle](capi-arkui-nativemodule-arkui-context8h.md) context | UI实例对象指针。<br>  如果该值为null，则该功能适用于整个应用进程。|
+| bool forceDark | 是否使用反色能力。取值为true：组件使用反色能力，取值为false：组件不使用反色能力。 |
 | [ArkUI_NodeType](#arkui_nodetype) | 指定使能反色能力生效组件的类型范围。<br>   ARKUI_NODE_UNDEFINED代表对所有组件类型生效。 |
 | colorInvertFunc | 开发者自定义反色算法函数。 |
 

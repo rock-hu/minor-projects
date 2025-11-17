@@ -1040,7 +1040,7 @@ connectToCandidateConfigWithUserAction(networkId: number): Promise&lt;void&gt;
 
 addDeviceConfig(config: WifiDeviceConfig): Promise&lt;number&gt;
 
-添加网络配置，使用Promise异步回调。
+添加网络配置。使用Promise异步回调。
 
 **需要权限：** ohos.permission.SET_WIFI_INFO 和 ohos.permission.SET_WIFI_CONFIG
 
@@ -1094,7 +1094,7 @@ addDeviceConfig(config: WifiDeviceConfig): Promise&lt;number&gt;
 
 addDeviceConfig(config: WifiDeviceConfig, callback: AsyncCallback&lt;number&gt;): void
 
-添加网络配置，使用callback异步回调。
+添加网络配置。使用callback异步回调。
 
 **需要权限：** ohos.permission.SET_WIFI_INFO 和 ohos.permission.SET_WIFI_CONFIG
 
@@ -1272,7 +1272,7 @@ getSignalLevel(rssi: number, band: number): number
 
 getLinkedInfo(): Promise&lt;WifiLinkedInfo&gt;
 
-获取WLAN连接信息，使用Promise异步回调。
+获取WLAN连接信息。使用Promise异步回调。
 
 **需要权限：** ohos.permission.GET_WIFI_INFO 。 
 
@@ -1303,7 +1303,7 @@ getLinkedInfo(): Promise&lt;WifiLinkedInfo&gt;
 
 getLinkedInfo(callback: AsyncCallback&lt;WifiLinkedInfo&gt;): void
 
-获取WLAN连接信息，使用callback异步回调。
+获取WLAN连接信息。使用callback异步回调。
 
 **需要权限：** ohos.permission.GET_WIFI_INFO 。 
 
@@ -1810,7 +1810,6 @@ isBandTypeSupported(bandType: WifiBandType): boolean
 | **错误码ID** | **错误信息** |
 | -------- | -------- |
 | 201 | Permission denied.                 |
-| 401 | Invalid parameters. Possible causes: 1. Mandatory parameters are left unspecified.<br>2. Incorrect parameter types. 3. Parameter verification failed. |
 | 801 | Capability not supported.          |
 | 2501000  | Operation failed.|
 
@@ -1912,7 +1911,7 @@ isHotspotActive(): boolean
 
 getP2pLinkedInfo(): Promise&lt;WifiP2pLinkedInfo&gt;
 
-获取P2P连接信息，使用Promise异步回调。
+获取P2P连接信息。使用Promise异步回调。
 
 **需要权限：** ohos.permission.GET_WIFI_INFO
 
@@ -1941,7 +1940,7 @@ getP2pLinkedInfo(): Promise&lt;WifiP2pLinkedInfo&gt;
 
 getP2pLinkedInfo(callback: AsyncCallback&lt;WifiP2pLinkedInfo&gt;): void
 
-获取P2P连接信息，使用callback异步回调。
+获取P2P连接信息。使用callback异步回调。
 
 **需要权限：** ohos.permission.GET_WIFI_INFO
 
@@ -2012,7 +2011,7 @@ getP2pLinkedInfo(callback: AsyncCallback&lt;WifiP2pLinkedInfo&gt;): void
 
 getCurrentGroup(): Promise&lt;WifiP2pGroupInfo&gt;
 
-获取P2P当前组信息，使用Promise异步回调。
+获取P2P当前组信息。使用Promise异步回调。
 
 **需要权限：**
 
@@ -2040,7 +2039,7 @@ API 10起：ohos.permission.GET_WIFI_INFO
 
 getCurrentGroup(callback: AsyncCallback&lt;WifiP2pGroupInfo&gt;): void
 
-获取P2P当前组信息，使用callback异步回调。
+获取P2P当前组信息。使用callback异步回调。
 
 **需要权限：**
 
@@ -2085,7 +2084,7 @@ API 10起：ohos.permission.GET_WIFI_INFO
 
 getP2pPeerDevices(): Promise&lt;WifiP2pDevice[]&gt;
 
-获取P2P对端设备列表信息，使用Promise异步回调。
+获取P2P对端设备列表信息。使用Promise异步回调。
 
 **需要权限：**
 
@@ -2113,7 +2112,7 @@ API 10起：ohos.permission.GET_WIFI_INFO
 
 getP2pPeerDevices(callback: AsyncCallback&lt;WifiP2pDevice[]&gt;): void
 
-获取P2P对端设备列表信息，使用callback异步回调。
+获取P2P对端设备列表信息。使用callback异步回调。
 
 **需要权限：**
 

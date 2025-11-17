@@ -497,7 +497,9 @@ enableAnalyzer(enable:&nbsp;boolean)
 
 > **说明：**
 >
-> 需要配置权限：ohos.permission.INTERNET。
+> - 需要配置权限：ohos.permission.INTERNET。
+>
+> - 从API version 12开始，该接口支持在[attributeModifier](ts-universal-attributes-attribute-modifier.md#attributemodifier)中调用。
 
 **原子化服务API：** 从API version 12开始，该接口支持在原子化服务中使用。
 
@@ -520,6 +522,10 @@ resizable(value: ResizableOptions)
 当设置 top +bottom 大于原图的高或者 left + right 大于原图的宽时 [ResizableOptions](#resizableoptions11) 属性设置不生效。
 
 当组件的参数类型为[AnimatedDrawableDescriptor](../js-apis-arkui-drawableDescriptor.md#animateddrawabledescriptor12)和SVG时设置该属性不生效。
+
+>**说明：**
+>
+> 从API version 20开始，该接口支持在[attributeModifier](ts-universal-attributes-attribute-modifier.md#attributemodifier)中调用。
 
 **原子化服务API：** 从API version 12开始，该接口支持在原子化服务中使用。
 
@@ -572,6 +578,8 @@ dynamicRangeMode(value: DynamicRangeMode)
 orientation(orientation: ImageRotateOrientation)
 
 设置图像内容的显示方向。
+
+**卡片能力：** 从API version 23开始，该接口支持在ArkTS卡片中使用。
 
 **原子化服务API：** 从API version 14开始，该接口支持在原子化服务中使用。
 
@@ -733,6 +741,8 @@ contentTransition(transition: ContentTransitionEffect)
 ## ImageRotateOrientation<sup>14+</sup>
 
 期望的图像内容显示方向。
+
+**卡片能力：** 从API version 23开始，该接口支持在ArkTS卡片中使用。
 
 **系统能力：** SystemCapability.ArkUI.ArkUI.Full
 
@@ -946,7 +956,7 @@ type ImageErrorCallback = (error: ImageError) => void
 
 ## BusinessError<sup>20+</sup>
 
-type BusinessError\<T> = BusinessError\<T>
+type BusinessError\<T = void> = BusinessError\<T>
 
 图片加载异常返回的错误信息。
 

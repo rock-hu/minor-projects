@@ -294,7 +294,7 @@ struct BindSheetDemo {
             .backgroundColor(0xf1f1f1)
             .borderRadius(8)
             .margin(10)
-            .padding(10)
+            .padding(15)
         })
       }
       .padding({ top: 18 })
@@ -325,7 +325,7 @@ struct BindSheetDemo {
           }
           .alignItems(HorizontalAlign.Start)
 
-          Blank();
+          Blank()
 
           Row()
             .width(12)
@@ -650,7 +650,7 @@ struct ModalTransitionWithIf {
                 }
                 .alignItems(HorizontalAlign.Start)
 
-                Blank();
+                Blank()
 
                 Row()
                   .width(12)

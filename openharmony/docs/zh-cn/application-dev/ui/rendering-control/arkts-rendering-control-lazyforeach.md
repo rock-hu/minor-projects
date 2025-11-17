@@ -67,12 +67,11 @@ LazyForEach为开发者提供了基于数据源渲染出一系列子组件的能
 
 ``` TypeScript
 import { hilog } from '@kit.PerformanceAnalysisKit';
+/** BasicDataSource代码见文档末尾BasicDataSource示例代码: String类型数组的BasicDataSource代码。**/
 import { BasicDataSource } from './BasicDataSource';
 const TAG = '[Sample_RenderingControl]';
 const DOMAIN = 0xF811;
 
-/** BasicDataSource代码见文档末尾BasicDataSource示例代码: StringData类型数组的BasicDataSource代码。
-其中BasicDataSource、StringData等名称需要开发者自行修改。**/
 class InitialDataSource extends BasicDataSource {
   private dataArray: string[] = [];
 
@@ -213,10 +212,9 @@ LazyForEach(this.data, (item: string) => {
 <!-- @[add_data](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/RenderingControl/entry/src/main/ets/pages/RenderingLazyForeach/AddingData.ets) -->
 
 ``` TypeScript
+/** BasicDataSource代码见文档末尾BasicDataSource示例代码: String类型数组的BasicDataSource代码。**/
 import { BasicDataSource } from './BasicDataSource';
 
-/** BasicDataSource代码见文档末尾BasicDataSource示例代码: StringData类型数组的BasicDataSource代码。
-其中BasicDataSource、StringData等名称需要开发者自行修改。**/
 class MyDataSource extends BasicDataSource {
   private dataArray: string[] = [];
 
@@ -281,12 +279,11 @@ struct AddingData {
 
 ``` TypeScript
 import { hilog } from '@kit.PerformanceAnalysisKit';
+/** BasicDataSource代码见文档末尾BasicDataSource示例代码: String类型数组的BasicDataSource代码。**/
 import { BasicDataSource } from './BasicDataSource';
 const TAG = '[Sample_RenderingControl]';
 const DOMAIN = 0xF811;
 
-/** BasicDataSource代码见文档末尾BasicDataSource示例代码: StringData类型数组的BasicDataSource代码。
-其中BasicDataSource、StringData等名称需要开发者自行修改。**/
 class DataDeletionSource extends BasicDataSource {
   private dataArray: string[] = [];
 
@@ -358,12 +355,11 @@ struct DataDeletion {
 
 ``` TypeScript
 import { hilog } from '@kit.PerformanceAnalysisKit';
+/** BasicDataSource代码见文档末尾BasicDataSource示例代码: String类型数组的BasicDataSource代码。**/
 import { BasicDataSource } from './BasicDataSource';
 const TAG = '[Sample_RenderingControl]';
 const DOMAIN = 0xF811;
 
-/** BasicDataSource代码见文档末尾BasicDataSource示例代码: StringData类型数组的BasicDataSource代码。
-其中BasicDataSource、StringData等名称需要开发者自行修改。**/
 class SwappingDataSource extends BasicDataSource {
   private dataArray: string[] = [];
 
@@ -442,12 +438,11 @@ struct SwappingData {
 
 ``` TypeScript
 import { hilog } from '@kit.PerformanceAnalysisKit';
+/** BasicDataSource代码见文档末尾BasicDataSource示例代码: String类型数组的BasicDataSource代码。**/
 import { BasicDataSource } from './BasicDataSource';
 const TAG = '[Sample_RenderingControl]';
 const DOMAIN = 0xF811;
 
-/** BasicDataSource代码见文档末尾BasicDataSource示例代码: StringData类型数组的BasicDataSource代码。
-其中BasicDataSource、StringData等名称需要开发者自行修改。**/
 class ModifyingDataSource extends BasicDataSource {
   private dataArray: string[] = [];
 
@@ -514,12 +509,11 @@ struct ModifyingIndividualDataItems {
 
 ``` TypeScript
 import { hilog } from '@kit.PerformanceAnalysisKit';
+/** BasicDataSource代码见文档末尾BasicDataSource示例代码: String类型数组的BasicDataSource代码。**/
 import { BasicDataSource } from './BasicDataSource';
 const TAG = '[Sample_RenderingControl]';
 const DOMAIN = 0xF811;
 
-/** BasicDataSource代码见文档末尾BasicDataSource示例代码: StringData类型数组的BasicDataSource代码。
-其中BasicDataSource、StringData等名称需要开发者自行修改。**/
 class ModifyingMultiSourceEleven extends BasicDataSource {
   private dataArray: string[] = [];
 
@@ -592,12 +586,11 @@ struct ModifyingMultipleDataItems {
 
 ``` TypeScript
 import { hilog } from '@kit.PerformanceAnalysisKit';
+/** BasicDataSource代码见文档末尾BasicDataSource示例代码: String类型数组的BasicDataSource代码。**/
 import { BasicDataSource } from './BasicDataSource';
 const TAG = '[Sample_RenderingControl]';
 const DOMAIN = 0xF811;
 
-/** BasicDataSource代码见文档末尾BasicDataSource示例代码: StringData类型数组的BasicDataSource代码。
-其中BasicDataSource、StringData等名称需要开发者自行修改。**/
 class PreciseModifyingDataSource extends BasicDataSource {
   private dataArray: string[] = [];
 
@@ -680,12 +673,11 @@ onDatasetChange接口允许开发者一次性通知LazyForEach进行数据添加
 
 ``` TypeScript
 import { hilog } from '@kit.PerformanceAnalysisKit';
+/** BasicDataSource代码见文档末尾BasicDataSource示例代码: String类型数组的BasicDataSource代码。**/
 import { BasicDataSource } from './BasicDataSource';
 const TAG = '[Sample_RenderingControl]';
 const DOMAIN = 0xF811;
 
-/** BasicDataSource代码见文档末尾BasicDataSource示例代码: StringData类型数组的BasicDataSource代码。
-其中BasicDataSource、StringData等名称需要开发者自行修改。**/
 class PreciselyModifyingSource extends BasicDataSource {
   private dataArray: string[] = [];
 
@@ -846,8 +838,6 @@ class SubBasicDataSource implements IDataSource {
   }
 }
 
-/** BasicDataSource代码见文档末尾BasicDataSource示例代码: StringData类型数组的BasicDataSource代码。
-其中BasicDataSource、StringData等名称需要开发者自行修改。**/
 class MySubDataSource extends SubBasicDataSource {
   private dataArray: SubStringData[] = [];
 
@@ -889,7 +879,7 @@ struct ChangingDataSubproperties {
     List({ space: 3 }) {
       LazyForEach(this.data, (item: SubStringData, index: number) => {
         ListItem() {
-          ChangingDataSubproperties_ChildComponent({ data: item })
+          ChangingDataSubpropertiesChildComponent({ data: item })
         }
         .onClick(() => {
           item.message += '0';
@@ -901,7 +891,7 @@ struct ChangingDataSubproperties {
 }
 
 @Component
-struct ChangingDataSubproperties_ChildComponent {
+struct ChangingDataSubpropertiesChildComponent {
   @ObjectLink data: SubStringData;
 
   build() {
@@ -914,7 +904,7 @@ struct ChangingDataSubproperties_ChildComponent {
 }
 ```
 
-点击`LazyForEach`子组件改变`item.message`时，重渲染依赖`ChildComponent`的`@ObjectLink`成员变量对子属性的监听。框架仅刷新`Text(this.data.message)`，不会重建整个`ListItem`子组件。
+点击`LazyForEach`子组件改变`item.message`时，重渲染依赖`ChangingDataSubpropertiesChildComponent`的`@ObjectLink`成员变量对子属性的监听。框架仅刷新`Text(this.data.message)`，不会重建整个`ListItem`子组件。
 
 **图11**  LazyForEach改变数据子属性  
 ![LazyForEach-Change-SubProperty](figures/LazyForEach-Change-SubProperty.gif)
@@ -925,7 +915,7 @@ struct ChangingDataSubproperties_ChildComponent {
 
 **嵌套类属性变化观测**
 
-<!-- @[observing_nested_class_properties](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/RenderingControl/entry/src/main/ets/pages/RenderingLazyForeach/ObservingNestedClassProperties.ets) -->
+<!-- @[observing_nested_class_properties](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/RenderingControl/entry/src/main/ets/pages/RenderingLazyForeach/ObservingNestedClassProperties.ets) -->    
 
 ``` TypeScript
 class ClassPropertiesDataSource implements IDataSource {
@@ -990,8 +980,6 @@ class ClassPropertiesDataSource implements IDataSource {
   }
 }
 
-/** BasicDataSource代码见文档末尾BasicDataSource示例代码: StringData类型数组的BasicDataSource代码。
-其中BasicDataSource、StringData等名称需要开发者自行修改。**/
 class PropertiesDataSource extends ClassPropertiesDataSource {
   private dataArray: ClassPropertiesStringData[] = [];
 
@@ -1073,7 +1061,7 @@ struct ObservingNestedClassProperties {
 
 **组件内部状态**
 
-<!-- @[observing_component_internal_state](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/RenderingControl/entry/src/main/ets/pages/RenderingLazyForeach/ObservingComponentInternalState.ets) -->
+<!-- @[observing_component_internal_state](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/RenderingControl/entry/src/main/ets/pages/RenderingLazyForeach/ObservingComponentInternalState.ets) -->    
 
 ``` TypeScript
 class StateBasicDataSource implements IDataSource {
@@ -1138,8 +1126,6 @@ class StateBasicDataSource implements IDataSource {
   }
 }
 
-/** BasicDataSource代码见文档末尾BasicDataSource示例代码: StringData类型数组的BasicDataSource代码。
-其中BasicDataSource、StringData等名称需要开发者自行修改。**/
 class MyStateDataSource extends StateBasicDataSource {
   private dataArray: StateStringData[] = [];
 
@@ -1212,11 +1198,11 @@ struct ObservingComponentChildComponent {
 }
 ```
 
-`@Local`使得自定义组件内被修饰的变量具有观测其变化的能力，该变量必须在组件内部进行初始化。示例中，点击`Text`组件修改`item.message`触发变量更新并刷新使用该变量的组件，`ChildComponent`中`@Local`装饰的变量`message`变化时也能刷新子组件。
+`@Local`使得自定义组件内被修饰的变量具有观测其变化的能力，该变量必须在组件内部进行初始化。示例中，点击`Text`组件修改`item.message`触发变量更新并刷新使用该变量的组件，`ObservingComponentChildComponent`中`@Local`装饰的变量`message`变化时也能刷新子组件。
 
 **组件外部输入**
 
-<!-- @[receiving_external_input](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/RenderingControl/entry/src/main/ets/pages/RenderingLazyForeach/ReceivingExternalInput.ets) -->
+<!-- @[receiving_external_input](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/RenderingControl/entry/src/main/ets/pages/RenderingLazyForeach/ReceivingExternalInput.ets) -->    
 
 ``` TypeScript
 class InputDataSource implements IDataSource {
@@ -1281,8 +1267,6 @@ class InputDataSource implements IDataSource {
   }
 }
 
-/** BasicDataSource代码见文档末尾BasicDataSource示例代码: StringData类型数组的BasicDataSource代码。
-其中BasicDataSource、StringData等名称需要开发者自行修改。**/
 class MyInputDataSource extends InputDataSource {
   private dataArray: InputStringData[] = [];
 
@@ -1347,7 +1331,7 @@ struct ReceivingExternalInputChildComponent {
 }
 ```
 
-使用`@Param`装饰器，子组件可以接受外部输入参数，实现父子组件间的数据同步。在`MyComponent`中创建子组件时，传递`item.message`，并用`@Param`修饰的变量`data`与其关联。点击`ListItem`中的组件修改`item.message`，数据变化会从父组件传递到子组件，触发子组件刷新。
+使用`@Param`装饰器，子组件可以接受外部输入参数，实现父子组件间的数据同步。在`ReceivingExternalInput`中创建子组件时，传递`item.message`，并用`@Param`修饰的变量`data`与其关联。点击`ListItem`中的组件修改`item.message`，数据变化会从父组件传递到子组件，触发子组件刷新。
 
 ### 拖拽排序
 当LazyForEach在List组件下使用，并且设置了[onMove](../../reference/apis-arkui/arkui-ts/ts-universal-attributes-drag-sorting.md#onmove)事件，可以使能拖拽排序。拖拽排序释放后，如果数据位置发生变化，将触发onMove事件，上报原始索引号和目标索引号。在onMove事件中，根据上报的索引号修改数据源。修改数据源时，无需调用DataChangeListener接口通知数据源变化。
@@ -1355,10 +1339,9 @@ struct ReceivingExternalInputChildComponent {
 <!-- @[drag_sorting](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/RenderingControl/entry/src/main/ets/pages/RenderingLazyForeach/DragandDropSorting.ets) -->
 
 ``` TypeScript
+/** BasicDataSource代码见文档末尾BasicDataSource示例代码: String类型数组的BasicDataSource代码。**/
 import { BasicDataSource } from './BasicDataSource';
 
-/** BasicDataSource代码见文档末尾BasicDataSource示例代码: StringData类型数组的BasicDataSource代码。
-其中BasicDataSource、StringData等名称需要开发者自行修改。**/
 class DragAndDropDataSource extends BasicDataSource {
   private dataArray: string[] = [];
 
@@ -1492,12 +1475,11 @@ struct MyComponent {
 
 ``` TypeScript
 import { hilog } from '@kit.PerformanceAnalysisKit';
+/** BasicDataSource代码见文档末尾BasicDataSource示例代码: String类型数组的BasicDataSource代码。**/
 import { BasicDataSource } from './BasicDataSource';
 const TAG = '[Sample_RenderingControl]';
 const DOMAIN = 0xF811;
 
-/** BasicDataSource代码见文档末尾BasicDataSource示例代码: StringData类型数组的BasicDataSource代码。
-其中BasicDataSource、StringData等名称需要开发者自行修改。**/
 class UnexpectedDataSource extends BasicDataSource {
   private dataArray: string[] = [];
 
@@ -1644,7 +1626,7 @@ struct MyComponent {
 
 修复代码如下。
 
-<!-- @[image_flickering_during_rerenders](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/RenderingControl/entry/src/main/ets/pages/RenderingLazyForeach/ImageFlickeringDuringRerenders.ets) -->
+<!-- @[image_flickering_during_rerenders](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/RenderingControl/entry/src/main/ets/pages/RenderingLazyForeach/ImageFlickeringDuringRerenders.ets) -->    
 
 ``` TypeScript
 import { hilog } from '@kit.PerformanceAnalysisKit';
@@ -1713,8 +1695,6 @@ class ImageFliceringDataSource implements IDataSource {
   }
 }
 
-/** BasicDataSource代码见文档末尾BasicDataSource示例代码: StringData类型数组的BasicDataSource代码。
-其中BasicDataSource、StringData等名称需要开发者自行修改。**/
 class FliceringDataSource extends ImageFliceringDataSource {
   private dataArray: ImageFliceringStringData[] = [];
 
@@ -1881,7 +1861,7 @@ struct ChildComponent {
 
 修复代码如下。
 
-<!-- @[ui_not_rerendered](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/RenderingControl/entry/src/main/ets/pages/RenderingLazyForeach/UINotRerenderedWhenObjectLinkIsChanged.ets) -->
+<!-- @[ui_not_rerendered](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/RenderingControl/entry/src/main/ets/pages/RenderingLazyForeach/UINotRerenderedWhenObjectLinkIsChanged.ets) -->    
 
 ``` TypeScript
 class UINoteRenderingDataSource implements IDataSource {
@@ -1946,8 +1926,6 @@ class UINoteRenderingDataSource implements IDataSource {
   }
 }
 
-/** BasicDataSource代码见文档末尾BasicDataSource示例代码: StringData类型数组的BasicDataSource代码。
-其中BasicDataSource、StringData等名称需要开发者自行修改。**/
 class UINoteRenderingSource extends UINoteRenderingDataSource {
   private dataArray: UINoteRenderingStringData[] = [];
 
@@ -2105,12 +2083,11 @@ struct MyComponent {
 
 ``` TypeScript
 import { hilog } from '@kit.PerformanceAnalysisKit';
+/** BasicDataSource代码见文档末尾BasicDataSource示例代码: String类型数组的BasicDataSource代码。**/
 import { BasicDataSource } from './BasicDataSource';
 const TAG = '[Sample_RenderingControl]';
 const DOMAIN = 0xF811;
 
-/** BasicDataSource代码见文档末尾BasicDataSource示例代码: StringData类型数组的BasicDataSource代码。
-其中BasicDataSource、StringData等名称需要开发者自行修改。**/
 class ScreenFliceringDataSource extends BasicDataSource {
   private dataArray: string[] = [];
 
@@ -2424,11 +2401,11 @@ LazyForEach(this.data, (item: string, index: number) => {
 
 ### string类型数组的BasicDataSource代码
 
-<!-- @[basic_data_source_string](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/RenderingControl/entry/src/main/ets/pages/RenderingLazyForeach/AddingData.ets) -->
+<!-- @[basic_data_source_string](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/RenderingControl/entry/src/main/ets/pages/RenderingLazyForeach/BasicDataSource.ets) -->    
 
 ``` TypeScript
 // BasicDataSource实现了IDataSource接口，用于管理listener监听，以及通知LazyForEach数据更新
-class BasicDataSource1 implements IDataSource {
+export class BasicDataSource implements IDataSource {
   private listeners: DataChangeListener[] = [];
   private originDataArray: string[] = [];
 
@@ -2503,7 +2480,7 @@ class BasicDataSource1 implements IDataSource {
 }
 ```
 
-### StringData类型数组的BasicDataSource代码
+### StringData类型数组的SubBasicDataSource代码
 
 <!-- @[basic_data_source](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/RenderingControl/entry/src/main/ets/pages/RenderingLazyForeach/ChangingDataSubproperties.ets) -->
 

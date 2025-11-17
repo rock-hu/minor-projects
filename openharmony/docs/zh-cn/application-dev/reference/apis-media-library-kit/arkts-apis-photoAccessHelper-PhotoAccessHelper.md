@@ -40,7 +40,7 @@ getAssets(options: FetchOptions, callback: AsyncCallback&lt;FetchResult&lt;Photo
 
 接口抛出错误码的详细介绍请参见[通用错误码](../errorcode-universal.md)和[文件管理错误码](../apis-core-file-kit/errorcode-filemanagement.md)。
 
-在API 13及之前的版本，无相关权限返回错误码13900012；从API 14开始，无相关权限返回错误码201。
+在API version 13及之前的版本，无相关权限返回错误码13900012；从API version 14开始，无相关权限返回错误码201。
 
 | 错误码ID | 错误信息 |
 | -------- | ---------------------------------------- |
@@ -108,7 +108,7 @@ getAssets(options: FetchOptions): Promise&lt;FetchResult&lt;PhotoAsset&gt;&gt;
 
 接口抛出错误码的详细介绍请参见[通用错误码](../errorcode-universal.md)和[文件管理错误码](../apis-core-file-kit/errorcode-filemanagement.md)。
 
-在API 13及之前的版本，无相关权限返回错误码13900012；从API 14开始，无相关权限返回错误码201。
+在API version 13及之前的版本，无相关权限返回错误码13900012；从API version 14开始，无相关权限返回错误码201。
 
 | 错误码ID | 错误信息 |
 | -------- | ---------------------------------------- |
@@ -238,7 +238,7 @@ createAsset(photoType: PhotoType, extension: string, options: CreateOptions, cal
 
 接口抛出错误码的详细介绍请参见[通用错误码](../errorcode-universal.md)和[文件管理错误码](../apis-core-file-kit/errorcode-filemanagement.md)。
 
-在API 13及之前的版本，无相关权限返回错误码13900012；从API 14开始，无相关权限返回错误码201。
+在API version 13及之前的版本，无相关权限返回错误码13900012；从API version 14开始，无相关权限返回错误码201。
 
 | 错误码ID | 错误信息 |
 | -------- | ---------------------------------------- |
@@ -296,7 +296,7 @@ createAsset(photoType: PhotoType, extension: string, callback: AsyncCallback&lt;
 
 接口抛出错误码的详细介绍请参见[通用错误码](../errorcode-universal.md)和[文件管理错误码](../apis-core-file-kit/errorcode-filemanagement.md)。
 
-在API 13及之前的版本，无相关权限返回错误码13900012；从API 14开始，无相关权限返回错误码201。
+在API version 13及之前的版本，无相关权限返回错误码13900012；从API version 14开始，无相关权限返回错误码201。
 
 | 错误码ID | 错误信息 |
 | -------- | ---------------------------------------- |
@@ -357,7 +357,7 @@ createAsset(photoType: PhotoType, extension: string, options?: CreateOptions): P
 
 接口抛出错误码的详细介绍请参见[通用错误码](../errorcode-universal.md)和[文件管理错误码](../apis-core-file-kit/errorcode-filemanagement.md)。
 
-在API 13及之前的版本，无相关权限返回错误码13900012；从API 14开始，无相关权限返回错误码201。
+在API version 13及之前的版本，无相关权限返回错误码13900012；从API version 14开始，无相关权限返回错误码201。
 
 | 错误码ID | 错误信息 |
 | -------- | ---------------------------------------- |
@@ -413,7 +413,7 @@ getAlbums(type: AlbumType, subtype: AlbumSubtype, options: FetchOptions, callbac
 
 接口抛出错误码的详细介绍请参见[通用错误码](../errorcode-universal.md)和[文件管理错误码](../apis-core-file-kit/errorcode-filemanagement.md)。
 
-在API 13及之前的版本，无相关权限返回错误码13900012；从API 14开始，无相关权限返回错误码201。
+在API version 13及之前的版本，无相关权限返回错误码13900012；从API version 14开始，无相关权限返回错误码201。
 
 | 错误码ID | 错误信息 |
 | -------- | ---------------------------------------- |
@@ -478,7 +478,7 @@ getAlbums(type: AlbumType, subtype: AlbumSubtype, callback: AsyncCallback&lt;Fet
 
 接口抛出错误码的详细介绍请参见[通用错误码](../errorcode-universal.md)和[文件管理错误码](../apis-core-file-kit/errorcode-filemanagement.md)。
 
-在API 13及之前的版本，无相关权限返回错误码13900012；从API 14开始，无相关权限返回错误码201。
+在API version 13及之前的版本，无相关权限返回错误码13900012；从API version 14开始，无相关权限返回错误码201。
 
 | 错误码ID | 错误信息 |
 | -------- | ---------------------------------------- |
@@ -848,7 +848,7 @@ showAssetsCreationDialog(srcFileUris: Array&lt;string&gt;, photoCreationConfigs:
 | 参数名   | 类型                                                                   | 必填 | 说明                      |
 | -------- |----------------------------------------------------------------------| ---- | ------------------------- |
 | srcFileUris | Array&lt;string&gt; | 是 | 需保存到媒体库中的图片/视频文件对应的[媒体库uri](../../file-management/user-file-uri-intro.md#媒体文件uri)。<br>**注意：**<br>- 一次弹窗最多保存100张图片。<br>- 仅支持处理图片、视频uri。<br>- 不支持手动拼接的uri，需调用接口获取，获取方式参考[媒体文件uri获取方式](../../file-management/user-file-uri-intro.md#媒体文件uri获取方式)。  |
-| photoCreationConfigs | Array&lt;[PhotoCreationConfig](arkts-apis-photoAccessHelper-i.md#photocreationconfig12)&gt; | 是 | 保存图片或视频到媒体库的配置，包括文件名等，与srcFileUris保持一一对应。 |
+| photoCreationConfigs | Array&lt;[PhotoCreationConfig](arkts-apis-photoAccessHelper-i.md#photocreationconfig12)&gt; | 是 | 保存图片或视频到媒体库的配置，包括文件名等，与srcFileUris保持一一对应。<br>**注意：** 传入'subtype'选项，配置项不生效，仅支持保存DEFAULT类型图片。 |
 
 **返回值：**
 
@@ -911,7 +911,7 @@ createAssetWithShortTermPermission(photoCreationConfig: PhotoCreationConfig): Pr
 
 | 参数名   | 类型                                                                   | 必填 | 说明                      |
 | -------- |----------------------------------------------------------------------| ---- | ------------------------- |
-| photoCreationConfig | [PhotoCreationConfig](arkts-apis-photoAccessHelper-i.md#photocreationconfig12); | 是 | 保存图片/视频到媒体库的配置，包括保存的文件名等。 |
+| photoCreationConfig | [PhotoCreationConfig](arkts-apis-photoAccessHelper-i.md#photocreationconfig12); | 是 | 保存图片/视频到媒体库的配置，包括保存的文件名等。<br>**注意：** 传入'subtype'选项，配置项不生效，仅支持保存DEFAULT类型图片。 |
 
 **返回值：**
 

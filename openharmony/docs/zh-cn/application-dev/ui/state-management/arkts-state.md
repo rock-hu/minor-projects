@@ -586,6 +586,8 @@ struct PlayDetailPage {
 <!-- @[state_problem_this_unable_observe_opposite](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/ParadigmStateManagement/entry/src/main/ets/pages/state/StateProblemThisUnableObserveOpposite.ets) -->
 
 ``` TypeScript
+import { hilog } from '@kit.PerformanceAnalysisKit';
+
 @Entry
 @Component
 struct Index {
@@ -612,7 +614,7 @@ export class TestModel {
   constructor() {
     this.model = new Model(() => {
       this.isSuccess = true;
-      hilog.info(DOMAIN, 'testTag', '%{public}s', `this.isSuccess: ${this.isSuccess}`);
+      hilog.info(0xFF00, 'testTag', '%{public}s', `this.isSuccess: ${this.isSuccess}`);
     })
   }
 
@@ -813,6 +815,8 @@ struct Test {
 <!-- @[state_problem_complex_constant_repeat_refresh](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/ParadigmStateManagement/entry/src/main/ets/pages/state/StateProblemComplexConstantRepeatRefresh.ets) -->
 
 ``` TypeScript
+import { hilog } from '@kit.PerformanceAnalysisKit';
+
 class DataObj {
   public name: string = 'default name';
 
@@ -842,11 +846,11 @@ struct ConsumerChild {
   @Link @Watch('onDataObjChange') dataObj: DataObj;
 
   onDataObjChange() {
-    hilog.info(DOMAIN, 'testTag', '%{public}s', 'dataObj changed');
+    hilog.info(0xFF00, 'testTag', '%{public}s', 'dataObj changed');
   }
 
   getContent() {
-    hilog.info(DOMAIN, 'testTag', '%{public}s', `this.dataObj.name change: ${this.dataObj.name}`);
+    hilog.info(0xFF00, 'testTag', '%{public}s', `this.dataObj.name change: ${this.dataObj.name}`);
     return this.dataObj.name;
   }
 
@@ -865,6 +869,8 @@ struct ConsumerChild {
 <!-- @[state_problem_complex_solution_01](https://gitcode.com/openharmony/applications_app_samples/blob/master/code/DocsSample/ArkUISample/ParadigmStateManagement/entry/src/main/ets/pages/state/StateProblemComplexSolution01.ets) -->
 
 ``` TypeScript
+import { hilog } from '@kit.PerformanceAnalysisKit';
+
 @Observed
 class DataObj {
   public name: string = 'default name';
@@ -895,7 +901,7 @@ struct ConsumerChild {
   @Link @Watch('onDataObjChange') dataObj: DataObj;
 
   onDataObjChange() {
-    hilog.info(DOMAIN, 'testTag', '%{public}s', 'dataObj changed');
+    hilog.info(0xFF00, 'testTag', '%{public}s', 'dataObj changed');
   }
 
   build() {
@@ -914,8 +920,6 @@ struct ConsumerChild {
 ``` TypeScript
 import { UIUtils } from '@ohos.arkui.StateManagement';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-
-const DOMAIN = 0x0000;
 
 class DataObj {
   public name: string = 'default name';
@@ -949,7 +953,7 @@ struct ConsumerChild {
   @Link @Watch('onDataObjChange') dataObj: DataObj;
 
   onDataObjChange() {
-    hilog.info(DOMAIN, 'testTag', '%{public}s', 'dataObj changed');
+    hilog.info(0xFF00, 'testTag', '%{public}s', 'dataObj changed');
   }
 
   build() {
@@ -964,7 +968,7 @@ struct ConsumerChild {
 
 ### 不允许在build里改状态变量
 
-不允许在build里改变状态变量，状态管理框架会在运行时报出Error级别日志。
+不允许在build里改变状态变量，状态管理框架会在运行时报出Error级别日志。通过事件回调或异步回调更新状态变量，例如在onClick中修改\@State，是允许的。
 
 下面的示例，渲染的流程是：
 

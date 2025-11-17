@@ -19,7 +19,7 @@ CodecBase模块提供用于音视频封装、解封装、编解码基础功能�
 
 | 名称 | 描述 |
 | -- | -- |
-| [avcodec_audio_channel_layout.h](capi-avcodec-audio-channel-layout-h.md) | 音频编解码枚举的声明。 |
+| [avcodec_audio_channel_layout.h](capi-avcodec-audio-channel-layout-h.md) | 音频编解码声道布局枚举的声明。 |
 | [native_avcodec_base.h](capi-native-avcodec-base-h.md) | 声明用于音视频封装、解封装、编解码基础功能的Native API。 |
 
 ## 媒体编解码格式
@@ -41,12 +41,13 @@ CodecBase模块提供用于音视频封装、解封装、编解码基础功能�
 | OH_AVCODEC_MIMETYPE_AUDIO_AMR_WB | AMR_WB音频解码器的MIME类型。                           |
 | OH_AVCODEC_MIMETYPE_AUDIO_APE | APE音频解码器的MIME类型。                         |
 | OH_AVCODEC_MIMETYPE_AUDIO_ALAC | ALAC（Apple Lossless Audio Codec）音频解码器的MIME类型。 |
-| OH_AVCODEC_MIMETYPE_AUDIO_AC3 | AC3音频解码器的MIME类型。                         |
-| OH_AVCODEC_MIMETYPE_AUDIO_WMAV1 | WMA（Windows Media Audio）V1音频解码器的MIME类型。|
-| OH_AVCODEC_MIMETYPE_AUDIO_WMAV2 | WMA（Windows Media Audio）V2音频解码器的MIME类型。|
-| OH_AVCODEC_MIMETYPE_AUDIO_WMAPRO | WMA（Windows Media Audio）Pro音频解码器的MIME类型。|
-| OH_AVCODEC_MIMETYPE_AUDIO_GSM | GSM音频解码器的MIME类型。                         |
-| OH_AVCODEC_MIMETYPE_AUDIO_GSM_MS | GSM MS音频解码器的MIME类型。                |
+| OH_AVCODEC_MIMETYPE_AUDIO_AC3 | AC3（Dolby Audio Coding 3）音频解码器的MIME类型。 |
+| OH_AVCODEC_MIMETYPE_AUDIO_EAC3 | EAC3（Enhanced AC-3）音频解码器的MIME类型。 |
+| OH_AVCODEC_MIMETYPE_AUDIO_WMAV1 | WMA（Windows Media Audio）V1音频解码器的MIME类型。 |
+| OH_AVCODEC_MIMETYPE_AUDIO_WMAV2 | WMA（Windows Media Audio）V2音频解码器的MIME类型。 |
+| OH_AVCODEC_MIMETYPE_AUDIO_WMAPRO | WMA（Windows Media Audio）Pro音频解码器的MIME类型。 |
+| OH_AVCODEC_MIMETYPE_AUDIO_GSM | GSM（Global System for Mobile Communications）音频解码器的MIME类型。 |
+| OH_AVCODEC_MIMETYPE_AUDIO_GSM_MS | GSM MS（Microsoft variant）音频解码器的MIME类型。 |
 | OH_AVCODEC_MIMETYPE_VIDEO_VVC | VVC(H.266)视频编解码器的MIME类型。                    |
 | OH_AVCODEC_MIMETYPE_VIDEO_HEVC | HEVC(H.265)视频编解码器的MIME类型。                    |
 | OH_AVCODEC_MIMETYPE_VIDEO_AVC | AVC(H.264)视频编解码器的MIME类型。                     |
@@ -143,7 +144,7 @@ CodecBase模块提供用于音视频封装、解封装、编解码基础功能�
 | OH_MD_KEY_AUD_SAMPLE_RATE      | 音频采样率键，值类型为int32_t。                             |
 | OH_MD_KEY_AUDIO_COMPRESSION_LEVEL | 音频编解码压缩水平的键，只在音频编码使用，值类型为int32_t。该键是可选的。     |
 | OH_MD_KEY_CHANNEL_LAYOUT        | 所需编码通道布局的键。值类型为int64_t，此键仅适用于编码器。请参见[OH_AudioChannelLayout](capi-native-audio-channel-layout-h.md#oh_audiochannellayout)。  |
-| OH_MD_KEY_BITS_PER_CODED_SAMPLE | 每个编码样本位数的键，值类型为int32_t。该键是可选的。<br>API 20前，FLAC编码必须设置此参数，设置为1即可；未设置此参数配置FLAC编码器时，调用OH_AudioCodec_Configure会返回错误码AV_ERR_INVALID_VAL。该值无实际作用，不会影响编码结果。从API 20开始，无需设置此参数。|
+| OH_MD_KEY_BITS_PER_CODED_SAMPLE | 每个编码样本位数的键，值类型为int32_t。该键是可选的。<br>API version 20前，FLAC编码必须设置此参数，设置为1即可；未设置此参数配置FLAC编码器时，调用OH_AudioCodec_Configure会返回错误码AV_ERR_INVALID_VAL。该值无实际作用，不会影响编码结果。从API version 20开始，无需设置此参数。|
 | OH_MD_KEY_SBR                              | aac sbr模式的键，值类型为int32_t，aac编码器支持。该键是可选的。 |
 | OH_MD_KEY_COMPLIANCE_LEVEL    | flac兼容性等级的键，值类型为int32_t，仅在音频编码使用。该键是可选的。          |
 | OH_MD_KEY_AAC_IS_ADTS              | aac格式的键，aac格式分为ADTS格式和LATM格式。值类型为int32_t，aac解码器支持。该键是可选的。  |

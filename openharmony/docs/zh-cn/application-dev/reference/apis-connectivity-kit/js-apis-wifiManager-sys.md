@@ -590,9 +590,53 @@ import { wifiManager } from '@kit.ConnectivityKit';
 
 try {
 	let netId = 0;
-	wifiManager.disableNetwork(netId);		
+	wifiManager.disableNetwork(netId);	
 } catch (error) {
-	console.error("failed:" + JSON.stringify(error));
+	console.error(`failed: ${JSON.stringify(error)}`);
+}
+```
+
+## wifiManager.disableNetwork<sup>23+</sup>
+
+disableNetwork(netId: int, blockDuration: int): void
+
+禁用网络连接，将已连接的网络断开，且在设置的时间范围内无法自动回连。
+
+**系统接口：** 此接口为系统接口。
+
+**需要权限：** ohos.permission.SET_WIFI_INFO 和 ohos.permission.MANAGE_WIFI_CONNECTION，仅系统应用可用。
+
+**系统能力：** SystemCapability.Communication.WiFi.STA
+
+**参数：**
+
+  | **参数名** | **类型** | **必填** | **说明** |
+  | -------- | -------- | -------- | -------- |
+  | netId | int | 是 | 网络配置ID。 |
+  | blockDuration | int | 是 | 禁用网络时长，单位：秒。 |
+
+**错误码：**
+
+以下错误码的详细介绍请参见[WIFI错误码](errorcode-wifi.md)和[通用错误码](../errorcode-universal.md)。
+
+| **错误码ID** | **错误信息** |
+| -------- | -------- |
+| 201 | Permission denied.                 |
+| 202 | System API is not allowed called by Non-system application. |
+| 801 | Capability not supported.          |
+| 2501000  | Operation failed.|
+| 2501001  | Wi-Fi STA disabled. |
+
+**示例：**
+```ts
+import { wifiManager } from '@kit.ConnectivityKit';
+
+try {
+	let netId = 0;
+	let blockDuration = 300;
+	wifiManager.disableNetwork(netId, blockDuration);	
+} catch (error) {
+	console.error(`failed: ${JSON.stringify(error)}`);
 }
 ```
 
@@ -961,7 +1005,7 @@ try {
 
 isOpenSoftApAllowed(): boolean
 
-热点是否支持双频。
+检查在某些情况下是否能够操作Wi-Fi热点。当飞行模式开启时，如果系统不支持SoftAP和STA共存，也不支持信号桥接，则无法操作热点开关。
 
 **系统接口：** 此接口为系统接口。
 
@@ -1543,17 +1587,17 @@ off(type: 'streamChange', callback?: Callback&lt;number&gt;): void
 
 **示例：**
 ```ts
-import { wifi } from '@kit.ConnectivityKit';
+import { wifiManager } from '@kit.ConnectivityKit';
 
 let recvStreamChangeFunc = (result:number) => {
     console.info("Receive stream change event: " + result);
 }
 
 // Register event
-wifi.on("streamChange", recvStreamChangeFunc);
+wifiManager.on("streamChange", recvStreamChangeFunc);
 
 // Unregister event
-wifi.off("streamChange", recvStreamChangeFunc);
+wifiManager.off("streamChange", recvStreamChangeFunc);
 
 ```
 
