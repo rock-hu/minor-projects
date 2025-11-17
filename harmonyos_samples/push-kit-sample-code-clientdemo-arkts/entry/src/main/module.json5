@@ -3,7 +3,7 @@
     "name": "entry",
     "type": "entry",
     "description": "$string:entry_desc",
-    "mainElement": "EntryAbility",
+    "mainElement": "MainAbility",
     "deviceTypes": [
       "phone",
       "tablet",
@@ -28,7 +28,8 @@
               "entity.system.home"
             ],
             "actions": [
-              "action.system.home",
+              // "action.system.home"为API19以下版本配置，已废弃
+              "ohos.want.action.home",
               "action.ohos.push.listener"
             ]
           }
