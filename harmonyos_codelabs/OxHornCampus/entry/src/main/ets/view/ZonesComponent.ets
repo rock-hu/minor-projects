@@ -13,13 +13,11 @@
  * limitations under the License.
  */
 
-import { router } from '@kit.ArkUI';
 import ZonesItem from '../viewmodel/ZonesItem';
 import { CommonConstants as Const } from '../common/constants/CommonConstants';
 import { ZonesConstants as ZoneConst } from '../common/constants/ZonesConstants';
 import ZonesViewModel from '../viewmodel/ZonesViewModel';
 
-@Entry
 @Component
 export struct Zones {
   changedIndex: boolean = true;

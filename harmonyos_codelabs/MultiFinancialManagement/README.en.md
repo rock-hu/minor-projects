@@ -1,6 +1,6 @@
 # Bank Wealth Management
 
-### Introduction
+## Introduction
 
 This codelab implements a bank wealth management app based on the adaptive layout and responsive layout, achieving one-time development for multi-device deployment.
 
@@ -16,11 +16,11 @@ The figure shows the effect on the tablet:
 
 <img src='./screenshots/device/pad.en.png' width='800'>
 
-### Permissions
+## Permissions
 
 N/A
 
-### How to Use
+## How to Use
 
 1. Install and open an app on a mobile phone, foldable phone, or tablet. The responsive layout and adaptive layout are used to display different effects on the app pages over different devices.
 2. Tap the image under featured fortune to go to the product details page.
@@ -28,9 +28,9 @@ N/A
 4. Tap Compare button at the bottom of the fund details page to go to the fund comparison page.
 5. Select a fund and tap Start Comparison on the fund details page to go to the fund comparison page.
 
-### Constraints
+## Constraints
 
-1. The sample app is supported only on Huawei phones running the standard system.
+1. The sample app is supported only on Huawei phones, tablets, PC/2in1 running the standard system.
 2. HarmonyOS: HarmonyOS 5.0.5 Release or later
-3. DevEco Studio: DevEco Studio 5.0.5 Release or later
-4. HarmonyOS SDK: HarmonyOS 5.0.5 Release SDK or later
+3. DevEco Studio: DevEco Studio 6.0.0 Release or later
+4. HarmonyOS SDK: HarmonyOS 6.0.0 Release SDK or later

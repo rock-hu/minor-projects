@@ -28,7 +28,7 @@ The figure shows the effect on the wearable.
 │  ├──constantsCommon/src/main/ets            // Public Constants
 │  │  └──constants
 │  └──mediaCommon/src/main/ets                // Public media approach
-│     └──utils
+│     ├──utils
 │     └──viewmodel
 ├──features                                   // Basic Feature Layer
 │  ├──live/src/main/ets                       // Live Stream Page
@@ -49,7 +49,7 @@ The figure shows the effect on the wearable.
 │  │  └──viewmodel
 │  └──musicList/src/main/resources            // Resource file directory
 └──products                                   // Product Customization Layer
-   ├──phone/src/main/ets                      // Supports smartphones, foldable screens, tablets, and PCs/2in1 devices
+   ├──phone/src/main/ets                      // Supports Huawei phones, tablets
    │  ├──common
    │  ├──entryability
    │  ├──pages
@@ -81,5 +81,5 @@ N/A
 
 1. The sample is only supported on Huawei phones, tablets and smart wearables with standard systems.
 2. HarmonyOS: HarmonyOS 5.1.0 Release or later.
-3. DevEco Studio: DevEco Studio 5.1.0 Release or later.
-4. HarmonyOS SDK: HarmonyOS 5.1.0 Release SDK or later.
+3. DevEco Studio: DevEco Studio 6.0.0 Release or later.
+4. HarmonyOS SDK: HarmonyOS 6.0.0 Release SDK or later.

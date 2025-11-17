@@ -14,7 +14,7 @@ The figure shows the effect on the foldable phone:
 
 The figure shows the effect on the tablet:
 
-![](screenshots/device/pad.en.png)
+![](screenshots/device/tablet.en.png)
 
 ## Concepts
 
@@ -40,7 +40,7 @@ N/A.
 
 ## Constraints
 
-1. The sample app is supported only on Huawei phones running the standard system.
+1. The sample app is supported only on Huawei phones, tablets, PC/2in1 running the standard system.
 2. HarmonyOS: HarmonyOS 5.0.5 Release or later
-3. DevEco Studio: DevEco Studio 5.0.5 Release or later
-4. HarmonyOS SDK: HarmonyOS 5.0.5 Release SDK or later
+3. DevEco Studio: DevEco Studio 6.0.0 Release or later
+4. HarmonyOS SDK: HarmonyOS 6.0.0 Release SDK or later

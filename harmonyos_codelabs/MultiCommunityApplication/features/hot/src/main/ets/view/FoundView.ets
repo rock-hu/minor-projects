@@ -141,7 +141,6 @@ export struct FoundView {
               .borderRadius(this.currentBreakpoint === 'lg' ? '8vp' : '0vp')
               .backgroundColor('#FFFFFF')
               .margin(this.currentBreakpoint === 'lg' ? '6vp' : '0vp')
-
               // [EndExclude foundView]
             }
           }, (item: CardItem, index: number) => index + JSON.stringify(item))

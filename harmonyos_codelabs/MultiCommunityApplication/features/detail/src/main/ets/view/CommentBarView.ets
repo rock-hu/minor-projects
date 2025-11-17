@@ -35,7 +35,7 @@ export struct CommentBarView {
       Row() {
         if (!this.isMouseClick) {
           Row() {
-            Text('写评论')
+            Text('comments')
             // [StartExclude comment_bar_view]
               .fontSize($r('app.float.comment_context_fs'))
               .fontWeight(FontWeight.Normal)
@@ -86,7 +86,7 @@ export struct CommentBarView {
           // [EndExclude comment_bar_view]
         } else {
           Row() {
-            TextArea({ placeholder: '写评论', text: this.content })
+            TextArea({ placeholder: 'comments', text: this.content })
             // [StartExclude comment_bar_view]
               .fontColor(this.isDarkMode ? $r('app.color.font_color_dark') : $r('app.color.font_color_normal'))
               .backgroundColor(this.isDarkMode ? $r('app.color.comment_context_bgc_dark') :

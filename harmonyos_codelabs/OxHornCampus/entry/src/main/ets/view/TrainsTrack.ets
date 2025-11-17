@@ -25,7 +25,7 @@ export default struct TrainsTrack {
   private context1: CanvasRenderingContext2D = new CanvasRenderingContext2D(this.settings1);
   private imgTrain: ImageBitmap = new ImageBitmap(Const.TRAIN_URL);
   private imgCircle: ImageBitmap = new ImageBitmap(Const.CIRCLE_URL);
-  private trainLine: number = 0;
+  trainLine: number = 0;
   @State canvasWidth: number = 0;
   @State canvasHeight: number = 0;
   @State trainX: number = 0;

@@ -16,7 +16,6 @@
 平板效果图如下：
 
 ![](screenshots/device/tablet.png)
-![](screenshots/device/tablet.png)
 
 智能穿戴效果图如下：
 
@@ -28,7 +27,7 @@
 │  ├──constantsCommon/src/main/ets            // 公共常量
 │  │  └──constants
 │  └──mediaCommon/src/main/ets                // 公共媒体方法
-│     └──utils
+│     ├──utils
 │     └──viewmodel
 ├──features                                   // 基础特性层
 │  ├──live/src/main/ets                       // 直播页
@@ -49,7 +48,7 @@
 │  │  └──viewmodel
 │  └──musicList/src/main/resources            // 资源文件目录
 └──products                                   // 产品定制层
-   ├──phone/src/main/ets                      // 支持手机、折叠屏、平板、PC/2in1
+   ├──phone/src/main/ets                      // 支持华为手机、平板
    │  ├──common
    │  ├──entryability
    │  ├──pages
@@ -87,5 +86,5 @@
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机、平板、智能穿戴。
 2. HarmonyOS系统：HarmonyOS 5.1.0 Release及以上。
-3. DevEco Studio版本：DevEco Studio 5.1.0 Release及以上。
-4. HarmonyOS SDK版本：HarmonyOS 5.1.0 Release SDK及以上。
+3. DevEco Studio版本：DevEco Studio 6.0.0 Release及以上。
+4. HarmonyOS SDK版本：HarmonyOS 6.0.0 Release SDK及以上。
