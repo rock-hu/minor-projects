@@ -7,6 +7,9 @@ This sample shows how to use **PerformanceTiming()** to obtain detailed timing i
 ### Preview
 ![](./screenshots/device/network_EN.png)
 
+### Instructions for Use
+Open the Index page, fill in the HTTP or HTTPS test address in the input box, click on the request, and view the network performance time consumption data for each stage in the table.
+
 ### Project Directory
 
 ```

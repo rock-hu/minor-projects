@@ -37,7 +37,7 @@ export default class EntryAbility extends UIAbility {
     try {
       let windowClass: window.Window = windowStage.getMainWindowSync();
       windowStage.getMainWindowSync().setWindowLayoutFullScreen(true).catch((error: BusinessError) => {
-        Logger.error(TAG, `setWindowLayoutFullScreen err, errCode: ${error.code}, error mesage: ${error.message}`);
+        Logger.error(TAG, `setWindowLayoutFullScreen err, errCode: ${error.code}, error message: ${error.message}`);
       });
       let naviBarArea: window.AvoidArea = windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
       let area: window.AvoidArea = windowClass.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
@@ -47,7 +47,7 @@ export default class EntryAbility extends UIAbility {
         statusBarContentColor: '#ffffff'
       };
       mainWindow.setWindowSystemBarProperties(SystemBarProperties).catch((error: BusinessError) => {
-        Logger.error(TAG, `setWindowSystemBarProperties err, errCode: ${error.code}, error mesage: ${error.message}`);
+        Logger.error(TAG, `setWindowSystemBarProperties err, errCode: ${error.code}, error message: ${error.message}`);
       });
 
       windowStage.loadContent('pages/VideoDetail', (err) => {
@@ -75,7 +75,7 @@ export default class EntryAbility extends UIAbility {
       });
     } catch (err) {
       let error = err as BusinessError;
-      Logger.error(TAG, `onWindowStageCreate err, errCode: ${error.code}, error mesage: ${error.message}`);
+      Logger.error(TAG, `onWindowStageCreate err, errCode: ${error.code}, error message: ${error.message}`);
     }
   }
 

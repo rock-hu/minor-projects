@@ -73,7 +73,7 @@ export struct VideoPlayView {
             }
             this.windowClass.setSpecificSystemBarEnabled('navigationIndicator', false).catch((error: BusinessError) => {
               Logger.error(TAG,
-                `setSpecificSystemBarEnabled err, error code: ${error.code}, error mesage: ${error.message}`);
+                `setSpecificSystemBarEnabled err, error code: ${error.code}, error message: ${error.message}`);
             })
             // hide bottom navigation bar
             // [EndExclude window_size_change]
@@ -82,7 +82,7 @@ export struct VideoPlayView {
             this.xComponentHeight = viewWidth * this.aspect
             this.xComponentWidth = viewWidth
             this.windowClass.setSpecificSystemBarEnabled('navigationIndicator', true).catch((error: BusinessError) => {
-              Logger.error(TAG, `setSpecificSystemBarEnabled err, error code: ${error.code}, error mesage: ${error.message}`);
+              Logger.error(TAG, `setSpecificSystemBarEnabled err, error code: ${error.code}, error message: ${error.message}`);
             })
             // show bottom navigation bar
             this.isLandscape = false
@@ -111,7 +111,7 @@ export struct VideoPlayView {
       // [EndExclude about_to_appear]
     } catch (err) {
       let error = err as BusinessError;
-      Logger.error(TAG, `aboutToAppear err, error code: ${error.code}, error mesage: ${error.message}`);
+      Logger.error(TAG, `aboutToAppear err, error code: ${error.code}, error message: ${error.message}`);
     }
   }
 
@@ -125,7 +125,7 @@ export struct VideoPlayView {
         display.getFoldStatus() === display.FoldStatus.FOLD_STATUS_HALF_FOLDED
     } catch (err) {
       let error = err as BusinessError;
-      Logger.error(TAG, `isExpandedOrHalfFolded err, error code: ${error.code}, error mesage: ${error.message}`);
+      Logger.error(TAG, `isExpandedOrHalfFolded err, error code: ${error.code}, error message: ${error.message}`);
     }
     return isExpandedOrHalfFolded;
   }
@@ -170,7 +170,7 @@ export struct VideoPlayView {
               })
             } catch (err) {
               let error = err as BusinessError;
-              Logger.error(TAG, `getDefaultDisplaySync err, error code: ${error.code}, error mesage: ${error.message}`);
+              Logger.error(TAG, `getDefaultDisplaySync err, error code: ${error.code}, error message: ${error.message}`);
             }
             // [EndExclude X_component]
           })

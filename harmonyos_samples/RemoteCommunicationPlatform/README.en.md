@@ -44,6 +44,12 @@ Remote communication platform (RCP) provides network data request functionalitie
 ## Required Permissions
 ohos.permission.INTERNET: allows an app to access Internet.
 
+## How to Use
+1. Click the "Basic Request" button to jump to the secondary page. Click the "Initiate PATCH Request" button to initiate a PATCH request. Click the "Set the Base Address of the URL in the Session" button to set the requested BaseUrl.
+2. Click the "Submit Multiple Forms" button to jump to the secondary page, and enter your name in Form One. Switch to Form Two and select your hobbies. Click the "Submit" button to submit the form and display the relevant parameters.
+3. Click the "Request and Response Blocking" button to jump to the secondary page, and click the "Get Image" button to obtain the address of the image that has not been blocked. Turn on the request cache switch and then click the "Get Image" button to obtain the address of the image after interception processing.
+4. Click the "DNS Settings" button to jump to the secondary page. Click the "Customize DNS Server" button to customize the DNS server. Click the "Customize Static DNS" button to set up a static DNS server. Click the "Configure DNS on HTTP" button to configure the DNS Settings on HTTP, thereby achieving secure DNS resolution through the HTTPS endpoint.
+5. Click the "Capture Details about HTTP Request/Response Flow" button to jump to the secondary page. After clicking the "Configure Details Collection" button, you can make relevant Settings and display the parameters of the Settings.
 ## Constraints
 * The sample app is supported only on Huawei phones running the standard system.
 

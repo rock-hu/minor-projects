@@ -41,20 +41,20 @@ export class AVPlayerUtil {
         case 'idle':
           Logger.info('AVPlayer state idle called.');
           avPlayer.release().catch((error: BusinessError) => {
-            Logger.error(TAG, `avPlayer release err, error code: ${error.code}, error mesage: ${error.message}`);
+            Logger.error(TAG, `avPlayer release err, error code: ${error.code}, error message: ${error.message}`);
           });
           break;
         case 'initialized':
           Logger.info('AVPlayer state initialized called.');
           avPlayer.surfaceId = this.surfaceId;
           avPlayer.prepare().catch((error: BusinessError) => {
-            Logger.error(TAG, `avPlayer initialized err, error code: ${error.code}, error mesage: ${error.message}`);
+            Logger.error(TAG, `avPlayer initialized err, error code: ${error.code}, error message: ${error.message}`);
           });
           break;
         case 'prepared':
           Logger.info('AVPlayer state prepared called.');
           avPlayer.play().catch((error: BusinessError) => {
-            Logger.error(TAG, `avPlayer play err, error code: ${error.code}, error mesage: ${error.message}`);
+            Logger.error(TAG, `avPlayer play err, error code: ${error.code}, error message: ${error.message}`);
           });
           break;
         case 'playing':
@@ -66,13 +66,13 @@ export class AVPlayerUtil {
         case 'completed':
           Logger.info('AVPlayer state completed called.');
           avPlayer.play().catch((error: BusinessError) => {
-            Logger.error(TAG, `avPlayer play err, error code: ${error.code}, error mesage: ${error.message}`);
+            Logger.error(TAG, `avPlayer play err, error code: ${error.code}, error message: ${error.message}`);
           });
           break;
         case 'stopped':
           Logger.info('AVPlayer state stopped called.');
           avPlayer.reset().catch((error: BusinessError) => {
-            Logger.error(TAG, `avPlayer reset err, error code: ${error.code}, error mesage: ${error.message}`);
+            Logger.error(TAG, `avPlayer reset err, error code: ${error.code}, error message: ${error.message}`);
           });
           break;
         case 'released':
@@ -104,7 +104,7 @@ export class AVPlayerUtil {
       Logger.info('fdSrc: ' + this.avPlayer.fdSrc);
     } catch (err) {
       let error = err as BusinessError;
-      Logger.error(TAG, `initPlayer err, error code: ${error.code}, error mesage: ${error.message}`);
+      Logger.error(TAG, `initPlayer err, error code: ${error.code}, error message: ${error.message}`);
     }
   }
 }
