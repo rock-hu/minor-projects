@@ -51,6 +51,38 @@
     {
       "name": "dependency_reason",
       "value": "Allow applications to use the Internet network in news data loading scenarios."
+    },
+    {
+      "name": "news_type_all",
+      "value": "All"
+    },
+    {
+      "name": "news_type_domestic",
+      "value": "Domestic"
+    },
+    {
+      "name": "news_type_international",
+      "value": "International"
+    },
+    {
+      "name": "news_type_entertainment",
+      "value": "Entertainment"
+    },
+    {
+      "name": "news_type_military",
+      "value": "Military"
+    },
+    {
+      "name": "news_type_sports",
+      "value": "Sports"
+    },
+    {
+      "name": "news_type_technology",
+      "value": "Technology"
+    },
+    {
+      "name": "news_type_finance_and_economics",
+      "value": "Finance and Economics"
     }
   ]
 }

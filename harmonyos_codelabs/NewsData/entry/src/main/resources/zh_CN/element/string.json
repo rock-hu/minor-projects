@@ -51,6 +51,38 @@
     {
       "name": "dependency_reason",
       "value": "允许应用在新闻数据加载场景使用Internet网络。"
+    },
+    {
+      "name": "news_type_all",
+      "value": "全部"
+    },
+    {
+      "name": "news_type_domestic",
+      "value": "国内"
+    },
+    {
+      "name": "news_type_international",
+      "value": "国际"
+    },
+    {
+      "name": "news_type_entertainment",
+      "value": "娱乐"
+    },
+    {
+      "name": "news_type_military",
+      "value": "军事"
+    },
+    {
+      "name": "news_type_sports",
+      "value": "体育"
+    },
+    {
+      "name": "news_type_technology",
+      "value": "科技"
+    },
+    {
+      "name": "news_type_finance_and_economics",
+      "value": "财经"
     }
   ]
 }

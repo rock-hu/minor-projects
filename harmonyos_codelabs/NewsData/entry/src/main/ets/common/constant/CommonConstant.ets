@@ -98,14 +98,14 @@ export class CommonConstant {
   static readonly TabBars_HORIZONTAL_PADDING: string  = '2.2%';
   static readonly TabBars_BAR_WIDTH: string = '100%';
   static readonly TabBars_DEFAULT_NEWS_TYPES: Array<NewsTypeModel> = [
-    { id: 0, name: '全部' },
-    { id: 1, name: '国内' },
-    { id: 2, name: '国际' },
-    { id: 3, name: '娱乐' },
-    { id: 4, name: '军事' },
-    { id: 5, name: '体育' },
-    { id: 6, name: '科技' },
-    { id: 7, name: '财经' }
+    { id: 0, name: $r('app.string.news_type_all') },
+    { id: 1, name: $r('app.string.news_type_domestic') },
+    { id: 2, name: $r('app.string.news_type_international') },
+    { id: 3, name: $r('app.string.news_type_entertainment') },
+    { id: 4, name: $r('app.string.news_type_military') },
+    { id: 5, name: $r('app.string.news_type_sports') },
+    { id: 6, name: $r('app.string.news_type_technology') },
+    { id: 7, name: $r('app.string.news_type_finance_and_economics') }
   ];
 
   /**
