@@ -40,6 +40,7 @@
       - [Class (SwiperDynamicSyncScene)](arkts-apis-uicontext-swiperdynamicsyncscene.md)
       - [Class (TextMenuController)](arkts-apis-uicontext-textmenucontroller.md)
       - [Class (UIContext)](arkts-apis-uicontext-uicontext.md)
+      - [Class (ResolvedUIContext)](arkts-apis-uicontext-resolveduicontext.md)
       - [Class (UIInspector)](arkts-apis-uicontext-uiinspector.md)
       - [Class (UIObserver)](arkts-apis-uicontext-uiobserver.md)
       - [Interface (AtomicServiceBar)](arkts-apis-uicontext-atomicservicebar.md)
@@ -717,6 +718,10 @@
     - [ArkUI_GridItemRect](capi-arkui-nativemodule-arkui-griditemrect.md)
     - [ArkUI_GridItemSize](capi-arkui-nativemodule-arkui-griditemsize.md)
     - [ArkUI_GridLayoutOptions](capi-arkui-nativemodule-arkui-gridlayoutoptions.md)
+    - [ArkUI_TouchTestInfo](capi-arkui-nativemodule-arkui-touchtestinfo.md)
+    - [ArkUI_TouchTestInfoItem](capi-arkui-nativemodule-arkui-touchtestinfoitem.md)
+    - [ArkUI_TouchTestInfoItem*](capi-arkui-nativemodule-arkui-touchtestinfoitemhandle.md)
+    - [ArkUI_TouchTestInfoItemHandle*](capi-arkui-nativemodule-arkui-touchtestinfoitemhandlearray.md)
 - 错误码<!--arkui-arkts-errcode-->
   - UI界面<!--arkui-ui-arkts-errcode-->
     - [接口调用异常错误码](errorcode-internal.md)
