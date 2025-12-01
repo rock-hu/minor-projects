@@ -1,6 +1,6 @@
 # Test Framework
 
-### Overview
+## Overview
 
 This sample shows how to use the unit test framework. 
 
@@ -8,18 +8,18 @@ The UiTest API **@ohos.UiTest** has to be introduced.
 
 If log printing debugging is required, **@ohos.hilog** has to be introduced additionally.
 
-### Preview
+## Preview
 
 N/A
 
-### How to Use
+## How to Use
 
 - Import the project in the **uitest** directory to DevEco Studio.
 - Check the test code implementation in the **ohostest** directory.
 - Execute the test case code in DevEco Studio to view the execution effect. For details, see the test framework section in the guide on the official website.
 - The execution result of the test case code in this project varies according to the actual development device. You can modify the parameters in the code as required.
 
-### Project Directory
+## Project Directory
 
 ```
 ├──entry/src/main/ets                             // Core code
@@ -101,9 +101,9 @@ N/A
 2. All the APIs provided by the **Driver** and **Component** classes are asynchronous (in Promise mode), and the await syntax must be used. 
 3. All UI test cases must be written in the asynchronous syntax and comply with the asynchronous test case specifications of JsUnit.
 
-### How to Implement
+## How to Implement
 
-#### Example of the uitestUI test framework
+### Example of the uitestUI test framework
 
 - 1) Place page components in **index.ets** of **entry**.
 - 2) Define a test case in **it()** in **test/basicExample.test.ets** of **ohosTest**. Three parameters are supported: case name, filtering parameter, and case function. The behavior of the use case operation is written asynchronously.
@@ -117,17 +117,17 @@ N/A
   - Log printing: It is recommended that the package name in the sample and that in the log be represented by constants, for example, **hilog.info(DOMAIN, TAG, BUNDLE + "StartAbility_001, begin")**, to facilitate package name changing and rectification.
 - 8) End **event done ()**.
 
-### Required Permissions
+## Required Permissions
 
 N/A
 
-### Dependencies
+## Dependencies
 
 N/A
 
-### Constraints
+## Constraints
 
-1. The sample is supported only on Huawei phones running the standard system.
+1. The sample is supported only on Huawei phones and tablets running the standard system.
 
 2. The HarmonyOS version must be HarmonyOS 5.0.5 Release or later.
 

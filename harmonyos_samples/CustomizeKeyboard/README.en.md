@@ -1,16 +1,16 @@
 # Implementing a Custom Keyboard
 
-### Overview
+## Overview
 
 This sample introduces how to implement a custom keyboard. The custom keyboard can be bound to the system keyboard so that they can switch to each other. The **onAreaChange** function can be used to obtain the custom keyboard height and set layout avoidance. This sample also describes technical scenarios such as keyboard switching, custom keyboard cursor, and custom keyboard layout avoidance.
 
-### Preview
+## Preview
 |             Layout avoidance              |             Keyboard Switching             |            Common functions             |
 |:-----------------------------------------:|:------------------------------------------:|:---------------------------------------:|
 | ![image](screenshots/device/avoid.en.gif) | ![image](screenshots/device/switch.en.gif) | ![image](screenshots/device/use.en.gif) |
 
 
-How to Use
+## How to Use
 
 1. On the home page, tap the text box for binding a custom keyboard. The custom keyboard is displayed, with layout avoidance upwards.
 
@@ -19,7 +19,7 @@ How to Use
 3. Common keyboard operations are supported, including text input, cursor setting, uppercase/lowercase change, copy, paste, and deletion.
 
 
-### Project Directory
+## Project Directory
 
 ```
 ├──entry/src/main/ets	                 // Code area
@@ -47,7 +47,7 @@ How to Use
 └──entry/src/main/resources              // App resource directory
 ```
 
-### How to Implement
+## How to Implement
 
 1. To implement a custom keyboard, the **customKeyboard** attribute of the **TextInput** component is bound to **builder**.
 2. To switch between the custom keyboard and the system keyboard, the **customKeyboard** attribute of the **TextInput** component is set to **null** and is bound to the system keyboard.
@@ -55,15 +55,15 @@ How to Use
 4. To implement the copy and paste functions, the system listens for the **onPaste** and **onCut** events of the **TextInput** component.
 5. To implement layout avoidance, the **keyboardHeightChange** event of the window module is used to obtain the system keyboard height, and the **onAreaChange** event is used to obtain the custom keyboard height.
 
-### Permissions
+## Permissions
 N/A
 
-### Dependencies
+## Dependencies
 N/A
 
-### Constraints
+## Constraints
 
-1. The sample is only supported on Huawei phones with standard systems.
+1. The sample is only supported on Huawei phones and tablets with standard systems.
 
 2. The HarmonyOS version must be HarmonyOS 5.0.5 Release or later.
 

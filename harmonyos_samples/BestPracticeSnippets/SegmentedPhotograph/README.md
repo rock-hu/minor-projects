@@ -229,7 +229,7 @@
 
 ### 相关权限
 
-[相机拍照权限](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/permissions-for-all#ohospermissioncamera)
+[相机拍照权限](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/permissions-for-all-user#ohospermissioncamera)
 
 
 ### 依赖

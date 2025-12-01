@@ -1,14 +1,18 @@
 # App Navigation Design
 
-### Overview
+## Overview
 
 This sample uses an independent router module and dynamic loading method to resolve the issue of routing dependency coupling between multiple HARs/HSPs under a **Navigation** component.
 
-### Preview
+## Preview
 
 ![Route navigation effect preview](screenshots/device/demonstration.en.gif)
 
-### Project Directory
+## How To Use
+
+Click the page button to navigate to the corresponding page.
+
+## Project Directory
 
 ```
 ├──entry                                          // Entry module
@@ -54,7 +58,7 @@ This sample uses an independent router module and dynamic loading method to reso
    └──src/main/resources
 ```
 
-### How to Implement
+## How to Implement
 
 1. Extract the routing feature as an independent module named RouterModule in the format of a .har package.
 2. The RouterModule manages routes internally and exposes a RouterModule object for other modules to use.
@@ -63,11 +67,11 @@ This sample uses an independent router module and dynamic loading method to reso
 
 ![Module dependencies](screenshots/device/module_dependency.jpg)
 
-### Required Permissions
+## Required Permissions
 
 N/A
 
-### Constraints
+## Constraints
 
 1. The sample is only supported on Huawei phones with standard systems.
 

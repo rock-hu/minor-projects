@@ -61,7 +61,7 @@ struct ModifierCustom {
 
   build() {
     Column() {
-      Text('Hello Word')
+      Text('Hello World')
     }.attributeModifier(this.modifier)
   }
 }
