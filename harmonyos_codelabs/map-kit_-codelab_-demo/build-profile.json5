@@ -1,24 +1,13 @@
 {
   "app": {
     "signingConfigs": [
-      {
-        "name": "default",
-        "material": {
-          "certpath": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.cer",
-          "storePassword": "0000*******************************************************************",
-          "keyAlias": "debugKey",
-          "keyPassword": "0000*******************************************************************",
-          "profile": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.p7b",
-          "signAlg": "SHA256withECDSA",
-          "storeFile": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.p12"
-        }
-      }
     ],
     "products": [
       {
         "name": "default",
         "signingConfig": "default",
-        "compatibleSdkVersion": "5.0.2(14)",
+        "compatibleSdkVersion": "5.0.5(17)",
+        "targetSdkVersion": "5.0.5(17)",
         "runtimeOS": "HarmonyOS"
       }
     ],

@@ -19,7 +19,7 @@
 开发准备
 ---------------
 
-您需要先在[AppGallery Connect](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/map-config-agc)网站上开通地图服务并配置应用签名证书指纹。
+您需要先在[AppGallery Connect](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/map-config-agc-V5)网站上开通地图服务并配置应用签名证书指纹。
 
 ## 工程目录
 ```
