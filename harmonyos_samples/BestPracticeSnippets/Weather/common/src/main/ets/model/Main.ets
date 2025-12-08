@@ -117,9 +117,9 @@ class HeaderData {
 class City {
   public name: string;
   public temp: string;
-  public weather: string;
+  public weather: Resource;
 
-  constructor(name: string, temp: string, weather: string) {
+  constructor(name: string, temp: string, weather: Resource) {
     this.name = name;
     this.temp = temp;
     this.weather = weather;

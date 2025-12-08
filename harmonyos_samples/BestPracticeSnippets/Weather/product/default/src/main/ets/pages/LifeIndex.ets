@@ -23,7 +23,7 @@ export default struct LifeIndex {
 
   build() {
     Grid() {
-      LazyForEach(this.lifeDataResource, (item: SuitData, index: number) => {
+      LazyForEach(this.lifeDataResource, (item: SuitData) => {
         GridItem() {
           Column() {
             Image(item.src)

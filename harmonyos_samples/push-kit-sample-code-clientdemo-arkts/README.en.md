@@ -29,6 +29,8 @@ This demo illustrates how to implement the function of obtaining a push token ba
 │ │ ├─ClickActionInnerPage.ets     // Landing page displayed upon a tap.           
 │ │ ├─GetTokenPage.ets             // Page for applying for a token.
 │ │ └─MainPage.ets                 // App home page.
+│ ├─service
+│ │ ├─VoipCallService.ets          
 │ ├─utils                          // Directory for storing tools.
 │ │ └─Logger.ets                   // Log class, which is used to manage system logs.
 │ ├─widget/pages                   // Directory for storing widget pages.

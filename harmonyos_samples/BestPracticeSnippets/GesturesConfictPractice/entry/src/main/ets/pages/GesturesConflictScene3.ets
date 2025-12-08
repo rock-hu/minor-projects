@@ -42,7 +42,7 @@ struct GesturesConflictScene3 {
                   this.getUIContext().getPromptAction().showToast({ message: 'Long Press' });
                 } catch (err) {
                   let error = err as BusinessError;
-                  hilog.error(0x0000, 'testTag', `showToast err, code: ${error.code}, mesage: ${error.message}`);
+                  hilog.error(0x0000, 'testTag', `showToast err, code: ${error.code}, message: ${error.message}`);
                 }
               })
           )

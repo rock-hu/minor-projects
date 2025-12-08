@@ -4,7 +4,7 @@
 
 This sample demonstrates one-time development for multi-device deployment by showing how to develop a weather app and deploy it across different devices. The demo app includes the following: home page, **Manage City** page, **Add City** page, and **Update Time** page.
 
-**How to Implement**
+### How to Implement
 
 1. Use the grid breakpoint system of responsive layout to implement different display effects on windows of different sizes.
 
@@ -13,6 +13,13 @@ This sample demonstrates one-time development for multi-device deployment by sho
 3. Use [GridRow](https://gitee.com/openharmony/docs/blob/master/en/application-dev/reference/apis-arkui/arkui-ts/ts-container-gridrow.md) to implement content split and display.
 
 4. Use **Canvas** and **CanvasRenderingContext2D** to draw curves that show the air quality and sunrise and sunset.
+
+### Display Effect
+
+| breakpoint   | sm                                                | md                                                                    | lg                                                  |
+|--------------|---------------------------------------------------|-----------------------------------------------------------------------|-----------------------------------------------------|
+| Final effect | ![phone_cn.png](screenshots/devices/phone_en.png) | ![foldable_screen_cn.png](screenshots/devices/foldable_screen_en.png) | ![tablet_cn.png](screenshots/devices/tablet_en.png) |
+
 
 **How to Use**
 
@@ -28,9 +35,6 @@ This sample demonstrates one-time development for multi-device deployment by sho
 
 6. Touch **Add City** on the **Manage Cities** page. On the **Add City** page displayed, tap any city that has not been added before. The city will be added to the city list and the **Manage Cities** page will be displayed.
 
-Display Effect
-
-![home](./screenshots/devices/zh/home.png)
 
 ### Required Permissions
 

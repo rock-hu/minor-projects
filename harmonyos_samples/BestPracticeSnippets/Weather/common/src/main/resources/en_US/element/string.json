@@ -126,7 +126,7 @@
     },
     {
       "name": "SouthwestWind",
-      "value": "Southwest wind"
+      "value": "Southwest"
     },
     {
       "name": "winSpeed1",
@@ -194,15 +194,15 @@
     },
     {
       "name": "WestWind",
-      "value": "West wind"
+      "value": "West"
     },
     {
       "name": "NorthwestWind",
-      "value": "Northwest wind"
+      "value": "Northwest"
     },
     {
       "name": "SouthWind",
-      "value": "South wind"
+      "value": "South"
     },
     {
       "name": "Humidity",
@@ -234,7 +234,7 @@
     },
     {
       "name": "NorthWind",
-      "value": "North wind"
+      "value": "North"
     },
     {
       "name": "Clothing",
@@ -330,11 +330,11 @@
     },
     {
       "name": "StrongWind",
-      "value": "Strong wind"
+      "value": "Strong"
     },
     {
       "name": "SoutheastWind",
-      "value": "Southeast wind"
+      "value": "Southeast"
     },
     {
       "name": "LongSleeves",
@@ -362,11 +362,15 @@
     },
     {
       "name": "SportRecommended1",
-      "value": "Outdoor"
+      "value": "Outdoor recommended"
     },
     {
       "name": "42Per",
       "value": "42%"
+    },
+    {
+      "name": "tem28",
+      "value": "28°"
     },
     {
       "name": "45Per",
@@ -375,10 +379,6 @@
     {
       "name": "50Per",
       "value": "50%"
-    },
-    {
-      "name": "tem28",
-      "value": "28°"
     },
     {
       "name": "tem27",

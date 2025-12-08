@@ -34,7 +34,7 @@ export default struct IndexEnd {
         .fontSize(12)
         .margin({ top: 8 })
       Text($r('app.string.weather_statement'))
-        .fontColor('#FFFFFF')
+        .fontColor($r('sys.color.comp_background_list_card'))
         .fontSize(12)
         .margin({ top: 4 })
       Text($r('app.string.weather_copyright'))

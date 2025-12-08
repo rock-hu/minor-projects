@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import { City, getSideBg, MyDataSource, Style } from 'common';
 
 @Entry
@@ -40,6 +41,17 @@ struct CityList {
       return 4;
     }
     return 0;
+  }
+
+  getResourceFile(weather: Resource): Resource | undefined {
+    try {
+      return getSideBg(this.getUIContext()
+        .getHostContext()?.resourceManager.getStringSync((weather as Resource)) as string);
+    } catch (error) {
+      hilog.error(0x0000, 'testTag', '%{public}s',
+        `getStringSync failed, error code: ${error.code}, message: ${error.message}.`);
+      return undefined;
+    }
   }
 
   @Builder
@@ -78,7 +90,7 @@ struct CityList {
     .borderRadius(Style.NORMAL_RADIUS)
     .alignItems(VerticalAlign.Center)
     .backgroundImageSize(ImageSize.Cover)
-    .backgroundImage(getSideBg(item.weather))
+    .backgroundImage(this.getResourceFile(item.weather))
   }
 
   build() {
@@ -132,7 +144,7 @@ struct CityList {
       })
     }
     .height('100%')
-    .backgroundColor('#F1F3F5')
+    .backgroundColor($r('sys.color.point_color_checked'))
   }
 
   onPageShow() {

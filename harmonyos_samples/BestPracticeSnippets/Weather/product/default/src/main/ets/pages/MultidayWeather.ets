@@ -51,7 +51,7 @@ struct DayWeatherItem {
 
   build() {
     Column() {
-      Text(this.index === 0 ? $r('app.string.yestoday') :
+      Text(this.index === 0 ? $r('app.string.yesterday') :
         this.index === 1 ? $r('app.string.today') : this.weatherInfo?.week)
         .fontSize(12)
         .fontColor(Color.White)
@@ -81,10 +81,13 @@ struct DayWeatherItem {
         .fontColor(Color.White)
         .margin({ top: 19 })
         .backgroundColor('#24FFFFFF')
-        .width(26)
         .height(16)
         .textAlign(TextAlign.Center)
         .borderRadius(11)
+        .padding({
+          right: 6,
+          left: 6
+        })
     }
   }
 }

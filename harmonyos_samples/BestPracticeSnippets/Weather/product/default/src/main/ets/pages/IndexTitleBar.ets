@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import UpdateTimeDialog from './UpdateTimeDialog';
 import { getMenuInfo, MenuData, Style } from 'common';
 
@@ -40,7 +42,7 @@ export default struct IndexTitleBar {
           Text(item.title)
             .id('menu' + index)
             .fontSize(16)
-            .fontColor('#000000')
+            .fontColor($r('sys.color.black'))
             .fontWeight(FontWeight.Regular)
             .width('100%')
             .onClick(() => {
@@ -49,7 +51,10 @@ export default struct IndexTitleBar {
                 if (this.showSideBar) {
                   this.showSideBar = false;
                 }
-                this.getUIContext().getRouter().pushUrl({ url: item.url });
+                this.getUIContext().getRouter().pushUrl({ url: item.url }).catch((error: BusinessError) => {
+                  hilog.error(0x0000, 'testTag', '%{public}s',
+                    `pushUrl failed, code is ${error.code}, message is ${error.message}`);
+                });
               } else {
                 if (this.dialogController === undefined) {
                   this.dialogController = new CustomDialogController({
@@ -99,7 +104,7 @@ export default struct IndexTitleBar {
           builder: this.popupBuilder,
           placement: Placement.BottomLeft,
           maskColor: 0x33000000,
-          popupColor: '#00000000',
+          popupColor: Color.White,
           enableArrow: false,
           onStateChange: (e) => {
             if (!e.isVisible) {

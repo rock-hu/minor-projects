@@ -6,183 +6,179 @@
     },
     {
       "name": "Beijing",
-      "value": "Bei Jing"
+      "value": "北京"
     },
     {
       "name": "Sunny",
-      "value": "Sunny"
+      "value": "晴"
     },
     {
       "name": "Shanghai",
-      "value": "Shang Hai"
+      "value": "上海"
     },
     {
       "name": "Cloudy",
-      "value": "Cloudy"
+      "value": "阴"
     },
     {
       "name": "Guangzhou",
-      "value": "Guangzhou"
+      "value": "广州"
     },
     {
       "name": "Rainy",
-      "value": "Rainy"
+      "value": "小雨"
     },
     {
       "name": "Tianjin",
-      "value": "Tianjin"
+      "value": "天津"
     },
     {
       "name": "ModerateRain",
-      "value": "Moderate rain"
+      "value": "中雨"
     },
     {
       "name": "Wuhan",
-      "value": "Wuhan"
+      "value": "武汉"
     },
     {
       "name": "Shenyang",
-      "value": "Shenyang"
+      "value": "沈阳"
     },
     {
       "name": "Chongqing",
-      "value": "Chongqing"
+      "value": "重庆"
     },
     {
       "name": "Hangzhou",
-      "value": "Hangzhou"
+      "value": "杭州"
     },
     {
       "name": "Nanjing",
-      "value": "Nanjing"
+      "value": "南京"
     },
     {
       "name": "Harbin",
-      "value": "Harbin"
+      "value": "哈尔滨"
     },
     {
       "name": "Changchun",
-      "value": "Changchun"
+      "value": "长春"
     },
     {
       "name": "Shower",
-      "value": "Shower"
+      "value": "阵雨"
     },
     {
       "name": "Hohhot",
-      "value": "Hohhot"
+      "value": "呼和浩特"
     },
     {
       "name": "Shijiazhuang",
-      "value": "Shijiazhuang"
+      "value": "石家庄"
     },
     {
       "name": "Yinchuan",
-      "value": "Yinchuan"
+      "value": "银川"
     },
     {
       "name": "Urumqi",
-      "value": "Urumqi"
+      "value": "乌鲁木齐"
     },
     {
       "name": "Lhasa",
-      "value": "Lhasa"
+      "value": "拉萨"
     },
     {
       "name": "Xining",
-      "value": "Xining"
+      "value": "西宁"
     },
     {
       "name": "Xian",
-      "value": "Xian"
+      "value": "西安"
     },
     {
       "name": "Lanzhou",
-      "value": "Lanzhou"
+      "value": "兰州"
     },
     {
       "name": "Taiyuan",
-      "value": "Taiyuan"
+      "value": "太原"
     },
     {
       "name": "Kunming",
-      "value": "Kunming"
+      "value": "昆明"
     },
     {
       "name": "Nanning",
-      "value": "Nanning"
+      "value": "南宁"
     },
     {
       "name": "China",
-      "value": "China"
+      "value": "中国"
     },
     {
       "name": "23rd",
-      "value": "Tur,23rd"
+      "value": "23日(星期四)"
     },
     {
       "name": "Thursday",
-      "value": "Thursday"
+      "value": "星期四"
     },
     {
       "name": "SouthwestWind",
-      "value": "Southwest wind"
+      "value": "西南风"
     },
     {
       "name": "winSpeed1",
-      "value": "5-6 -> 3-4"
+      "value": "5-6 -> 3-4级"
     },
     {
       "name": "Excellent",
-      "value": "Excellent"
+      "value": "优"
     },
     {
       "name": "24th",
-      "value": "Fri,24th"
+      "value": "24日(星期五)"
     },
     {
       "name": "Friday",
-      "value": "Friday"
+      "value": "星期五"
     },
     {
       "name": "25th",
-      "value": "Sat,25th"
+      "value": "25日(星期六)"
     },
     {
       "name": "Saturday",
-      "value": "Saturday"
+      "value": "星期六"
     },
     {
       "name": "26th",
-      "value": "Sun,26th"
+      "value": "26日(周日)"
     },
     {
       "name": "Sunday",
-      "value": "Sunday"
+      "value": "周日"
     },
     {
       "name": "27th",
-      "value": "Mon,27th"
+      "value": "27日(周一)"
     },
     {
       "name": "Monday",
-      "value": "Monday"
+      "value": "周一"
     },
     {
       "name": "28th",
-      "value": "Tue, 28th"
+      "value": "28日（星期二）"
     },
     {
       "name": "Tuesday",
-      "value": "Tuesday"
-    },
-    {
-      "name": "29th",
-      "value": "Wed, 29th"
+      "value": "星期二"
     },
     {
       "name": "Wednesday",
-      "value": "Wednesday"
+      "value": "星期三"
     },
     {
       "name": "winSpeed2",
@@ -190,183 +186,187 @@
     },
     {
       "name": "airTips1",
-      "value": "Sunny and hot, avoid outdoors."
+      "value": "当前晴，炎热，不适合外出游玩"
     },
     {
       "name": "WestWind",
-      "value": "West wind"
+      "value": "西风"
     },
     {
       "name": "NorthwestWind",
-      "value": "Northwest wind"
+      "value": "西北风"
     },
     {
       "name": "SouthWind",
-      "value": "South wind"
+      "value": "南风"
     },
     {
       "name": "Humidity",
-      "value": "Humidity"
+      "value": "湿度"
     },
     {
       "name": "Humidity_desc1",
-      "value": "Humidity perfect."
+      "value": "湿度刚好"
     },
     {
       "name": "Temperature",
-      "value": "Temperature"
+      "value": "体感温度"
     },
     {
       "name": "WindForce",
-      "value": "Wind force"
+      "value": "风力"
     },
     {
       "name": "Breeze",
-      "value": "Breeze"
+      "value": "威风"
     },
     {
       "name": "WindForce_desc1",
-      "value": "Breeze, great for outdoors."
+      "value": "风力较弱，适宜户外活动。"
     },
     {
       "name": "WindDirection",
-      "value": "Wind direction"
+      "value": "风向"
     },
     {
       "name": "NorthWind",
-      "value": "North wind"
+      "value": "北风"
     },
     {
       "name": "Clothing",
-      "value": "Clothing"
+      "value": "穿着"
     },
     {
       "name": "TShirt",
-      "value": "T-shirt"
+      "value": "短袖"
     },
     {
       "name": "Clothing_desc1",
-      "value": "Light summer clothes."
+      "value": "建议穿短衫、短裤等清凉夏季服装。"
     },
     {
       "name": "Sport",
-      "value": "Sport"
+      "value": "运动"
     },
     {
       "name": "SportRecommended",
-      "value": "Indoor"
+      "value": "宜室内"
     },
     {
       "name": "Cold",
-      "value": "Cold"
+      "value": "感冒"
     },
     {
       "name": "ColdEasy",
-      "value": "Prone to colds"
+      "value": "容易"
     },
     {
       "name": "ColdDesc",
-      "value": "Large day-night temperature difference. Prevent colds."
+      "value": "昼夜温差大，注意预防感冒。"
     },
     {
       "name": "UV",
-      "value": "UV"
+      "value": "紫外线"
     },
     {
       "name": "UVStrong",
-      "value": "Strong"
+      "value": "强"
     },
     {
       "name": "UVDesc",
-      "value": "Strong radiation. Use SPF 8-12 sunscreen."
+      "value": "辐射强，涂擦SPF8-12防晒护肤品。"
     },
     {
       "name": "WinDesc",
-      "value": "No sustained wind direction."
+      "value": "无持续风向"
     },
     {
       "name": "airTips2",
-      "value": "Great air quality. Go outside, breathe fresh air, embrace nature!"
+      "value": "空气很好，可以外出活动，呼吸新鲜空气，拥抱大自然！"
     },
     {
       "name": "MaskNeed1",
-      "value": "No mask needed."
+      "value": "不用佩戴口罩"
     },
     {
       "name": "exercise1",
-      "value": "Ideal for exercise."
+      "value": "非常适宜运动"
     },
     {
       "name": "goingOut1",
-      "value": "Good for going out."
+      "value": "适宜外出"
     },
     {
       "name": "windows1",
-      "value": "Good to open windows."
+      "value": "适宜开窗"
     },
     {
       "name": "purifier1",
-      "value": "Turn off purifier."
+      "value": "关闭净化器"
     },
     {
       "name": "airTips3",
-      "value": "Cloudy, weak UV. Perfect for outings!"
+      "value": "当前阴，紫外线弱，适合外出游玩！"
     },
     {
       "name": "Weak",
-      "value": "Weak"
+      "value": "弱"
     },
     {
       "name": "UVDesc2",
-      "value": "Weak radiation. Use SPF 8-12 sunscreen."
+      "value": "辐射弱，涂擦SPF8-12防晒护肤品。"
     },
     {
       "name": "airTips4",
-      "value": "Cloudy now. Same temp as yesterday. Great for outings!"
+      "value": "当前多云，昨天和今天温度一致，适合外出游玩！"
     },
     {
       "name": "airTips5",
-      "value": "Light rain today. Cool weather."
+      "value": "今天小雨，天气凉爽"
     },
     {
       "name": "StrongWind",
-      "value": "Strong wind"
+      "value": "大风"
     },
     {
       "name": "SoutheastWind",
-      "value": "Southeast wind"
+      "value": "东南风"
     },
     {
       "name": "LongSleeves",
-      "value": "Long sleeves"
+      "value": "长袖"
     },
     {
       "name": "airTips6",
-      "value": "Good air quality, high humidity. Ideal for indoor activities!"
+      "value": "空气良好，湿度较高，适宜室内活动！"
     },
     {
       "name": "airTips7",
-      "value": "Moderate rain today. Remember your umbrella!"
+      "value": "今天中雨，出门记得带伞哦！"
     },
     {
       "name": "Humidity_desc2",
-      "value": "High humidity"
+      "value": "湿度较高。"
     },
     {
       "name": "airTips8",
-      "value": "Good air quality. Go out, breathe fresh air, embrace nature!"
+      "value": "空气良好，可以外出活动，呼吸新鲜空气，拥抱大自然！"
     },
     {
       "name": "airTips9",
-      "value": "Great air today. Perfect for outings. Remember sun protection!"
+      "value": "今天空气很好，适合外出游玩，注意防晒！"
     },
     {
       "name": "SportRecommended1",
-      "value": "Outdoor"
+      "value": "宜室外"
     },
     {
       "name": "42Per",
       "value": "42%"
+    },
+    {
+      "name": "tem28",
+      "value": "28°"
     },
     {
       "name": "45Per",
@@ -375,10 +375,6 @@
     {
       "name": "50Per",
       "value": "50%"
-    },
-    {
-      "name": "tem28",
-      "value": "28°"
     },
     {
       "name": "tem27",
@@ -402,63 +398,63 @@
     },
     {
       "name": "morning",
-      "value": "morning"
+      "value": "早上"
     },
     {
       "name": "forenoon",
-      "value": "AM"
+      "value": "上午"
     },
     {
       "name": "midday",
-      "value": "midday"
+      "value": "中午"
     },
     {
       "name": "afternoon",
-      "value": "PM"
+      "value": "下午"
     },
     {
       "name": "sunset",
-      "value": "sunset"
+      "value": "傍晚"
     },
     {
       "name": "night",
-      "value": "night"
+      "value": "晚上"
     },
     {
       "name": "one_hour",
-      "value": "1 hours"
+      "value": "1小时"
     },
     {
       "name": "two_hour",
-      "value": "2 hours"
+      "value": "2小时"
     },
     {
       "name": "four_hour",
-      "value": "4 hours"
+      "value": "4小时"
     },
     {
       "name": "six_hour",
-      "value": "6 hours"
+      "value": "6小时"
     },
     {
       "name": "twelve_hour",
-      "value": "12 hours"
+      "value": "12小时"
     },
     {
       "name": "twenty_four_hour",
-      "value": "24 hours"
+      "value": "24小时"
     },
     {
       "name": "not_update",
-      "value": "not update"
+      "value": "不更新"
     },
     {
       "name": "urban_management",
-      "value": "Manage City"
+      "value": "管理城市"
     },
     {
       "name": "update_interval",
-      "value": "Update Interval"
+      "value": "更新间隔"
     }
   ]
 }

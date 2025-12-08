@@ -21,7 +21,6 @@ struct WebScrollDemo {
   controller: webview.WebviewController = new webview.WebviewController();
 
   build() {
-    // [Start web_nested_scroll]
     Scroll() {
       Column() {
         Text('Text')
@@ -29,6 +28,7 @@ struct WebScrollDemo {
           .backgroundColor(Color.Red)
           .width('100%')
           .height('40%')
+        // [Start web_nested_scroll]
         Web(
           // [StartExclude web_nested_scroll]
           { src: 'https://developer.huawei.com/consumer/cn/', controller: this.controller }
@@ -38,9 +38,8 @@ struct WebScrollDemo {
             scrollForward: NestedScrollMode.PARENT_FIRST,
             scrollBackward: NestedScrollMode.SELF_FIRST
           })
-
+        // [End web_nested_scroll]
       }
     }
-    // [End web_nested_scroll]
   }
 }

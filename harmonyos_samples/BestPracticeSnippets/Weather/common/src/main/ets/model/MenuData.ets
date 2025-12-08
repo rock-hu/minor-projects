@@ -15,10 +15,10 @@
 
 // 首页弹窗菜单 menu数据
 export class MenuData {
-  public title: string;
+  public title: ResourceStr;
   public url: string;
 
-  constructor(title: string, url: string) {
+  constructor(title: ResourceStr, url: string) {
     this.title = title;
     this.url = url;
   }

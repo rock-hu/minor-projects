@@ -18,7 +18,7 @@ import { getHeaderDate, HeaderData, Style } from 'common';
 @Preview
 @Component
 export default struct IndexHeader {
-  headerDate: HeaderData = getHeaderDate(0);
+  headerDate: HeaderData = getHeaderDate(0)!;
   index: number = 0;
 
   build() {

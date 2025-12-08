@@ -14,9 +14,9 @@
  */
 
 import { ConfigurationConstant, UIAbility } from '@kit.AbilityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
-import { BusinessError } from '@kit.BasicServicesKit';
 
 const DOMAIN = 0x0000;
 
@@ -40,22 +40,30 @@ export default class EntryAbility extends UIAbility {
     hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onWindowStageCreate');
     try {
       let mainWindow: window.Window = windowStage.getMainWindowSync();
-      mainWindow.setImmersiveModeEnabledState(true);
-      mainWindow.setWindowSystemBarEnable([]).catch((err: BusinessError) => {
+
+      try {
+        mainWindow.setImmersiveModeEnabledState(true);
+        mainWindow.setWindowSystemBarEnable([]).catch((err: BusinessError) => {
+          hilog.error(DOMAIN, 'testTag', '%{public}s',
+            `stopAppServiceExtensionAbility failed, code is ${err.code}, message is ${err.message}`);
+        });
+      } catch (err) {
         hilog.error(DOMAIN, 'testTag', '%{public}s',
-          `stopAppServiceExtensionAbility failed, code is ${err.code}, message is ${err.message}`);
+          `setColorMode failed, code is ${err.code}, message is ${err.message}`);
+      }
+      windowStage.loadContent('pages/Home', (err) => {
+        if (err.code) {
+          hilog.error(DOMAIN, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err));
+          return;
+        }
+        hilog.info(DOMAIN, 'testTag', 'Succeeded in loading the content.');
+        let uiContext = mainWindow.getUIContext();
+        AppStorage.setOrCreate('uiContext', uiContext);
       });
     } catch (err) {
       hilog.error(DOMAIN, 'testTag', '%{public}s',
-        `setColorMode failed, code is ${err.code}, message is ${err.message}`);
+        `Failed to obtain the main window. Cause code: ${err.code}, message: ${err.message}`);
     }
-    windowStage.loadContent('pages/Home', (err) => {
-      if (err.code) {
-        hilog.error(DOMAIN, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err));
-        return;
-      }
-      hilog.info(DOMAIN, 'testTag', 'Succeeded in loading the content.');
-    });
   }
 
   onWindowStageDestroy(): void {

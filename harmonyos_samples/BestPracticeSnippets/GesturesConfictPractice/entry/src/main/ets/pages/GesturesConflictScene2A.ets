@@ -15,7 +15,7 @@
 
 @Entry
 @Component
-struct GesturesConflictScene21 {
+struct GesturesConflictScene2A {
   @State count1: number = 0;
   @State count2: number = 0;
 
@@ -26,7 +26,7 @@ struct GesturesConflictScene21 {
     }
     .height(200)
     .width('100%')
-    // DocsCode 1
+    // [Start Conflict_Scene2A]
     .gesture(
       GestureGroup(GestureMode.Parallel,
         TapGesture({ count: 2 })
@@ -39,6 +39,6 @@ struct GesturesConflictScene21 {
           })
       )
     )
-    // DocsCode 1
+    // [End Conflict_Scene2A]
   }
 }

@@ -14,31 +14,31 @@
     },
     {
       "name": "midnight",
-      "value": "Midnight"
+      "value": "半夜"
     },
     {
       "name": "early_morning",
-      "value": "Early Morning"
+      "value": "清晨"
     },
     {
       "name": "morning",
-      "value": "Morning"
+      "value": "早上"
     },
     {
       "name": "yesterday",
-      "value": "Yesterday"
+      "value": "昨天"
     },
     {
       "name": "today",
-      "value": "Today"
+      "value": "今天"
     },
     {
       "name": "air",
-      "value": "Air"
+      "value": "空气"
     },
     {
       "name": "air_quality",
-      "value": "Air Quality"
+      "value": "污染指数"
     },
     {
       "name": "weather",
@@ -46,19 +46,19 @@
     },
     {
       "name": "china_weather",
-      "value": "China Weather"
+      "value": "中国天气"
     },
     {
       "name": "weather_version",
-      "value": "Weather version：11.1.0"
+      "value": "天气版本：11.1.0"
     },
     {
       "name": "weather_statement",
-      "value": "Statement on Weather and Privacy"
+      "value": "关于天气与隐私的声明"
     },
     {
       "name": "weather_copyright",
-      "value": "Copyright © 2020 OpenHarmony Technology Co., Ltd."
+      "value": "版权所有2020 OpenHarmony技术有限公司"
     },
     {
       "name": "du",
@@ -66,47 +66,47 @@
     },
     {
       "name": "manage_city",
-      "value": "Manage City"
+      "value": "管理城市"
     },
     {
       "name": "add_city",
-      "value": "Add City"
+      "value": "添加城市"
     },
     {
       "name": "search_placeholder",
-      "value": "Search for city (Chinese/Pinyin)"
+      "value": "搜索城市（中文/拼音）"
     },
     {
       "name": "update_interval",
-      "value": "Update Interval"
+      "value": "更新间隔"
     },
     {
       "name": "cancel",
-      "value": "Cancel"
+      "value": "取消"
     },
     {
       "name": "hot_city",
-      "value": "Hot City"
+      "value": "热门城市"
     },
     {
       "name": "sunrise_begin",
-      "value": "Sunrise 6:00 AM"
+      "value": "日出 早上6:00"
     },
     {
       "name": "sunset_final",
-      "value": "Sunset 5:32 PM"
+      "value": "日落 傍晚5:32"
     },
     {
       "name": "moonrise_begin",
-      "value": "Moonrise 5:12 PM"
+      "value": "月出 傍晚5:12"
     },
     {
       "name": "moonset_final",
-      "value": "Moonset 6:20 AM"
+      "value": "月落 早上6:20"
     },
     {
       "name": "first_quarter",
-      "value": "First Quarter"
+      "value": "上弦月"
     },
     {
       "name": "empty",

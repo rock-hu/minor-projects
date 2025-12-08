@@ -20,7 +20,7 @@ import { getUpdateTimes, Style } from 'common';
 export default struct UpdateTimeDialog {
   @StorageLink('curBp') curBp: string = 'md';
   controller: CustomDialogController;
-  updateTimes: string[] = getUpdateTimes();
+  updateTimes: Resource[] = getUpdateTimes();
   handleCancelDialog: () => void = () => {
   };
 
@@ -33,15 +33,19 @@ export default struct UpdateTimeDialog {
       GridCol({ span: 4, offset: { sm: 0, md: 2, lg: 4 } }) {
         Row() {
           Column() {
-            Text($r('app.string.update_time'))
+            Text($r('app.string.update_interval'))
               .width('100%')
               .fontSize(20)
               .fontWeight(FontWeight.Medium)
               .margin({ top: 14 })
             List() {
-              ForEach(this.updateTimes, (item: string, index: number) => {
+              ForEach(this.updateTimes, (item: Resource, index: number) => {
                 ListItem() {
-                  UpdateTimeItem({ index: index, updateTime: item })
+                  UpdateTimeItem({
+                    index: index,
+                    updateTime: this.getUIContext()
+                      .getHostContext()?.resourceManager.getStringSync((item as Resource).id) as string
+                  })
                 }
               }, (item: string, index: number) => JSON.stringify(item) + index)
             }

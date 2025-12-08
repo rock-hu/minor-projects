@@ -14,6 +14,9 @@
  */
 
 import { City, getSideBg, MyDataSource, Style } from 'common';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+
+const DOMAIN = 0x0000;
 
 @Component
 export default struct SideContent {
@@ -41,11 +44,11 @@ export default struct SideContent {
       .fontSize(30)
       .fontWeight(FontWeight.Medium)
       .width('100%')
-    Search({ placeholder: '搜索城市（中文/拼音）', icon: '/common/images/icon_search.svg' })
+    Search({ placeholder: $r('app.string.search_placeholder'), icon: '/common/images/icon_search.svg' })
       .placeholderFont({ size: 16 })
       .placeholderColor('#60FFFFFF')
       .width('100%')
-      .backgroundColor('#26FFFFFF')
+      .backgroundColor($r('sys.color.container_modal_button_hover_baseboard'))
       .margin({ top: 4 })
       .borderRadius(45)
   }
@@ -87,6 +90,17 @@ struct CityItem {
   cityInfo?: City;
   index: number = 0;
 
+  getResourceFile(): Resource | undefined {
+    try {
+      return getSideBg(this.getUIContext()
+        .getHostContext()?.resourceManager.getStringSync((this.cityInfo!.weather as Resource)) as string);
+    } catch (error) {
+      hilog.error(DOMAIN, 'testTag', '%{public}s',
+        `getStringSync failed, error code: ${error.code}, message: ${error.message}.`);
+      return undefined;
+    }
+  }
+
   build() {
     Row() {
       Text(this.cityInfo?.name)
@@ -126,6 +140,6 @@ struct CityItem {
     })
     .alignItems(VerticalAlign.Center)
     .backgroundImageSize(ImageSize.Cover)
-    .backgroundImage(getSideBg(this.cityInfo!.weather))
+    .backgroundImage(this.getResourceFile())
   }
 }

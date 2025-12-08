@@ -64,7 +64,7 @@ export default struct HoursWeather {
   build() {
     // Implement extensibility capability through list component.
     List() {
-      LazyForEach(this.hoursDataResource, (hoursItem: Forecast, index: number) => {
+      LazyForEach(this.hoursDataResource, (hoursItem: Forecast) => {
         ListItem() {
           this.HoursWeatherItem(hoursItem,
             this.curBp === 'lg' ? Style.WEATHER_ITEM_WIDTH + 2 : Style.WEATHER_ITEM_WIDTH)

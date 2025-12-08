@@ -15,119 +15,119 @@
 
 export const cityData: CityInfo[] = [
   {
-    "name": "北京",
+    "name": $r('app.string.Beijing'),
     "temp": "32",
-    "weather": "晴"
+    "weather": $r('app.string.Sunny')
   },
   {
-    "name": "上海",
+    "name": $r('app.string.Shanghai'),
     "temp": "28",
-    "weather": "阴"
+    "weather": $r('app.string.Cloudy')
   },
   {
-    "name": "广州",
+    "name": $r('app.string.Guangzhou'),
     "temp": "35",
-    "weather": "小雨"
+    "weather": $r('app.string.Rainy')
   },
   {
-    "name": "天津",
+    "name": $r('app.string.Tianjin'),
     "temp": "35",
-    "weather": "中雨"
+    "weather": $r('app.string.Rainy')
   },
   {
-    "name": "武汉",
+    "name": $r('app.string.Wuhan'),
     "temp": "26",
-    "weather": "多云"
+    "weather": $r('app.string.Cloudy')
   },
   {
-    "name": "沈阳",
+    "name": $r('app.string.Shenyang'),
     "temp": "25",
-    "weather": "晴"
+    "weather": $r('app.string.Sunny')
   },
   {
-    "name": "重庆",
+    "name": $r('app.string.Chongqing'),
     "temp": "27",
-    "weather": "小雨"
+    "weather": $r('app.string.Rainy')
   },
   {
-    "name": "杭州",
+    "name": $r('app.string.Hangzhou'),
     "temp": "35",
-    "weather": "晴"
+    "weather": $r('app.string.Sunny')
   },
   {
-    "name": "南京",
+    "name": $r('app.string.Nanjing'),
     "temp": "25",
-    "weather": "晴"
+    "weather": $r('app.string.Sunny')
   },
   {
-    "name": "哈尔滨",
+    "name": $r('app.string.Harbin'),
     "temp": "25",
-    "weather": "晴"
+    "weather": $r('app.string.Sunny')
   },
   {
-    "name": "长春",
+    "name": $r('app.string.Changchun'),
     "temp": "28",
-    "weather": "阵雨"
+    "weather": $r('app.string.Shower')
   },
   {
-    "name": "呼和浩特",
+    "name": $r('app.string.Hohhot'),
     "temp": "25",
-    "weather": "晴"
+    "weather": $r('app.string.Sunny')
   },
   {
-    "name": "石家庄",
+    "name": $r('app.string.Shijiazhuang'),
     "temp": "25",
-    "weather": "晴"
+    "weather": $r('app.string.Sunny')
   },
   {
-    "name": "银川",
+    "name": $r('app.string.Yinchuan'),
     "temp": "25",
-    "weather": "晴"
+    "weather": $r('app.string.Sunny')
   },
   {
-    "name": "乌鲁木齐",
+    "name": $r('app.string.Urumqi'),
     "temp": "25",
-    "weather": "晴"
+    "weather": $r('app.string.Sunny')
   },
   {
-    "name": "拉萨",
+    "name": $r('app.string.Lhasa'),
     "temp": "35",
-    "weather": "晴"
+    "weather": $r('app.string.Sunny')
   },
   {
-    "name": "西宁",
+    "name": $r('app.string.Xining'),
     "temp": "25",
-    "weather": "晴"
+    "weather": $r('app.string.Sunny')
   },
   {
-    "name": "西安",
+    "name": $r('app.string.Xian'),
     "temp": "25",
-    "weather": "晴"
+    "weather": $r('app.string.Sunny')
   },
   {
-    "name": "兰州",
+    "name": $r('app.string.Lanzhou'),
     "temp": "25",
-    "weather": "多云"
+    "weather": $r('app.string.Cloudy')
   },
   {
-    "name": "太原",
+    "name": $r('app.string.Taiyuan'),
     "temp": "25",
-    "weather": "阴"
+    "weather": $r('app.string.Cloudy')
   },
   {
-    "name": "昆明",
+    "name": $r('app.string.Kunming'),
     "temp": "25",
-    "weather": "小雨"
+    "weather": $r('app.string.Rainy')
   },
   {
-    "name": "南宁",
+    "name": $r('app.string.Nanning'),
     "temp": "20",
-    "weather": "晴"
+    "weather": $r('app.string.Sunny')
   }
 ];
 
 export class CityInfo {
-  name: string = '';
+  name: ResourceStr = '';
   temp: string = '';
-  weather: string = '';
+  weather: ResourceStr = '';
 }

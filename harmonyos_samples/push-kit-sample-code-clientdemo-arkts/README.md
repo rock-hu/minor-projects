@@ -29,6 +29,8 @@
 │ │ ├─ClickActionInnerPage.ets     // 点击跳转落地页面            
 │ │ ├─GetTokenPage.ets             // 申请Token页面
 │ │ └─MainPage.ets                 // 应用主页面
+│ ├─service
+│ │ ├─VoipCallService.ets          // 处理应用内通话消息
 │ ├─utils                          // 存放工具类文件目录
 │ │ └─Logger.ets                   // 日志类，管理系统日志
 │ ├─widget/pages                   // 存放卡片页面目录
@@ -75,6 +77,12 @@
 ### 推送后台消息
 1. 保持应用在前台，根据[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/push-background)使用Postman等其它调试工具，推送后台消息。
 2. 查看接收的后台消息数据。
+
+### 推送实况窗消息
+1. 推送实况窗消息前，请先完成[开通实况窗权益](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/liveview-rights)。
+2. 使用[消息通知-推送服务-服务端DEMO](https://gitee.com/harmonyos_samples/push-kit_-sample-code_-server-demo_-java)，或根据[指导](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/push-update-liveview)使用Postman等其它调试工具，推送实况窗消息。
+3. 下拉状态栏，在通知中心查看消息。
+4. 点击通知栏消息，跳转应用的落地页。
 
 ### 推送应用内通话消息
 1. 推送应用内通话消息前，请先完成[申请推送应用内通话消息权益](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/push-apply-right#section7291115452410)。

@@ -43,7 +43,7 @@ struct AddCity {
       .scrollBar(BarState.Off)
     }
     .height('100%')
-    .backgroundColor('#F1F3F5')
+    .backgroundColor($r('sys.color.point_color_checked'))
   }
 }
 
@@ -71,7 +71,7 @@ export struct CityGrid {
               .width('100%')
               .fontSize(14)
               .fontWeight(FontWeight.Regular)
-              .fontColor('#99000000')
+              .fontColor($r('sys.color.mask_secondary'))
               .margin({ bottom: 14 })
           }
 

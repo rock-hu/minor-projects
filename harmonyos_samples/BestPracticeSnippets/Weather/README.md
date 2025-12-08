@@ -14,10 +14,9 @@
 
 
 ### 效果预览
-
-| 首页                              |
-|--------------------------------------|
-|![home](./screenshots/devices/zh/home.png)|
+| 断点  | sm                                                | md                                                                    | lg                                                  |
+|-----|---------------------------------------------------|-----------------------------------------------------------------------|-----------------------------------------------------|
+| 效果图 | ![phone_cn.png](screenshots/devices/phone_cn.png) | ![foldable_screen_cn.png](screenshots/devices/foldable_screen_cn.png) | ![tablet_cn.png](screenshots/devices/tablet_cn.png) |
 
 使用说明：
 
@@ -79,7 +78,7 @@
 1、home.ets中引入SideContent()和homeContent()。  
 2、定义showSideBar来判断是否展示侧边栏，定义mediaquery.MediaQueryListener媒体监听器smListener、mdListener、lgListener。  
 3、在aboutToAppear调用mediaquery对界面进行监听,[源码参考](product/default/src/main/ets/pages/Home.ets )。     
-4、监听到当前屏幕大小，调用this.isBreakpoint断点，对curBp、showSideBar进行赋值,[源码参考](product/default/src/main/ets/pages/Home.ets )。  
+4、监听到当前屏幕大小，调用this.isBreakpoint断点，对curBp、showSideBar进行赋值,[源码参考](product/default/src/main/ets/pages/Home.ets )。
 
 ### 相关权限
 

@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+let uiContext = AppStorage.get('uiContext') as UIContext;
+let resourceManager = uiContext.getHostContext()!.resourceManager;
+
 // 时间格式 调整
 export default class FormDate {
   // 月+日
@@ -51,18 +54,18 @@ export default class FormDate {
   formTimeSlot(hour?: number): string {
     let now = hour ? hour : new Date().getHours();
     if (now >= 0 && now <= 8) {
-      return '早上';
+      return resourceManager!.getStringSync($r('app.string.morning'));
     } else if (now >= 9 && now < 11) {
-      return '上午';
+      return resourceManager!.getStringSync($r('app.string.forenoon'));
     } else if (now >= 11 && now <= 13) {
-      return '中午';
+      return resourceManager!.getStringSync($r('app.string.midday'));
     } else if (now >= 14 && now <= 16) {
-      return '下午';
+      return resourceManager!.getStringSync($r('app.string.afternoon'));
     } else if (now >= 17 && now <= 19) {
-      return '傍晚';
+      return resourceManager!.getStringSync($r('app.string.sunset'));
     } else if (now >= 19 && now <= 23) {
-      return '晚上';
+      return resourceManager!.getStringSync($r('app.string.night'));
     }
-    return '早上';
+    return resourceManager!.getStringSync($r('app.string.morning'));
   }
 }

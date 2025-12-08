@@ -22,7 +22,7 @@ export default struct AirQuality {
   settings: RenderingContextSettings = new RenderingContextSettings(true);
   context: CanvasRenderingContext2D = new CanvasRenderingContext2D(this.settings);
   airIndexData: AirIndex[] = getAirIndexData(0);
-  airData: AirData = getHeaderDate(0).airData;
+  airData: AirData = getHeaderDate(0).airData!;
 
   build() {
     Row() {
@@ -43,7 +43,7 @@ export default struct AirQuality {
       .justifyContent(FlexAlign.Center)
 
       List({ space: 12 }) {
-        ForEach(this.airIndexData, (item: AirIndex, index: number) => {
+        ForEach(this.airIndexData, (item: AirIndex) => {
           ListItem() {
             Row() {
               Text(item.index)

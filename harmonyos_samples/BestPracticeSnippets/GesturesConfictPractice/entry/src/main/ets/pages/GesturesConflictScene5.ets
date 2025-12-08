@@ -37,7 +37,7 @@ struct GesturesConflictScene5 {
                 this.getUIContext().getPromptAction().showToast({ message: 'GesturesConflictScene5 Button2 click' });
               } catch (err) {
                 let error = err as BusinessError;
-                hilog.error(0x0000, 'testTag', `showToast err, code: ${error.code}, mesage: ${error.message}`);
+                hilog.error(0x0000, 'testTag', `showToast err, code: ${error.code}, message: ${error.message}`);
               }
           })
       }

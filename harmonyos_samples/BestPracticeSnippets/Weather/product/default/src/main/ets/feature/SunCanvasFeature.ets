@@ -12,6 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { hilog } from "@kit.PerformanceAnalysisKit";
+
+
+const DOMAIN = 0x0000;
+let uiContext = AppStorage.get('uiContext') as UIContext;
+let resourceManager = uiContext.getHostContext()!.resourceManager;
 
 /**
  * 日出日落图
@@ -27,68 +33,72 @@ function initSun(context: CanvasRenderingContext2D, img: ImageBitmap) {
    * 绘制
    */
 
-  let begin = '日出 早上6:00';
-  let final = '日落 傍晚5:32';
-  let now = new Date();
-  let time: number = now.getHours();
-  let flag = true; // 太阳是否绘制
-  let scale: number = Math.floor((time - 6) * 18 / 11);
-  if (now.getHours() < 6 || now.getHours() >= 17) {
-    flag = false;
-    scale = 0;
-  }
+  try {
+    let begin = resourceManager!.getStringSync($r('app.string.sunrise_begin').id);
+    let final = resourceManager!.getStringSync($r('app.string.sunset_final').id);
+    let now = new Date();
+    let time: number = now.getHours();
+    let flag = true; // 太阳是否绘制
+    let scale: number = Math.floor((time - 6) * 18 / 11);
+    if (now.getHours() < 6 || now.getHours() >= 17) {
+      flag = false;
+      scale = 0;
+    }
 
-  let width = context.width, height = context.height;
+    let width = context.width, height = context.height;
 
+    // 下线
+    context.beginPath();
+    context.strokeStyle = "#33FFFFFF";
+    context.setLineDash([]);
+    context.moveTo(0, height - 54);
+    context.lineTo(width, height - 54);
+    context.stroke();
 
-  // 下线
-  context.beginPath();
-  context.strokeStyle = "#33FFFFFF";
-  context.setLineDash([]);
-  context.moveTo(0, height - 54);
-  context.lineTo(width, height - 54);
-  context.stroke();
+    // 文字
+    context.font = '20px';
+    context.fillStyle = "#99FFFFFF";
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(begin, width / 6, height - 40);
 
-  // 文字
-  context.font = '20px';
-  context.fillStyle = "#99FFFFFF";
-  context.textAlign = 'center';
-  context.textBaseline = 'middle';
-  context.fillText(begin, width / 6, height - 40);
+    context.font = '20px';
+    context.fillStyle = "#99FFFFFF";
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(final, width / 6 * 5, height - 40);
 
-  context.font = '20px';
-  context.fillStyle = "#99FFFFFF";
-  context.textAlign = 'center';
-  context.textBaseline = 'middle';
-  context.fillText(final, width / 6 * 5, height - 40);
-
-  // 渐变色
-  let color = context.createLinearGradient(0, 0, width, height);
-  color.addColorStop(0, '#FFAF38');
-  color.addColorStop(scale / 18, '#DDFAD961');
-  color.addColorStop(1, '#11FFFFFF');
-  context.save();
-  context.beginPath();
-  context.lineWidth = 1;
-  if (flag) {
-    context.strokeStyle = color;
-  } else {
-    context.strokeStyle = '#33C0C0C0';
-  }
-  context.arc(width / 2, height - 25, width * 0.4, Math.PI / 180 * 193, Math.PI * 2 / 180 * 173, false);
-  context.setLineDash([8]);
-  context.stroke();
-  context.restore();
-
-  if (flag) {
-    // x为刻度线
+    // 渐变色
+    let color = context.createLinearGradient(0, 0, width, height);
+    color.addColorStop(0, '#FFAF38');
+    color.addColorStop(scale / 18, '#DDFAD961');
+    color.addColorStop(1, '#11FFFFFF');
     context.save();
-    // 弧度*π/180 得到弧度
-    let deg = Math.PI / 180 * (193 + scale * 9);
-    let offsetX = -(Math.cos(deg) * width * 0.4);
-    let offsetY = -(Math.sin(deg) * width * 0.40);
+    context.beginPath();
+    context.lineWidth = 1;
+    if (flag) {
+      context.strokeStyle = color;
+    } else {
+      context.strokeStyle = '#33C0C0C0';
+    }
+    context.arc(width / 2, height - 25, width * 0.4, Math.PI / 180 * 193, Math.PI * 2 / 180 * 173, false);
+    context.setLineDash([8]);
+    context.stroke();
+    context.restore();
 
-    context.drawImage(img, 0, 0, 120, 120, width / 2 - offsetX - 12, height - 37 - offsetY, 24, 24);
+    if (flag) {
+      // x为刻度线
+      context.save();
+      // 弧度*π/180 得到弧度
+      let deg = Math.PI / 180 * (193 + scale * 9);
+      let offsetX = -(Math.cos(deg) * width * 0.4);
+      let offsetY = -(Math.sin(deg) * width * 0.40);
+
+      context.drawImage(img, 0, 0, 120, 120, width / 2 - offsetX - 12, height - 37 - offsetY, 24, 24);
+    }
+  } catch (error) {
+    hilog.error(DOMAIN, 'testTag', '%{public}s',
+      `getStringSync failed, error code: ${error.code}, message: ${error.message}.`);
   }
 }
 
@@ -107,68 +117,73 @@ function initMoon(context: CanvasRenderingContext2D, img: ImageBitmap, iconMoon:
     * 绘制
     */
 
-  let begin = '月出 傍晚5:12';
-  let final = '月落 早上6:20';
-  let now = new Date();
-  let time: number = now.getHours();
-  let flag = true; // 月亮是否绘制
-  let index: number = time >= 17 ? time - 17 : time + 7;
-  let scale = Math.floor(index * 18 / 13);
-  if (now.getHours() >= 6 && now.getHours() < 17) {
-    flag = false;
-    scale = 0;
-  }
+  try {
+    let begin = resourceManager!.getStringSync($r('app.string.moonrise_begin').id);
+    let final = resourceManager!.getStringSync($r('app.string.moonset_final').id);
+    let now = new Date();
+    let time: number = now.getHours();
+    let flag = true; // 月亮是否绘制
+    let index: number = time >= 17 ? time - 17 : time + 7;
+    let scale = Math.floor(index * 18 / 13);
+    if (now.getHours() >= 6 && now.getHours() < 17) {
+      flag = false;
+      scale = 0;
+    }
 
-  let width = context.width, height = context.height;
+    let width = context.width, height = context.height;
 
-  // 文字
-  context.font = '20px';
-  context.fillStyle = "#99FFFFFF";
-  context.textAlign = 'center';
-  context.textBaseline = 'middle';
-  context.fillText(begin, width / 6, height - 20);
+    // 文字
+    context.font = '20px';
+    context.fillStyle = "#99FFFFFF";
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(begin, width / 6, height - 20);
 
-  context.font = '20px';
-  context.fillStyle = "#99FFFFFF";
-  context.textAlign = 'center';
-  context.textBaseline = 'middle';
-  context.fillText('上弦月', width / 2, height - 20);
+    context.font = '20px';
+    context.fillStyle = "#99FFFFFF";
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(resourceManager!.getStringSync($r('app.string.first_quarter').id), width / 2, height - 20);
 
-  context.font = '20px';
-  context.fillStyle = "#99FFFFFF";
-  context.textAlign = 'center';
-  context.textBaseline = 'middle';
-  context.fillText(final, width / 6 * 5, height - 20);
+    context.font = '20px';
+    context.fillStyle = "#99FFFFFF";
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(final, width / 6 * 5, height - 20);
 
-  context.drawImage(iconMoon, 0, 0, 16, 16, width / 2 - 5, height - 45, 24, 24);
+    context.drawImage(iconMoon, 0, 0, 16, 16, width / 2 - 5, height - 45, 24, 24);
 
-  // 渐变色
-  let color = context.createLinearGradient(0, 0, width, height);
-  color.addColorStop(0, '#FFAF38');
-  color.addColorStop(scale / 18, '#DDFAD961');
-  color.addColorStop(1, '#11FFFFFF');
-  context.save();
-  context.beginPath();
-  context.lineWidth = 1;
-  if (flag) {
-    context.strokeStyle = color;
-  } else {
-    context.strokeStyle = '#33C0C0C0';
-  }
-  context.arc(width / 2, height - 25, width * 0.3, Math.PI / 180 * 197, Math.PI * 2 / 180 * 171, false);
-  context.setLineDash([8]);
-  context.stroke();
-  context.restore();
-
-  if (flag) {
-    // x为刻度线
+    // 渐变色
+    let color = context.createLinearGradient(0, 0, width, height);
+    color.addColorStop(0, '#FFAF38');
+    color.addColorStop(scale / 18, '#DDFAD961');
+    color.addColorStop(1, '#11FFFFFF');
     context.save();
-    // 弧度*π/180 得到弧度
-    let deg = Math.PI / 180 * (197 + scale * 9);
-    let offsetX = -(Math.cos(deg) * width * 0.3);
-    let offsetY = -(Math.sin(deg) * width * 0.3);
+    context.beginPath();
+    context.lineWidth = 1;
+    if (flag) {
+      context.strokeStyle = color;
+    } else {
+      context.strokeStyle = '#33C0C0C0';
+    }
+    context.arc(width / 2, height - 25, width * 0.3, Math.PI / 180 * 197, Math.PI * 2 / 180 * 171, false);
+    context.setLineDash([8]);
+    context.stroke();
+    context.restore();
 
-    context.drawImage(img, 0, 0, 120, 120, width / 2 - offsetX - 12, height - 37 - offsetY, 24, 24);
+    if (flag) {
+      // x为刻度线
+      context.save();
+      // 弧度*π/180 得到弧度
+      let deg = Math.PI / 180 * (197 + scale * 9);
+      let offsetX = -(Math.cos(deg) * width * 0.3);
+      let offsetY = -(Math.sin(deg) * width * 0.3);
+
+      context.drawImage(img, 0, 0, 120, 120, width / 2 - offsetX - 12, height - 37 - offsetY, 24, 24);
+    }
+  } catch (error) {
+    hilog.error(DOMAIN, 'testTag', '%{public}s',
+      `getStringSync failed, error code: ${error.code}, message: ${error.message}.`);
   }
 }
 

@@ -24,7 +24,7 @@ struct Index {
 
   jumperPage(url: string) {
     this.router.pushUrl({ url: `pages/${url}` }).catch((error: BusinessError) => {
-      console.error(`reset err, code: ${error.code}, mesage: ${error.message}`);
+      console.error(`reset err, code: ${error.code}, message: ${error.message}`);
     });
   }
 
