@@ -71,17 +71,16 @@ export struct CustomKeyboard {
       const ui = this.getUIContext();
       const screenHeightVp = ui.px2vp(d.height);
       const shortSideVp = ui.px2vp(Math.min(d.width, d.height));
-      const isLargeScreen = shortSideVp >= 600; // 近似判定平板/大屏
-  
-      // 手机：竖屏横屏 36%(不支持横竖屏切换)
-      // 平板：竖屏 22%，横屏 33%（降低高度以适配大屏）
+      // Approximate judgment for tablet/large screen
+      const isLargeScreen = shortSideVp >= 600;
+      // Phone: Portrait/Landscape 36% (no orientation switching supported)
+      // Tablet: Portrait 22%, Landscape 33% (reduce height to adapt to large screen)
       const ratio = isLargeScreen
           ? (this.isLandscape ? 0.33 : 0.22)
           :  0.36;
   
       return Math.floor(screenHeightVp * ratio);
     } catch (e) {
-      // 显示信息不可用时的兜底，仍使用旧的资源高度
       return $r('app.float.keyboard_total_height');
     }
   }

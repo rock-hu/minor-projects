@@ -1,4 +1,4 @@
-# Push Kit体验
+# 消息通知-推送服务-客户端
 
 ## 简介
 本示例基于HarmonyOS实现了申请Push Token和推送场景化消息功能。
