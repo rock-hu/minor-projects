@@ -22,6 +22,7 @@ struct Index {
         .onClick(()=>{
           hidebug.getPss();
           // [Start TestJSError]
+          // In a production environment, encrypted error codes should be used instead of plain text descriptions.
           throw new Error("TEST JS ERROR")
           // [End TestJSError]
         })

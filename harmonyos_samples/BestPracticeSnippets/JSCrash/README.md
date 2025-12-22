@@ -11,21 +11,36 @@
 
 ### 工程目录
 ```
-├──entry/src/main/ets                                   
-│  ├──entryability
-│  │  └──EntryAbility.ets                               // 程序入口类
-│  ├──entrybackupability
-│  │  └──EntryBackupAbility.ets                         // 数据恢复类
-│  └──pages             
-│     ├──Index.ets                                      // 首页     
-│     ├── JSCrashCaseAnalyse1.ets                       // ArkTS样例代码
-│     ├── JSCrashCaseAnalyse2.ets                       // ArkTS样例代码 
-│     ├── JSCrashCaseAnalyse3.ets                       // ArkTS样例代码 
-│     ├── JSCrashCaseAnalyse4.ets                       // ArkTS样例代码 
-│     ├── JSCrashCaseAnalyse5.ets                       // ArkTS样例代码 
-│     ├── JSCrashQuestionCheck.ets                      // ArkTS样例代码 
-│     └── utils.ets                                     // 工具类                              
-└──entry/src/main/resources                             // 应用资源目录
+├──entry/src/main/
+│  ├──cpp
+│  │   ├──types/libentry
+│  │   │    └──Index.d.ts
+│  │   ├── CMakeLists.txt
+│  │   └── napi_init.cpp                                      // C++ 样例代码
+│  └──ets
+│      ├──pages
+│      │    ├──Index.ets                                      // 首页     
+│      │    ├── JSCrashCaseAnalyse1.ets                       // ArkTS样例代码
+│      │    ├── JSCrashCaseAnalyse2.ets                       // ArkTS样例代码
+│      │    ├── JSCrashCaseAnalyse3.ets                       // ArkTS样例代码
+│      │    ├── JSCrashCaseAnalyse4.ets                       // ArkTS样例代码
+│      │    ├── JSCrashCaseAnalyse5.ets                       // ArkTS样例代码
+│      │    ├── JSCrashCaseAnalyse6.js                        // ArkTS样例代码
+│      │    ├── JSCrashCaseAnalyse7.js                        // ArkTS样例代码
+│      │    ├── JSCrashCaseAnalyse8.ets                       // ArkTS样例代码
+│      │    ├── JSCrashCaseAnalyse9.ets                       // ArkTS样例代码
+│      │    ├── JSCrashCaseAnalyse10.ets                      // ArkTS样例代码
+│      │    ├── JSCrashCaseAnalyse11.ets                      // ArkTS样例代码
+│      │    ├── JSCrashCaseAnalyse12.ets                      // ArkTS样例代码
+│      │    ├── JSCrashCaseAnalyse13.ets                      // ArkTS样例代码
+│      │    ├── JSCrashCaseAnalyse14.ets                      // ArkTS样例代码
+│      │    ├── JSCrashQuestionCheck.ets                      // ArkTS样例代码
+│      │    └── utils.ets                                     // 工具类
+│      ├──entryability
+│      │    └──EntryAbility.ets                               // Ability的生命周期回调内容
+│      └──entrybackupability
+│           └──EntryBackupAbility.ets                         // 应用数据备份恢复类
+└──entry/src/main/resources                                   // 应用资源目录
 ```
 
 ### 具体实现

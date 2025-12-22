@@ -28,14 +28,6 @@ class Index extends BaseComponent{
     } catch (error) {
       log.showError('wifiConnectionChange error');
     }
-    try {
-      wifiManager.on('wifiStateChange', (data) => {
-        this.isWifiActive = data === 1 ? true : false;
-        this.handleUpdateState();
-      });
-    } catch (error) {
-      log.showError('wifiStateChange error');
-    }
 
   }
   // [End JSCrashCaseAnalyse5]

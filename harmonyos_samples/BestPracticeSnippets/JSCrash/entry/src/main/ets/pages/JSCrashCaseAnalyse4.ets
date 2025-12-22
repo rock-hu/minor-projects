@@ -24,10 +24,6 @@ class Index extends BaseComponent{
       this.isConnected = data === 1 ? true : false;
       this.handleUpdateState();
     });
-    wifiManager.on('wifiStateChange', (data) => {
-      this.isWifiActive = data === 1 ? true : false;
-      this.handleUpdateState();
-    });
 
   }
   // [End JSCrashCaseAnalyse4]

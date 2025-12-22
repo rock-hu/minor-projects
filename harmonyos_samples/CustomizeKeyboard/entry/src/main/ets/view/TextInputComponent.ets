@@ -19,8 +19,10 @@ import { CustomKeyboard } from './CustomKeyboard';
 import { TabView } from './TabView';
 
 // [Start TextInputComponent_start]
+// [Start KeyboardStatus_start]
 @Component
 export struct TextInputComponent {
+  // [StartExclude KeyboardStatus_start]
   @Provide inputText: string = '';
   // [StartExclude TextInputComponent_start]
   @Provide keyboardController: KeyboardController = new KeyboardController();
@@ -29,7 +31,9 @@ export struct TextInputComponent {
   @Provide systemKeyboardHeight: number = 0;
   @Provide customKeyboardHeight: number = 0;
   @Provide bottomRectHeight: number = 0;
+  // [EndExclude KeyboardStatus_start]
   @Link @Watch('onChangeKeyboard') isKeyboardShown: boolean;
+  // [StartExclude KeyboardStatus_start]
   textInputController: TextInputController = new TextInputController();
 
   aboutToAppear(): void {
@@ -48,7 +52,7 @@ export struct TextInputComponent {
       })
     })
   }
-
+  // [EndExclude KeyboardStatus_start]
   onChangeKeyboard() {
     if (this.isKeyboardShown === false) {
       this.textInputController.stopEditing();
@@ -57,6 +61,7 @@ export struct TextInputComponent {
 
   // [EndExclude TextInputComponent_start]
 // [Start customKeyboard_start]
+  // [StartExclude KeyboardStatus_start]
   build() {
     Column() {
       // [Start TextInput_start]
@@ -85,15 +90,21 @@ export struct TextInputComponent {
           this.keyboardController.setCaretPosition(start, end);
         })
           // [StartExclude TextInput_start]
+        // [Start KeyboardEvent_start]
         .onBlur(() => {
-          this.isTabViewShow = false;
           this.isKeyboardShown = false;
+          // [StartExclude KeyboardEvent_start]
+          this.isTabViewShow = false;
           this.keyboardController.changeAvoidHeight(0);
+          // [EndExclude KeyboardEvent_start]
         })
         .onFocus(() => {
-          this.isTabViewShow = true;
           this.isKeyboardShown = true;
+          // [StartExclude KeyboardEvent_start]
+          this.isTabViewShow = true;
+          // [EndExclude KeyboardEvent_start]
         })
+        // [End KeyboardEvent_start]
         .onChange((value) => {
           this.inputText = value;
           this.keyboardController.onChange(value);
@@ -117,7 +128,10 @@ export struct TextInputComponent {
     CustomKeyboard()
   }
   // [EndExclude TextInputComponent_start]
+  // [EndExclude KeyboardStatus_start]
 }
+
+// [End KeyboardStatus_start]
 // [EndExclude TextInput_start]
 // [End TextInput_start]
 // [End customKeyboard_start]

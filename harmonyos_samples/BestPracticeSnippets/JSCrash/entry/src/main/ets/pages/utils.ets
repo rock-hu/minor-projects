@@ -4,7 +4,12 @@ const TAG: string = 'ZCM_Default';
 
 const DOMAIN: number = 0x0011;
 const SYMBOL: string = " --> ";
-
+// [Start TestJSErrorUtils]
+@Concurrent
+export function printArgs(args: number): number {
+  return args
+}
+// [End TestJSErrorUtils]
 export class Log {
   /**
    * Outputs info-level logs.

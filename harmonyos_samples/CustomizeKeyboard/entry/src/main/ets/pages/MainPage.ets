@@ -14,16 +14,18 @@
  */
 
 import { emitter } from '@kit.BasicServicesKit';
-import { Constants } from '../constants/Constants';
 import { TextInputComponent } from '../view/TextInputComponent';
 
 // [Start MainPage_start]
+// [Start MainPageKeyboard_start]
 @Entry
 @Component
 struct MainPage {
+  // [StartExclude MainPageKeyboard_start]
   @State bottomPadding: number = 210;
+  // [EndExclude MainPageKeyboard_start]
   @State isKeyboardShown: boolean = false;
-
+  // [StartExclude MainPageKeyboard_start]
   aboutToAppear(): void {
     let event: emitter.InnerEvent = {
       eventId: 1
@@ -39,11 +41,12 @@ struct MainPage {
       }
     })
   }
-
+  // [EndExclude MainPageKeyboard_start]
   build() {
     Navigation() {
       Column() {
         // [StartExclude MainPage_start]
+        // [StartExclude MainPageKeyboard_start]
         Image($r('app.media.arkui_background'))
           .height($r('app.float.main_page_image_height'))
           .width('100%')
@@ -51,13 +54,16 @@ struct MainPage {
           .padding({ left: $r('app.float.main_page_margin'), right: $r('app.float.main_page_margin') })
 
         TextInputComponent({ isKeyboardShown: this.isKeyboardShown })
+        // [EndExclude MainPageKeyboard_start]
         // [EndExclude MainPage_start]
       }
+      // [StartExclude MainPageKeyboard_start]
       .padding({ bottom: this.bottomPadding })
       // [StartExclude MainPage_start]
       .height('100%')
       .justifyContent(FlexAlign.End)
       .expandSafeArea([SafeAreaType.KEYBOARD, SafeAreaType.SYSTEM])
+      // [EndExclude MainPageKeyboard_start]
       // [EndExclude MainPage_start]
     }
     .onClick(() => {
@@ -70,4 +76,5 @@ struct MainPage {
     .title($r('app.string.main_page_title'))
   }
 }
+// [End MainPageKeyboard_start]
 // [End MainPage_start]

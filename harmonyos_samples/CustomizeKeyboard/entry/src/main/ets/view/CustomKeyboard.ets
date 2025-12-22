@@ -21,23 +21,28 @@ import display from '@ohos.display';
 
 // [Start customKeyboard_start1]
 // [Start avoidHeight_start]
+// [Start customKeyboardStatus_start]
+// [Start customKeyboardStatus_start1]
+// [Start customKeyboardStatus_start2]
 @Component
 export struct CustomKeyboard {
   // [StartExclude avoidHeight_start]
   // [StartExclude customKeyboard_start1]
+  // [StartExclude customKeyboardStatus_start]
+  // [StartExclude customKeyboardStatus_start1]
+  // [StartExclude customKeyboardStatus_start2]
   @Consume isCustomKeyboardAttach: boolean;
   @Consume inputText: string;
   @Consume keyboardController: KeyboardController;
   @Consume systemKeyboardHeight: number;
   @Consume customKeyboardHeight: number;
   @Consume bottomRectHeight: number;
-  // [EndExclude avoidHeight_start]
-  // [EndExclude customKeyboard_start1]
 
   @State isLandscape: boolean = false;
   private onDisplayChange = () => {
     this.updateOrientation();
   };
+  // [EndExclude customKeyboardStatus_start]
 
   aboutToAppear(): void {
     this.updateOrientation();
@@ -64,6 +69,8 @@ export struct CustomKeyboard {
       this.isLandscape = false;
     }
   }
+  // [EndExclude customKeyboardStatus_start1]
+  // [StartExclude customKeyboardStatus_start]
 
   private getKeyboardHeightVp(): number | Resource {
     try {
@@ -84,8 +91,12 @@ export struct CustomKeyboard {
       return $r('app.float.keyboard_total_height');
     }
   }
-
+  // [EndExclude customKeyboard_start1]
+  // [EndExclude customKeyboardStatus_start2]
+  // [StartExclude customKeyboardStatus_start1]
+  // [EndExclude avoidHeight_start]
   build() {
+    // [StartExclude customKeyboardStatus_start2]
     Column() {
       // [StartExclude avoidHeight_start]
       // [StartExclude customKeyboard_start1]
@@ -101,13 +112,16 @@ export struct CustomKeyboard {
       // [EndExclude customKeyboard_start1]
       // [EndExclude avoidHeight_start]
     }
+    // [EndExclude customKeyboardStatus_start2]
     // [StartExclude customKeyboard_start1]
+    // [StartExclude customKeyboardStatus_start2]
     .onAreaChange((oldValue: Area, newValue: Area) => {
       this.customKeyboardHeight = Number(newValue.height);
       let avoidHeight: number = (this.isCustomKeyboardAttach ? this.customKeyboardHeight : this.systemKeyboardHeight)
         - this.bottomRectHeight;
       this.keyboardController.changeAvoidHeight(avoidHeight);
     })
+    // [EndExclude customKeyboardStatus_start2]
     // [StartExclude avoidHeight_start]
     .padding({ left: $r('app.float.keyboard_padding'), right: $r('app.float.keyboard_padding') })
     // [EndExclude customKeyboard_start1]
@@ -118,7 +132,12 @@ export struct CustomKeyboard {
     // [EndExclude customKeyboard_start1]
     // [EndExclude avoidHeight_start]
   }
+  // [EndExclude customKeyboardStatus_start]
+  // [EndExclude customKeyboardStatus_start1]
 }
+// [End customKeyboardStatus_start2]
+// [End customKeyboardStatus_start1]
+// [End customKeyboardStatus_start]
 // [End customKeyboard_start1]
 // [End avoidHeight_start]
 
