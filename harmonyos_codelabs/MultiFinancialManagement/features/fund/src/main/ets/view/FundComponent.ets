@@ -229,7 +229,8 @@ export struct FundComponent {
   @Builder
   buildTabBarText(text: ResourceStr, index: number) {
     Text(text)
-      .fontSize($r('app.float.tab_text_size_fund'))
+      .fontSize(this.currentPoint === CommonConstants.BREAK_POINT_SM ? $r('app.float.tab_text_size_fund_sm') :
+        $r('app.float.tab_text_size_fund'))
       .lineHeight($r('app.float.common_line_height'))
       .fontColor(this.tabBarIndex === index ? $r('app.color.harmony_blue') : Color.Black)
       .border({
