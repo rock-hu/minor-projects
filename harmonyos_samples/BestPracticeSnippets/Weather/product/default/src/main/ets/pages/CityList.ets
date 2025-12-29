@@ -46,7 +46,7 @@ struct CityList {
   getResourceFile(weather: Resource): Resource | undefined {
     try {
       return getSideBg(this.getUIContext()
-        .getHostContext()?.resourceManager.getStringSync((weather as Resource)) as string);
+        .getHostContext()?.resourceManager.getStringSync((weather as Resource).id) as string);
     } catch (error) {
       hilog.error(0x0000, 'testTag', '%{public}s',
         `getStringSync failed, error code: ${error.code}, message: ${error.message}.`);

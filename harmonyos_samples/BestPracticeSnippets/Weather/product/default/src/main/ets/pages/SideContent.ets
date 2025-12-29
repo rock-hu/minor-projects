@@ -93,7 +93,7 @@ struct CityItem {
   getResourceFile(): Resource | undefined {
     try {
       return getSideBg(this.getUIContext()
-        .getHostContext()?.resourceManager.getStringSync((this.cityInfo!.weather as Resource)) as string);
+        .getHostContext()?.resourceManager.getStringSync((this.cityInfo!.weather as Resource).id) as string);
     } catch (error) {
       hilog.error(DOMAIN, 'testTag', '%{public}s',
         `getStringSync failed, error code: ${error.code}, message: ${error.message}.`);

@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+import { hilog } from '@kit.PerformanceAnalysisKit';
+
 let uiContext = AppStorage.get('uiContext') as UIContext;
 let resourceManager = uiContext.getHostContext()!.resourceManager;
 
@@ -53,19 +55,26 @@ export default class FormDate {
   // 当前时间节点称谓
   formTimeSlot(hour?: number): string {
     let now = hour ? hour : new Date().getHours();
-    if (now >= 0 && now <= 8) {
-      return resourceManager!.getStringSync($r('app.string.morning'));
-    } else if (now >= 9 && now < 11) {
-      return resourceManager!.getStringSync($r('app.string.forenoon'));
-    } else if (now >= 11 && now <= 13) {
-      return resourceManager!.getStringSync($r('app.string.midday'));
-    } else if (now >= 14 && now <= 16) {
-      return resourceManager!.getStringSync($r('app.string.afternoon'));
-    } else if (now >= 17 && now <= 19) {
-      return resourceManager!.getStringSync($r('app.string.sunset'));
-    } else if (now >= 19 && now <= 23) {
-      return resourceManager!.getStringSync($r('app.string.night'));
+    let defaultResources: string | undefined = undefined;
+    try {
+      defaultResources = resourceManager!.getStringSync($r('app.string.morning').id);
+      if (now >= 0 && now <= 8) {
+        return resourceManager!.getStringSync($r('app.string.morning').id);
+      } else if (now >= 9 && now < 11) {
+        return resourceManager!.getStringSync($r('app.string.forenoon').id);
+      } else if (now >= 11 && now <= 13) {
+        return resourceManager!.getStringSync($r('app.string.midday').id);
+      } else if (now >= 14 && now <= 16) {
+        return resourceManager!.getStringSync($r('app.string.afternoon').id);
+      } else if (now >= 17 && now <= 19) {
+        return resourceManager!.getStringSync($r('app.string.sunset').id);
+      } else if (now >= 19 && now <= 23) {
+        return resourceManager!.getStringSync($r('app.string.night').id);
+      }
+    } catch (error) {
+      hilog.error(0x0000, 'FormDate', '%{public}s',
+        `getStringSync failed, error code: ${error.code}, message: ${error.message}.`);
     }
-    return resourceManager!.getStringSync($r('app.string.morning'));
+    return defaultResources!;
   }
 }

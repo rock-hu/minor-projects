@@ -90,8 +90,7 @@ export struct RenderGroup {
               .transition(
                 TransitionEffect.scale({ x: 0.5, y: 0.5 })
                   .animation({ duration: 3000, curve: Curve.FastOutSlowIn, iterations: -1 })
-                  .combine(TransitionEffect.rotate({ z: 1, angle: 360 })
-                    .animation({ duration: 3000, curve: Curve.Linear, iterations: -1 }))
+                  .combine(TransitionEffect.rotate({ z: 1, angle: 360 }))
               )
           }
           .height(70)

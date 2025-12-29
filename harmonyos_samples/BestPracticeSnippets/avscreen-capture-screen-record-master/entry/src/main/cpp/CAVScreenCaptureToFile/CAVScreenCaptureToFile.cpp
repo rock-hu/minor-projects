@@ -87,7 +87,7 @@ void CAVScreenCaptureToFile::OnStateChangeSaveFile(struct OH_AVScreenCapture *ca
     }
     case OH_SCREEN_CAPTURE_STATE_INTERRUPTED_BY_OTHER: {
         OH_LOG_INFO(LOG_APP,
-                    "录屏状态被被打断");
+                    "录屏状态被打断");
         break;
     }
     case OH_SCREEN_CAPTURE_STATE_MIC_MUTED_BY_USER: {

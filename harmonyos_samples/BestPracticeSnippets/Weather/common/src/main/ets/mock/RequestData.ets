@@ -14,6 +14,7 @@
  */
 
 
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import FormDate from '../model/FormDate';
 import { AirData, AirIndex, City, CityListData, Forecast, HeaderData, WeekWeather, SuitData } from '../model/Main';
 import { MenuData } from '../model/MenuData';
@@ -84,23 +85,31 @@ function getMenuInfo(): MenuData[] {
 // 获取首页顶部显示信息
 function getHeaderDate(cityIndex: number, city?: City) {
   // 生成空气质量对象
-  let air: AirData =
-    new AirData(weather[cityIndex].aqi.air,
-      resourceManager!.getStringSync(weather[cityIndex].aqi.airLevel as Resource));
-  return new HeaderData(city ? city.name : resourceManager!.getStringSync(weather[cityIndex].city as Resource),
-    weather[cityIndex].data[1].tem,
-    resourceManager!.getStringSync(weather[cityIndex].data[1].wea as Resource), weather[cityIndex].data[1].tem1,
-    weather[cityIndex].data[1].tem2,
-    getTypeIcon(resourceManager!.getStringSync(weather[cityIndex].data[1].wea as Resource)), air,
-    resourceManager!.getStringSync(weather[cityIndex].data[1].airTips as Resource));
+  let air: AirData | undefined = undefined;
+  let headerData: HeaderData | undefined = undefined;
+  try {
+    air = new AirData(weather[cityIndex].aqi.air,
+      resourceManager!.getStringSync((weather[cityIndex].aqi.airLevel as Resource).id));
+    headerData =
+      new HeaderData(city ? city.name : resourceManager!.getStringSync((weather[cityIndex].city as Resource).id),
+        weather[cityIndex].data[1].tem, resourceManager!.getStringSync((weather[cityIndex].data[1].wea as Resource).id),
+        weather[cityIndex].data[1].tem1, weather[cityIndex].data[1].tem2,
+        getTypeIcon(resourceManager!.getStringSync((weather[cityIndex].data[1].wea as Resource).id)), air,
+        resourceManager!.getStringSync((weather[cityIndex].data[1].airTips as Resource).id));
+  } catch (error) {
+    hilog.error(0x0000, 'RequestData', '%{public}s',
+      `getStringSync failed, error code: ${error.code}, message: ${error.message}.`);
+  }
+  return headerData;
 }
 
 function getCityList() {
   let cities: Array<City> = [];
   if (cityData) {
     cityData.forEach(item => {
-      cities.push(new City(resourceManager!.getStringSync(item.name as Resource), item.temp, item.weather as Resource));
-    })
+      cities.push(new City(resourceManager!.getStringSync((item.name as Resource).id), item.temp,
+        item.weather as Resource));
+    });
   }
   return cities;
 }
@@ -128,8 +137,8 @@ function getCityListWeatherData() {
     cities.forEach((item, cityIndex) => {
       let index = cityIndex % 5;
       let air: AirData = new AirData(weather[cityIndex].aqi.air,
-        resourceManager!.getStringSync(weather[cityIndex].aqi.airLevel as Resource));
-      cityListWeatherData.push(new CityListData(item.name, getHeaderDate(index, item), getHoursData(index),
+        resourceManager!.getStringSync((weather[cityIndex].aqi.airLevel as Resource).id));
+      cityListWeatherData.push(new CityListData(item.name, getHeaderDate(index, item)!, getHoursData(index),
         getWeekWeatherData(index), air, getAirIndexData(index), getLifeData(index)));
       titles.push('');
     })
@@ -145,12 +154,11 @@ function getHoursData(cityIndex: number) {
   weather[cityIndex].data[1].hours.forEach(item => {
     let time = item.hours.substring(0, item.hours.length - 1);
     hoursData.push(new Forecast(`${item.tem}°`, `${time}:00`, form.formTimeSlot(parseInt(time)),
-      getTypeIcon(resourceManager!!.getStringSync(item.wea as Resource)),
-      resourceManager!.getStringSync(item.win as Resource), item.winSpeed));
+      getTypeIcon(resourceManager!!.getStringSync((item.wea as Resource).id)),
+      resourceManager!.getStringSync((item.win as Resource).id), item.winSpeed));
     if (item.hours.indexOf('17') !== -1) {
       hoursData.push(new Forecast('日落', '17:32', form.formTimeSlot(parseInt(time)), getTypeIcon('日落'),
-        resourceManager!.getStringSync(item.win as Resource),
-        item.winSpeed));
+        resourceManager!.getStringSync((item.win as Resource).id), item.winSpeed));
     }
   })
   return hoursData;
@@ -160,11 +168,12 @@ function getHoursData(cityIndex: number) {
 function getWeekWeatherData(cityIndex: number) {
   let weekData = new Array<WeekWeather>();
   weather[cityIndex].data.forEach(item => {
-    weekData.push(new WeekWeather(form.formMonthDay(item.date), resourceManager!.getStringSync(item.week as Resource),
-      getTypeIcon(resourceManager!.getStringSync(item.wea as Resource)),
-      resourceManager!.getStringSync(item.wea as Resource),
-      resourceManager!.getStringSync(item.airLevel as Resource), item.tem1, item.tem2));
-  })
+    weekData.push(new WeekWeather(form.formMonthDay(item.date),
+      resourceManager!.getStringSync((item.week as Resource).id),
+      getTypeIcon(resourceManager!.getStringSync((item.wea as Resource).id)),
+      resourceManager!.getStringSync((item.wea as Resource).id),
+      resourceManager!.getStringSync((item.airLevel as Resource).id), item.tem1, item.tem2));
+  });
   return weekData;
 }
 
@@ -196,9 +205,9 @@ function getLifeData(cityIndex: number) {
     $r('app.media.icon_uv')
   ];
   weather[cityIndex].data[1].index.forEach((item, index) => {
-    suitDate.push(new SuitData(iconList[index], resourceManager!.getStringSync(item.title as Resource),
-      resourceManager!.getStringSync(item.level as Resource)));
-  })
+    suitDate.push(new SuitData(iconList[index], resourceManager!.getStringSync((item.title as Resource).id),
+      resourceManager!.getStringSync((item.level as Resource).id)));
+  });
   return suitDate;
 }
 
