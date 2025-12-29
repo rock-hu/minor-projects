@@ -53,7 +53,10 @@ export struct BannerAdPage {
                   hilog.info(0x0000, TAG, 'Status is onAdClick');
                   break;
                 case 'onAdClose':
-                  hilog.info(0x0000, TAG, 'Status is onAdClose');
+                  hilog.info(0x0000, TAG, `Status is onAdClose, Close Reason is ${data}`);
+                  if (data === 'adCloseBtnClicked') {
+                    // 关闭原因为点击关闭按钮，可根据实际场景添加处理逻辑
+                  }
                   this.visibilityState = Visibility.None;
                   break;
                 case 'onAdLoad':
