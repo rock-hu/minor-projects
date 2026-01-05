@@ -1,5 +1,0 @@
-{
-  "libnativerender.so": {
-    "source": "src/mock/Libnativerender.mock.ets"
-  }
-}

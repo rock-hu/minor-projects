@@ -1,9 +1,0 @@
-{
-  "src": [
-    "pages/Index",
-    "pages/CityListPage",
-    "pages/ProfilePage",
-    "pages/ConcurrentOptPage",
-    "pages/VisionOptPage"
-  ]
-}
