@@ -1,0 +1,60 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "axios"
+    },
+    {
+      "name": "Index_interceptors",
+      "value": "Interceptors"
+    },
+    {
+      "name": "Index_defaults",
+      "value": "Defaults"
+    },
+    {
+      "name": "Index_download",
+      "value": "Download"
+    },
+    {
+      "name": "Index_upload",
+      "value": "Upload"
+    },
+    {
+      "name": "Index_authenticate_no_password",
+      "value": "Authenticate"
+    },
+    {
+      "name": "Index_authenticate",
+      "value": "Authenticate"
+    },
+    {
+      "name": "Index_response_type",
+      "value": "Response Type"
+    },
+    {
+      "name": "Index_proxy",
+      "value": "Set Proxy"
+    },
+    {
+      "name": "Index_upload_progress",
+      "value": "Upload Progress"
+    },
+    {
+      "name": "Index_download_progress",
+      "value": "Download Progress"
+    },
+    {
+      "name": "Index_clear",
+      "value": "Clear Input"
+    }
+  ]
+}

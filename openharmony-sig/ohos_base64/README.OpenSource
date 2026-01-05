@@ -1,0 +1,11 @@
+[
+    {
+        "Name": "Base64",
+        "License": "Apache-2.0 License",
+        "License File": " LICENSE ",
+        "Version Number": "V2.3.7",
+        "Owner" : "base64",
+        "Upstream URL": "https://sourceforge.net/projects/iharder/files/base64/",
+        "Description": "encode/decode tools",
+    }
+]
