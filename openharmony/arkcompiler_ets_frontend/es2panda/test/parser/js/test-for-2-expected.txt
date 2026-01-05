@@ -1,1 +1,0 @@
-SyntaxError: Primary expression expected [test-for-2.js:17:7]

@@ -1,3 +1,0 @@
-test-ts-decorators-4
-a
-123

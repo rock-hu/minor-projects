@@ -1,8 +1,0 @@
-{
-    "name": "MARKER_CELL",
-    "offsets": [],
-    "end_offset": 8,
-    "parents": [
-        "TAGGED_OBJECT"
-    ]
-}

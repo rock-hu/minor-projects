@@ -1,1 +1,0 @@
-# Known failure list for test262 - debug-x64

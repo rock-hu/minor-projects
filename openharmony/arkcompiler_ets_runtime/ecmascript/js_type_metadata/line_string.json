@@ -1,8 +1,0 @@
-{
-    "name": "LINE_STRING",
-    "offsets": [],
-    "end_offset": 0,
-    "parents": [
-        "ECMA_STRING"
-    ]
-}

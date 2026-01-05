@@ -1,1 +1,0 @@
-SyntaxError: Invalid left-hand side operator. [invalid-left-hand-side-in-prefix-operation.js:17:5]

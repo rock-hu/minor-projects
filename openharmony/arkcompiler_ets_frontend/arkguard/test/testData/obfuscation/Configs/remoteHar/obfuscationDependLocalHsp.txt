@@ -1,8 +1,0 @@
--compact
--enable-toplevel-obfuscation
--keep-global-name 
-RemoteHarClass
-LocalHspClass
--keep-property-name 
-remoteHarMethod
-localHspMethod

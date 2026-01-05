@@ -1,1 +1,0 @@
-SyntaxError: Unterminated string [test_single_comment.js:19:1]

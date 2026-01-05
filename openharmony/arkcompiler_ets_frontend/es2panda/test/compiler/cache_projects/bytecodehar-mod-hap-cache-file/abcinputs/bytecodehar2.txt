@@ -1,2 +1,0 @@
-bytecodehar2-file1.ts
-bytecodehar2-file2.ts

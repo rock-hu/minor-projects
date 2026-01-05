@@ -1,3 +1,0 @@
-test-ts-namespace-5
-test-ts-namespace-5
-test-ts-namespace-5

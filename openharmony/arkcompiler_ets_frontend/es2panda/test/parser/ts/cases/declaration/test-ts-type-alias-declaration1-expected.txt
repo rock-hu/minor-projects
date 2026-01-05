@@ -1,1 +1,0 @@
-SyntaxError: Statements are not allowed in ambient contexts. [test-ts-type-alias-declaration1.d.ts:18:26]

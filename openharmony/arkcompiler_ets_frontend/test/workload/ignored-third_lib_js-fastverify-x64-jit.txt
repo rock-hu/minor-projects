@@ -1,2 +1,0 @@
-# Known failures list for third_lib_js - fastverify-x64-jit
-

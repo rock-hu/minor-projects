@@ -1,7 +1,0 @@
--enable-toplevel-obfuscation
--enable-property-obfuscation
--enable-export-obfuscation
--keep-global-name
-LocalMainHspClass 
--keep-property-name
-localMainHspGreeting

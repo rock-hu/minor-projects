@@ -1,9 +1,0 @@
-{
-    "pkgName": "dynamic_har",
-    "files": {
-        "index.ets": {
-            "declFile": "${absolute_path_to_build_system}/test/demo_mix_hap/dynamic_har/index.d.ets",
-            "ohmUrl": "dynamic_har&&index"
-        }
-    }
-}

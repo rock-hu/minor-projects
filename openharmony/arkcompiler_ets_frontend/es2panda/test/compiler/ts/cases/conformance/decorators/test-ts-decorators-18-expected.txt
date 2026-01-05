@@ -1,8 +1,0 @@
-outer-- prop1
-outer-- prop
-inner
-inner
-outer-- prop3
-inner
-outer-- prop2
-inner

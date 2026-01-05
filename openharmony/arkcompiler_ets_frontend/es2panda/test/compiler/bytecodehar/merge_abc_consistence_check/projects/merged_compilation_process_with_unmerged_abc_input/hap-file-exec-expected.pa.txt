@@ -1,1 +1,0 @@
-Current compile mode is merge-abc, all input abc files must be merged mode

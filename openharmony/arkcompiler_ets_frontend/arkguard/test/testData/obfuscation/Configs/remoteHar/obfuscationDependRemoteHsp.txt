@@ -1,8 +1,0 @@
--compact
--remove-log
--keep-global-name 
-RemoteHarClass
-RemoteHspClass
--keep-property-name 
-remoteHarMethod
-remoteHspMethod

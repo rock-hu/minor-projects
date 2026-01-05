@@ -1,6 +1,0 @@
-{
-  "IdentifierCache": {
-    "#default": "default"
-  },
-  "MemberMethodCache": {}
-}

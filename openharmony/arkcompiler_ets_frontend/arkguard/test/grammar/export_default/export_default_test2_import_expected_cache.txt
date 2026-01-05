@@ -1,6 +1,0 @@
-{
-  "IdentifierCache": {
-    "#defaultFunction": "u"
-  },
-  "MemberMethodCache": {}
-}

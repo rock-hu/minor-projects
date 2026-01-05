@@ -1,3 +1,0 @@
-check exit loop, len == 5:  true
-1
-2
