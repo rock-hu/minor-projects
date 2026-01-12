@@ -1,0 +1,15 @@
+{
+  "module": {
+    "name": "mediaCommon",
+    "type": "har",
+    "deviceTypes": [
+      "phone",
+      "tablet"
+    ],
+    "requestPermissions": [
+      {
+        "name": "ohos.permission.KEEP_BACKGROUND_RUNNING"
+      }
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "watch",
+  "version": "1.0.0",
+  "description": "Please describe the basic information.",
+  "main": "",
+  "author": "",
+  "license": "",
+  "dependencies": {
+    "musiclist": "file:../../features/musicList",
+    "constantscommon": "file:../../common/constantsCommon",
+    "live": "file:../../features/live",
+    "musiccomment": "file:../../features/musicComment",
+    "mediacommon": "file:../../common/mediaCommon",
+  }
+}
+

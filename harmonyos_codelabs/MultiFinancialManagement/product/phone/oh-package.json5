@@ -1,0 +1,16 @@
+{
+  "license": "",
+  "devDependencies": {},
+  "author": "",
+  "name": "phone",
+  "description": "Please describe the basic information.",
+  "main": "",
+  "version": "1.0.0",
+  "dynamicDependencies": {},
+  "dependencies": {
+    "basic": "file:../../commons/basic",
+    "home": "file:../../features/home",
+    "fund": "file:../../features/fund",
+    "fundComparison": "file:../../features/fundComparison"
+  }
+}
