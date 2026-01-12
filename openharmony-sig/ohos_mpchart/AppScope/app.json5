@@ -1,0 +1,11 @@
+{
+  "app": {
+    "bundleName": "cn.openharmony.mpchart",
+    "vendor": "example",
+    "versionCode": 1000000,
+    "versionName": "4.0.0-rc.0",
+    "icon": "$media:app_icon",
+    "label": "$string:app_name",
+    "distributedNotificationEnabled": true
+  }
+}

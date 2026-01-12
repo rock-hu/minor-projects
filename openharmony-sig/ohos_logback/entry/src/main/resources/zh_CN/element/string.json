@@ -1,0 +1,64 @@
+{
+  "string": [
+    {
+      "name": "entry_desc",
+      "value": "description"
+    },
+    {
+      "name": "MainAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "MainAbility_label",
+      "value": "logback"
+    },
+    {
+      "name": "Without_Configuration",
+      "value": "无配置文件打印日志"
+    },
+    {
+      "name": "log_level",
+      "value": "无配置文件-根据日志级别过滤打印日志"
+    },
+    {
+      "name": "root",
+      "value": "root指定level将日志输出到控制台"
+    },
+    {
+      "name": "logger_level",
+      "value": "logger指定level将日志输出到控制台"
+    },
+    {
+      "name": "ConsoleAppender_ThresholdFilter",
+      "value": "使用ConsoleAppender和ThresholdFilter过滤打印日志"
+    },
+    {
+      "name": "ConsoleAppender_LevelFilter",
+      "value": "使用ConsoleAppender和LevelFilter过滤打印日志"
+    },
+    {
+      "name": "Write_logs_to_a_file_using_FileAppender",
+      "value": "使用FileAppender将日志写到文件"
+    },
+    {
+      "name": "SMTPAppender",
+      "value": "使用SMTPAppender保存文件"
+    },
+    {
+      "name": "SiftingAppender",
+      "value": "使用SiftingAppender保存文件"
+    },
+    {
+      "name": "DBAppender",
+      "value": "使用DBAppender保存文件"
+    },
+    {
+      "name": "RollingFileAppender",
+      "value": "使用RollingFileAppender保存文件"
+    },
+    {
+      "name": "SocketAppender",
+      "value": "使用SocketAppender保存文件"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+# Dependencies files
+node_modules/
+oh_modules/
+
+# Preview files
+.preview/
+
+# Build temp files
+build/
+
+# CXX files
+.cxx/
+
+# Test files
+.test/

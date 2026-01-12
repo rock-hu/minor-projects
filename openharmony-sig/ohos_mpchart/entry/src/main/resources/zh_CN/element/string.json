@@ -1,0 +1,245 @@
+{
+  "string": [
+    {
+      "name": "entry_MainAbility",
+      "value": "MPChart"
+    },
+    {
+      "name": "description_mainability",
+      "value": "Empty Ability"
+    },
+    {
+      "name": "linear",
+      "value": "直线"
+    },
+    {
+      "name": "stepped",
+      "value": "步进"
+    },
+    {
+      "name": "cubic",
+      "value": "贝塞尔曲线"
+    },
+    {
+      "name": "horizon_cubic",
+      "value": "橫向贝塞尔曲线"
+    },
+    {
+      "name": "data_type",
+      "value": "数据类型："
+    },
+    {
+      "name": "multi_color",
+      "value": "多颜色（曲线不支持）"
+    },
+    {
+      "name": "show_x_axis",
+      "value": "x轴是否显示："
+    },
+    {
+      "name": "show_y_axis",
+      "value": "y轴是否显示："
+    },
+    {
+      "name": "multi_color_data_points",
+      "value": "多颜色数据点"
+    },
+    {
+      "name": "x_axis_position",
+      "value": "X轴位置"
+    },
+    {
+      "name": "x_axis_label_style",
+      "value": "X轴标签样式"
+    },
+    {
+      "name": "normal",
+      "value": "普通："
+    },
+    {
+      "name": "extend_and_rotate",
+      "value": "加长、旋转："
+    },
+    {
+      "name": "Tibetan",
+      "value": "藏语："
+    },
+    {
+      "name": "visible_xrange_maximum",
+      "value": "X轴最大可见范围"
+    },
+    {
+      "name": "left_y_axis",
+      "value": "左y轴"
+    },
+    {
+      "name": "right_y_axis",
+      "value": "右y轴"
+    },
+    {
+      "name": "left_y_axis_position",
+      "value": "左y轴位置:"
+    },
+    {
+      "name": "right_y_axis_position",
+      "value": "右y轴位置:"
+    },
+    {
+      "name": "outside",
+      "value": "表外"
+    },
+    {
+      "name": "inside",
+      "value": "表内"
+    },
+    {
+      "name": "left_y_axis_limitLine_position",
+      "value": "左y轴limitline位置"
+    },
+    {
+      "name": "highlight_dashed_line",
+      "value": "高亮线是否为虚线"
+    },
+    {
+      "name": "background",
+      "value": "背景色"
+    },
+    {
+      "name": "limit_line_after_data",
+      "value": "limit line是否在数据后"
+    },
+    {
+      "name": "save_image",
+      "value": "保存图像"
+    },
+    {
+      "name": "route",
+      "value": "路径："
+    },
+    {
+      "name": "save_successful",
+      "value": "保存成功"
+    },
+    {
+      "name": "cancel",
+      "value": "取消"
+    },
+    {
+      "name": "confirm",
+      "value": "确认"
+    },
+    {
+      "name": "display_no_axis",
+      "value": "演示不设置任何Axis轴的默认情况!"
+    },
+    {
+      "name": "gradient",
+      "value": "渐变"
+    },
+    {
+      "name": "stack",
+      "value": "堆叠"
+    },
+    {
+      "name": "refresh",
+      "value": "刷新"
+    },
+    {
+      "name": "show_mark_view",
+      "value": "是否设置markview"
+    },
+    {
+      "name": "width_percentage",
+      "value": "宽度百分比"
+    },
+    {
+      "name": "custom_click",
+      "value": "自定义点击"
+    },
+    {
+      "name": "enable_all_events",
+      "value": "是否启用所有事件："
+    },
+    {
+      "name": "event_activated",
+      "value": "事件是否开启："
+    },
+    {
+      "name": "single_tap",
+      "value": "单击"
+    },
+
+    {
+      "name": "double_tap",
+      "value": "双击"
+    },
+    {
+      "name": "long_press",
+      "value": "长按"
+    },
+    {
+      "name": "event_trigger",
+      "value": "自定义ui事件触发类型："
+    },
+    {
+      "name": "red",
+      "value": "红色"
+    },
+    {
+      "name": "blue",
+      "value": "蓝色"
+    },
+    {
+      "name": "y_axis_extension",
+      "value": "y轴延申是否开启"
+    },
+    {
+      "name": "axis_color",
+      "value": "轴线文字和颜色: "
+    },
+    {
+      "name": "line_width",
+      "value": "line width: "
+    },
+    {
+      "name": "grid_line_color",
+      "value": "网格线颜色："
+    },
+    {
+      "name": "custom_gridlines",
+      "value": "自定义网格线"
+    },
+    {
+      "name": "segmented_by_y_axis",
+      "value": "通过y轴分段："
+    },
+    {
+      "name": "highlight_the_highest_and_lowest_points",
+      "value": "最高最低点高亮："
+    },
+    {
+      "name": "test_data",
+      "value": "测试数据："
+    },
+    {
+      "name": "placeholder_area",
+      "value": "占位区"
+    },
+    {
+      "name": "hitTestModeDefault",
+      "value": "HitTestMode.Default"
+    },
+    {
+      "name": "hitTestModeBlock",
+      "value": "HitTestMode.Block"
+    },
+    {
+      "name": "hitTestModeTransparent",
+      "value": "hitTestMode.Transparent"
+    },
+    {
+      "name": "hitTestModeNone",
+      "value": "HitTestMode.None"
+    }
+  ]
+}
