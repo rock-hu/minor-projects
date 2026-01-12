@@ -1,0 +1,838 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "labeledDoWhileStatement.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "labeledDoWhileStatement.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "labeledDoWhileStatement.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "labeledDoWhileStatement.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "labeledDoWhileStatement.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "labeledDoWhileStatement.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "labeledDoWhileTest01",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "labeledDoWhileStatement.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 30,
+                  "program": "labeledDoWhileStatement.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "labeledDoWhileTest01",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "labeledDoWhileStatement.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 30,
+                      "program": "labeledDoWhileStatement.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 34,
+                      "program": "labeledDoWhileStatement.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 38,
+                      "program": "labeledDoWhileStatement.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "i",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 17,
+                                "column": 7,
+                                "program": "labeledDoWhileStatement.ets"
+                              },
+                              "end": {
+                                "line": 17,
+                                "column": 8,
+                                "program": "labeledDoWhileStatement.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "NumberLiteral",
+                            "value": 0,
+                            "loc": {
+                              "start": {
+                                "line": 17,
+                                "column": 11,
+                                "program": "labeledDoWhileStatement.ets"
+                              },
+                              "end": {
+                                "line": 17,
+                                "column": 12,
+                                "program": "labeledDoWhileStatement.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 17,
+                              "column": 7,
+                              "program": "labeledDoWhileStatement.ets"
+                            },
+                            "end": {
+                              "line": 17,
+                              "column": 12,
+                              "program": "labeledDoWhileStatement.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 17,
+                          "column": 3,
+                          "program": "labeledDoWhileStatement.ets"
+                        },
+                        "end": {
+                          "line": 17,
+                          "column": 13,
+                          "program": "labeledDoWhileStatement.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "LabelledStatement",
+                      "label": {
+                        "type": "Identifier",
+                        "name": "label1",
+                        "decorators": [],
+                        "loc": {
+                          "start": {
+                            "line": 19,
+                            "column": 3,
+                            "program": "labeledDoWhileStatement.ets"
+                          },
+                          "end": {
+                            "line": 19,
+                            "column": 9,
+                            "program": "labeledDoWhileStatement.ets"
+                          }
+                        }
+                      },
+                      "body": {
+                        "type": "DoWhileStatement",
+                        "body": {
+                          "type": "BlockStatement",
+                          "statements": [
+                            {
+                              "type": "ExpressionStatement",
+                              "expression": {
+                                "type": "AssignmentExpression",
+                                "operator": "+=",
+                                "left": {
+                                  "type": "Identifier",
+                                  "name": "i",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 21,
+                                      "column": 5,
+                                      "program": "labeledDoWhileStatement.ets"
+                                    },
+                                    "end": {
+                                      "line": 21,
+                                      "column": 6,
+                                      "program": "labeledDoWhileStatement.ets"
+                                    }
+                                  }
+                                },
+                                "right": {
+                                  "type": "NumberLiteral",
+                                  "value": 1,
+                                  "loc": {
+                                    "start": {
+                                      "line": 21,
+                                      "column": 10,
+                                      "program": "labeledDoWhileStatement.ets"
+                                    },
+                                    "end": {
+                                      "line": 21,
+                                      "column": 11,
+                                      "program": "labeledDoWhileStatement.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 21,
+                                    "column": 5,
+                                    "program": "labeledDoWhileStatement.ets"
+                                  },
+                                  "end": {
+                                    "line": 21,
+                                    "column": 11,
+                                    "program": "labeledDoWhileStatement.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 21,
+                                  "column": 5,
+                                  "program": "labeledDoWhileStatement.ets"
+                                },
+                                "end": {
+                                  "line": 21,
+                                  "column": 12,
+                                  "program": "labeledDoWhileStatement.ets"
+                                }
+                              }
+                            },
+                            {
+                              "type": "IfStatement",
+                              "test": {
+                                "type": "BinaryExpression",
+                                "operator": "!=",
+                                "left": {
+                                  "type": "BinaryExpression",
+                                  "operator": "/",
+                                  "left": {
+                                    "type": "Identifier",
+                                    "name": "i",
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 22,
+                                        "column": 9,
+                                        "program": "labeledDoWhileStatement.ets"
+                                      },
+                                      "end": {
+                                        "line": 22,
+                                        "column": 10,
+                                        "program": "labeledDoWhileStatement.ets"
+                                      }
+                                    }
+                                  },
+                                  "right": {
+                                    "type": "NumberLiteral",
+                                    "value": 2,
+                                    "loc": {
+                                      "start": {
+                                        "line": 22,
+                                        "column": 13,
+                                        "program": "labeledDoWhileStatement.ets"
+                                      },
+                                      "end": {
+                                        "line": 22,
+                                        "column": 14,
+                                        "program": "labeledDoWhileStatement.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 22,
+                                      "column": 9,
+                                      "program": "labeledDoWhileStatement.ets"
+                                    },
+                                    "end": {
+                                      "line": 22,
+                                      "column": 14,
+                                      "program": "labeledDoWhileStatement.ets"
+                                    }
+                                  }
+                                },
+                                "right": {
+                                  "type": "NumberLiteral",
+                                  "value": 0,
+                                  "loc": {
+                                    "start": {
+                                      "line": 22,
+                                      "column": 18,
+                                      "program": "labeledDoWhileStatement.ets"
+                                    },
+                                    "end": {
+                                      "line": 22,
+                                      "column": 19,
+                                      "program": "labeledDoWhileStatement.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 22,
+                                    "column": 9,
+                                    "program": "labeledDoWhileStatement.ets"
+                                  },
+                                  "end": {
+                                    "line": 22,
+                                    "column": 19,
+                                    "program": "labeledDoWhileStatement.ets"
+                                  }
+                                }
+                              },
+                              "consequent": {
+                                "type": "BlockStatement",
+                                "statements": [
+                                  {
+                                    "type": "ContinueStatement",
+                                    "label": {
+                                      "type": "Identifier",
+                                      "name": "label1",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 23,
+                                          "column": 16,
+                                          "program": "labeledDoWhileStatement.ets"
+                                        },
+                                        "end": {
+                                          "line": 23,
+                                          "column": 22,
+                                          "program": "labeledDoWhileStatement.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 23,
+                                        "column": 7,
+                                        "program": "labeledDoWhileStatement.ets"
+                                      },
+                                      "end": {
+                                        "line": 23,
+                                        "column": 23,
+                                        "program": "labeledDoWhileStatement.ets"
+                                      }
+                                    }
+                                  }
+                                ],
+                                "loc": {
+                                  "start": {
+                                    "line": 22,
+                                    "column": 21,
+                                    "program": "labeledDoWhileStatement.ets"
+                                  },
+                                  "end": {
+                                    "line": 24,
+                                    "column": 6,
+                                    "program": "labeledDoWhileStatement.ets"
+                                  }
+                                }
+                              },
+                              "alternate": {
+                                "type": "BlockStatement",
+                                "statements": [
+                                  {
+                                    "type": "BreakStatement",
+                                    "label": {
+                                      "type": "Identifier",
+                                      "name": "label1",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 25,
+                                          "column": 13,
+                                          "program": "labeledDoWhileStatement.ets"
+                                        },
+                                        "end": {
+                                          "line": 25,
+                                          "column": 19,
+                                          "program": "labeledDoWhileStatement.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 25,
+                                        "column": 7,
+                                        "program": "labeledDoWhileStatement.ets"
+                                      },
+                                      "end": {
+                                        "line": 25,
+                                        "column": 20,
+                                        "program": "labeledDoWhileStatement.ets"
+                                      }
+                                    }
+                                  }
+                                ],
+                                "loc": {
+                                  "start": {
+                                    "line": 24,
+                                    "column": 12,
+                                    "program": "labeledDoWhileStatement.ets"
+                                  },
+                                  "end": {
+                                    "line": 26,
+                                    "column": 6,
+                                    "program": "labeledDoWhileStatement.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 22,
+                                  "column": 5,
+                                  "program": "labeledDoWhileStatement.ets"
+                                },
+                                "end": {
+                                  "line": 26,
+                                  "column": 6,
+                                  "program": "labeledDoWhileStatement.ets"
+                                }
+                              }
+                            }
+                          ],
+                          "loc": {
+                            "start": {
+                              "line": 20,
+                              "column": 6,
+                              "program": "labeledDoWhileStatement.ets"
+                            },
+                            "end": {
+                              "line": 27,
+                              "column": 4,
+                              "program": "labeledDoWhileStatement.ets"
+                            }
+                          }
+                        },
+                        "test": {
+                          "type": "BinaryExpression",
+                          "operator": "<",
+                          "left": {
+                            "type": "Identifier",
+                            "name": "i",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 27,
+                                "column": 12,
+                                "program": "labeledDoWhileStatement.ets"
+                              },
+                              "end": {
+                                "line": 27,
+                                "column": 13,
+                                "program": "labeledDoWhileStatement.ets"
+                              }
+                            }
+                          },
+                          "right": {
+                            "type": "NumberLiteral",
+                            "value": 10,
+                            "loc": {
+                              "start": {
+                                "line": 27,
+                                "column": 16,
+                                "program": "labeledDoWhileStatement.ets"
+                              },
+                              "end": {
+                                "line": 27,
+                                "column": 18,
+                                "program": "labeledDoWhileStatement.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 27,
+                              "column": 12,
+                              "program": "labeledDoWhileStatement.ets"
+                            },
+                            "end": {
+                              "line": 27,
+                              "column": 18,
+                              "program": "labeledDoWhileStatement.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 20,
+                            "column": 3,
+                            "program": "labeledDoWhileStatement.ets"
+                          },
+                          "end": {
+                            "line": 27,
+                            "column": 19,
+                            "program": "labeledDoWhileStatement.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 19,
+                          "column": 3,
+                          "program": "labeledDoWhileStatement.ets"
+                        },
+                        "end": {
+                          "line": 27,
+                          "column": 19,
+                          "program": "labeledDoWhileStatement.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 39,
+                      "program": "labeledDoWhileStatement.ets"
+                    },
+                    "end": {
+                      "line": 28,
+                      "column": 2,
+                      "program": "labeledDoWhileStatement.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 10,
+                    "program": "labeledDoWhileStatement.ets"
+                  },
+                  "end": {
+                    "line": 28,
+                    "column": 2,
+                    "program": "labeledDoWhileStatement.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "labeledDoWhileStatement.ets"
+                },
+                "end": {
+                  "line": 28,
+                  "column": 2,
+                  "program": "labeledDoWhileStatement.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 1,
+                "program": "labeledDoWhileStatement.ets"
+              },
+              "end": {
+                "line": 28,
+                "column": 2,
+                "program": "labeledDoWhileStatement.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "labeledDoWhileStatement.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "labeledDoWhileStatement.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "labeledDoWhileStatement.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "labeledDoWhileStatement.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "labeledDoWhileStatement.ets"
+    },
+    "end": {
+      "line": 29,
+      "column": 1,
+      "program": "labeledDoWhileStatement.ets"
+    }
+  }
+}

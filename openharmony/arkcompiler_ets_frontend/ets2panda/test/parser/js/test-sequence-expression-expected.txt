@@ -1,0 +1,479 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "SequenceExpression",
+        "expressions": [
+          {
+            "type": "Identifier",
+            "name": "a",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 1,
+                "program": "test-sequence-expression.js"
+              },
+              "end": {
+                "line": 17,
+                "column": 2,
+                "program": "test-sequence-expression.js"
+              }
+            }
+          },
+          {
+            "type": "Identifier",
+            "name": "b",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 4,
+                "program": "test-sequence-expression.js"
+              },
+              "end": {
+                "line": 17,
+                "column": 5,
+                "program": "test-sequence-expression.js"
+              }
+            }
+          },
+          {
+            "type": "Identifier",
+            "name": "c",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 7,
+                "program": "test-sequence-expression.js"
+              },
+              "end": {
+                "line": 17,
+                "column": 8,
+                "program": "test-sequence-expression.js"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 1,
+            "program": "test-sequence-expression.js"
+          },
+          "end": {
+            "line": 17,
+            "column": 8,
+            "program": "test-sequence-expression.js"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 17,
+          "column": 1,
+          "program": "test-sequence-expression.js"
+        },
+        "end": {
+          "line": 17,
+          "column": 9,
+          "program": "test-sequence-expression.js"
+        }
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "SequenceExpression",
+        "expressions": [
+          {
+            "type": "AssignmentExpression",
+            "operator": "=",
+            "left": {
+              "type": "Identifier",
+              "name": "a",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 1,
+                  "program": "test-sequence-expression.js"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 2,
+                  "program": "test-sequence-expression.js"
+                }
+              }
+            },
+            "right": {
+              "type": "NumberLiteral",
+              "value": 1,
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 5,
+                  "program": "test-sequence-expression.js"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 6,
+                  "program": "test-sequence-expression.js"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 19,
+                "column": 1,
+                "program": "test-sequence-expression.js"
+              },
+              "end": {
+                "line": 19,
+                "column": 6,
+                "program": "test-sequence-expression.js"
+              }
+            }
+          },
+          {
+            "type": "Identifier",
+            "name": "b",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 20,
+                "column": 3,
+                "program": "test-sequence-expression.js"
+              },
+              "end": {
+                "line": 20,
+                "column": 4,
+                "program": "test-sequence-expression.js"
+              }
+            }
+          },
+          {
+            "type": "NumberLiteral",
+            "value": 123,
+            "loc": {
+              "start": {
+                "line": 21,
+                "column": 5,
+                "program": "test-sequence-expression.js"
+              },
+              "end": {
+                "line": 21,
+                "column": 8,
+                "program": "test-sequence-expression.js"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 19,
+            "column": 1,
+            "program": "test-sequence-expression.js"
+          },
+          "end": {
+            "line": 21,
+            "column": 8,
+            "program": "test-sequence-expression.js"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 19,
+          "column": 1,
+          "program": "test-sequence-expression.js"
+        },
+        "end": {
+          "line": 21,
+          "column": 8,
+          "program": "test-sequence-expression.js"
+        }
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "SequenceExpression",
+        "expressions": [
+          {
+            "type": "Identifier",
+            "name": "a",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 23,
+                "column": 1,
+                "program": "test-sequence-expression.js"
+              },
+              "end": {
+                "line": 23,
+                "column": 2,
+                "program": "test-sequence-expression.js"
+              }
+            }
+          },
+          {
+            "type": "BinaryExpression",
+            "operator": "+",
+            "left": {
+              "type": "Identifier",
+              "name": "b",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 23,
+                  "column": 5,
+                  "program": "test-sequence-expression.js"
+                },
+                "end": {
+                  "line": 23,
+                  "column": 6,
+                  "program": "test-sequence-expression.js"
+                }
+              }
+            },
+            "right": {
+              "type": "SequenceExpression",
+              "expressions": [
+                {
+                  "type": "Identifier",
+                  "name": "c",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 23,
+                      "column": 10,
+                      "program": "test-sequence-expression.js"
+                    },
+                    "end": {
+                      "line": 23,
+                      "column": 11,
+                      "program": "test-sequence-expression.js"
+                    }
+                  }
+                },
+                {
+                  "type": "Identifier",
+                  "name": "d",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 23,
+                      "column": 13,
+                      "program": "test-sequence-expression.js"
+                    },
+                    "end": {
+                      "line": 23,
+                      "column": 14,
+                      "program": "test-sequence-expression.js"
+                    }
+                  }
+                }
+              ],
+              "loc": {
+                "start": {
+                  "line": 23,
+                  "column": 9,
+                  "program": "test-sequence-expression.js"
+                },
+                "end": {
+                  "line": 23,
+                  "column": 15,
+                  "program": "test-sequence-expression.js"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 23,
+                "column": 4,
+                "program": "test-sequence-expression.js"
+              },
+              "end": {
+                "line": 23,
+                "column": 16,
+                "program": "test-sequence-expression.js"
+              }
+            }
+          },
+          {
+            "type": "Identifier",
+            "name": "e",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 23,
+                "column": 18,
+                "program": "test-sequence-expression.js"
+              },
+              "end": {
+                "line": 23,
+                "column": 19,
+                "program": "test-sequence-expression.js"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 23,
+            "column": 1,
+            "program": "test-sequence-expression.js"
+          },
+          "end": {
+            "line": 23,
+            "column": 19,
+            "program": "test-sequence-expression.js"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 23,
+          "column": 1,
+          "program": "test-sequence-expression.js"
+        },
+        "end": {
+          "line": 23,
+          "column": 19,
+          "program": "test-sequence-expression.js"
+        }
+      }
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "a",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 25,
+                "column": 5,
+                "program": "test-sequence-expression.js"
+              },
+              "end": {
+                "line": 25,
+                "column": 6,
+                "program": "test-sequence-expression.js"
+              }
+            }
+          },
+          "init": {
+            "type": "SequenceExpression",
+            "expressions": [
+              {
+                "type": "NumberLiteral",
+                "value": 1,
+                "loc": {
+                  "start": {
+                    "line": 25,
+                    "column": 10,
+                    "program": "test-sequence-expression.js"
+                  },
+                  "end": {
+                    "line": 25,
+                    "column": 11,
+                    "program": "test-sequence-expression.js"
+                  }
+                }
+              },
+              {
+                "type": "NumberLiteral",
+                "value": 2,
+                "loc": {
+                  "start": {
+                    "line": 25,
+                    "column": 13,
+                    "program": "test-sequence-expression.js"
+                  },
+                  "end": {
+                    "line": 25,
+                    "column": 14,
+                    "program": "test-sequence-expression.js"
+                  }
+                }
+              },
+              {
+                "type": "NumberLiteral",
+                "value": 3,
+                "loc": {
+                  "start": {
+                    "line": 25,
+                    "column": 16,
+                    "program": "test-sequence-expression.js"
+                  },
+                  "end": {
+                    "line": 25,
+                    "column": 17,
+                    "program": "test-sequence-expression.js"
+                  }
+                }
+              }
+            ],
+            "loc": {
+              "start": {
+                "line": 25,
+                "column": 9,
+                "program": "test-sequence-expression.js"
+              },
+              "end": {
+                "line": 25,
+                "column": 18,
+                "program": "test-sequence-expression.js"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 25,
+              "column": 5,
+              "program": "test-sequence-expression.js"
+            },
+            "end": {
+              "line": 25,
+              "column": 18,
+              "program": "test-sequence-expression.js"
+            }
+          }
+        }
+      ],
+      "kind": "var",
+      "loc": {
+        "start": {
+          "line": 25,
+          "column": 1,
+          "program": "test-sequence-expression.js"
+        },
+        "end": {
+          "line": 25,
+          "column": 18,
+          "program": "test-sequence-expression.js"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "test-sequence-expression.js"
+    },
+    "end": {
+      "line": 26,
+      "column": 1,
+      "program": "test-sequence-expression.js"
+    }
+  }
+}

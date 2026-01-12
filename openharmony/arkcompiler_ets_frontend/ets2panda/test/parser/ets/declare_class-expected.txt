@@ -1,0 +1,703 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "A",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 16,
+              "column": 15,
+              "program": "declare_class.ets"
+            },
+            "end": {
+              "line": 16,
+              "column": 16,
+              "program": "declare_class.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "ClassProperty",
+            "key": {
+              "type": "Identifier",
+              "name": "f1",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 5,
+                  "program": "declare_class.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 7,
+                  "program": "declare_class.ets"
+                }
+              }
+            },
+            "accessibility": "public",
+            "static": false,
+            "readonly": false,
+            "declare": true,
+            "optional": false,
+            "computed": false,
+            "typeAnnotation": {
+              "type": "ETSTypeReference",
+              "part": {
+                "type": "ETSTypeReferencePart",
+                "name": {
+                  "type": "Identifier",
+                  "name": "string",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 9,
+                      "program": "declare_class.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 15,
+                      "program": "declare_class.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 9,
+                    "program": "declare_class.ets"
+                  },
+                  "end": {
+                    "line": 18,
+                    "column": 11,
+                    "program": "declare_class.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 9,
+                  "program": "declare_class.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 11,
+                  "program": "declare_class.ets"
+                }
+              }
+            },
+            "definite": false,
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 5,
+                "program": "declare_class.ets"
+              },
+              "end": {
+                "line": 18,
+                "column": 11,
+                "program": "declare_class.ets"
+              }
+            }
+          },
+          {
+            "type": "ClassProperty",
+            "key": {
+              "type": "Identifier",
+              "name": "f2",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 12,
+                  "program": "declare_class.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 14,
+                  "program": "declare_class.ets"
+                }
+              }
+            },
+            "accessibility": "public",
+            "static": true,
+            "readonly": false,
+            "declare": true,
+            "optional": false,
+            "computed": false,
+            "typeAnnotation": {
+              "type": "ETSPrimitiveType",
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 16,
+                  "program": "declare_class.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 22,
+                  "program": "declare_class.ets"
+                }
+              }
+            },
+            "definite": false,
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 18,
+                "column": 12,
+                "program": "declare_class.ets"
+              },
+              "end": {
+                "line": 18,
+                "column": 22,
+                "program": "declare_class.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "foo",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 5,
+                  "program": "declare_class.ets"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 8,
+                  "program": "declare_class.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "foo",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 19,
+                      "column": 5,
+                      "program": "declare_class.ets"
+                    },
+                    "end": {
+                      "line": 19,
+                      "column": 8,
+                      "program": "declare_class.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "p",
+                      "typeAnnotation": {
+                        "type": "ETSTypeReference",
+                        "part": {
+                          "type": "ETSTypeReferencePart",
+                          "name": {
+                            "type": "Identifier",
+                            "name": "string",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 19,
+                                "column": 12,
+                                "program": "declare_class.ets"
+                              },
+                              "end": {
+                                "line": 19,
+                                "column": 18,
+                                "program": "declare_class.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 19,
+                              "column": 12,
+                              "program": "declare_class.ets"
+                            },
+                            "end": {
+                              "line": 19,
+                              "column": 19,
+                              "program": "declare_class.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 19,
+                            "column": 12,
+                            "program": "declare_class.ets"
+                          },
+                          "end": {
+                            "line": 19,
+                            "column": 19,
+                            "program": "declare_class.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 19,
+                          "column": 9,
+                          "program": "declare_class.ets"
+                        },
+                        "end": {
+                          "line": 19,
+                          "column": 19,
+                          "program": "declare_class.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 19,
+                        "column": 9,
+                        "program": "declare_class.ets"
+                      },
+                      "end": {
+                        "line": 19,
+                        "column": 19,
+                        "program": "declare_class.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 19,
+                      "column": 21,
+                      "program": "declare_class.ets"
+                    },
+                    "end": {
+                      "line": 19,
+                      "column": 27,
+                      "program": "declare_class.ets"
+                    }
+                  }
+                },
+                "declare": true,
+                "loc": {
+                  "start": {
+                    "line": 19,
+                    "column": 8,
+                    "program": "declare_class.ets"
+                  },
+                  "end": {
+                    "line": 19,
+                    "column": 8,
+                    "program": "declare_class.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 8,
+                  "program": "declare_class.ets"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 8,
+                  "program": "declare_class.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 19,
+                "column": 5,
+                "program": "declare_class.ets"
+              },
+              "end": {
+                "line": 19,
+                "column": 8,
+                "program": "declare_class.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "bar",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 12,
+                  "program": "declare_class.ets"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 15,
+                  "program": "declare_class.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "bar",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 12,
+                      "program": "declare_class.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 15,
+                      "program": "declare_class.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "p",
+                      "typeAnnotation": {
+                        "type": "ETSPrimitiveType",
+                        "loc": {
+                          "start": {
+                            "line": 20,
+                            "column": 19,
+                            "program": "declare_class.ets"
+                          },
+                          "end": {
+                            "line": 20,
+                            "column": 25,
+                            "program": "declare_class.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 20,
+                          "column": 16,
+                          "program": "declare_class.ets"
+                        },
+                        "end": {
+                          "line": 20,
+                          "column": 25,
+                          "program": "declare_class.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 20,
+                        "column": 16,
+                        "program": "declare_class.ets"
+                      },
+                      "end": {
+                        "line": 20,
+                        "column": 25,
+                        "program": "declare_class.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 28,
+                      "program": "declare_class.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 32,
+                      "program": "declare_class.ets"
+                    }
+                  }
+                },
+                "declare": true,
+                "loc": {
+                  "start": {
+                    "line": 20,
+                    "column": 15,
+                    "program": "declare_class.ets"
+                  },
+                  "end": {
+                    "line": 20,
+                    "column": 15,
+                    "program": "declare_class.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 15,
+                  "program": "declare_class.ets"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 15,
+                  "program": "declare_class.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 20,
+                "column": 5,
+                "program": "declare_class.ets"
+              },
+              "end": {
+                "line": 20,
+                "column": 15,
+                "program": "declare_class.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 18,
+                  "program": "declare_class.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 18,
+                  "program": "declare_class.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 18,
+                      "program": "declare_class.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 18,
+                      "program": "declare_class.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 18,
+                      "program": "declare_class.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 18,
+                      "program": "declare_class.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 18,
+                    "program": "declare_class.ets"
+                  },
+                  "end": {
+                    "line": 16,
+                    "column": 18,
+                    "program": "declare_class.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 18,
+                  "program": "declare_class.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 18,
+                  "program": "declare_class.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 17,
+            "program": "declare_class.ets"
+          },
+          "end": {
+            "line": 22,
+            "column": 1,
+            "program": "declare_class.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 9,
+          "program": "declare_class.ets"
+        },
+        "end": {
+          "line": 22,
+          "column": 1,
+          "program": "declare_class.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "declare_class.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "declare_class.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "declare_class.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "declare_class.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "declare_class.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "declare_class.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "declare_class.ets"
+    },
+    "end": {
+      "line": 22,
+      "column": 1,
+      "program": "declare_class.ets"
+    }
+  }
+}

@@ -1,0 +1,671 @@
+# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//arkcompiler/ets_runtime/js_runtime_config.gni")
+
+declare_args() {
+  skip_gen_stub = false
+}
+
+_timeout_ = 14400
+
+config("include_maple") {
+  include_dirs = [
+    "${MAPLEALL_ROOT}/maple_be/include/cg",
+    "${MAPLEALL_ROOT}/maple_be/include/litecg",
+    "${MAPLEALL_ROOT}/maple_be/cg/aarch64",
+    "${MAPLEALL_ROOT}/maple_be/include/ad",
+    "${MAPLEALL_ROOT}/maple_be/include/ad/target",
+    "${MAPLEALL_ROOT}/maple_be/include/be/aarch64",
+    "${MAPLEALL_ROOT}/maple_be/include/be",
+    "${MAPLEALL_ROOT}/maple_driver/include",
+    "${MAPLEALL_ROOT}/maple_driver/defs",
+    "${MAPLEALL_ROOT}/maple_driver/defs/default",
+    "${MAPLEALL_ROOT}/maple_util/include",
+    "${MAPLEALL_ROOT}/mpl2mpl/include",
+    "${MAPLEALL_ROOT}/mempool/include",
+    "${MAPLEALL_ROOT}/maple_phase/include",
+    "${MAPLEALL_ROOT}/maple_ir/include",
+    "${MAPLEALL_ROOT}/maple_me/include",
+  ]
+  cflags_cc = [ "-Wno-gnu-zero-variadic-macro-arguments" ]
+}
+
+libark_jsoptimizer_sources = [
+  "access_object_stub_builder.cpp",
+  "aot_compilation_env.cpp",
+  "aot_compiler_preprocessor.cpp",
+  "aot_compiler_stats.cpp",
+  "argument_accessor.cpp",
+  "array_bounds_check_elimination.cpp",
+  "assembler/aarch64/assembler_aarch64.cpp",
+  "assembler/aarch64/extend_assembler.cpp",
+  "assembler/aarch64/macro_assembler_aarch64.cpp",
+  "assembler/x64/assembler_x64.cpp",
+  "assembler/x64/extended_assembler_x64.cpp",
+  "assembler/x64/macro_assembler_x64.cpp",
+  "assembler_module.cpp",
+  "async_function_lowering.cpp",
+  "barrier_stub_builder.cpp",
+  "base/depend_chain_helper.cpp",
+  "baseline/baseline_assembler.cpp",
+  "baseline/baseline_call_signature.cpp",
+  "baseline/baseline_compiler.cpp",
+  "baseline/baseline_stubs.cpp",
+  "bc_call_signature.cpp",
+  "builtins/builtins_array_indexof_stub_builder.cpp",
+  "builtins/builtins_array_stub_builder.cpp",
+  "builtins/builtins_array_stub_builder_next_optimization.cpp",
+  "builtins/builtins_call_signature.cpp",
+  "builtins/builtins_collator_stub_builder.cpp",
+  "builtins/builtins_collection_iterator_stub_builder.cpp",
+  "builtins/builtins_collection_stub_builder.cpp",
+  "builtins/builtins_dataview_stub_builder.cpp",
+  "builtins/builtins_function_stub_builder.cpp",
+  "builtins/builtins_number_stub_builder.cpp",
+  "builtins/builtins_object_stub_builder.cpp",
+  "builtins/builtins_proxy_stub_builder.cpp",
+  "builtins/builtins_reflect_stub_builder.cpp",
+  "builtins/builtins_regexp_stub_builder.cpp",
+  "builtins/builtins_string_stub_builder.cpp",
+  "builtins/builtins_stubs.cpp",
+  "builtins/builtins_typedarray_stub_builder.cpp",
+  "builtins/containers_arraylist_stub_builder.cpp",
+  "builtins/containers_deque_stub_builder.cpp",
+  "builtins/containers_hashmap_stub_builder.cpp",
+  "builtins/containers_hashset_stub_builder.cpp",
+  "builtins/containers_lightweightmap_stub_builder.cpp",
+  "builtins/containers_lightweightset_stub_builder.cpp",
+  "builtins/containers_linkedlist_stub_builder.cpp",
+  "builtins/containers_list_stub_builder.cpp",
+  "builtins/containers_plainarray_stub_builder.cpp",
+  "builtins/containers_queue_stub_builder.cpp",
+  "builtins/containers_stack_stub_builder.cpp",
+  "builtins/containers_stub_builder.cpp",
+  "builtins/containers_vector_stub_builder.cpp",
+  "builtins/linked_hashtable_stub_builder.cpp",
+  "builtins_lowering.cpp",
+  "bytecode_circuit_builder.cpp",
+  "bytecode_info_collector.cpp",
+  "bytecodes.cpp",
+  "call_signature.cpp",
+  "call_stub_builder.cpp",
+  "circuit.cpp",
+  "circuit_builder.cpp",
+  "circuit_builder_helper.cpp",
+  "codegen/llvm/aarch64/aarch64_builder.cpp",
+  "codegen/llvm/llvm_codegen.cpp",
+  "codegen/llvm/llvm_ir_builder.cpp",
+  "codegen/llvm/x64/x64_builder.cpp",
+  "combined_pass_visitor.cpp",
+  "common_stubs.cpp",
+  "compilation_driver.cpp",
+  "compilation_env.cpp",
+  "compiler_log.cpp",
+  "constant_folding.cpp",
+  "dead_code_elimination.cpp",
+  "debug_info.cpp",
+  "early_elimination.cpp",
+  "escape_analysis.cpp",
+  "escape_analysis_editor.cpp",
+  "file_generators.cpp",
+  "frame_states.cpp",
+  "gate.cpp",
+  "gate_accessor.cpp",
+  "graph_editor.cpp",
+  "graph_linearizer.cpp",
+  "hash_stub_builder.cpp",
+  "hcr_circuit_builder.cpp",
+  "hcr_gate_meta_data.cpp",
+  "ic_stub_builder.cpp",
+  "induction_variable_analysis.cpp",
+  "instruction_combine.cpp",
+  "interpreter_stub.cpp",
+  "ir_builder.cpp",
+  "ir_module.cpp",
+  "jit_compilation_env.cpp",
+  "jit_compiler.cpp",
+  "later_elimination.cpp",
+  "lcr_circuit_builder.cpp",
+  "lcr_gate_meta_data.cpp",
+  "lexical_env_specialization_pass.cpp",
+  "loop_analysis.cpp",
+  "loop_peeling.cpp",
+  "mcr_circuit_builder.cpp",
+  "mcr_gate_meta_data.cpp",
+  "mcr_lowering.cpp",
+  "native_inline_lowering.cpp",
+  "new_object_stub_builder.cpp",
+  "ntype_bytecode_lowering.cpp",
+  "ntype_hcr_lowering.cpp",
+  "number_speculative_lowering.cpp",
+  "number_speculative_retype.cpp",
+  "number_speculative_runner.cpp",
+  "object_operator_stub_builder.cpp",
+  "operations_stub_builder.cpp",
+  "pass_manager.cpp",
+  "post_schedule.cpp",
+  "precompile_checker.cpp",
+  "profiler_stub_builder.cpp",
+  "range_analysis.cpp",
+  "range_guard.cpp",
+  "rt_call_signature.cpp",
+  "scheduler.cpp",
+  "share_gate_meta_data.cpp",
+  "slowpath_lowering.cpp",
+  "state_split_linearizer.cpp",
+  "string_builder_optimizer.cpp",
+  "stub.cpp",
+  "stub_builder.cpp",
+  "trampoline/aarch64/asm_interpreter_call.cpp",
+  "trampoline/aarch64/baseline_call.cpp",
+  "trampoline/aarch64/common_call.cpp",
+  "trampoline/aarch64/optimized_call.cpp",
+  "trampoline/aarch64/optimized_fast_call.cpp",
+  "trampoline/x64/asm_interpreter_call.cpp",
+  "trampoline/x64/baseline_call.cpp",
+  "trampoline/x64/common_call.cpp",
+  "trampoline/x64/optimized_call.cpp",
+  "trampoline/x64/optimized_fast_call.cpp",
+  "ts_hcr_opt_pass.cpp",
+  "ts_inline_lowering.cpp",
+  "type.cpp",
+  "type_inference/pgo_type_infer.cpp",
+  "type_info_accessors.cpp",
+  "typed_bytecode_lowering.cpp",
+  "typed_hcr_lowering.cpp",
+  "typed_native_inline_lowering.cpp",
+  "useless_gate_elimination.cpp",
+  "value_numbering.cpp",
+  "verifier.cpp",
+]
+
+config("libark_jsoptimizer_set_config") {
+  # Setting up IS_RELEASE_VERSION if compiling as release version
+  if (build_variant == "user") {
+    cflags_c = [ "-DIS_RELEASE_VERSION" ]
+    cflags_cc = [ "-DIS_RELEASE_VERSION" ]
+  }
+  libs = []
+  if (is_mingw) {
+    libs += [
+      "kernel32",
+      "shell32",
+      "uuid",
+      "advapi32",
+      "msvcrt",
+      "msvcrt-os",
+      "windowsapp",
+    ]
+  }
+}
+
+ohos_source_set("libark_jsoptimizer_set") {
+  stack_protector_ret = false
+  sources = libark_jsoptimizer_sources
+  if (enable_local_code_sign) {
+    sources += [ "$js_root/ecmascript/platform/unix/ohos/code_sign.cpp" ]
+  } else if (is_mingw) {
+    sources += [ "$js_root/ecmascript/platform/windows/code_sign.cpp" ]
+  } else {
+    sources += [ "$js_root/ecmascript/platform/unix/code_sign.cpp" ]
+  }
+  public_configs = [
+    "$js_root:include_llvm",
+    "$js_root:ark_jsruntime_compiler_config",
+    "$js_root:ark_jsruntime_public_config",
+    ":libark_jsoptimizer_set_config",
+  ]
+
+  external_deps = [ "zlib:libz" ]
+  deps = []
+  if (!is_arkui_x) {
+    external_deps += [ "runtime_core:arkfile_header_deps" ]
+  } else {
+    deps += [ "$ark_root/libpandafile:arkfile_header_deps" ]
+  }
+  deps += [ "${LLVM_LIB_ROOT}:libark_llvmcodegen_set" ]
+
+  # hiviewdfx libraries
+  external_deps += hiviewdfx_ext_deps
+  deps += hiviewdfx_deps
+  if (defined(ohos_indep_compiler_enable) && ohos_indep_compiler_enable) {
+    external_deps += [
+      "icu:shared_icuuc",
+      sdk_libc_secshared_dep,
+    ]
+  }
+  part_name = "ets_runtime"
+  subsystem_name = "arkcompiler"
+}
+
+config("enable_maple_config") {
+  cflags_cc = [ "-DCOMPILE_MAPLE" ]
+  cflags_c = [ "-DCOMPILE_MAPLE" ]
+}
+
+ohos_source_set("libark_jsoptimizer_set_with_maple") {
+  stack_protector_ret = false
+  if (enable_sanitize) {
+    sanitize = {
+      cfi = true
+      cfi_cross_dso = true
+      debug = false
+    }
+    branch_protector_ret = "pac_ret"
+  }
+  cflags_cc = [ "-fvisibility=hidden" ]
+  sources = libark_jsoptimizer_sources
+  if (enable_local_code_sign) {
+    sources += [ "$js_root/ecmascript/platform/unix/ohos/code_sign.cpp" ]
+  } else if (is_mingw) {
+    sources += [ "$js_root/ecmascript/platform/windows/code_sign.cpp" ]
+  } else {
+    sources += [ "$js_root/ecmascript/platform/unix/code_sign.cpp" ]
+  }
+  if (enable_jit_code_sign) {
+    sources += [ "$js_root/ecmascript/compiler/jit_signcode.cpp" ]
+  }
+  sources += [
+    "codegen/maple/litecg_codegen.cpp",
+    "codegen/maple/litecg_ir_builder.cpp",
+  ]
+  public_configs = [
+    "$js_root:include_llvm",
+    ":include_maple",
+    "$js_root:ark_jsruntime_compiler_config",
+    "$js_root:ark_jsruntime_public_config",
+    ":libark_jsoptimizer_set_config",
+    ":enable_maple_config",
+  ]
+
+  defines = []
+  external_deps = [ "zlib:libz" ]
+
+  if (enable_jit_code_sign) {
+    defines += [ "JIT_ENABLE_CODE_SIGN" ]
+    external_deps += [ "code_signature:libjit_code_sign" ]
+    if (disable_fort_switch) {
+      defines += [ "JIT_FORT_DISABLE" ]
+    }
+  }
+
+  if (enable_litecg_emit) {
+    defines += [ "ARK_LITECG_DEBUG" ]
+  }
+
+  deps = []
+  if (is_ohos) {
+    deps += [ "${LLVM_LIB_ROOT}:libark_llvmcodegen" ]
+  } else {
+    deps += [ "${LLVM_LIB_ROOT}:libark_llvmcodegen_set" ]
+  }
+  if (!is_arkui_x) {
+    external_deps += [ "runtime_core:arkfile_header_deps" ]
+  } else {
+    deps += [ "$ark_root/libpandafile:arkfile_header_deps" ]
+  }
+
+  # hiviewdfx libraries
+  external_deps += hiviewdfx_ext_deps
+  if (defined(ohos_indep_compiler_enable) && ohos_indep_compiler_enable) {
+    external_deps += [
+      "icu:shared_icuuc",
+      sdk_libc_secshared_dep,
+    ]
+  }
+  part_name = "ets_runtime"
+  subsystem_name = "arkcompiler"
+}
+
+ohos_source_set("libark_stub_set") {
+  stack_protector_ret = false
+  if (enable_sanitize) {
+    sanitize = {
+      ubsan = true
+    }
+  }
+
+  deps = [ ":build_stub_to_cpp" ]
+  sources = [ "$root_gen_dir/arkcompiler/ets_runtime/stub_an.cpp" ]
+
+  public_configs = [
+    "$js_root:ark_jsruntime_common_config",
+    "$js_root:ark_jsruntime_public_config",
+  ]
+
+  part_name = "ets_runtime"
+  subsystem_name = "arkcompiler"
+}
+
+ohos_source_set("libark_mock_stub_set") {
+  stack_protector_ret = false
+  sources = [ "mock/mock_stub_an.cpp" ]
+
+  public_configs = [
+    "$js_root:ark_jsruntime_common_config",
+    "$js_root:ark_jsruntime_public_config",
+  ]
+}
+
+ohos_shared_library("libark_jsoptimizer") {
+  stack_protector_ret = false
+  if (enable_sanitize) {
+    sanitize = {
+      cfi = true
+      cfi_cross_dso = true
+      debug = false
+      ubsan = true
+    }
+    branch_protector_ret = "pac_ret"
+  }
+  deps = [
+    ":libark_jsoptimizer_set_with_maple",
+    "$js_root:libark_jsruntime",
+    "${MAPLEALL_ROOT}/maple_be:libcg",
+  ]
+
+  external_deps = [ "bounds_checking_function:libsec_shared" ]
+  if (!is_arkui_x) {
+    external_deps += [ "runtime_core:libarkfile_static" ]
+  } else {
+    deps += [ "$ark_root/libpandafile:libarkfile_static" ]
+  }
+
+  defines = []
+  if (run_with_asan) {
+    defines = [ "RUN_WITH_ASAN" ]
+  }
+  if (enable_jit_code_sign) {
+    defines += [ "JIT_ENABLE_CODE_SIGN" ]
+  }
+
+  if (enable_hilog) {
+    external_deps += [ "hilog:libhilog" ]
+  }
+
+  install_enable = true
+
+  if (!is_mingw && !is_mac) {
+    output_extension = "so"
+  }
+  part_name = "ets_runtime"
+  subsystem_name = "arkcompiler"
+}
+
+ohos_executable("ark_stub_compiler") {
+  sources = [ "stub_compiler.cpp" ]
+  include_dirs = [ "$target_gen_dir" ]
+
+  configs = [
+    "$js_root:include_llvm",
+    "$js_root:ark_jsruntime_compiler_config",
+    "$js_root:ark_jsruntime_public_config",
+  ]
+
+  deps = [
+    ":libark_jsoptimizer_set",
+    ":libark_mock_stub_set",
+    "$js_root:libark_js_intl_set",
+    "$js_root:libark_jsruntime_set",
+    "$js_root:libcommon_components_set",
+  ]
+
+  deps += [ "$js_root:libcommon_components_set" ]
+  if (ets_runtime_enable_cmc_gc) {
+    if (ark_hybrid) {
+      deps += [ "$ark_root/static_core/runtime:libarkruntime_set_static" ]
+    }
+  }
+
+  external_deps = [ "zlib:libz" ]
+  external_deps += hiviewdfx_ext_deps
+  if (!is_arkui_x) {
+    external_deps += [ "runtime_core:libarkfile_static" ]
+  } else {
+    deps += [ "$ark_root/libpandafile:libarkfile_static" ]
+  }
+
+  if (!ark_standalone_build && host_os != "mac") {
+    ldflags = [ "-Wl,--lto-O0" ]
+  }
+
+  if (run_with_asan) {
+    defines = [ "RUN_WITH_ASAN" ]
+  }
+
+  if (defined(is_arkui_x) && is_arkui_x) {
+    deps += [
+      "$ark_third_party_root/icu/icu4c:static_icui18n",
+      "$ark_third_party_root/icu/icu4c:static_icuuc",
+    ]
+  } else {
+    external_deps += [
+      "icu:shared_icui18n",
+      "icu:shared_icuuc",
+    ]
+  }
+
+  if (defined(ohos_indep_compiler_enable) && ohos_indep_compiler_enable) {
+    external_deps += [
+      "runtime_core:libarkbase_static",
+      "runtime_core:libarkziparchive_static",
+      sdk_libc_secshared_dep,
+    ]
+  }
+
+  install_enable = false
+  part_name = "ets_runtime"
+  subsystem_name = "arkcompiler"
+}
+
+ohos_executable("ark_aot_compiler") {
+  if (enable_sanitize) {
+    sanitize = {
+      ubsan = true
+    }
+  }
+  sources = [ "aot_compiler.cpp" ]
+  configs = [
+    "$js_root:include_llvm",
+    ":include_maple",
+    "$js_root:ark_jsruntime_compiler_config",
+    "$js_root:ark_jsruntime_public_config",
+  ]
+
+  deps = [ ":libark_mock_stub_set" ]
+
+  if (is_ohos) {
+    deps += [
+      ":libark_jsoptimizer",
+      "$js_root:libark_jsruntime",
+    ]
+  } else {
+    deps += [
+      ":libark_jsoptimizer_set_with_maple",
+      "$js_root:libark_js_intl_set",
+      "$js_root:libark_jsruntime_set",
+      "$js_root:libcommon_components_set",
+      "${MAPLEALL_ROOT}/maple_be:libcg",
+    ]
+  }
+
+  if (ets_runtime_enable_cmc_gc) {
+    if (ark_hybrid) {
+      deps += [ "$ark_root/static_core/runtime:libarkruntime_set_static" ]
+    }
+  }
+
+  external_deps = [ "zlib:libz" ]
+  if (!is_arkui_x) {
+    external_deps += [
+      "runtime_core:arkfile_header_deps",
+      "runtime_core:libarkbase_static",
+      "runtime_core:libarkfile_static",
+    ]
+  } else {
+    deps += [
+      "$ark_root/libpandabase:libarkbase_static",
+      "$ark_root/libpandafile:arkfile_header_deps",
+      "$ark_root/libpandafile:libarkfile_static",
+    ]
+  }
+
+  if (defined(is_arkui_x) && is_arkui_x) {
+    deps += [
+      "$ark_third_party_root/icu/icu4c:static_icui18n",
+      "$ark_third_party_root/icu/icu4c:static_icuuc",
+    ]
+  } else {
+    external_deps += [
+      "icu:shared_icui18n",
+      "icu:shared_icuuc",
+    ]
+  }
+
+  if (ark_js_hybrid) {
+    if (!is_arkui_x) {
+      external_deps += [ "runtime_core:libarkplatform" ]
+    } else {
+      deps += [ "$arkplatform_root:libarkplatform" ]
+    }
+  }
+
+  # hiviewdfx libraries
+  external_deps += hiviewdfx_ext_deps
+  deps += hiviewdfx_deps
+
+  install_enable = true
+  if (defined(ohos_indep_compiler_enable) && ohos_indep_compiler_enable) {
+    external_deps += [
+      "runtime_core:libarkziparchive_static",
+      sdk_libc_secshared_dep,
+    ]
+  }
+  part_name = "ets_runtime"
+  subsystem_name = "arkcompiler"
+}
+
+action("gen_stub_file") {
+  script = "$js_root/script/run_ark_executable.py"
+
+  deps = [ "$js_root/ecmascript/compiler:ark_stub_compiler(${host_toolchain})" ]
+
+  stub_file_gen_dir = "$root_gen_dir/arkcompiler/ets_runtime"
+  root_out_dir_with_host_toolchain =
+      get_label_info(":ark_stub_compiler(${host_toolchain})", "root_out_dir")
+
+  if (current_os == "linux" && current_cpu == "arm64") {
+    stub_option =
+        " --stub-file=" + rebase_path(stub_file_gen_dir) + "/stub.an" +
+        " --compiler-target-triple=aarch64-unknown-linux-gnu" +
+        " --compiler-log=allasm" + " --log-level=info"
+  } else if (current_toolchain == host_toolchain) {
+    stub_option = " --stub-file=" + rebase_path(stub_file_gen_dir) + "/stub.an"
+  } else if (current_cpu == "x86_64") {
+    stub_option =
+        " --stub-file=" + rebase_path(stub_file_gen_dir) + "/stub.an" +
+        " --compiler-target-triple=x86_64-unknown-linux-gnu"
+  } else {
+    stub_option =
+        " --stub-file=" + rebase_path(stub_file_gen_dir) + "/stub.an" +
+        " --compiler-target-triple=aarch64-unknown-linux-gnu" +
+        " --compiler-log=allasm" + " --log-level=info"
+  }
+  stub_option += " --enable-force-gc=false"
+
+  if (host_cpu == "arm64") {
+    llvm_lib_dir = "//prebuilts/clang/ohos/linux-aarch64/llvm/lib/"
+  } else {
+    llvm_lib_dir = "//prebuilts/clang/ohos/linux-x86_64/llvm/lib/"
+  }
+
+  args = [
+    "--script-file",
+    rebase_path(root_out_dir_with_host_toolchain) +
+        "/arkcompiler/ets_runtime/ark_stub_compiler",
+    "--script-options",
+    stub_option,
+    "--expect-output",
+    "0",
+    "--timeout-limit",
+    "${_timeout_}",
+  ]
+  if (defined(ohos_indep_compiler_enable) && ohos_indep_compiler_enable) {
+    args += [
+      "--env-path",
+      rebase_path("//binarys/arkcompiler/runtime_core/") + ":" +
+          rebase_path("//binarys/arkcompiler/ets_frontend/") + ":" +
+          rebase_path("//binarys/arkcompiler/ets_runtime/") + ":" + rebase_path(
+              "//binarys/arkcompiler/runtime_core/innerapis/libarkziparchive_static/clang_x64/libs") + ":" + rebase_path(
+              "//binarys/third_party/icu/innerapis/shared_icuuc/clang_x64/libs") + ":" + rebase_path(
+              "//binarys/third_party/icu/innerapis/shared_icui18n/clang_x64/libs") + ":" + rebase_path(
+              "//binarys/third_party/zlib/innerapis/shared_libz/clang_x64/libs") + ":" + rebase_path(
+              "//binarys/third_party/bounds_checking_function/innerapis/libsec_shared/clang_x64/libs"),
+    ]
+    not_needed([ "llvm_lib_dir" ])
+  } else {
+    args += [
+      "--env-path",
+      rebase_path(root_out_dir_with_host_toolchain) +
+          "/arkcompiler/ets_runtime:" +
+          rebase_path(root_out_dir_with_host_toolchain) +
+          "/${icu_subsystem_name}/${icu_part_name}:" +
+          rebase_path(root_out_dir_with_host_toolchain) + "/thirdparty/zlib:" +
+          rebase_path(root_out_dir_with_host_toolchain) +
+          "/resourceschedule/frame_aware_sched:" +
+          rebase_path(root_out_dir_with_host_toolchain) + "/hiviewdfx/hilog:" +
+          rebase_path(root_out_dir_with_host_toolchain) +
+          "/thirdparty/bounds_checking_function:" + rebase_path(llvm_lib_dir),
+    ]
+  }
+
+  # Use with caution. It can only be used when the IR(stub.an) logic is not modified.
+  if (skip_gen_stub) {
+    args += [
+      "--skip",
+      "true",
+    ]
+  }
+
+  outputs = [ "$stub_file_gen_dir/stub.an" ]
+  if (is_ohos) {
+    outputs += [ "$stub_file_gen_dir/stub_code_comment.zip" ]
+  }
+}
+
+ohos_prebuilt_shared_library("stub.an") {
+  deps = [ ":gen_stub_file" ]
+  source = "$root_gen_dir/arkcompiler/ets_runtime/stub.an"
+
+  relative_install_dir = arkcompiler_relative_lib_path
+  part_name = "ets_runtime"
+  subsystem_name = "arkcompiler"
+}
+
+action("build_stub_to_cpp") {
+  sources = [ "$root_gen_dir/arkcompiler/ets_runtime/stub.an" ]
+
+  script = "$js_root/script/build_resource_to_cpp.py"
+
+  deps = [ ":gen_stub_file" ]
+
+  args = [
+    "--input",
+    rebase_path("$root_gen_dir/arkcompiler/ets_runtime/stub.an"),
+    "--output",
+    rebase_path("$root_gen_dir/arkcompiler/ets_runtime/stub_an.cpp"),
+  ]
+
+  outputs = [ "$root_gen_dir/arkcompiler/ets_runtime/stub_an.cpp" ]
+}

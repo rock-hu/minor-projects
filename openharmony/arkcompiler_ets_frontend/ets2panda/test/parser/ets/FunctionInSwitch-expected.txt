@@ -1,0 +1,880 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "FunctionInSwitch.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "FunctionInSwitch.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "FunctionInSwitch.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "FunctionInSwitch.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "is_active",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "FunctionInSwitch.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 19,
+                  "program": "FunctionInSwitch.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "is_active",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "FunctionInSwitch.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 19,
+                      "program": "FunctionInSwitch.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "fn",
+                      "typeAnnotation": {
+                        "type": "ETSFunctionType",
+                        "params": [],
+                        "returnType": {
+                          "type": "ETSPrimitiveType",
+                          "loc": {
+                            "start": {
+                              "line": 16,
+                              "column": 30,
+                              "program": "FunctionInSwitch.ets"
+                            },
+                            "end": {
+                              "line": 16,
+                              "column": 33,
+                              "program": "FunctionInSwitch.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 16,
+                            "column": 24,
+                            "program": "FunctionInSwitch.ets"
+                          },
+                          "end": {
+                            "line": 16,
+                            "column": 33,
+                            "program": "FunctionInSwitch.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 16,
+                          "column": 20,
+                          "program": "FunctionInSwitch.ets"
+                        },
+                        "end": {
+                          "line": 16,
+                          "column": 33,
+                          "program": "FunctionInSwitch.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 16,
+                        "column": 20,
+                        "program": "FunctionInSwitch.ets"
+                      },
+                      "end": {
+                        "line": 16,
+                        "column": 33,
+                        "program": "FunctionInSwitch.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 36,
+                      "program": "FunctionInSwitch.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 39,
+                      "program": "FunctionInSwitch.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "ReturnStatement",
+                      "argument": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "fn",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 17,
+                              "column": 12,
+                              "program": "FunctionInSwitch.ets"
+                            },
+                            "end": {
+                              "line": 17,
+                              "column": 14,
+                              "program": "FunctionInSwitch.ets"
+                            }
+                          }
+                        },
+                        "arguments": [],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 17,
+                            "column": 12,
+                            "program": "FunctionInSwitch.ets"
+                          },
+                          "end": {
+                            "line": 17,
+                            "column": 16,
+                            "program": "FunctionInSwitch.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 17,
+                          "column": 5,
+                          "program": "FunctionInSwitch.ets"
+                        },
+                        "end": {
+                          "line": 17,
+                          "column": 16,
+                          "program": "FunctionInSwitch.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 40,
+                      "program": "FunctionInSwitch.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 2,
+                      "program": "FunctionInSwitch.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 10,
+                    "program": "FunctionInSwitch.ets"
+                  },
+                  "end": {
+                    "line": 18,
+                    "column": 2,
+                    "program": "FunctionInSwitch.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "FunctionInSwitch.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 2,
+                  "program": "FunctionInSwitch.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 1,
+                "program": "FunctionInSwitch.ets"
+              },
+              "end": {
+                "line": 18,
+                "column": 2,
+                "program": "FunctionInSwitch.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "with_param",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 10,
+                  "program": "FunctionInSwitch.ets"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 20,
+                  "program": "FunctionInSwitch.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "with_param",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 10,
+                      "program": "FunctionInSwitch.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 20,
+                      "program": "FunctionInSwitch.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "fn",
+                      "typeAnnotation": {
+                        "type": "ETSFunctionType",
+                        "params": [],
+                        "returnType": {
+                          "type": "ETSPrimitiveType",
+                          "loc": {
+                            "start": {
+                              "line": 20,
+                              "column": 31,
+                              "program": "FunctionInSwitch.ets"
+                            },
+                            "end": {
+                              "line": 20,
+                              "column": 35,
+                              "program": "FunctionInSwitch.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 20,
+                            "column": 25,
+                            "program": "FunctionInSwitch.ets"
+                          },
+                          "end": {
+                            "line": 20,
+                            "column": 35,
+                            "program": "FunctionInSwitch.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 20,
+                          "column": 21,
+                          "program": "FunctionInSwitch.ets"
+                        },
+                        "end": {
+                          "line": 20,
+                          "column": 35,
+                          "program": "FunctionInSwitch.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 20,
+                        "column": 21,
+                        "program": "FunctionInSwitch.ets"
+                      },
+                      "end": {
+                        "line": 20,
+                        "column": 35,
+                        "program": "FunctionInSwitch.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 38,
+                      "program": "FunctionInSwitch.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 42,
+                      "program": "FunctionInSwitch.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "fn",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 21,
+                              "column": 5,
+                              "program": "FunctionInSwitch.ets"
+                            },
+                            "end": {
+                              "line": 21,
+                              "column": 7,
+                              "program": "FunctionInSwitch.ets"
+                            }
+                          }
+                        },
+                        "arguments": [],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 21,
+                            "column": 5,
+                            "program": "FunctionInSwitch.ets"
+                          },
+                          "end": {
+                            "line": 21,
+                            "column": 9,
+                            "program": "FunctionInSwitch.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 21,
+                          "column": 5,
+                          "program": "FunctionInSwitch.ets"
+                        },
+                        "end": {
+                          "line": 21,
+                          "column": 9,
+                          "program": "FunctionInSwitch.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 43,
+                      "program": "FunctionInSwitch.ets"
+                    },
+                    "end": {
+                      "line": 22,
+                      "column": 2,
+                      "program": "FunctionInSwitch.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 20,
+                    "column": 10,
+                    "program": "FunctionInSwitch.ets"
+                  },
+                  "end": {
+                    "line": 22,
+                    "column": 2,
+                    "program": "FunctionInSwitch.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 10,
+                  "program": "FunctionInSwitch.ets"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 2,
+                  "program": "FunctionInSwitch.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 20,
+                "column": 1,
+                "program": "FunctionInSwitch.ets"
+              },
+              "end": {
+                "line": 22,
+                "column": 2,
+                "program": "FunctionInSwitch.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 24,
+                  "column": 10,
+                  "program": "FunctionInSwitch.ets"
+                },
+                "end": {
+                  "line": 24,
+                  "column": 14,
+                  "program": "FunctionInSwitch.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 24,
+                      "column": 10,
+                      "program": "FunctionInSwitch.ets"
+                    },
+                    "end": {
+                      "line": 24,
+                      "column": 14,
+                      "program": "FunctionInSwitch.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 24,
+                      "column": 18,
+                      "program": "FunctionInSwitch.ets"
+                    },
+                    "end": {
+                      "line": 24,
+                      "column": 22,
+                      "program": "FunctionInSwitch.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "switch_arg",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 25,
+                                "column": 11,
+                                "program": "FunctionInSwitch.ets"
+                              },
+                              "end": {
+                                "line": 25,
+                                "column": 21,
+                                "program": "FunctionInSwitch.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "NumberLiteral",
+                            "value": 1,
+                            "loc": {
+                              "start": {
+                                "line": 25,
+                                "column": 24,
+                                "program": "FunctionInSwitch.ets"
+                              },
+                              "end": {
+                                "line": 25,
+                                "column": 25,
+                                "program": "FunctionInSwitch.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 25,
+                              "column": 11,
+                              "program": "FunctionInSwitch.ets"
+                            },
+                            "end": {
+                              "line": 25,
+                              "column": 25,
+                              "program": "FunctionInSwitch.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "const",
+                      "loc": {
+                        "start": {
+                          "line": 25,
+                          "column": 5,
+                          "program": "FunctionInSwitch.ets"
+                        },
+                        "end": {
+                          "line": 25,
+                          "column": 25,
+                          "program": "FunctionInSwitch.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "with_param",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 26,
+                              "column": 5,
+                              "program": "FunctionInSwitch.ets"
+                            },
+                            "end": {
+                              "line": 26,
+                              "column": 15,
+                              "program": "FunctionInSwitch.ets"
+                            }
+                          }
+                        },
+                        "arguments": [],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 26,
+                            "column": 5,
+                            "program": "FunctionInSwitch.ets"
+                          },
+                          "end": {
+                            "line": 26,
+                            "column": 17,
+                            "program": "FunctionInSwitch.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 26,
+                          "column": 5,
+                          "program": "FunctionInSwitch.ets"
+                        },
+                        "end": {
+                          "line": 26,
+                          "column": 17,
+                          "program": "FunctionInSwitch.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 24,
+                      "column": 23,
+                      "program": "FunctionInSwitch.ets"
+                    },
+                    "end": {
+                      "line": 35,
+                      "column": 2,
+                      "program": "FunctionInSwitch.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 24,
+                    "column": 10,
+                    "program": "FunctionInSwitch.ets"
+                  },
+                  "end": {
+                    "line": 35,
+                    "column": 2,
+                    "program": "FunctionInSwitch.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 24,
+                  "column": 10,
+                  "program": "FunctionInSwitch.ets"
+                },
+                "end": {
+                  "line": 35,
+                  "column": 2,
+                  "program": "FunctionInSwitch.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 24,
+                "column": 1,
+                "program": "FunctionInSwitch.ets"
+              },
+              "end": {
+                "line": 35,
+                "column": 2,
+                "program": "FunctionInSwitch.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "FunctionInSwitch.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "FunctionInSwitch.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "FunctionInSwitch.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "FunctionInSwitch.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "FunctionInSwitch.ets"
+    },
+    "end": {
+      "line": 36,
+      "column": 1,
+      "program": "FunctionInSwitch.ets"
+    }
+  }
+}

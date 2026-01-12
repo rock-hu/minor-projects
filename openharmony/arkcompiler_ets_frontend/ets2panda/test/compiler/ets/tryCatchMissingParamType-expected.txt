@@ -1,0 +1,456 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "tryCatchMissingParamType.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "tryCatchMissingParamType.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "tryCatchMissingParamType.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "tryCatchMissingParamType.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "tryCatchMissingParamType.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 14,
+                  "program": "tryCatchMissingParamType.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "tryCatchMissingParamType.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 14,
+                      "program": "tryCatchMissingParamType.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 18,
+                      "program": "tryCatchMissingParamType.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 22,
+                      "program": "tryCatchMissingParamType.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "TryStatement",
+                      "block": {
+                        "type": "BlockStatement",
+                        "statements": [
+                          {
+                            "type": "ThrowStatement",
+                            "argument": {
+                              "type": "ETSNewClassInstanceExpression",
+                              "typeReference": {
+                                "type": "ETSTypeReference",
+                                "part": {
+                                  "type": "ETSTypeReferencePart",
+                                  "name": {
+                                    "type": "Identifier",
+                                    "name": "Exception",
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 18,
+                                        "column": 19,
+                                        "program": "tryCatchMissingParamType.ets"
+                                      },
+                                      "end": {
+                                        "line": 18,
+                                        "column": 28,
+                                        "program": "tryCatchMissingParamType.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 18,
+                                      "column": 19,
+                                      "program": "tryCatchMissingParamType.ets"
+                                    },
+                                    "end": {
+                                      "line": 18,
+                                      "column": 29,
+                                      "program": "tryCatchMissingParamType.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 18,
+                                    "column": 19,
+                                    "program": "tryCatchMissingParamType.ets"
+                                  },
+                                  "end": {
+                                    "line": 18,
+                                    "column": 29,
+                                    "program": "tryCatchMissingParamType.ets"
+                                  }
+                                }
+                              },
+                              "arguments": [],
+                              "loc": {
+                                "start": {
+                                  "line": 18,
+                                  "column": 15,
+                                  "program": "tryCatchMissingParamType.ets"
+                                },
+                                "end": {
+                                  "line": 18,
+                                  "column": 31,
+                                  "program": "tryCatchMissingParamType.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 18,
+                                "column": 9,
+                                "program": "tryCatchMissingParamType.ets"
+                              },
+                              "end": {
+                                "line": 18,
+                                "column": 31,
+                                "program": "tryCatchMissingParamType.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "loc": {
+                          "start": {
+                            "line": 17,
+                            "column": 9,
+                            "program": "tryCatchMissingParamType.ets"
+                          },
+                          "end": {
+                            "line": 19,
+                            "column": 6,
+                            "program": "tryCatchMissingParamType.ets"
+                          }
+                        }
+                      },
+                      "handler": [
+                        {
+                          "type": "CatchClause",
+                          "body": {
+                            "type": "BlockStatement",
+                            "statements": [],
+                            "loc": {
+                              "start": {
+                                "line": 19,
+                                "column": 17,
+                                "program": "tryCatchMissingParamType.ets"
+                              },
+                              "end": {
+                                "line": 21,
+                                "column": 6,
+                                "program": "tryCatchMissingParamType.ets"
+                              }
+                            }
+                          },
+                          "param": {
+                            "type": "Identifier",
+                            "name": "e",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 19,
+                                "column": 14,
+                                "program": "tryCatchMissingParamType.ets"
+                              },
+                              "end": {
+                                "line": 19,
+                                "column": 15,
+                                "program": "tryCatchMissingParamType.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 19,
+                              "column": 7,
+                              "program": "tryCatchMissingParamType.ets"
+                            },
+                            "end": {
+                              "line": 21,
+                              "column": 6,
+                              "program": "tryCatchMissingParamType.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "finalizer": null,
+                      "loc": {
+                        "start": {
+                          "line": 17,
+                          "column": 5,
+                          "program": "tryCatchMissingParamType.ets"
+                        },
+                        "end": {
+                          "line": 21,
+                          "column": 6,
+                          "program": "tryCatchMissingParamType.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 23,
+                      "program": "tryCatchMissingParamType.ets"
+                    },
+                    "end": {
+                      "line": 22,
+                      "column": 2,
+                      "program": "tryCatchMissingParamType.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 10,
+                    "program": "tryCatchMissingParamType.ets"
+                  },
+                  "end": {
+                    "line": 22,
+                    "column": 2,
+                    "program": "tryCatchMissingParamType.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "tryCatchMissingParamType.ets"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 2,
+                  "program": "tryCatchMissingParamType.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 1,
+                "program": "tryCatchMissingParamType.ets"
+              },
+              "end": {
+                "line": 22,
+                "column": 2,
+                "program": "tryCatchMissingParamType.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "tryCatchMissingParamType.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "tryCatchMissingParamType.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "tryCatchMissingParamType.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "tryCatchMissingParamType.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "tryCatchMissingParamType.ets"
+    },
+    "end": {
+      "line": 23,
+      "column": 1,
+      "program": "tryCatchMissingParamType.ets"
+    }
+  }
+}

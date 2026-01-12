@@ -1,0 +1,4324 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ControlFlowRecursive",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 16,
+              "column": 14,
+              "program": "ControlFlowRecursive.ets"
+            },
+            "end": {
+              "line": 16,
+              "column": 34,
+              "program": "ControlFlowRecursive.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "ClassProperty",
+            "key": {
+              "type": "Identifier",
+              "name": "n1",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 19,
+                  "program": "ControlFlowRecursive.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 21,
+                  "program": "ControlFlowRecursive.ets"
+                }
+              }
+            },
+            "value": {
+              "type": "NumberLiteral",
+              "value": 3,
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 29,
+                  "program": "ControlFlowRecursive.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 30,
+                  "program": "ControlFlowRecursive.ets"
+                }
+              }
+            },
+            "accessibility": "public",
+            "static": true,
+            "readonly": true,
+            "declare": false,
+            "optional": false,
+            "computed": false,
+            "typeAnnotation": {
+              "type": "ETSPrimitiveType",
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 23,
+                  "program": "ControlFlowRecursive.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 26,
+                  "program": "ControlFlowRecursive.ets"
+                }
+              }
+            },
+            "definite": false,
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 19,
+                "program": "ControlFlowRecursive.ets"
+              },
+              "end": {
+                "line": 17,
+                "column": 30,
+                "program": "ControlFlowRecursive.ets"
+              }
+            }
+          },
+          {
+            "type": "ClassProperty",
+            "key": {
+              "type": "Identifier",
+              "name": "n2",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 19,
+                  "program": "ControlFlowRecursive.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 21,
+                  "program": "ControlFlowRecursive.ets"
+                }
+              }
+            },
+            "value": {
+              "type": "NumberLiteral",
+              "value": 5,
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 29,
+                  "program": "ControlFlowRecursive.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 30,
+                  "program": "ControlFlowRecursive.ets"
+                }
+              }
+            },
+            "accessibility": "public",
+            "static": true,
+            "readonly": true,
+            "declare": false,
+            "optional": false,
+            "computed": false,
+            "typeAnnotation": {
+              "type": "ETSPrimitiveType",
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 23,
+                  "program": "ControlFlowRecursive.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 26,
+                  "program": "ControlFlowRecursive.ets"
+                }
+              }
+            },
+            "definite": false,
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 18,
+                "column": 19,
+                "program": "ControlFlowRecursive.ets"
+              },
+              "end": {
+                "line": 18,
+                "column": 30,
+                "program": "ControlFlowRecursive.ets"
+              }
+            }
+          },
+          {
+            "type": "ClassProperty",
+            "key": {
+              "type": "Identifier",
+              "name": "expected",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 19,
+                  "program": "ControlFlowRecursive.ets"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 27,
+                  "program": "ControlFlowRecursive.ets"
+                }
+              }
+            },
+            "value": {
+              "type": "NumberLiteral",
+              "value": 57775,
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 35,
+                  "program": "ControlFlowRecursive.ets"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 40,
+                  "program": "ControlFlowRecursive.ets"
+                }
+              }
+            },
+            "accessibility": "public",
+            "static": true,
+            "readonly": true,
+            "declare": false,
+            "optional": false,
+            "computed": false,
+            "typeAnnotation": {
+              "type": "ETSPrimitiveType",
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 29,
+                  "program": "ControlFlowRecursive.ets"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 32,
+                  "program": "ControlFlowRecursive.ets"
+                }
+              }
+            },
+            "definite": false,
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 19,
+                "column": 19,
+                "program": "ControlFlowRecursive.ets"
+              },
+              "end": {
+                "line": 19,
+                "column": 40,
+                "program": "ControlFlowRecursive.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "ack",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 21,
+                  "column": 18,
+                  "program": "ControlFlowRecursive.ets"
+                },
+                "end": {
+                  "line": 21,
+                  "column": 21,
+                  "program": "ControlFlowRecursive.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "private",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "ack",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 21,
+                      "column": 18,
+                      "program": "ControlFlowRecursive.ets"
+                    },
+                    "end": {
+                      "line": 21,
+                      "column": 21,
+                      "program": "ControlFlowRecursive.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "m",
+                      "typeAnnotation": {
+                        "type": "ETSPrimitiveType",
+                        "loc": {
+                          "start": {
+                            "line": 21,
+                            "column": 25,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 21,
+                            "column": 28,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 21,
+                          "column": 22,
+                          "program": "ControlFlowRecursive.ets"
+                        },
+                        "end": {
+                          "line": 21,
+                          "column": 28,
+                          "program": "ControlFlowRecursive.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 21,
+                        "column": 22,
+                        "program": "ControlFlowRecursive.ets"
+                      },
+                      "end": {
+                        "line": 21,
+                        "column": 28,
+                        "program": "ControlFlowRecursive.ets"
+                      }
+                    }
+                  },
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "n",
+                      "typeAnnotation": {
+                        "type": "ETSPrimitiveType",
+                        "loc": {
+                          "start": {
+                            "line": 21,
+                            "column": 33,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 21,
+                            "column": 36,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 21,
+                          "column": 30,
+                          "program": "ControlFlowRecursive.ets"
+                        },
+                        "end": {
+                          "line": 21,
+                          "column": 36,
+                          "program": "ControlFlowRecursive.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 21,
+                        "column": 30,
+                        "program": "ControlFlowRecursive.ets"
+                      },
+                      "end": {
+                        "line": 21,
+                        "column": 36,
+                        "program": "ControlFlowRecursive.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 21,
+                      "column": 39,
+                      "program": "ControlFlowRecursive.ets"
+                    },
+                    "end": {
+                      "line": 21,
+                      "column": 42,
+                      "program": "ControlFlowRecursive.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "IfStatement",
+                      "test": {
+                        "type": "BinaryExpression",
+                        "operator": "==",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "m",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 22,
+                              "column": 9,
+                              "program": "ControlFlowRecursive.ets"
+                            },
+                            "end": {
+                              "line": 22,
+                              "column": 10,
+                              "program": "ControlFlowRecursive.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "NumberLiteral",
+                          "value": 0,
+                          "loc": {
+                            "start": {
+                              "line": 22,
+                              "column": 14,
+                              "program": "ControlFlowRecursive.ets"
+                            },
+                            "end": {
+                              "line": 22,
+                              "column": 15,
+                              "program": "ControlFlowRecursive.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 22,
+                            "column": 9,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 22,
+                            "column": 15,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "consequent": {
+                        "type": "BlockStatement",
+                        "statements": [
+                          {
+                            "type": "ReturnStatement",
+                            "argument": {
+                              "type": "BinaryExpression",
+                              "operator": "+",
+                              "left": {
+                                "type": "Identifier",
+                                "name": "n",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 23,
+                                    "column": 14,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 23,
+                                    "column": 15,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "right": {
+                                "type": "NumberLiteral",
+                                "value": 1,
+                                "loc": {
+                                  "start": {
+                                    "line": 23,
+                                    "column": 18,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 23,
+                                    "column": 19,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 23,
+                                  "column": 14,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 23,
+                                  "column": 19,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 7,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 20,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "loc": {
+                          "start": {
+                            "line": 22,
+                            "column": 17,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 24,
+                            "column": 6,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "alternate": null,
+                      "loc": {
+                        "start": {
+                          "line": 22,
+                          "column": 5,
+                          "program": "ControlFlowRecursive.ets"
+                        },
+                        "end": {
+                          "line": 24,
+                          "column": 6,
+                          "program": "ControlFlowRecursive.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "IfStatement",
+                      "test": {
+                        "type": "BinaryExpression",
+                        "operator": "==",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "n",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 25,
+                              "column": 9,
+                              "program": "ControlFlowRecursive.ets"
+                            },
+                            "end": {
+                              "line": 25,
+                              "column": 10,
+                              "program": "ControlFlowRecursive.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "NumberLiteral",
+                          "value": 0,
+                          "loc": {
+                            "start": {
+                              "line": 25,
+                              "column": 14,
+                              "program": "ControlFlowRecursive.ets"
+                            },
+                            "end": {
+                              "line": 25,
+                              "column": 15,
+                              "program": "ControlFlowRecursive.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 25,
+                            "column": 9,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 25,
+                            "column": 15,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "consequent": {
+                        "type": "BlockStatement",
+                        "statements": [
+                          {
+                            "type": "ReturnStatement",
+                            "argument": {
+                              "type": "CallExpression",
+                              "callee": {
+                                "type": "MemberExpression",
+                                "object": {
+                                  "type": "Identifier",
+                                  "name": "ControlFlowRecursive",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 26,
+                                      "column": 14,
+                                      "program": "ControlFlowRecursive.ets"
+                                    },
+                                    "end": {
+                                      "line": 26,
+                                      "column": 34,
+                                      "program": "ControlFlowRecursive.ets"
+                                    }
+                                  }
+                                },
+                                "property": {
+                                  "type": "Identifier",
+                                  "name": "ack",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 26,
+                                      "column": 35,
+                                      "program": "ControlFlowRecursive.ets"
+                                    },
+                                    "end": {
+                                      "line": 26,
+                                      "column": 38,
+                                      "program": "ControlFlowRecursive.ets"
+                                    }
+                                  }
+                                },
+                                "computed": false,
+                                "optional": false,
+                                "loc": {
+                                  "start": {
+                                    "line": 26,
+                                    "column": 14,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 26,
+                                    "column": 38,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "arguments": [
+                                {
+                                  "type": "BinaryExpression",
+                                  "operator": "-",
+                                  "left": {
+                                    "type": "Identifier",
+                                    "name": "m",
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 26,
+                                        "column": 39,
+                                        "program": "ControlFlowRecursive.ets"
+                                      },
+                                      "end": {
+                                        "line": 26,
+                                        "column": 40,
+                                        "program": "ControlFlowRecursive.ets"
+                                      }
+                                    }
+                                  },
+                                  "right": {
+                                    "type": "NumberLiteral",
+                                    "value": 1,
+                                    "loc": {
+                                      "start": {
+                                        "line": 26,
+                                        "column": 43,
+                                        "program": "ControlFlowRecursive.ets"
+                                      },
+                                      "end": {
+                                        "line": 26,
+                                        "column": 44,
+                                        "program": "ControlFlowRecursive.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 26,
+                                      "column": 39,
+                                      "program": "ControlFlowRecursive.ets"
+                                    },
+                                    "end": {
+                                      "line": 26,
+                                      "column": 44,
+                                      "program": "ControlFlowRecursive.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "NumberLiteral",
+                                  "value": 1,
+                                  "loc": {
+                                    "start": {
+                                      "line": 26,
+                                      "column": 46,
+                                      "program": "ControlFlowRecursive.ets"
+                                    },
+                                    "end": {
+                                      "line": 26,
+                                      "column": 47,
+                                      "program": "ControlFlowRecursive.ets"
+                                    }
+                                  }
+                                }
+                              ],
+                              "optional": false,
+                              "loc": {
+                                "start": {
+                                  "line": 26,
+                                  "column": 14,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 26,
+                                  "column": 48,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 26,
+                                "column": 7,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 26,
+                                "column": 49,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "loc": {
+                          "start": {
+                            "line": 25,
+                            "column": 17,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 27,
+                            "column": 6,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "alternate": null,
+                      "loc": {
+                        "start": {
+                          "line": 25,
+                          "column": 5,
+                          "program": "ControlFlowRecursive.ets"
+                        },
+                        "end": {
+                          "line": 27,
+                          "column": 6,
+                          "program": "ControlFlowRecursive.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ReturnStatement",
+                      "argument": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "object": {
+                            "type": "Identifier",
+                            "name": "ControlFlowRecursive",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 28,
+                                "column": 12,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 28,
+                                "column": 32,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "ack",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 28,
+                                "column": 33,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 28,
+                                "column": 36,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          },
+                          "computed": false,
+                          "optional": false,
+                          "loc": {
+                            "start": {
+                              "line": 28,
+                              "column": 12,
+                              "program": "ControlFlowRecursive.ets"
+                            },
+                            "end": {
+                              "line": 28,
+                              "column": 36,
+                              "program": "ControlFlowRecursive.ets"
+                            }
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "BinaryExpression",
+                            "operator": "-",
+                            "left": {
+                              "type": "Identifier",
+                              "name": "m",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 28,
+                                  "column": 37,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 28,
+                                  "column": 38,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            },
+                            "right": {
+                              "type": "NumberLiteral",
+                              "value": 1,
+                              "loc": {
+                                "start": {
+                                  "line": 28,
+                                  "column": 41,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 28,
+                                  "column": 42,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 28,
+                                "column": 37,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 28,
+                                "column": 42,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          },
+                          {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "MemberExpression",
+                              "object": {
+                                "type": "Identifier",
+                                "name": "ControlFlowRecursive",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 28,
+                                    "column": 44,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 28,
+                                    "column": 64,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "ack",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 28,
+                                    "column": 65,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 28,
+                                    "column": 68,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "computed": false,
+                              "optional": false,
+                              "loc": {
+                                "start": {
+                                  "line": 28,
+                                  "column": 44,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 28,
+                                  "column": 68,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            },
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "m",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 28,
+                                    "column": 69,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 28,
+                                    "column": 70,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "BinaryExpression",
+                                "operator": "-",
+                                "left": {
+                                  "type": "Identifier",
+                                  "name": "n",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 28,
+                                      "column": 72,
+                                      "program": "ControlFlowRecursive.ets"
+                                    },
+                                    "end": {
+                                      "line": 28,
+                                      "column": 73,
+                                      "program": "ControlFlowRecursive.ets"
+                                    }
+                                  }
+                                },
+                                "right": {
+                                  "type": "NumberLiteral",
+                                  "value": 1,
+                                  "loc": {
+                                    "start": {
+                                      "line": 28,
+                                      "column": 76,
+                                      "program": "ControlFlowRecursive.ets"
+                                    },
+                                    "end": {
+                                      "line": 28,
+                                      "column": 77,
+                                      "program": "ControlFlowRecursive.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 28,
+                                    "column": 72,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 28,
+                                    "column": 77,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "optional": false,
+                            "loc": {
+                              "start": {
+                                "line": 28,
+                                "column": 44,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 28,
+                                "column": 78,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 28,
+                            "column": 12,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 28,
+                            "column": 79,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 28,
+                          "column": 5,
+                          "program": "ControlFlowRecursive.ets"
+                        },
+                        "end": {
+                          "line": 28,
+                          "column": 80,
+                          "program": "ControlFlowRecursive.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 21,
+                      "column": 43,
+                      "program": "ControlFlowRecursive.ets"
+                    },
+                    "end": {
+                      "line": 29,
+                      "column": 4,
+                      "program": "ControlFlowRecursive.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 21,
+                    "column": 21,
+                    "program": "ControlFlowRecursive.ets"
+                  },
+                  "end": {
+                    "line": 29,
+                    "column": 4,
+                    "program": "ControlFlowRecursive.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 21,
+                  "column": 21,
+                  "program": "ControlFlowRecursive.ets"
+                },
+                "end": {
+                  "line": 29,
+                  "column": 4,
+                  "program": "ControlFlowRecursive.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 21,
+                "column": 3,
+                "program": "ControlFlowRecursive.ets"
+              },
+              "end": {
+                "line": 29,
+                "column": 4,
+                "program": "ControlFlowRecursive.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "fib",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 31,
+                  "column": 18,
+                  "program": "ControlFlowRecursive.ets"
+                },
+                "end": {
+                  "line": 31,
+                  "column": 21,
+                  "program": "ControlFlowRecursive.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "private",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "fib",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 31,
+                      "column": 18,
+                      "program": "ControlFlowRecursive.ets"
+                    },
+                    "end": {
+                      "line": 31,
+                      "column": 21,
+                      "program": "ControlFlowRecursive.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "n",
+                      "typeAnnotation": {
+                        "type": "ETSPrimitiveType",
+                        "loc": {
+                          "start": {
+                            "line": 31,
+                            "column": 25,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 31,
+                            "column": 28,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 31,
+                          "column": 22,
+                          "program": "ControlFlowRecursive.ets"
+                        },
+                        "end": {
+                          "line": 31,
+                          "column": 28,
+                          "program": "ControlFlowRecursive.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 31,
+                        "column": 22,
+                        "program": "ControlFlowRecursive.ets"
+                      },
+                      "end": {
+                        "line": 31,
+                        "column": 28,
+                        "program": "ControlFlowRecursive.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 31,
+                      "column": 31,
+                      "program": "ControlFlowRecursive.ets"
+                    },
+                    "end": {
+                      "line": 31,
+                      "column": 34,
+                      "program": "ControlFlowRecursive.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "IfStatement",
+                      "test": {
+                        "type": "BinaryExpression",
+                        "operator": "<",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "n",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 32,
+                              "column": 9,
+                              "program": "ControlFlowRecursive.ets"
+                            },
+                            "end": {
+                              "line": 32,
+                              "column": 10,
+                              "program": "ControlFlowRecursive.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "NumberLiteral",
+                          "value": 2,
+                          "loc": {
+                            "start": {
+                              "line": 32,
+                              "column": 13,
+                              "program": "ControlFlowRecursive.ets"
+                            },
+                            "end": {
+                              "line": 32,
+                              "column": 14,
+                              "program": "ControlFlowRecursive.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 32,
+                            "column": 9,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 32,
+                            "column": 14,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "consequent": {
+                        "type": "BlockStatement",
+                        "statements": [
+                          {
+                            "type": "ReturnStatement",
+                            "argument": {
+                              "type": "NumberLiteral",
+                              "value": 1,
+                              "loc": {
+                                "start": {
+                                  "line": 33,
+                                  "column": 14,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 33,
+                                  "column": 15,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 33,
+                                "column": 7,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 33,
+                                "column": 16,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "loc": {
+                          "start": {
+                            "line": 32,
+                            "column": 16,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 34,
+                            "column": 6,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "alternate": null,
+                      "loc": {
+                        "start": {
+                          "line": 32,
+                          "column": 5,
+                          "program": "ControlFlowRecursive.ets"
+                        },
+                        "end": {
+                          "line": 34,
+                          "column": 6,
+                          "program": "ControlFlowRecursive.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ReturnStatement",
+                      "argument": {
+                        "type": "BinaryExpression",
+                        "operator": "+",
+                        "left": {
+                          "type": "CallExpression",
+                          "callee": {
+                            "type": "MemberExpression",
+                            "object": {
+                              "type": "Identifier",
+                              "name": "ControlFlowRecursive",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 35,
+                                  "column": 12,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 35,
+                                  "column": 32,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "fib",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 35,
+                                  "column": 33,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 35,
+                                  "column": 36,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            },
+                            "computed": false,
+                            "optional": false,
+                            "loc": {
+                              "start": {
+                                "line": 35,
+                                "column": 12,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 35,
+                                "column": 36,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          },
+                          "arguments": [
+                            {
+                              "type": "BinaryExpression",
+                              "operator": "-",
+                              "left": {
+                                "type": "Identifier",
+                                "name": "n",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 35,
+                                    "column": 37,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 35,
+                                    "column": 38,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "right": {
+                                "type": "NumberLiteral",
+                                "value": 2,
+                                "loc": {
+                                  "start": {
+                                    "line": 35,
+                                    "column": 41,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 35,
+                                    "column": 42,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 35,
+                                  "column": 37,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 35,
+                                  "column": 42,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            }
+                          ],
+                          "optional": false,
+                          "loc": {
+                            "start": {
+                              "line": 35,
+                              "column": 12,
+                              "program": "ControlFlowRecursive.ets"
+                            },
+                            "end": {
+                              "line": 35,
+                              "column": 43,
+                              "program": "ControlFlowRecursive.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "CallExpression",
+                          "callee": {
+                            "type": "MemberExpression",
+                            "object": {
+                              "type": "Identifier",
+                              "name": "ControlFlowRecursive",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 35,
+                                  "column": 46,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 35,
+                                  "column": 66,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "fib",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 35,
+                                  "column": 67,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 35,
+                                  "column": 70,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            },
+                            "computed": false,
+                            "optional": false,
+                            "loc": {
+                              "start": {
+                                "line": 35,
+                                "column": 46,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 35,
+                                "column": 70,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          },
+                          "arguments": [
+                            {
+                              "type": "BinaryExpression",
+                              "operator": "-",
+                              "left": {
+                                "type": "Identifier",
+                                "name": "n",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 35,
+                                    "column": 71,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 35,
+                                    "column": 72,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "right": {
+                                "type": "NumberLiteral",
+                                "value": 1,
+                                "loc": {
+                                  "start": {
+                                    "line": 35,
+                                    "column": 75,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 35,
+                                    "column": 76,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 35,
+                                  "column": 71,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 35,
+                                  "column": 76,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            }
+                          ],
+                          "optional": false,
+                          "loc": {
+                            "start": {
+                              "line": 35,
+                              "column": 46,
+                              "program": "ControlFlowRecursive.ets"
+                            },
+                            "end": {
+                              "line": 35,
+                              "column": 77,
+                              "program": "ControlFlowRecursive.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 35,
+                            "column": 12,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 35,
+                            "column": 77,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 35,
+                          "column": 5,
+                          "program": "ControlFlowRecursive.ets"
+                        },
+                        "end": {
+                          "line": 35,
+                          "column": 78,
+                          "program": "ControlFlowRecursive.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 31,
+                      "column": 35,
+                      "program": "ControlFlowRecursive.ets"
+                    },
+                    "end": {
+                      "line": 36,
+                      "column": 4,
+                      "program": "ControlFlowRecursive.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 31,
+                    "column": 21,
+                    "program": "ControlFlowRecursive.ets"
+                  },
+                  "end": {
+                    "line": 36,
+                    "column": 4,
+                    "program": "ControlFlowRecursive.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 31,
+                  "column": 21,
+                  "program": "ControlFlowRecursive.ets"
+                },
+                "end": {
+                  "line": 36,
+                  "column": 4,
+                  "program": "ControlFlowRecursive.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 31,
+                "column": 3,
+                "program": "ControlFlowRecursive.ets"
+              },
+              "end": {
+                "line": 36,
+                "column": 4,
+                "program": "ControlFlowRecursive.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "tak",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 38,
+                  "column": 18,
+                  "program": "ControlFlowRecursive.ets"
+                },
+                "end": {
+                  "line": 38,
+                  "column": 21,
+                  "program": "ControlFlowRecursive.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "private",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "tak",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 38,
+                      "column": 18,
+                      "program": "ControlFlowRecursive.ets"
+                    },
+                    "end": {
+                      "line": 38,
+                      "column": 21,
+                      "program": "ControlFlowRecursive.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "x",
+                      "typeAnnotation": {
+                        "type": "ETSPrimitiveType",
+                        "loc": {
+                          "start": {
+                            "line": 38,
+                            "column": 25,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 38,
+                            "column": 28,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 38,
+                          "column": 22,
+                          "program": "ControlFlowRecursive.ets"
+                        },
+                        "end": {
+                          "line": 38,
+                          "column": 28,
+                          "program": "ControlFlowRecursive.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 38,
+                        "column": 22,
+                        "program": "ControlFlowRecursive.ets"
+                      },
+                      "end": {
+                        "line": 38,
+                        "column": 28,
+                        "program": "ControlFlowRecursive.ets"
+                      }
+                    }
+                  },
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "y",
+                      "typeAnnotation": {
+                        "type": "ETSPrimitiveType",
+                        "loc": {
+                          "start": {
+                            "line": 38,
+                            "column": 33,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 38,
+                            "column": 36,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 38,
+                          "column": 30,
+                          "program": "ControlFlowRecursive.ets"
+                        },
+                        "end": {
+                          "line": 38,
+                          "column": 36,
+                          "program": "ControlFlowRecursive.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 38,
+                        "column": 30,
+                        "program": "ControlFlowRecursive.ets"
+                      },
+                      "end": {
+                        "line": 38,
+                        "column": 36,
+                        "program": "ControlFlowRecursive.ets"
+                      }
+                    }
+                  },
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "z",
+                      "typeAnnotation": {
+                        "type": "ETSPrimitiveType",
+                        "loc": {
+                          "start": {
+                            "line": 38,
+                            "column": 41,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 38,
+                            "column": 44,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 38,
+                          "column": 38,
+                          "program": "ControlFlowRecursive.ets"
+                        },
+                        "end": {
+                          "line": 38,
+                          "column": 44,
+                          "program": "ControlFlowRecursive.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 38,
+                        "column": 38,
+                        "program": "ControlFlowRecursive.ets"
+                      },
+                      "end": {
+                        "line": 38,
+                        "column": 44,
+                        "program": "ControlFlowRecursive.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 38,
+                      "column": 47,
+                      "program": "ControlFlowRecursive.ets"
+                    },
+                    "end": {
+                      "line": 38,
+                      "column": 50,
+                      "program": "ControlFlowRecursive.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "IfStatement",
+                      "test": {
+                        "type": "BinaryExpression",
+                        "operator": ">=",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "y",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 39,
+                              "column": 9,
+                              "program": "ControlFlowRecursive.ets"
+                            },
+                            "end": {
+                              "line": 39,
+                              "column": 10,
+                              "program": "ControlFlowRecursive.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "Identifier",
+                          "name": "x",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 39,
+                              "column": 14,
+                              "program": "ControlFlowRecursive.ets"
+                            },
+                            "end": {
+                              "line": 39,
+                              "column": 15,
+                              "program": "ControlFlowRecursive.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 39,
+                            "column": 9,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 39,
+                            "column": 15,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "consequent": {
+                        "type": "BlockStatement",
+                        "statements": [
+                          {
+                            "type": "ReturnStatement",
+                            "argument": {
+                              "type": "Identifier",
+                              "name": "z",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 40,
+                                  "column": 14,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 40,
+                                  "column": 15,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 40,
+                                "column": 7,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 40,
+                                "column": 16,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "loc": {
+                          "start": {
+                            "line": 39,
+                            "column": 17,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 41,
+                            "column": 6,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "alternate": null,
+                      "loc": {
+                        "start": {
+                          "line": 39,
+                          "column": 5,
+                          "program": "ControlFlowRecursive.ets"
+                        },
+                        "end": {
+                          "line": 41,
+                          "column": 6,
+                          "program": "ControlFlowRecursive.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ReturnStatement",
+                      "argument": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "object": {
+                            "type": "Identifier",
+                            "name": "ControlFlowRecursive",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 42,
+                                "column": 12,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 42,
+                                "column": 32,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "tak",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 42,
+                                "column": 33,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 42,
+                                "column": 36,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          },
+                          "computed": false,
+                          "optional": false,
+                          "loc": {
+                            "start": {
+                              "line": 42,
+                              "column": 12,
+                              "program": "ControlFlowRecursive.ets"
+                            },
+                            "end": {
+                              "line": 42,
+                              "column": 36,
+                              "program": "ControlFlowRecursive.ets"
+                            }
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "MemberExpression",
+                              "object": {
+                                "type": "Identifier",
+                                "name": "ControlFlowRecursive",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 42,
+                                    "column": 37,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 42,
+                                    "column": 57,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "tak",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 42,
+                                    "column": 58,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 42,
+                                    "column": 61,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "computed": false,
+                              "optional": false,
+                              "loc": {
+                                "start": {
+                                  "line": 42,
+                                  "column": 37,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 42,
+                                  "column": 61,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            },
+                            "arguments": [
+                              {
+                                "type": "BinaryExpression",
+                                "operator": "-",
+                                "left": {
+                                  "type": "Identifier",
+                                  "name": "x",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 42,
+                                      "column": 62,
+                                      "program": "ControlFlowRecursive.ets"
+                                    },
+                                    "end": {
+                                      "line": 42,
+                                      "column": 63,
+                                      "program": "ControlFlowRecursive.ets"
+                                    }
+                                  }
+                                },
+                                "right": {
+                                  "type": "NumberLiteral",
+                                  "value": 1,
+                                  "loc": {
+                                    "start": {
+                                      "line": 42,
+                                      "column": 66,
+                                      "program": "ControlFlowRecursive.ets"
+                                    },
+                                    "end": {
+                                      "line": 42,
+                                      "column": 67,
+                                      "program": "ControlFlowRecursive.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 42,
+                                    "column": 62,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 42,
+                                    "column": 67,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "Identifier",
+                                "name": "y",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 42,
+                                    "column": 69,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 42,
+                                    "column": 70,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "Identifier",
+                                "name": "z",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 42,
+                                    "column": 72,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 42,
+                                    "column": 73,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "optional": false,
+                            "loc": {
+                              "start": {
+                                "line": 42,
+                                "column": 37,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 42,
+                                "column": 74,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          },
+                          {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "MemberExpression",
+                              "object": {
+                                "type": "Identifier",
+                                "name": "ControlFlowRecursive",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 42,
+                                    "column": 76,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 42,
+                                    "column": 96,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "tak",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 42,
+                                    "column": 97,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 42,
+                                    "column": 100,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "computed": false,
+                              "optional": false,
+                              "loc": {
+                                "start": {
+                                  "line": 42,
+                                  "column": 76,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 42,
+                                  "column": 100,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            },
+                            "arguments": [
+                              {
+                                "type": "BinaryExpression",
+                                "operator": "-",
+                                "left": {
+                                  "type": "Identifier",
+                                  "name": "y",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 42,
+                                      "column": 101,
+                                      "program": "ControlFlowRecursive.ets"
+                                    },
+                                    "end": {
+                                      "line": 42,
+                                      "column": 102,
+                                      "program": "ControlFlowRecursive.ets"
+                                    }
+                                  }
+                                },
+                                "right": {
+                                  "type": "NumberLiteral",
+                                  "value": 1,
+                                  "loc": {
+                                    "start": {
+                                      "line": 42,
+                                      "column": 105,
+                                      "program": "ControlFlowRecursive.ets"
+                                    },
+                                    "end": {
+                                      "line": 42,
+                                      "column": 106,
+                                      "program": "ControlFlowRecursive.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 42,
+                                    "column": 101,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 42,
+                                    "column": 106,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "Identifier",
+                                "name": "z",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 42,
+                                    "column": 108,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 42,
+                                    "column": 109,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "Identifier",
+                                "name": "x",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 42,
+                                    "column": 111,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 42,
+                                    "column": 112,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "optional": false,
+                            "loc": {
+                              "start": {
+                                "line": 42,
+                                "column": 76,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 42,
+                                "column": 113,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          },
+                          {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "MemberExpression",
+                              "object": {
+                                "type": "Identifier",
+                                "name": "ControlFlowRecursive",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 42,
+                                    "column": 115,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 42,
+                                    "column": 135,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "tak",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 42,
+                                    "column": 136,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 42,
+                                    "column": 139,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "computed": false,
+                              "optional": false,
+                              "loc": {
+                                "start": {
+                                  "line": 42,
+                                  "column": 115,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 42,
+                                  "column": 139,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            },
+                            "arguments": [
+                              {
+                                "type": "BinaryExpression",
+                                "operator": "-",
+                                "left": {
+                                  "type": "Identifier",
+                                  "name": "z",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 42,
+                                      "column": 140,
+                                      "program": "ControlFlowRecursive.ets"
+                                    },
+                                    "end": {
+                                      "line": 42,
+                                      "column": 141,
+                                      "program": "ControlFlowRecursive.ets"
+                                    }
+                                  }
+                                },
+                                "right": {
+                                  "type": "NumberLiteral",
+                                  "value": 1,
+                                  "loc": {
+                                    "start": {
+                                      "line": 42,
+                                      "column": 144,
+                                      "program": "ControlFlowRecursive.ets"
+                                    },
+                                    "end": {
+                                      "line": 42,
+                                      "column": 145,
+                                      "program": "ControlFlowRecursive.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 42,
+                                    "column": 140,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 42,
+                                    "column": 145,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "Identifier",
+                                "name": "x",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 42,
+                                    "column": 147,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 42,
+                                    "column": 148,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "Identifier",
+                                "name": "y",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 42,
+                                    "column": 150,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 42,
+                                    "column": 151,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "optional": false,
+                            "loc": {
+                              "start": {
+                                "line": 42,
+                                "column": 115,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 42,
+                                "column": 152,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 42,
+                            "column": 12,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 42,
+                            "column": 153,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 42,
+                          "column": 5,
+                          "program": "ControlFlowRecursive.ets"
+                        },
+                        "end": {
+                          "line": 42,
+                          "column": 154,
+                          "program": "ControlFlowRecursive.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 38,
+                      "column": 51,
+                      "program": "ControlFlowRecursive.ets"
+                    },
+                    "end": {
+                      "line": 43,
+                      "column": 4,
+                      "program": "ControlFlowRecursive.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 38,
+                    "column": 21,
+                    "program": "ControlFlowRecursive.ets"
+                  },
+                  "end": {
+                    "line": 43,
+                    "column": 4,
+                    "program": "ControlFlowRecursive.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 38,
+                  "column": 21,
+                  "program": "ControlFlowRecursive.ets"
+                },
+                "end": {
+                  "line": 43,
+                  "column": 4,
+                  "program": "ControlFlowRecursive.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 38,
+                "column": 3,
+                "program": "ControlFlowRecursive.ets"
+              },
+              "end": {
+                "line": 43,
+                "column": 4,
+                "program": "ControlFlowRecursive.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "run",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 45,
+                  "column": 17,
+                  "program": "ControlFlowRecursive.ets"
+                },
+                "end": {
+                  "line": 45,
+                  "column": 20,
+                  "program": "ControlFlowRecursive.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "run",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 45,
+                      "column": 17,
+                      "program": "ControlFlowRecursive.ets"
+                    },
+                    "end": {
+                      "line": 45,
+                      "column": 20,
+                      "program": "ControlFlowRecursive.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 45,
+                      "column": 24,
+                      "program": "ControlFlowRecursive.ets"
+                    },
+                    "end": {
+                      "line": 45,
+                      "column": 28,
+                      "program": "ControlFlowRecursive.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "result",
+                            "typeAnnotation": {
+                              "type": "ETSPrimitiveType",
+                              "loc": {
+                                "start": {
+                                  "line": 46,
+                                  "column": 17,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 46,
+                                  "column": 20,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 46,
+                                "column": 9,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 46,
+                                "column": 15,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "NumberLiteral",
+                            "value": 0,
+                            "loc": {
+                              "start": {
+                                "line": 46,
+                                "column": 23,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 46,
+                                "column": 24,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 46,
+                              "column": 9,
+                              "program": "ControlFlowRecursive.ets"
+                            },
+                            "end": {
+                              "line": 46,
+                              "column": 24,
+                              "program": "ControlFlowRecursive.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 46,
+                          "column": 5,
+                          "program": "ControlFlowRecursive.ets"
+                        },
+                        "end": {
+                          "line": 46,
+                          "column": 25,
+                          "program": "ControlFlowRecursive.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ForUpdateStatement",
+                      "init": {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                          {
+                            "type": "VariableDeclarator",
+                            "id": {
+                              "type": "Identifier",
+                              "name": "j",
+                              "typeAnnotation": {
+                                "type": "ETSPrimitiveType",
+                                "loc": {
+                                  "start": {
+                                    "line": 47,
+                                    "column": 17,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 47,
+                                    "column": 20,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 47,
+                                  "column": 14,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 47,
+                                  "column": 15,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            },
+                            "init": {
+                              "type": "MemberExpression",
+                              "object": {
+                                "type": "Identifier",
+                                "name": "ControlFlowRecursive",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 47,
+                                    "column": 23,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 47,
+                                    "column": 43,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "n1",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 47,
+                                    "column": 44,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 47,
+                                    "column": 46,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "computed": false,
+                              "optional": false,
+                              "loc": {
+                                "start": {
+                                  "line": 47,
+                                  "column": 23,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 47,
+                                  "column": 46,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 47,
+                                "column": 14,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 47,
+                                "column": 46,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "kind": "let",
+                        "loc": {
+                          "start": {
+                            "line": 47,
+                            "column": 10,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 47,
+                            "column": 46,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "test": {
+                        "type": "BinaryExpression",
+                        "operator": "<=",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "j",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 47,
+                              "column": 48,
+                              "program": "ControlFlowRecursive.ets"
+                            },
+                            "end": {
+                              "line": 47,
+                              "column": 49,
+                              "program": "ControlFlowRecursive.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "MemberExpression",
+                          "object": {
+                            "type": "Identifier",
+                            "name": "ControlFlowRecursive",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 47,
+                                "column": 53,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 47,
+                                "column": 73,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "n2",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 47,
+                                "column": 74,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 47,
+                                "column": 76,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          },
+                          "computed": false,
+                          "optional": false,
+                          "loc": {
+                            "start": {
+                              "line": 47,
+                              "column": 53,
+                              "program": "ControlFlowRecursive.ets"
+                            },
+                            "end": {
+                              "line": 47,
+                              "column": 76,
+                              "program": "ControlFlowRecursive.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 47,
+                            "column": 48,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 47,
+                            "column": 76,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "update": {
+                        "type": "UpdateExpression",
+                        "operator": "++",
+                        "prefix": true,
+                        "argument": {
+                          "type": "Identifier",
+                          "name": "j",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 47,
+                              "column": 80,
+                              "program": "ControlFlowRecursive.ets"
+                            },
+                            "end": {
+                              "line": 47,
+                              "column": 81,
+                              "program": "ControlFlowRecursive.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 47,
+                            "column": 78,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 47,
+                            "column": 81,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "body": {
+                        "type": "BlockStatement",
+                        "statements": [
+                          {
+                            "type": "ExpressionStatement",
+                            "expression": {
+                              "type": "AssignmentExpression",
+                              "operator": "+=",
+                              "left": {
+                                "type": "Identifier",
+                                "name": "result",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 48,
+                                    "column": 7,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 48,
+                                    "column": 13,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "right": {
+                                "type": "CallExpression",
+                                "callee": {
+                                  "type": "MemberExpression",
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "ControlFlowRecursive",
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 48,
+                                        "column": 17,
+                                        "program": "ControlFlowRecursive.ets"
+                                      },
+                                      "end": {
+                                        "line": 48,
+                                        "column": 37,
+                                        "program": "ControlFlowRecursive.ets"
+                                      }
+                                    }
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "ack",
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 48,
+                                        "column": 38,
+                                        "program": "ControlFlowRecursive.ets"
+                                      },
+                                      "end": {
+                                        "line": 48,
+                                        "column": 41,
+                                        "program": "ControlFlowRecursive.ets"
+                                      }
+                                    }
+                                  },
+                                  "computed": false,
+                                  "optional": false,
+                                  "loc": {
+                                    "start": {
+                                      "line": 48,
+                                      "column": 17,
+                                      "program": "ControlFlowRecursive.ets"
+                                    },
+                                    "end": {
+                                      "line": 48,
+                                      "column": 41,
+                                      "program": "ControlFlowRecursive.ets"
+                                    }
+                                  }
+                                },
+                                "arguments": [
+                                  {
+                                    "type": "NumberLiteral",
+                                    "value": 3,
+                                    "loc": {
+                                      "start": {
+                                        "line": 48,
+                                        "column": 42,
+                                        "program": "ControlFlowRecursive.ets"
+                                      },
+                                      "end": {
+                                        "line": 48,
+                                        "column": 43,
+                                        "program": "ControlFlowRecursive.ets"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "j",
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 48,
+                                        "column": 45,
+                                        "program": "ControlFlowRecursive.ets"
+                                      },
+                                      "end": {
+                                        "line": 48,
+                                        "column": 46,
+                                        "program": "ControlFlowRecursive.ets"
+                                      }
+                                    }
+                                  }
+                                ],
+                                "optional": false,
+                                "loc": {
+                                  "start": {
+                                    "line": 48,
+                                    "column": 17,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 48,
+                                    "column": 47,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 48,
+                                  "column": 7,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 48,
+                                  "column": 47,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 48,
+                                "column": 7,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 48,
+                                "column": 48,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          },
+                          {
+                            "type": "ExpressionStatement",
+                            "expression": {
+                              "type": "AssignmentExpression",
+                              "operator": "+=",
+                              "left": {
+                                "type": "Identifier",
+                                "name": "result",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 49,
+                                    "column": 7,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 49,
+                                    "column": 13,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "right": {
+                                "type": "CallExpression",
+                                "callee": {
+                                  "type": "MemberExpression",
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "ControlFlowRecursive",
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 49,
+                                        "column": 17,
+                                        "program": "ControlFlowRecursive.ets"
+                                      },
+                                      "end": {
+                                        "line": 49,
+                                        "column": 37,
+                                        "program": "ControlFlowRecursive.ets"
+                                      }
+                                    }
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "fib",
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 49,
+                                        "column": 38,
+                                        "program": "ControlFlowRecursive.ets"
+                                      },
+                                      "end": {
+                                        "line": 49,
+                                        "column": 41,
+                                        "program": "ControlFlowRecursive.ets"
+                                      }
+                                    }
+                                  },
+                                  "computed": false,
+                                  "optional": false,
+                                  "loc": {
+                                    "start": {
+                                      "line": 49,
+                                      "column": 17,
+                                      "program": "ControlFlowRecursive.ets"
+                                    },
+                                    "end": {
+                                      "line": 49,
+                                      "column": 41,
+                                      "program": "ControlFlowRecursive.ets"
+                                    }
+                                  }
+                                },
+                                "arguments": [
+                                  {
+                                    "type": "BinaryExpression",
+                                    "operator": "+",
+                                    "left": {
+                                      "type": "NumberLiteral",
+                                      "value": 17,
+                                      "loc": {
+                                        "start": {
+                                          "line": 49,
+                                          "column": 42,
+                                          "program": "ControlFlowRecursive.ets"
+                                        },
+                                        "end": {
+                                          "line": 49,
+                                          "column": 44,
+                                          "program": "ControlFlowRecursive.ets"
+                                        }
+                                      }
+                                    },
+                                    "right": {
+                                      "type": "Identifier",
+                                      "name": "j",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 49,
+                                          "column": 47,
+                                          "program": "ControlFlowRecursive.ets"
+                                        },
+                                        "end": {
+                                          "line": 49,
+                                          "column": 48,
+                                          "program": "ControlFlowRecursive.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 49,
+                                        "column": 42,
+                                        "program": "ControlFlowRecursive.ets"
+                                      },
+                                      "end": {
+                                        "line": 49,
+                                        "column": 48,
+                                        "program": "ControlFlowRecursive.ets"
+                                      }
+                                    }
+                                  }
+                                ],
+                                "optional": false,
+                                "loc": {
+                                  "start": {
+                                    "line": 49,
+                                    "column": 17,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 49,
+                                    "column": 49,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 49,
+                                  "column": 7,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 49,
+                                  "column": 49,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 49,
+                                "column": 7,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 49,
+                                "column": 50,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          },
+                          {
+                            "type": "ExpressionStatement",
+                            "expression": {
+                              "type": "AssignmentExpression",
+                              "operator": "+=",
+                              "left": {
+                                "type": "Identifier",
+                                "name": "result",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 50,
+                                    "column": 7,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 50,
+                                    "column": 13,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "right": {
+                                "type": "CallExpression",
+                                "callee": {
+                                  "type": "MemberExpression",
+                                  "object": {
+                                    "type": "Identifier",
+                                    "name": "ControlFlowRecursive",
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 50,
+                                        "column": 17,
+                                        "program": "ControlFlowRecursive.ets"
+                                      },
+                                      "end": {
+                                        "line": 50,
+                                        "column": 37,
+                                        "program": "ControlFlowRecursive.ets"
+                                      }
+                                    }
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "name": "tak",
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 50,
+                                        "column": 38,
+                                        "program": "ControlFlowRecursive.ets"
+                                      },
+                                      "end": {
+                                        "line": 50,
+                                        "column": 41,
+                                        "program": "ControlFlowRecursive.ets"
+                                      }
+                                    }
+                                  },
+                                  "computed": false,
+                                  "optional": false,
+                                  "loc": {
+                                    "start": {
+                                      "line": 50,
+                                      "column": 17,
+                                      "program": "ControlFlowRecursive.ets"
+                                    },
+                                    "end": {
+                                      "line": 50,
+                                      "column": 41,
+                                      "program": "ControlFlowRecursive.ets"
+                                    }
+                                  }
+                                },
+                                "arguments": [
+                                  {
+                                    "type": "BinaryExpression",
+                                    "operator": "+",
+                                    "left": {
+                                      "type": "BinaryExpression",
+                                      "operator": "*",
+                                      "left": {
+                                        "type": "NumberLiteral",
+                                        "value": 3,
+                                        "loc": {
+                                          "start": {
+                                            "line": 50,
+                                            "column": 42,
+                                            "program": "ControlFlowRecursive.ets"
+                                          },
+                                          "end": {
+                                            "line": 50,
+                                            "column": 43,
+                                            "program": "ControlFlowRecursive.ets"
+                                          }
+                                        }
+                                      },
+                                      "right": {
+                                        "type": "Identifier",
+                                        "name": "j",
+                                        "decorators": [],
+                                        "loc": {
+                                          "start": {
+                                            "line": 50,
+                                            "column": 46,
+                                            "program": "ControlFlowRecursive.ets"
+                                          },
+                                          "end": {
+                                            "line": 50,
+                                            "column": 47,
+                                            "program": "ControlFlowRecursive.ets"
+                                          }
+                                        }
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 50,
+                                          "column": 42,
+                                          "program": "ControlFlowRecursive.ets"
+                                        },
+                                        "end": {
+                                          "line": 50,
+                                          "column": 47,
+                                          "program": "ControlFlowRecursive.ets"
+                                        }
+                                      }
+                                    },
+                                    "right": {
+                                      "type": "NumberLiteral",
+                                      "value": 3,
+                                      "loc": {
+                                        "start": {
+                                          "line": 50,
+                                          "column": 50,
+                                          "program": "ControlFlowRecursive.ets"
+                                        },
+                                        "end": {
+                                          "line": 50,
+                                          "column": 51,
+                                          "program": "ControlFlowRecursive.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 50,
+                                        "column": 42,
+                                        "program": "ControlFlowRecursive.ets"
+                                      },
+                                      "end": {
+                                        "line": 50,
+                                        "column": 51,
+                                        "program": "ControlFlowRecursive.ets"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "type": "BinaryExpression",
+                                    "operator": "+",
+                                    "left": {
+                                      "type": "BinaryExpression",
+                                      "operator": "*",
+                                      "left": {
+                                        "type": "NumberLiteral",
+                                        "value": 2,
+                                        "loc": {
+                                          "start": {
+                                            "line": 50,
+                                            "column": 53,
+                                            "program": "ControlFlowRecursive.ets"
+                                          },
+                                          "end": {
+                                            "line": 50,
+                                            "column": 54,
+                                            "program": "ControlFlowRecursive.ets"
+                                          }
+                                        }
+                                      },
+                                      "right": {
+                                        "type": "Identifier",
+                                        "name": "j",
+                                        "decorators": [],
+                                        "loc": {
+                                          "start": {
+                                            "line": 50,
+                                            "column": 57,
+                                            "program": "ControlFlowRecursive.ets"
+                                          },
+                                          "end": {
+                                            "line": 50,
+                                            "column": 58,
+                                            "program": "ControlFlowRecursive.ets"
+                                          }
+                                        }
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 50,
+                                          "column": 53,
+                                          "program": "ControlFlowRecursive.ets"
+                                        },
+                                        "end": {
+                                          "line": 50,
+                                          "column": 58,
+                                          "program": "ControlFlowRecursive.ets"
+                                        }
+                                      }
+                                    },
+                                    "right": {
+                                      "type": "NumberLiteral",
+                                      "value": 2,
+                                      "loc": {
+                                        "start": {
+                                          "line": 50,
+                                          "column": 61,
+                                          "program": "ControlFlowRecursive.ets"
+                                        },
+                                        "end": {
+                                          "line": 50,
+                                          "column": 62,
+                                          "program": "ControlFlowRecursive.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 50,
+                                        "column": 53,
+                                        "program": "ControlFlowRecursive.ets"
+                                      },
+                                      "end": {
+                                        "line": 50,
+                                        "column": 62,
+                                        "program": "ControlFlowRecursive.ets"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "type": "BinaryExpression",
+                                    "operator": "+",
+                                    "left": {
+                                      "type": "Identifier",
+                                      "name": "j",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 50,
+                                          "column": 64,
+                                          "program": "ControlFlowRecursive.ets"
+                                        },
+                                        "end": {
+                                          "line": 50,
+                                          "column": 65,
+                                          "program": "ControlFlowRecursive.ets"
+                                        }
+                                      }
+                                    },
+                                    "right": {
+                                      "type": "NumberLiteral",
+                                      "value": 1,
+                                      "loc": {
+                                        "start": {
+                                          "line": 50,
+                                          "column": 68,
+                                          "program": "ControlFlowRecursive.ets"
+                                        },
+                                        "end": {
+                                          "line": 50,
+                                          "column": 69,
+                                          "program": "ControlFlowRecursive.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 50,
+                                        "column": 64,
+                                        "program": "ControlFlowRecursive.ets"
+                                      },
+                                      "end": {
+                                        "line": 50,
+                                        "column": 69,
+                                        "program": "ControlFlowRecursive.ets"
+                                      }
+                                    }
+                                  }
+                                ],
+                                "optional": false,
+                                "loc": {
+                                  "start": {
+                                    "line": 50,
+                                    "column": 17,
+                                    "program": "ControlFlowRecursive.ets"
+                                  },
+                                  "end": {
+                                    "line": 50,
+                                    "column": 70,
+                                    "program": "ControlFlowRecursive.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 50,
+                                  "column": 7,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 50,
+                                  "column": 70,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 50,
+                                "column": 7,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 50,
+                                "column": 71,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "loc": {
+                          "start": {
+                            "line": 47,
+                            "column": 83,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 51,
+                            "column": 6,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 47,
+                          "column": 5,
+                          "program": "ControlFlowRecursive.ets"
+                        },
+                        "end": {
+                          "line": 51,
+                          "column": 6,
+                          "program": "ControlFlowRecursive.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "assertEQ",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 53,
+                              "column": 5,
+                              "program": "ControlFlowRecursive.ets"
+                            },
+                            "end": {
+                              "line": 53,
+                              "column": 13,
+                              "program": "ControlFlowRecursive.ets"
+                            }
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "result",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 53,
+                                "column": 14,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 53,
+                                "column": 20,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          },
+                          {
+                            "type": "MemberExpression",
+                            "object": {
+                              "type": "Identifier",
+                              "name": "ControlFlowRecursive",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 53,
+                                  "column": 22,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 53,
+                                  "column": 42,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "expected",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 53,
+                                  "column": 43,
+                                  "program": "ControlFlowRecursive.ets"
+                                },
+                                "end": {
+                                  "line": 53,
+                                  "column": 51,
+                                  "program": "ControlFlowRecursive.ets"
+                                }
+                              }
+                            },
+                            "computed": false,
+                            "optional": false,
+                            "loc": {
+                              "start": {
+                                "line": 53,
+                                "column": 22,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 53,
+                                "column": 51,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          },
+                          {
+                            "type": "StringLiteral",
+                            "value": "Incorrect result",
+                            "loc": {
+                              "start": {
+                                "line": 53,
+                                "column": 54,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 53,
+                                "column": 72,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 53,
+                            "column": 5,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 53,
+                            "column": 73,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 53,
+                          "column": 5,
+                          "program": "ControlFlowRecursive.ets"
+                        },
+                        "end": {
+                          "line": 53,
+                          "column": 74,
+                          "program": "ControlFlowRecursive.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 45,
+                      "column": 29,
+                      "program": "ControlFlowRecursive.ets"
+                    },
+                    "end": {
+                      "line": 54,
+                      "column": 4,
+                      "program": "ControlFlowRecursive.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 45,
+                    "column": 20,
+                    "program": "ControlFlowRecursive.ets"
+                  },
+                  "end": {
+                    "line": 54,
+                    "column": 4,
+                    "program": "ControlFlowRecursive.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 45,
+                  "column": 20,
+                  "program": "ControlFlowRecursive.ets"
+                },
+                "end": {
+                  "line": 54,
+                  "column": 4,
+                  "program": "ControlFlowRecursive.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 45,
+                "column": 3,
+                "program": "ControlFlowRecursive.ets"
+              },
+              "end": {
+                "line": 54,
+                "column": 4,
+                "program": "ControlFlowRecursive.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 36,
+                  "program": "ControlFlowRecursive.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 36,
+                  "program": "ControlFlowRecursive.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 36,
+                      "program": "ControlFlowRecursive.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 36,
+                      "program": "ControlFlowRecursive.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 36,
+                      "program": "ControlFlowRecursive.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 36,
+                      "program": "ControlFlowRecursive.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 36,
+                    "program": "ControlFlowRecursive.ets"
+                  },
+                  "end": {
+                    "line": 16,
+                    "column": 36,
+                    "program": "ControlFlowRecursive.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 36,
+                  "program": "ControlFlowRecursive.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 36,
+                  "program": "ControlFlowRecursive.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 35,
+            "program": "ControlFlowRecursive.ets"
+          },
+          "end": {
+            "line": 57,
+            "column": 9,
+            "program": "ControlFlowRecursive.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 8,
+          "program": "ControlFlowRecursive.ets"
+        },
+        "end": {
+          "line": 57,
+          "column": 9,
+          "program": "ControlFlowRecursive.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "ControlFlowRecursive.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "ControlFlowRecursive.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "ControlFlowRecursive.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "ControlFlowRecursive.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 57,
+                  "column": 10,
+                  "program": "ControlFlowRecursive.ets"
+                },
+                "end": {
+                  "line": 57,
+                  "column": 14,
+                  "program": "ControlFlowRecursive.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 57,
+                      "column": 10,
+                      "program": "ControlFlowRecursive.ets"
+                    },
+                    "end": {
+                      "line": 57,
+                      "column": 14,
+                      "program": "ControlFlowRecursive.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 57,
+                      "column": 18,
+                      "program": "ControlFlowRecursive.ets"
+                    },
+                    "end": {
+                      "line": 57,
+                      "column": 22,
+                      "program": "ControlFlowRecursive.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "object": {
+                            "type": "Identifier",
+                            "name": "ControlFlowRecursive",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 58,
+                                "column": 3,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 58,
+                                "column": 23,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "run",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 58,
+                                "column": 24,
+                                "program": "ControlFlowRecursive.ets"
+                              },
+                              "end": {
+                                "line": 58,
+                                "column": 27,
+                                "program": "ControlFlowRecursive.ets"
+                              }
+                            }
+                          },
+                          "computed": false,
+                          "optional": false,
+                          "loc": {
+                            "start": {
+                              "line": 58,
+                              "column": 3,
+                              "program": "ControlFlowRecursive.ets"
+                            },
+                            "end": {
+                              "line": 58,
+                              "column": 27,
+                              "program": "ControlFlowRecursive.ets"
+                            }
+                          }
+                        },
+                        "arguments": [],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 58,
+                            "column": 3,
+                            "program": "ControlFlowRecursive.ets"
+                          },
+                          "end": {
+                            "line": 58,
+                            "column": 29,
+                            "program": "ControlFlowRecursive.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 58,
+                          "column": 3,
+                          "program": "ControlFlowRecursive.ets"
+                        },
+                        "end": {
+                          "line": 58,
+                          "column": 30,
+                          "program": "ControlFlowRecursive.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 57,
+                      "column": 23,
+                      "program": "ControlFlowRecursive.ets"
+                    },
+                    "end": {
+                      "line": 59,
+                      "column": 2,
+                      "program": "ControlFlowRecursive.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 57,
+                    "column": 10,
+                    "program": "ControlFlowRecursive.ets"
+                  },
+                  "end": {
+                    "line": 59,
+                    "column": 2,
+                    "program": "ControlFlowRecursive.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 57,
+                  "column": 10,
+                  "program": "ControlFlowRecursive.ets"
+                },
+                "end": {
+                  "line": 59,
+                  "column": 2,
+                  "program": "ControlFlowRecursive.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 57,
+                "column": 1,
+                "program": "ControlFlowRecursive.ets"
+              },
+              "end": {
+                "line": 59,
+                "column": 2,
+                "program": "ControlFlowRecursive.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "ControlFlowRecursive.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "ControlFlowRecursive.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "ControlFlowRecursive.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "ControlFlowRecursive.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "ControlFlowRecursive.ets"
+    },
+    "end": {
+      "line": 60,
+      "column": 1,
+      "program": "ControlFlowRecursive.ets"
+    }
+  }
+}

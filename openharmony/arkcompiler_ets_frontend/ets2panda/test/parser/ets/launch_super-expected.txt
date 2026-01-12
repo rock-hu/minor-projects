@@ -1,0 +1,1122 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ImportDeclaration",
+      "source": {
+        "type": "StringLiteral",
+        "value": "std/concurrency",
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 22,
+            "program": "launch_super.ets"
+          },
+          "end": {
+            "line": 16,
+            "column": 39,
+            "program": "launch_super.ets"
+          }
+        }
+      },
+      "specifiers": [
+        {
+          "type": "ImportSpecifier",
+          "local": {
+            "type": "Identifier",
+            "name": "launch",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 9,
+                "program": "launch_super.ets"
+              },
+              "end": {
+                "line": 16,
+                "column": 15,
+                "program": "launch_super.ets"
+              }
+            }
+          },
+          "imported": {
+            "type": "Identifier",
+            "name": "launch",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 9,
+                "program": "launch_super.ets"
+              },
+              "end": {
+                "line": 16,
+                "column": 15,
+                "program": "launch_super.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 16,
+              "column": 9,
+              "program": "launch_super.ets"
+            },
+            "end": {
+              "line": 16,
+              "column": 15,
+              "program": "launch_super.ets"
+            }
+          }
+        }
+      ],
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 1,
+          "program": "launch_super.ets"
+        },
+        "end": {
+          "line": 16,
+          "column": 39,
+          "program": "launch_super.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "Base",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 18,
+              "column": 7,
+              "program": "launch_super.ets"
+            },
+            "end": {
+              "line": 18,
+              "column": 11,
+              "program": "launch_super.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "foo",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 12,
+                  "program": "launch_super.ets"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 15,
+                  "program": "launch_super.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "foo",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 19,
+                      "column": 12,
+                      "program": "launch_super.ets"
+                    },
+                    "end": {
+                      "line": 19,
+                      "column": 15,
+                      "program": "launch_super.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 19,
+                      "column": 19,
+                      "program": "launch_super.ets"
+                    },
+                    "end": {
+                      "line": 19,
+                      "column": 23,
+                      "program": "launch_super.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 19,
+                      "column": 24,
+                      "program": "launch_super.ets"
+                    },
+                    "end": {
+                      "line": 19,
+                      "column": 26,
+                      "program": "launch_super.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 19,
+                    "column": 15,
+                    "program": "launch_super.ets"
+                  },
+                  "end": {
+                    "line": 19,
+                    "column": 26,
+                    "program": "launch_super.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 15,
+                  "program": "launch_super.ets"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 26,
+                  "program": "launch_super.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 19,
+                "column": 5,
+                "program": "launch_super.ets"
+              },
+              "end": {
+                "line": 19,
+                "column": 26,
+                "program": "launch_super.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 13,
+                  "program": "launch_super.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 13,
+                  "program": "launch_super.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 13,
+                      "program": "launch_super.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 13,
+                      "program": "launch_super.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 13,
+                      "program": "launch_super.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 13,
+                      "program": "launch_super.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 18,
+                    "column": 13,
+                    "program": "launch_super.ets"
+                  },
+                  "end": {
+                    "line": 18,
+                    "column": 13,
+                    "program": "launch_super.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 13,
+                  "program": "launch_super.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 13,
+                  "program": "launch_super.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 18,
+            "column": 12,
+            "program": "launch_super.ets"
+          },
+          "end": {
+            "line": 22,
+            "column": 6,
+            "program": "launch_super.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 18,
+          "column": 1,
+          "program": "launch_super.ets"
+        },
+        "end": {
+          "line": 22,
+          "column": 6,
+          "program": "launch_super.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "Derived",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 22,
+              "column": 7,
+              "program": "launch_super.ets"
+            },
+            "end": {
+              "line": 22,
+              "column": 14,
+              "program": "launch_super.ets"
+            }
+          }
+        },
+        "superClass": {
+          "type": "ETSTypeReference",
+          "part": {
+            "type": "ETSTypeReferencePart",
+            "name": {
+              "type": "Identifier",
+              "name": "Base",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 22,
+                  "column": 23,
+                  "program": "launch_super.ets"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 27,
+                  "program": "launch_super.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 22,
+                "column": 23,
+                "program": "launch_super.ets"
+              },
+              "end": {
+                "line": 22,
+                "column": 29,
+                "program": "launch_super.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 22,
+              "column": 23,
+              "program": "launch_super.ets"
+            },
+            "end": {
+              "line": 22,
+              "column": 29,
+              "program": "launch_super.ets"
+            }
+          }
+        },
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "foo",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 23,
+                  "column": 14,
+                  "program": "launch_super.ets"
+                },
+                "end": {
+                  "line": 23,
+                  "column": 17,
+                  "program": "launch_super.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "foo",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 23,
+                      "column": 14,
+                      "program": "launch_super.ets"
+                    },
+                    "end": {
+                      "line": 23,
+                      "column": 17,
+                      "program": "launch_super.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 23,
+                      "column": 21,
+                      "program": "launch_super.ets"
+                    },
+                    "end": {
+                      "line": 23,
+                      "column": 25,
+                      "program": "launch_super.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "launch",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 24,
+                              "column": 9,
+                              "program": "launch_super.ets"
+                            },
+                            "end": {
+                              "line": 24,
+                              "column": 15,
+                              "program": "launch_super.ets"
+                            }
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "MemberExpression",
+                            "object": {
+                              "type": "Super",
+                              "loc": {
+                                "start": {
+                                  "line": 24,
+                                  "column": 34,
+                                  "program": "launch_super.ets"
+                                },
+                                "end": {
+                                  "line": 24,
+                                  "column": 39,
+                                  "program": "launch_super.ets"
+                                }
+                              }
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "foo",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 24,
+                                  "column": 40,
+                                  "program": "launch_super.ets"
+                                },
+                                "end": {
+                                  "line": 24,
+                                  "column": 43,
+                                  "program": "launch_super.ets"
+                                }
+                              }
+                            },
+                            "computed": false,
+                            "optional": false,
+                            "loc": {
+                              "start": {
+                                "line": 24,
+                                "column": 34,
+                                "program": "launch_super.ets"
+                              },
+                              "end": {
+                                "line": 24,
+                                "column": 43,
+                                "program": "launch_super.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "optional": false,
+                        "typeParameters": {
+                          "type": "TSTypeParameterInstantiation",
+                          "params": [
+                            {
+                              "type": "ETSPrimitiveType",
+                              "loc": {
+                                "start": {
+                                  "line": 24,
+                                  "column": 16,
+                                  "program": "launch_super.ets"
+                                },
+                                "end": {
+                                  "line": 24,
+                                  "column": 20,
+                                  "program": "launch_super.ets"
+                                }
+                              }
+                            },
+                            {
+                              "type": "ETSFunctionType",
+                              "params": [],
+                              "returnType": {
+                                "type": "ETSPrimitiveType",
+                                "loc": {
+                                  "start": {
+                                    "line": 24,
+                                    "column": 28,
+                                    "program": "launch_super.ets"
+                                  },
+                                  "end": {
+                                    "line": 24,
+                                    "column": 32,
+                                    "program": "launch_super.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 24,
+                                  "column": 22,
+                                  "program": "launch_super.ets"
+                                },
+                                "end": {
+                                  "line": 24,
+                                  "column": 32,
+                                  "program": "launch_super.ets"
+                                }
+                              }
+                            }
+                          ],
+                          "loc": {
+                            "start": {
+                              "line": 24,
+                              "column": 15,
+                              "program": "launch_super.ets"
+                            },
+                            "end": {
+                              "line": 24,
+                              "column": 33,
+                              "program": "launch_super.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 24,
+                            "column": 9,
+                            "program": "launch_super.ets"
+                          },
+                          "end": {
+                            "line": 24,
+                            "column": 44,
+                            "program": "launch_super.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 24,
+                          "column": 9,
+                          "program": "launch_super.ets"
+                        },
+                        "end": {
+                          "line": 24,
+                          "column": 45,
+                          "program": "launch_super.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 23,
+                      "column": 26,
+                      "program": "launch_super.ets"
+                    },
+                    "end": {
+                      "line": 25,
+                      "column": 6,
+                      "program": "launch_super.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 23,
+                    "column": 17,
+                    "program": "launch_super.ets"
+                  },
+                  "end": {
+                    "line": 25,
+                    "column": 6,
+                    "program": "launch_super.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 23,
+                  "column": 17,
+                  "program": "launch_super.ets"
+                },
+                "end": {
+                  "line": 25,
+                  "column": 6,
+                  "program": "launch_super.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 23,
+                "column": 5,
+                "program": "launch_super.ets"
+              },
+              "end": {
+                "line": 25,
+                "column": 6,
+                "program": "launch_super.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 22,
+                  "column": 29,
+                  "program": "launch_super.ets"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 29,
+                  "program": "launch_super.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 22,
+                      "column": 29,
+                      "program": "launch_super.ets"
+                    },
+                    "end": {
+                      "line": 22,
+                      "column": 29,
+                      "program": "launch_super.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 22,
+                      "column": 29,
+                      "program": "launch_super.ets"
+                    },
+                    "end": {
+                      "line": 22,
+                      "column": 29,
+                      "program": "launch_super.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 22,
+                    "column": 29,
+                    "program": "launch_super.ets"
+                  },
+                  "end": {
+                    "line": 22,
+                    "column": 29,
+                    "program": "launch_super.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 22,
+                  "column": 29,
+                  "program": "launch_super.ets"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 29,
+                  "program": "launch_super.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 22,
+            "column": 28,
+            "program": "launch_super.ets"
+          },
+          "end": {
+            "line": 27,
+            "column": 1,
+            "program": "launch_super.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 22,
+          "column": 1,
+          "program": "launch_super.ets"
+        },
+        "end": {
+          "line": 27,
+          "column": 1,
+          "program": "launch_super.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "launch_super.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "launch_super.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "launch_super.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "launch_super.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "launch_super.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "launch_super.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "launch_super.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "launch_super.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "launch_super.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "launch_super.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "launch_super.ets"
+    },
+    "end": {
+      "line": 27,
+      "column": 1,
+      "program": "launch_super.ets"
+    }
+  }
+}

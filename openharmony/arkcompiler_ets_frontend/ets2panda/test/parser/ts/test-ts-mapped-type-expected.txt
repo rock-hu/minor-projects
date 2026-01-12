@@ -1,0 +1,1435 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "TSTypeAliasDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "Type1",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 6,
+            "program": "test-ts-mapped-type.ts"
+          },
+          "end": {
+            "line": 17,
+            "column": 11,
+            "program": "test-ts-mapped-type.ts"
+          }
+        }
+      },
+      "typeAnnotation": {
+        "type": "TSMappedType",
+        "typeParameter": {
+          "type": "TSTypeParameter",
+          "name": {
+            "type": "Identifier",
+            "name": "prop",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 31,
+                "program": "test-ts-mapped-type.ts"
+              },
+              "end": {
+                "line": 17,
+                "column": 35,
+                "program": "test-ts-mapped-type.ts"
+              }
+            }
+          },
+          "constraint": {
+            "type": "TSTypeOperator",
+            "operator": "keyof",
+            "typeAnnotation": {
+              "type": "TSTypeReference",
+              "typeName": {
+                "type": "Identifier",
+                "name": "T1",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 45,
+                    "program": "test-ts-mapped-type.ts"
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 47,
+                    "program": "test-ts-mapped-type.ts"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 45,
+                  "program": "test-ts-mapped-type.ts"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 47,
+                  "program": "test-ts-mapped-type.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 39,
+                "program": "test-ts-mapped-type.ts"
+              },
+              "end": {
+                "line": 17,
+                "column": 47,
+                "program": "test-ts-mapped-type.ts"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 17,
+              "column": 31,
+              "program": "test-ts-mapped-type.ts"
+            },
+            "end": {
+              "line": 17,
+              "column": 47,
+              "program": "test-ts-mapped-type.ts"
+            }
+          }
+        },
+        "typeAnnotation": {
+          "type": "TSBooleanKeyword",
+          "loc": {
+            "start": {
+              "line": 17,
+              "column": 52,
+              "program": "test-ts-mapped-type.ts"
+            },
+            "end": {
+              "line": 17,
+              "column": 59,
+              "program": "test-ts-mapped-type.ts"
+            }
+          }
+        },
+        "readonly": "-",
+        "optional": "-",
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 18,
+            "program": "test-ts-mapped-type.ts"
+          },
+          "end": {
+            "line": 17,
+            "column": 62,
+            "program": "test-ts-mapped-type.ts"
+          }
+        }
+      },
+      "typeParameters": {
+        "type": "TSTypeParameterDeclaration",
+        "params": [
+          {
+            "type": "TSTypeParameter",
+            "name": {
+              "type": "Identifier",
+              "name": "T1",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 12,
+                  "program": "test-ts-mapped-type.ts"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 14,
+                  "program": "test-ts-mapped-type.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 12,
+                "program": "test-ts-mapped-type.ts"
+              },
+              "end": {
+                "line": 17,
+                "column": 15,
+                "program": "test-ts-mapped-type.ts"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 11,
+            "program": "test-ts-mapped-type.ts"
+          },
+          "end": {
+            "line": 17,
+            "column": 15,
+            "program": "test-ts-mapped-type.ts"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 17,
+          "column": 1,
+          "program": "test-ts-mapped-type.ts"
+        },
+        "end": {
+          "line": 17,
+          "column": 63,
+          "program": "test-ts-mapped-type.ts"
+        }
+      }
+    },
+    {
+      "type": "EmptyStatement",
+      "loc": {
+        "start": {
+          "line": 17,
+          "column": 62,
+          "program": "test-ts-mapped-type.ts"
+        },
+        "end": {
+          "line": 17,
+          "column": 63,
+          "program": "test-ts-mapped-type.ts"
+        }
+      }
+    },
+    {
+      "type": "TSTypeAliasDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "Type2",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 18,
+            "column": 6,
+            "program": "test-ts-mapped-type.ts"
+          },
+          "end": {
+            "line": 18,
+            "column": 11,
+            "program": "test-ts-mapped-type.ts"
+          }
+        }
+      },
+      "typeAnnotation": {
+        "type": "TSMappedType",
+        "typeParameter": {
+          "type": "TSTypeParameter",
+          "name": {
+            "type": "Identifier",
+            "name": "prop",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 18,
+                "column": 31,
+                "program": "test-ts-mapped-type.ts"
+              },
+              "end": {
+                "line": 18,
+                "column": 35,
+                "program": "test-ts-mapped-type.ts"
+              }
+            }
+          },
+          "constraint": {
+            "type": "TSTypeOperator",
+            "operator": "keyof",
+            "typeAnnotation": {
+              "type": "TSTypeReference",
+              "typeName": {
+                "type": "Identifier",
+                "name": "T2",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 18,
+                    "column": 45,
+                    "program": "test-ts-mapped-type.ts"
+                  },
+                  "end": {
+                    "line": 18,
+                    "column": 47,
+                    "program": "test-ts-mapped-type.ts"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 45,
+                  "program": "test-ts-mapped-type.ts"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 47,
+                  "program": "test-ts-mapped-type.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 18,
+                "column": 39,
+                "program": "test-ts-mapped-type.ts"
+              },
+              "end": {
+                "line": 18,
+                "column": 47,
+                "program": "test-ts-mapped-type.ts"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 18,
+              "column": 31,
+              "program": "test-ts-mapped-type.ts"
+            },
+            "end": {
+              "line": 18,
+              "column": 47,
+              "program": "test-ts-mapped-type.ts"
+            }
+          }
+        },
+        "typeAnnotation": {
+          "type": "TSBooleanKeyword",
+          "loc": {
+            "start": {
+              "line": 18,
+              "column": 52,
+              "program": "test-ts-mapped-type.ts"
+            },
+            "end": {
+              "line": 18,
+              "column": 59,
+              "program": "test-ts-mapped-type.ts"
+            }
+          }
+        },
+        "readonly": "+",
+        "optional": "+",
+        "loc": {
+          "start": {
+            "line": 18,
+            "column": 18,
+            "program": "test-ts-mapped-type.ts"
+          },
+          "end": {
+            "line": 18,
+            "column": 62,
+            "program": "test-ts-mapped-type.ts"
+          }
+        }
+      },
+      "typeParameters": {
+        "type": "TSTypeParameterDeclaration",
+        "params": [
+          {
+            "type": "TSTypeParameter",
+            "name": {
+              "type": "Identifier",
+              "name": "T2",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 12,
+                  "program": "test-ts-mapped-type.ts"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 14,
+                  "program": "test-ts-mapped-type.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 18,
+                "column": 12,
+                "program": "test-ts-mapped-type.ts"
+              },
+              "end": {
+                "line": 18,
+                "column": 15,
+                "program": "test-ts-mapped-type.ts"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 18,
+            "column": 11,
+            "program": "test-ts-mapped-type.ts"
+          },
+          "end": {
+            "line": 18,
+            "column": 15,
+            "program": "test-ts-mapped-type.ts"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 18,
+          "column": 1,
+          "program": "test-ts-mapped-type.ts"
+        },
+        "end": {
+          "line": 18,
+          "column": 63,
+          "program": "test-ts-mapped-type.ts"
+        }
+      }
+    },
+    {
+      "type": "EmptyStatement",
+      "loc": {
+        "start": {
+          "line": 18,
+          "column": 62,
+          "program": "test-ts-mapped-type.ts"
+        },
+        "end": {
+          "line": 18,
+          "column": 63,
+          "program": "test-ts-mapped-type.ts"
+        }
+      }
+    },
+    {
+      "type": "TSTypeAliasDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "Type3",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 19,
+            "column": 6,
+            "program": "test-ts-mapped-type.ts"
+          },
+          "end": {
+            "line": 19,
+            "column": 11,
+            "program": "test-ts-mapped-type.ts"
+          }
+        }
+      },
+      "typeAnnotation": {
+        "type": "TSMappedType",
+        "typeParameter": {
+          "type": "TSTypeParameter",
+          "name": {
+            "type": "Identifier",
+            "name": "prop",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 19,
+                "column": 30,
+                "program": "test-ts-mapped-type.ts"
+              },
+              "end": {
+                "line": 19,
+                "column": 34,
+                "program": "test-ts-mapped-type.ts"
+              }
+            }
+          },
+          "constraint": {
+            "type": "TSTypeOperator",
+            "operator": "keyof",
+            "typeAnnotation": {
+              "type": "TSTypeReference",
+              "typeName": {
+                "type": "Identifier",
+                "name": "T3",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 19,
+                    "column": 44,
+                    "program": "test-ts-mapped-type.ts"
+                  },
+                  "end": {
+                    "line": 19,
+                    "column": 46,
+                    "program": "test-ts-mapped-type.ts"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 44,
+                  "program": "test-ts-mapped-type.ts"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 46,
+                  "program": "test-ts-mapped-type.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 19,
+                "column": 38,
+                "program": "test-ts-mapped-type.ts"
+              },
+              "end": {
+                "line": 19,
+                "column": 46,
+                "program": "test-ts-mapped-type.ts"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 19,
+              "column": 30,
+              "program": "test-ts-mapped-type.ts"
+            },
+            "end": {
+              "line": 19,
+              "column": 46,
+              "program": "test-ts-mapped-type.ts"
+            }
+          }
+        },
+        "typeAnnotation": {
+          "type": "TSBooleanKeyword",
+          "loc": {
+            "start": {
+              "line": 19,
+              "column": 50,
+              "program": "test-ts-mapped-type.ts"
+            },
+            "end": {
+              "line": 19,
+              "column": 57,
+              "program": "test-ts-mapped-type.ts"
+            }
+          }
+        },
+        "readonly": "+",
+        "optional": "+",
+        "loc": {
+          "start": {
+            "line": 19,
+            "column": 18,
+            "program": "test-ts-mapped-type.ts"
+          },
+          "end": {
+            "line": 19,
+            "column": 60,
+            "program": "test-ts-mapped-type.ts"
+          }
+        }
+      },
+      "typeParameters": {
+        "type": "TSTypeParameterDeclaration",
+        "params": [
+          {
+            "type": "TSTypeParameter",
+            "name": {
+              "type": "Identifier",
+              "name": "T3",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 12,
+                  "program": "test-ts-mapped-type.ts"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 14,
+                  "program": "test-ts-mapped-type.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 19,
+                "column": 12,
+                "program": "test-ts-mapped-type.ts"
+              },
+              "end": {
+                "line": 19,
+                "column": 15,
+                "program": "test-ts-mapped-type.ts"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 19,
+            "column": 11,
+            "program": "test-ts-mapped-type.ts"
+          },
+          "end": {
+            "line": 19,
+            "column": 15,
+            "program": "test-ts-mapped-type.ts"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 19,
+          "column": 1,
+          "program": "test-ts-mapped-type.ts"
+        },
+        "end": {
+          "line": 19,
+          "column": 61,
+          "program": "test-ts-mapped-type.ts"
+        }
+      }
+    },
+    {
+      "type": "EmptyStatement",
+      "loc": {
+        "start": {
+          "line": 19,
+          "column": 60,
+          "program": "test-ts-mapped-type.ts"
+        },
+        "end": {
+          "line": 19,
+          "column": 61,
+          "program": "test-ts-mapped-type.ts"
+        }
+      }
+    },
+    {
+      "type": "TSTypeAliasDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "Type4",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 20,
+            "column": 6,
+            "program": "test-ts-mapped-type.ts"
+          },
+          "end": {
+            "line": 20,
+            "column": 11,
+            "program": "test-ts-mapped-type.ts"
+          }
+        }
+      },
+      "typeAnnotation": {
+        "type": "TSMappedType",
+        "typeParameter": {
+          "type": "TSTypeParameter",
+          "name": {
+            "type": "Identifier",
+            "name": "prop",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 20,
+                "column": 21,
+                "program": "test-ts-mapped-type.ts"
+              },
+              "end": {
+                "line": 20,
+                "column": 25,
+                "program": "test-ts-mapped-type.ts"
+              }
+            }
+          },
+          "constraint": {
+            "type": "TSTypeOperator",
+            "operator": "keyof",
+            "typeAnnotation": {
+              "type": "TSTypeReference",
+              "typeName": {
+                "type": "Identifier",
+                "name": "T4",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 20,
+                    "column": 35,
+                    "program": "test-ts-mapped-type.ts"
+                  },
+                  "end": {
+                    "line": 20,
+                    "column": 37,
+                    "program": "test-ts-mapped-type.ts"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 35,
+                  "program": "test-ts-mapped-type.ts"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 37,
+                  "program": "test-ts-mapped-type.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 20,
+                "column": 29,
+                "program": "test-ts-mapped-type.ts"
+              },
+              "end": {
+                "line": 20,
+                "column": 37,
+                "program": "test-ts-mapped-type.ts"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 20,
+              "column": 21,
+              "program": "test-ts-mapped-type.ts"
+            },
+            "end": {
+              "line": 20,
+              "column": 37,
+              "program": "test-ts-mapped-type.ts"
+            }
+          }
+        },
+        "typeAnnotation": {
+          "type": "TSBooleanKeyword",
+          "loc": {
+            "start": {
+              "line": 20,
+              "column": 40,
+              "program": "test-ts-mapped-type.ts"
+            },
+            "end": {
+              "line": 20,
+              "column": 47,
+              "program": "test-ts-mapped-type.ts"
+            }
+          }
+        },
+        "loc": {
+          "start": {
+            "line": 20,
+            "column": 18,
+            "program": "test-ts-mapped-type.ts"
+          },
+          "end": {
+            "line": 20,
+            "column": 50,
+            "program": "test-ts-mapped-type.ts"
+          }
+        }
+      },
+      "typeParameters": {
+        "type": "TSTypeParameterDeclaration",
+        "params": [
+          {
+            "type": "TSTypeParameter",
+            "name": {
+              "type": "Identifier",
+              "name": "T4",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 12,
+                  "program": "test-ts-mapped-type.ts"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 14,
+                  "program": "test-ts-mapped-type.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 20,
+                "column": 12,
+                "program": "test-ts-mapped-type.ts"
+              },
+              "end": {
+                "line": 20,
+                "column": 15,
+                "program": "test-ts-mapped-type.ts"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 20,
+            "column": 11,
+            "program": "test-ts-mapped-type.ts"
+          },
+          "end": {
+            "line": 20,
+            "column": 15,
+            "program": "test-ts-mapped-type.ts"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 20,
+          "column": 1,
+          "program": "test-ts-mapped-type.ts"
+        },
+        "end": {
+          "line": 20,
+          "column": 51,
+          "program": "test-ts-mapped-type.ts"
+        }
+      }
+    },
+    {
+      "type": "EmptyStatement",
+      "loc": {
+        "start": {
+          "line": 20,
+          "column": 50,
+          "program": "test-ts-mapped-type.ts"
+        },
+        "end": {
+          "line": 20,
+          "column": 51,
+          "program": "test-ts-mapped-type.ts"
+        }
+      }
+    },
+    {
+      "type": "TSTypeAliasDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "Type5",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 21,
+            "column": 6,
+            "program": "test-ts-mapped-type.ts"
+          },
+          "end": {
+            "line": 21,
+            "column": 11,
+            "program": "test-ts-mapped-type.ts"
+          }
+        }
+      },
+      "typeAnnotation": {
+        "type": "TSMappedType",
+        "typeParameter": {
+          "type": "TSTypeParameter",
+          "name": {
+            "type": "Identifier",
+            "name": "prop",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 21,
+                "column": 21,
+                "program": "test-ts-mapped-type.ts"
+              },
+              "end": {
+                "line": 21,
+                "column": 25,
+                "program": "test-ts-mapped-type.ts"
+              }
+            }
+          },
+          "constraint": {
+            "type": "TSTypeOperator",
+            "operator": "keyof",
+            "typeAnnotation": {
+              "type": "TSTypeReference",
+              "typeName": {
+                "type": "Identifier",
+                "name": "T5",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 21,
+                    "column": 35,
+                    "program": "test-ts-mapped-type.ts"
+                  },
+                  "end": {
+                    "line": 21,
+                    "column": 37,
+                    "program": "test-ts-mapped-type.ts"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 21,
+                  "column": 35,
+                  "program": "test-ts-mapped-type.ts"
+                },
+                "end": {
+                  "line": 21,
+                  "column": 37,
+                  "program": "test-ts-mapped-type.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 21,
+                "column": 29,
+                "program": "test-ts-mapped-type.ts"
+              },
+              "end": {
+                "line": 21,
+                "column": 37,
+                "program": "test-ts-mapped-type.ts"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 21,
+              "column": 21,
+              "program": "test-ts-mapped-type.ts"
+            },
+            "end": {
+              "line": 21,
+              "column": 37,
+              "program": "test-ts-mapped-type.ts"
+            }
+          }
+        },
+        "typeAnnotation": {
+          "type": "TSBooleanKeyword",
+          "loc": {
+            "start": {
+              "line": 21,
+              "column": 40,
+              "program": "test-ts-mapped-type.ts"
+            },
+            "end": {
+              "line": 21,
+              "column": 47,
+              "program": "test-ts-mapped-type.ts"
+            }
+          }
+        },
+        "loc": {
+          "start": {
+            "line": 21,
+            "column": 18,
+            "program": "test-ts-mapped-type.ts"
+          },
+          "end": {
+            "line": 21,
+            "column": 49,
+            "program": "test-ts-mapped-type.ts"
+          }
+        }
+      },
+      "typeParameters": {
+        "type": "TSTypeParameterDeclaration",
+        "params": [
+          {
+            "type": "TSTypeParameter",
+            "name": {
+              "type": "Identifier",
+              "name": "T5",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 21,
+                  "column": 12,
+                  "program": "test-ts-mapped-type.ts"
+                },
+                "end": {
+                  "line": 21,
+                  "column": 14,
+                  "program": "test-ts-mapped-type.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 21,
+                "column": 12,
+                "program": "test-ts-mapped-type.ts"
+              },
+              "end": {
+                "line": 21,
+                "column": 15,
+                "program": "test-ts-mapped-type.ts"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 21,
+            "column": 11,
+            "program": "test-ts-mapped-type.ts"
+          },
+          "end": {
+            "line": 21,
+            "column": 15,
+            "program": "test-ts-mapped-type.ts"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 21,
+          "column": 1,
+          "program": "test-ts-mapped-type.ts"
+        },
+        "end": {
+          "line": 21,
+          "column": 50,
+          "program": "test-ts-mapped-type.ts"
+        }
+      }
+    },
+    {
+      "type": "EmptyStatement",
+      "loc": {
+        "start": {
+          "line": 21,
+          "column": 49,
+          "program": "test-ts-mapped-type.ts"
+        },
+        "end": {
+          "line": 21,
+          "column": 50,
+          "program": "test-ts-mapped-type.ts"
+        }
+      }
+    },
+    {
+      "type": "TSTypeAliasDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "Type6",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 22,
+            "column": 6,
+            "program": "test-ts-mapped-type.ts"
+          },
+          "end": {
+            "line": 22,
+            "column": 11,
+            "program": "test-ts-mapped-type.ts"
+          }
+        }
+      },
+      "typeAnnotation": {
+        "type": "TSMappedType",
+        "typeParameter": {
+          "type": "TSTypeParameter",
+          "name": {
+            "type": "Identifier",
+            "name": "prop",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 22,
+                "column": 21,
+                "program": "test-ts-mapped-type.ts"
+              },
+              "end": {
+                "line": 22,
+                "column": 25,
+                "program": "test-ts-mapped-type.ts"
+              }
+            }
+          },
+          "constraint": {
+            "type": "TSTypeOperator",
+            "operator": "keyof",
+            "typeAnnotation": {
+              "type": "TSTypeReference",
+              "typeName": {
+                "type": "Identifier",
+                "name": "T6",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 22,
+                    "column": 35,
+                    "program": "test-ts-mapped-type.ts"
+                  },
+                  "end": {
+                    "line": 22,
+                    "column": 37,
+                    "program": "test-ts-mapped-type.ts"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 22,
+                  "column": 35,
+                  "program": "test-ts-mapped-type.ts"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 37,
+                  "program": "test-ts-mapped-type.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 22,
+                "column": 29,
+                "program": "test-ts-mapped-type.ts"
+              },
+              "end": {
+                "line": 22,
+                "column": 37,
+                "program": "test-ts-mapped-type.ts"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 22,
+              "column": 21,
+              "program": "test-ts-mapped-type.ts"
+            },
+            "end": {
+              "line": 22,
+              "column": 37,
+              "program": "test-ts-mapped-type.ts"
+            }
+          }
+        },
+        "loc": {
+          "start": {
+            "line": 22,
+            "column": 18,
+            "program": "test-ts-mapped-type.ts"
+          },
+          "end": {
+            "line": 22,
+            "column": 41,
+            "program": "test-ts-mapped-type.ts"
+          }
+        }
+      },
+      "typeParameters": {
+        "type": "TSTypeParameterDeclaration",
+        "params": [
+          {
+            "type": "TSTypeParameter",
+            "name": {
+              "type": "Identifier",
+              "name": "T6",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 22,
+                  "column": 12,
+                  "program": "test-ts-mapped-type.ts"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 14,
+                  "program": "test-ts-mapped-type.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 22,
+                "column": 12,
+                "program": "test-ts-mapped-type.ts"
+              },
+              "end": {
+                "line": 22,
+                "column": 15,
+                "program": "test-ts-mapped-type.ts"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 22,
+            "column": 11,
+            "program": "test-ts-mapped-type.ts"
+          },
+          "end": {
+            "line": 22,
+            "column": 15,
+            "program": "test-ts-mapped-type.ts"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 22,
+          "column": 1,
+          "program": "test-ts-mapped-type.ts"
+        },
+        "end": {
+          "line": 22,
+          "column": 42,
+          "program": "test-ts-mapped-type.ts"
+        }
+      }
+    },
+    {
+      "type": "EmptyStatement",
+      "loc": {
+        "start": {
+          "line": 22,
+          "column": 41,
+          "program": "test-ts-mapped-type.ts"
+        },
+        "end": {
+          "line": 22,
+          "column": 42,
+          "program": "test-ts-mapped-type.ts"
+        }
+      }
+    },
+    {
+      "type": "TSTypeAliasDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "Type7",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 23,
+            "column": 6,
+            "program": "test-ts-mapped-type.ts"
+          },
+          "end": {
+            "line": 23,
+            "column": 11,
+            "program": "test-ts-mapped-type.ts"
+          }
+        }
+      },
+      "typeAnnotation": {
+        "type": "TSMappedType",
+        "typeParameter": {
+          "type": "TSTypeParameter",
+          "name": {
+            "type": "Identifier",
+            "name": "prop",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 23,
+                "column": 21,
+                "program": "test-ts-mapped-type.ts"
+              },
+              "end": {
+                "line": 23,
+                "column": 25,
+                "program": "test-ts-mapped-type.ts"
+              }
+            }
+          },
+          "constraint": {
+            "type": "TSTypeOperator",
+            "operator": "keyof",
+            "typeAnnotation": {
+              "type": "TSTypeReference",
+              "typeName": {
+                "type": "Identifier",
+                "name": "T7",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 23,
+                    "column": 35,
+                    "program": "test-ts-mapped-type.ts"
+                  },
+                  "end": {
+                    "line": 23,
+                    "column": 37,
+                    "program": "test-ts-mapped-type.ts"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 23,
+                  "column": 35,
+                  "program": "test-ts-mapped-type.ts"
+                },
+                "end": {
+                  "line": 23,
+                  "column": 37,
+                  "program": "test-ts-mapped-type.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 23,
+                "column": 29,
+                "program": "test-ts-mapped-type.ts"
+              },
+              "end": {
+                "line": 23,
+                "column": 37,
+                "program": "test-ts-mapped-type.ts"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 23,
+              "column": 21,
+              "program": "test-ts-mapped-type.ts"
+            },
+            "end": {
+              "line": 23,
+              "column": 37,
+              "program": "test-ts-mapped-type.ts"
+            }
+          }
+        },
+        "loc": {
+          "start": {
+            "line": 23,
+            "column": 18,
+            "program": "test-ts-mapped-type.ts"
+          },
+          "end": {
+            "line": 23,
+            "column": 40,
+            "program": "test-ts-mapped-type.ts"
+          }
+        }
+      },
+      "typeParameters": {
+        "type": "TSTypeParameterDeclaration",
+        "params": [
+          {
+            "type": "TSTypeParameter",
+            "name": {
+              "type": "Identifier",
+              "name": "T7",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 23,
+                  "column": 12,
+                  "program": "test-ts-mapped-type.ts"
+                },
+                "end": {
+                  "line": 23,
+                  "column": 14,
+                  "program": "test-ts-mapped-type.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 23,
+                "column": 12,
+                "program": "test-ts-mapped-type.ts"
+              },
+              "end": {
+                "line": 23,
+                "column": 15,
+                "program": "test-ts-mapped-type.ts"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 23,
+            "column": 11,
+            "program": "test-ts-mapped-type.ts"
+          },
+          "end": {
+            "line": 23,
+            "column": 15,
+            "program": "test-ts-mapped-type.ts"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 23,
+          "column": 1,
+          "program": "test-ts-mapped-type.ts"
+        },
+        "end": {
+          "line": 23,
+          "column": 41,
+          "program": "test-ts-mapped-type.ts"
+        }
+      }
+    },
+    {
+      "type": "EmptyStatement",
+      "loc": {
+        "start": {
+          "line": 23,
+          "column": 40,
+          "program": "test-ts-mapped-type.ts"
+        },
+        "end": {
+          "line": 23,
+          "column": 41,
+          "program": "test-ts-mapped-type.ts"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "test-ts-mapped-type.ts"
+    },
+    "end": {
+      "line": 23,
+      "column": 41,
+      "program": "test-ts-mapped-type.ts"
+    }
+  }
+}

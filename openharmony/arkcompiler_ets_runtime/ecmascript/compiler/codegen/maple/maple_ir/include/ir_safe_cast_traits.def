@@ -1,0 +1,129 @@
+/*
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include <safe_cast.h>
+#include "opcode_info.h"
+
+namespace maple {
+#ifdef LOAD_SAFE_CAST_FOR_MIR_CONST
+#undef LOAD_SAFE_CAST_FOR_MIR_CONST
+REGISTER_SAFE_CAST(MIRIntConst, from.GetKind() == kConstInt);
+REGISTER_SAFE_CAST(MIRAddrofConst, from.GetKind() == kConstAddrof);
+REGISTER_SAFE_CAST(MIRAddroffuncConst, from.GetKind() == kConstAddrofFunc);
+REGISTER_SAFE_CAST(MIRLblConst, from.GetKind() == kConstLblConst);
+REGISTER_SAFE_CAST(MIRStrConst, from.GetKind() == kConstStrConst);
+REGISTER_SAFE_CAST(MIRStr16Const, from.GetKind() == kConstStr16Const);
+REGISTER_SAFE_CAST(MIRFloatConst, from.GetKind() == kConstFloatConst);
+REGISTER_SAFE_CAST(MIRDoubleConst, from.GetKind() == kConstDoubleConst);
+REGISTER_SAFE_CAST(MIRAggConst, from.GetKind() == kConstAggConst);
+REGISTER_SAFE_CAST(MIRStConst, from.GetKind() == kConstStConst);
+#endif
+
+#ifdef LOAD_SAFE_CAST_FOR_MIR_TYPE
+#undef LOAD_SAFE_CAST_FOR_MIR_TYPE
+REGISTER_SAFE_CAST(MIRPtrType, from.GetKind() == kTypePointer);
+REGISTER_SAFE_CAST(MIRArrayType, from.GetKind() == kTypeArray);
+REGISTER_SAFE_CAST(MIRFuncType, from.GetKind() == kTypeFunction);
+REGISTER_SAFE_CAST(MIRTypeByName, from.GetKind() == kTypeByName);
+#endif
+
+#ifdef LOAD_SAFE_CAST_FOR_MIR_NODE
+#undef LOAD_SAFE_CAST_FOR_MIR_NODE
+REGISTER_SAFE_CAST(UnaryNode, from.GetOpCode() == OP_abs ||
+                              from.GetOpCode() == OP_bnot ||
+                              from.GetOpCode() == OP_lnot ||
+                              from.GetOpCode() == OP_neg ||
+                              from.GetOpCode() == OP_sqrt ||
+                              instance_of<TypeCvtNode>(from) ||
+                              instance_of<ExtractbitsNode>(from) ||
+                              instance_of<IreadNode>(from));
+REGISTER_SAFE_CAST(TypeCvtNode, from.GetOpCode() == OP_ceil ||
+                                from.GetOpCode() == OP_cvt ||
+                                from.GetOpCode() == OP_floor ||
+                                from.GetOpCode() == OP_trunc ||
+                                instance_of<RetypeNode>(from));
+REGISTER_SAFE_CAST(RetypeNode, from.GetOpCode() == OP_retype);
+REGISTER_SAFE_CAST(ExtractbitsNode, from.GetOpCode() == OP_extractbits ||
+                                    from.GetOpCode() == OP_sext ||
+                                    from.GetOpCode() == OP_zext);
+REGISTER_SAFE_CAST(IreadNode, from.GetOpCode() == OP_iread);
+REGISTER_SAFE_CAST(BinaryNode, from.GetOpCode() == OP_add ||
+                               from.GetOpCode() == OP_sub ||
+                               from.GetOpCode() == OP_mul ||
+                               from.GetOpCode() == OP_div ||
+                               from.GetOpCode() == OP_rem ||
+                               from.GetOpCode() == OP_ashr ||
+                               from.GetOpCode() == OP_lshr ||
+                               from.GetOpCode() == OP_shl ||
+                               from.GetOpCode() == OP_max ||
+                               from.GetOpCode() == OP_min ||
+                               from.GetOpCode() == OP_band ||
+                               from.GetOpCode() == OP_bior ||
+                               from.GetOpCode() == OP_bxor ||
+                               instance_of<CompareNode>(from));
+REGISTER_SAFE_CAST(CompareNode, from.GetOpCode() == OP_eq ||
+                                from.GetOpCode() = OP_ge ||
+                                from.GetOpCode() = OP_gt ||
+                                from.GetOpCode() = OP_le ||
+                                from.GetOpCode() = OP_lt ||
+                                from.GetOpCode() = OP_ne ||
+                                from.GetOpCode() = OP_cmp);
+REGISTER_SAFE_CAST(NaryNode, instance_of<IntrinsicopNode>(from));
+REGISTER_SAFE_CAST(IntrinsicopNode, from.GetOpCode() == OP_intrinsicop);
+REGISTER_SAFE_CAST(ConstvalNode, from.GetOpCode() == OP_constval);
+REGISTER_SAFE_CAST(AddrofNode, from.GetOpCode() == OP_dread ||
+                               from.GetOpCode() == OP_addrof);
+REGISTER_SAFE_CAST(RegreadNode, from.GetOpCode() == OP_regread);
+REGISTER_SAFE_CAST(StmtNode, instance_of<IassignNode>(from) ||
+                             instance_of<GotoNode>(from) ||
+                             instance_of<SwitchNode>(from) ||
+                             instance_of<UnaryStmtNode>(from) ||
+                             instance_of<BlockNode>(from) ||
+                             instance_of<NaryStmtNode>(from) ||
+                             instance_of<LabelNode>(from) ||
+                             instance_of<CommentNode>(from));
+REGISTER_SAFE_CAST(IassignNode, from.GetOpCode() == OP_iassign);
+REGISTER_SAFE_CAST(GotoNode, from.GetOpCode() == OP_goto);
+REGISTER_SAFE_CAST(SwitchNode, from.GetOpCode() == OP_switch);
+REGISTER_SAFE_CAST(UnaryStmtNode, from.GetOpCode() == OP_eval ||
+                                  instance_of<DassignNode>(from) ||
+                                  instance_of<RegassignNode>(from) ||
+                                  instance_of<CondGotoNode>(from) ||
+                                  instance_of<RangeGotoNode>(from) ||
+                                  instance_of<IfStmtNode>(from));
+REGISTER_SAFE_CAST(DassignNode, from.GetOpCode() == OP_dassign);
+REGISTER_SAFE_CAST(RegassignNode, from.GetOpCode() == OP_regassign);
+REGISTER_SAFE_CAST(CondGotoNode, from.GetOpCode() == OP_brtrue ||
+                                 from.GetOpCode() == OP_brfalse);
+REGISTER_SAFE_CAST(RangeGotoNode, from.GetOpCode() == OP_rangegoto);
+REGISTER_SAFE_CAST(BlockNode, from.GetOpCode() == OP_block);
+REGISTER_SAFE_CAST(IfStmtNode, from.GetOpCode() == OP_if);
+REGISTER_SAFE_CAST(NaryStmtNode, from.GetOpCode() == OP_return ||
+                                 instance_of<CallNode>(from) ||
+                                 instance_of<IcallNode>(from) ||
+                                 instance_of<IntrinsiccallNode>(from));
+REGISTER_SAFE_CAST(CallNode, from.GetOpCode() == OP_call ||
+                             from.GetOpCode() == OP_callassigned);
+REGISTER_SAFE_CAST(IcallNode, from.GetOpCode() == OP_icall ||
+                              from.GetOpCode() == OP_icallassigned ||
+                              from.GetOpCode() == OP_icallproto ||
+                              from.GetOpCode() == OP_icallprotoassigned);
+REGISTER_SAFE_CAST(IntrinsiccallNode, from.GetOpCode() == OP_intrinsiccall ||
+                                      from.GetOpCode() == OP_intrinsiccallwithtype ||
+                                      from.GetOpCode() == OP_intrinsiccallassigned);
+REGISTER_SAFE_CAST(LabelNode, from.GetOpCode() == OP_label);
+REGISTER_SAFE_CAST(CommentNode, from.GetOpCode() == OP_comment);
+#endif
+}

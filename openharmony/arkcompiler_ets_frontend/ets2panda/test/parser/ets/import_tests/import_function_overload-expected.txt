@@ -1,0 +1,779 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ImportDeclaration",
+      "source": {
+        "type": "StringLiteral",
+        "value": "./check_exported_3",
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 19,
+            "program": "import_function_overload.ets"
+          },
+          "end": {
+            "line": 16,
+            "column": 39,
+            "program": "import_function_overload.ets"
+          }
+        }
+      },
+      "specifiers": [
+        {
+          "type": "ImportSpecifier",
+          "local": {
+            "type": "Identifier",
+            "name": "bar",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 9,
+                "program": "import_function_overload.ets"
+              },
+              "end": {
+                "line": 16,
+                "column": 12,
+                "program": "import_function_overload.ets"
+              }
+            }
+          },
+          "imported": {
+            "type": "Identifier",
+            "name": "bar",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 9,
+                "program": "import_function_overload.ets"
+              },
+              "end": {
+                "line": 16,
+                "column": 12,
+                "program": "import_function_overload.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 16,
+              "column": 9,
+              "program": "import_function_overload.ets"
+            },
+            "end": {
+              "line": 16,
+              "column": 12,
+              "program": "import_function_overload.ets"
+            }
+          }
+        }
+      ],
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 1,
+          "program": "import_function_overload.ets"
+        },
+        "end": {
+          "line": 16,
+          "column": 40,
+          "program": "import_function_overload.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "import_function_overload.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "import_function_overload.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "import_function_overload.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "import_function_overload.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "bar",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 10,
+                  "program": "import_function_overload.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 13,
+                  "program": "import_function_overload.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "bar",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 10,
+                      "program": "import_function_overload.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 13,
+                      "program": "import_function_overload.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "p",
+                      "typeAnnotation": {
+                        "type": "ETSPrimitiveType",
+                        "loc": {
+                          "start": {
+                            "line": 18,
+                            "column": 17,
+                            "program": "import_function_overload.ets"
+                          },
+                          "end": {
+                            "line": 18,
+                            "column": 20,
+                            "program": "import_function_overload.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 18,
+                          "column": 14,
+                          "program": "import_function_overload.ets"
+                        },
+                        "end": {
+                          "line": 18,
+                          "column": 20,
+                          "program": "import_function_overload.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 18,
+                        "column": 14,
+                        "program": "import_function_overload.ets"
+                      },
+                      "end": {
+                        "line": 18,
+                        "column": 20,
+                        "program": "import_function_overload.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 23,
+                      "program": "import_function_overload.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 26,
+                      "program": "import_function_overload.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "ReturnStatement",
+                      "argument": {
+                        "type": "Identifier",
+                        "name": "p",
+                        "decorators": [],
+                        "loc": {
+                          "start": {
+                            "line": 19,
+                            "column": 12,
+                            "program": "import_function_overload.ets"
+                          },
+                          "end": {
+                            "line": 19,
+                            "column": 13,
+                            "program": "import_function_overload.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 19,
+                          "column": 5,
+                          "program": "import_function_overload.ets"
+                        },
+                        "end": {
+                          "line": 19,
+                          "column": 14,
+                          "program": "import_function_overload.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 27,
+                      "program": "import_function_overload.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 2,
+                      "program": "import_function_overload.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 18,
+                    "column": 10,
+                    "program": "import_function_overload.ets"
+                  },
+                  "end": {
+                    "line": 20,
+                    "column": 2,
+                    "program": "import_function_overload.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 10,
+                  "program": "import_function_overload.ets"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 2,
+                  "program": "import_function_overload.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 18,
+                "column": 1,
+                "program": "import_function_overload.ets"
+              },
+              "end": {
+                "line": 20,
+                "column": 2,
+                "program": "import_function_overload.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 22,
+                  "column": 10,
+                  "program": "import_function_overload.ets"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 14,
+                  "program": "import_function_overload.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 22,
+                      "column": 10,
+                      "program": "import_function_overload.ets"
+                    },
+                    "end": {
+                      "line": 22,
+                      "column": 14,
+                      "program": "import_function_overload.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "a",
+                            "typeAnnotation": {
+                              "type": "ETSPrimitiveType",
+                              "loc": {
+                                "start": {
+                                  "line": 23,
+                                  "column": 12,
+                                  "program": "import_function_overload.ets"
+                                },
+                                "end": {
+                                  "line": 23,
+                                  "column": 15,
+                                  "program": "import_function_overload.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 9,
+                                "program": "import_function_overload.ets"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 10,
+                                "program": "import_function_overload.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "Identifier",
+                              "name": "bar",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 23,
+                                  "column": 18,
+                                  "program": "import_function_overload.ets"
+                                },
+                                "end": {
+                                  "line": 23,
+                                  "column": 21,
+                                  "program": "import_function_overload.ets"
+                                }
+                              }
+                            },
+                            "arguments": [],
+                            "optional": false,
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 18,
+                                "program": "import_function_overload.ets"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 23,
+                                "program": "import_function_overload.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 23,
+                              "column": 9,
+                              "program": "import_function_overload.ets"
+                            },
+                            "end": {
+                              "line": 23,
+                              "column": 23,
+                              "program": "import_function_overload.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 23,
+                          "column": 5,
+                          "program": "import_function_overload.ets"
+                        },
+                        "end": {
+                          "line": 23,
+                          "column": 24,
+                          "program": "import_function_overload.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "b",
+                            "typeAnnotation": {
+                              "type": "ETSPrimitiveType",
+                              "loc": {
+                                "start": {
+                                  "line": 24,
+                                  "column": 12,
+                                  "program": "import_function_overload.ets"
+                                },
+                                "end": {
+                                  "line": 24,
+                                  "column": 15,
+                                  "program": "import_function_overload.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 24,
+                                "column": 9,
+                                "program": "import_function_overload.ets"
+                              },
+                              "end": {
+                                "line": 24,
+                                "column": 10,
+                                "program": "import_function_overload.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "Identifier",
+                              "name": "bar",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 24,
+                                  "column": 18,
+                                  "program": "import_function_overload.ets"
+                                },
+                                "end": {
+                                  "line": 24,
+                                  "column": 21,
+                                  "program": "import_function_overload.ets"
+                                }
+                              }
+                            },
+                            "arguments": [
+                              {
+                                "type": "NumberLiteral",
+                                "value": 1,
+                                "loc": {
+                                  "start": {
+                                    "line": 24,
+                                    "column": 22,
+                                    "program": "import_function_overload.ets"
+                                  },
+                                  "end": {
+                                    "line": 24,
+                                    "column": 23,
+                                    "program": "import_function_overload.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "optional": false,
+                            "loc": {
+                              "start": {
+                                "line": 24,
+                                "column": 18,
+                                "program": "import_function_overload.ets"
+                              },
+                              "end": {
+                                "line": 24,
+                                "column": 24,
+                                "program": "import_function_overload.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 24,
+                              "column": 9,
+                              "program": "import_function_overload.ets"
+                            },
+                            "end": {
+                              "line": 24,
+                              "column": 24,
+                              "program": "import_function_overload.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 24,
+                          "column": 5,
+                          "program": "import_function_overload.ets"
+                        },
+                        "end": {
+                          "line": 24,
+                          "column": 25,
+                          "program": "import_function_overload.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 22,
+                      "column": 17,
+                      "program": "import_function_overload.ets"
+                    },
+                    "end": {
+                      "line": 25,
+                      "column": 2,
+                      "program": "import_function_overload.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 22,
+                    "column": 10,
+                    "program": "import_function_overload.ets"
+                  },
+                  "end": {
+                    "line": 25,
+                    "column": 2,
+                    "program": "import_function_overload.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 22,
+                  "column": 10,
+                  "program": "import_function_overload.ets"
+                },
+                "end": {
+                  "line": 25,
+                  "column": 2,
+                  "program": "import_function_overload.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 22,
+                "column": 1,
+                "program": "import_function_overload.ets"
+              },
+              "end": {
+                "line": 25,
+                "column": 2,
+                "program": "import_function_overload.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "import_function_overload.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "import_function_overload.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "import_function_overload.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "import_function_overload.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "import_function_overload.ets"
+    },
+    "end": {
+      "line": 25,
+      "column": 2,
+      "program": "import_function_overload.ets"
+    }
+  }
+}

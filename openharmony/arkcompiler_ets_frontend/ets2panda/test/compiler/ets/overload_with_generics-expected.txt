@@ -1,0 +1,1309 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "A",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 16,
+              "column": 7,
+              "program": "overload_with_generics.ets"
+            },
+            "end": {
+              "line": 16,
+              "column": 8,
+              "program": "overload_with_generics.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "foo",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 19,
+                  "program": "overload_with_generics.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 22,
+                  "program": "overload_with_generics.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "foo",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 19,
+                      "program": "overload_with_generics.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 22,
+                      "program": "overload_with_generics.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "arg",
+                      "typeAnnotation": {
+                        "type": "ETSTypeReference",
+                        "part": {
+                          "type": "ETSTypeReferencePart",
+                          "name": {
+                            "type": "Identifier",
+                            "name": "A1",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 17,
+                                "column": 32,
+                                "program": "overload_with_generics.ets"
+                              },
+                              "end": {
+                                "line": 17,
+                                "column": 34,
+                                "program": "overload_with_generics.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 17,
+                              "column": 32,
+                              "program": "overload_with_generics.ets"
+                            },
+                            "end": {
+                              "line": 17,
+                              "column": 35,
+                              "program": "overload_with_generics.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 17,
+                            "column": 32,
+                            "program": "overload_with_generics.ets"
+                          },
+                          "end": {
+                            "line": 17,
+                            "column": 35,
+                            "program": "overload_with_generics.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 17,
+                          "column": 27,
+                          "program": "overload_with_generics.ets"
+                        },
+                        "end": {
+                          "line": 17,
+                          "column": 35,
+                          "program": "overload_with_generics.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 17,
+                        "column": 27,
+                        "program": "overload_with_generics.ets"
+                      },
+                      "end": {
+                        "line": 17,
+                        "column": 35,
+                        "program": "overload_with_generics.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 37,
+                      "program": "overload_with_generics.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 41,
+                      "program": "overload_with_generics.ets"
+                    }
+                  }
+                },
+                "typeParameters": {
+                  "type": "TSTypeParameterDeclaration",
+                  "params": [
+                    {
+                      "type": "TSTypeParameter",
+                      "name": {
+                        "type": "Identifier",
+                        "name": "A1",
+                        "decorators": [],
+                        "loc": {
+                          "start": {
+                            "line": 17,
+                            "column": 23,
+                            "program": "overload_with_generics.ets"
+                          },
+                          "end": {
+                            "line": 17,
+                            "column": 25,
+                            "program": "overload_with_generics.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 17,
+                          "column": 23,
+                          "program": "overload_with_generics.ets"
+                        },
+                        "end": {
+                          "line": 17,
+                          "column": 26,
+                          "program": "overload_with_generics.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 22,
+                      "program": "overload_with_generics.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 26,
+                      "program": "overload_with_generics.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 42,
+                      "program": "overload_with_generics.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 44,
+                      "program": "overload_with_generics.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 22,
+                    "program": "overload_with_generics.ets"
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 44,
+                    "program": "overload_with_generics.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 22,
+                  "program": "overload_with_generics.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 44,
+                  "program": "overload_with_generics.ets"
+                }
+              }
+            },
+            "overloads": [
+              {
+                "type": "MethodDefinition",
+                "key": {
+                  "type": "Identifier",
+                  "name": "foo",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 19,
+                      "program": "overload_with_generics.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 22,
+                      "program": "overload_with_generics.ets"
+                    }
+                  }
+                },
+                "kind": "method",
+                "accessibility": "public",
+                "static": true,
+                "optional": false,
+                "computed": false,
+                "value": {
+                  "type": "FunctionExpression",
+                  "function": {
+                    "type": "ScriptFunction",
+                    "id": {
+                      "type": "Identifier",
+                      "name": "foo",
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 18,
+                          "column": 19,
+                          "program": "overload_with_generics.ets"
+                        },
+                        "end": {
+                          "line": 18,
+                          "column": 22,
+                          "program": "overload_with_generics.ets"
+                        }
+                      }
+                    },
+                    "generator": false,
+                    "async": false,
+                    "expression": false,
+                    "params": [
+                      {
+                        "type": "ETSParameterExpression",
+                        "name": {
+                          "type": "Identifier",
+                          "name": "arg1",
+                          "typeAnnotation": {
+                            "type": "ETSTypeReference",
+                            "part": {
+                              "type": "ETSTypeReferencePart",
+                              "name": {
+                                "type": "Identifier",
+                                "name": "A1",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 18,
+                                    "column": 37,
+                                    "program": "overload_with_generics.ets"
+                                  },
+                                  "end": {
+                                    "line": 18,
+                                    "column": 39,
+                                    "program": "overload_with_generics.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 18,
+                                  "column": 37,
+                                  "program": "overload_with_generics.ets"
+                                },
+                                "end": {
+                                  "line": 18,
+                                  "column": 40,
+                                  "program": "overload_with_generics.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 18,
+                                "column": 37,
+                                "program": "overload_with_generics.ets"
+                              },
+                              "end": {
+                                "line": 18,
+                                "column": 40,
+                                "program": "overload_with_generics.ets"
+                              }
+                            }
+                          },
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 18,
+                              "column": 31,
+                              "program": "overload_with_generics.ets"
+                            },
+                            "end": {
+                              "line": 18,
+                              "column": 40,
+                              "program": "overload_with_generics.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 18,
+                            "column": 31,
+                            "program": "overload_with_generics.ets"
+                          },
+                          "end": {
+                            "line": 18,
+                            "column": 40,
+                            "program": "overload_with_generics.ets"
+                          }
+                        }
+                      },
+                      {
+                        "type": "ETSParameterExpression",
+                        "name": {
+                          "type": "Identifier",
+                          "name": "arg2",
+                          "typeAnnotation": {
+                            "type": "ETSTypeReference",
+                            "part": {
+                              "type": "ETSTypeReferencePart",
+                              "name": {
+                                "type": "Identifier",
+                                "name": "A2",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 18,
+                                    "column": 47,
+                                    "program": "overload_with_generics.ets"
+                                  },
+                                  "end": {
+                                    "line": 18,
+                                    "column": 49,
+                                    "program": "overload_with_generics.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 18,
+                                  "column": 47,
+                                  "program": "overload_with_generics.ets"
+                                },
+                                "end": {
+                                  "line": 18,
+                                  "column": 50,
+                                  "program": "overload_with_generics.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 18,
+                                "column": 47,
+                                "program": "overload_with_generics.ets"
+                              },
+                              "end": {
+                                "line": 18,
+                                "column": 50,
+                                "program": "overload_with_generics.ets"
+                              }
+                            }
+                          },
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 18,
+                              "column": 41,
+                              "program": "overload_with_generics.ets"
+                            },
+                            "end": {
+                              "line": 18,
+                              "column": 50,
+                              "program": "overload_with_generics.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 18,
+                            "column": 41,
+                            "program": "overload_with_generics.ets"
+                          },
+                          "end": {
+                            "line": 18,
+                            "column": 50,
+                            "program": "overload_with_generics.ets"
+                          }
+                        }
+                      }
+                    ],
+                    "returnType": {
+                      "type": "ETSPrimitiveType",
+                      "loc": {
+                        "start": {
+                          "line": 18,
+                          "column": 52,
+                          "program": "overload_with_generics.ets"
+                        },
+                        "end": {
+                          "line": 18,
+                          "column": 56,
+                          "program": "overload_with_generics.ets"
+                        }
+                      }
+                    },
+                    "typeParameters": {
+                      "type": "TSTypeParameterDeclaration",
+                      "params": [
+                        {
+                          "type": "TSTypeParameter",
+                          "name": {
+                            "type": "Identifier",
+                            "name": "A1",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 18,
+                                "column": 23,
+                                "program": "overload_with_generics.ets"
+                              },
+                              "end": {
+                                "line": 18,
+                                "column": 25,
+                                "program": "overload_with_generics.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 18,
+                              "column": 23,
+                              "program": "overload_with_generics.ets"
+                            },
+                            "end": {
+                              "line": 18,
+                              "column": 26,
+                              "program": "overload_with_generics.ets"
+                            }
+                          }
+                        },
+                        {
+                          "type": "TSTypeParameter",
+                          "name": {
+                            "type": "Identifier",
+                            "name": "A2",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 18,
+                                "column": 27,
+                                "program": "overload_with_generics.ets"
+                              },
+                              "end": {
+                                "line": 18,
+                                "column": 29,
+                                "program": "overload_with_generics.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 18,
+                              "column": 27,
+                              "program": "overload_with_generics.ets"
+                            },
+                            "end": {
+                              "line": 18,
+                              "column": 30,
+                              "program": "overload_with_generics.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "loc": {
+                        "start": {
+                          "line": 18,
+                          "column": 22,
+                          "program": "overload_with_generics.ets"
+                        },
+                        "end": {
+                          "line": 18,
+                          "column": 30,
+                          "program": "overload_with_generics.ets"
+                        }
+                      }
+                    },
+                    "body": {
+                      "type": "BlockStatement",
+                      "statements": [],
+                      "loc": {
+                        "start": {
+                          "line": 18,
+                          "column": 57,
+                          "program": "overload_with_generics.ets"
+                        },
+                        "end": {
+                          "line": 18,
+                          "column": 59,
+                          "program": "overload_with_generics.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 18,
+                        "column": 22,
+                        "program": "overload_with_generics.ets"
+                      },
+                      "end": {
+                        "line": 18,
+                        "column": 59,
+                        "program": "overload_with_generics.ets"
+                      }
+                    }
+                  },
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 22,
+                      "program": "overload_with_generics.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 59,
+                      "program": "overload_with_generics.ets"
+                    }
+                  }
+                },
+                "overloads": [],
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 18,
+                    "column": 5,
+                    "program": "overload_with_generics.ets"
+                  },
+                  "end": {
+                    "line": 18,
+                    "column": 59,
+                    "program": "overload_with_generics.ets"
+                  }
+                }
+              }
+            ],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 5,
+                "program": "overload_with_generics.ets"
+              },
+              "end": {
+                "line": 17,
+                "column": 44,
+                "program": "overload_with_generics.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "overload_with_generics.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "overload_with_generics.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "overload_with_generics.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "overload_with_generics.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "overload_with_generics.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "overload_with_generics.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 10,
+                    "program": "overload_with_generics.ets"
+                  },
+                  "end": {
+                    "line": 16,
+                    "column": 10,
+                    "program": "overload_with_generics.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "overload_with_generics.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "overload_with_generics.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 9,
+            "program": "overload_with_generics.ets"
+          },
+          "end": {
+            "line": 21,
+            "column": 9,
+            "program": "overload_with_generics.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 1,
+          "program": "overload_with_generics.ets"
+        },
+        "end": {
+          "line": 21,
+          "column": 9,
+          "program": "overload_with_generics.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "overload_with_generics.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "overload_with_generics.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "overload_with_generics.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "overload_with_generics.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 21,
+                  "column": 10,
+                  "program": "overload_with_generics.ets"
+                },
+                "end": {
+                  "line": 21,
+                  "column": 14,
+                  "program": "overload_with_generics.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 21,
+                      "column": 10,
+                      "program": "overload_with_generics.ets"
+                    },
+                    "end": {
+                      "line": 21,
+                      "column": 14,
+                      "program": "overload_with_generics.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 21,
+                      "column": 18,
+                      "program": "overload_with_generics.ets"
+                    },
+                    "end": {
+                      "line": 21,
+                      "column": 21,
+                      "program": "overload_with_generics.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "object": {
+                            "type": "Identifier",
+                            "name": "A",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 22,
+                                "column": 5,
+                                "program": "overload_with_generics.ets"
+                              },
+                              "end": {
+                                "line": 22,
+                                "column": 6,
+                                "program": "overload_with_generics.ets"
+                              }
+                            }
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "foo",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 22,
+                                "column": 7,
+                                "program": "overload_with_generics.ets"
+                              },
+                              "end": {
+                                "line": 22,
+                                "column": 10,
+                                "program": "overload_with_generics.ets"
+                              }
+                            }
+                          },
+                          "computed": false,
+                          "optional": false,
+                          "loc": {
+                            "start": {
+                              "line": 22,
+                              "column": 5,
+                              "program": "overload_with_generics.ets"
+                            },
+                            "end": {
+                              "line": 22,
+                              "column": 10,
+                              "program": "overload_with_generics.ets"
+                            }
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "StringLiteral",
+                            "value": "lll",
+                            "loc": {
+                              "start": {
+                                "line": 22,
+                                "column": 11,
+                                "program": "overload_with_generics.ets"
+                              },
+                              "end": {
+                                "line": 22,
+                                "column": 16,
+                                "program": "overload_with_generics.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 22,
+                            "column": 5,
+                            "program": "overload_with_generics.ets"
+                          },
+                          "end": {
+                            "line": 22,
+                            "column": 17,
+                            "program": "overload_with_generics.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 22,
+                          "column": 5,
+                          "program": "overload_with_generics.ets"
+                        },
+                        "end": {
+                          "line": 22,
+                          "column": 17,
+                          "program": "overload_with_generics.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "object": {
+                            "type": "Identifier",
+                            "name": "A",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 5,
+                                "program": "overload_with_generics.ets"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 6,
+                                "program": "overload_with_generics.ets"
+                              }
+                            }
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "foo",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 7,
+                                "program": "overload_with_generics.ets"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 10,
+                                "program": "overload_with_generics.ets"
+                              }
+                            }
+                          },
+                          "computed": false,
+                          "optional": false,
+                          "loc": {
+                            "start": {
+                              "line": 23,
+                              "column": 5,
+                              "program": "overload_with_generics.ets"
+                            },
+                            "end": {
+                              "line": 23,
+                              "column": 10,
+                              "program": "overload_with_generics.ets"
+                            }
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "StringLiteral",
+                            "value": "lll",
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 11,
+                                "program": "overload_with_generics.ets"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 16,
+                                "program": "overload_with_generics.ets"
+                              }
+                            }
+                          },
+                          {
+                            "type": "NumberLiteral",
+                            "value": 1,
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 18,
+                                "program": "overload_with_generics.ets"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 19,
+                                "program": "overload_with_generics.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 23,
+                            "column": 5,
+                            "program": "overload_with_generics.ets"
+                          },
+                          "end": {
+                            "line": 23,
+                            "column": 20,
+                            "program": "overload_with_generics.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 23,
+                          "column": 5,
+                          "program": "overload_with_generics.ets"
+                        },
+                        "end": {
+                          "line": 23,
+                          "column": 20,
+                          "program": "overload_with_generics.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ReturnStatement",
+                      "argument": {
+                        "type": "NumberLiteral",
+                        "value": 0,
+                        "loc": {
+                          "start": {
+                            "line": 24,
+                            "column": 12,
+                            "program": "overload_with_generics.ets"
+                          },
+                          "end": {
+                            "line": 24,
+                            "column": 13,
+                            "program": "overload_with_generics.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 24,
+                          "column": 5,
+                          "program": "overload_with_generics.ets"
+                        },
+                        "end": {
+                          "line": 24,
+                          "column": 13,
+                          "program": "overload_with_generics.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 21,
+                      "column": 22,
+                      "program": "overload_with_generics.ets"
+                    },
+                    "end": {
+                      "line": 25,
+                      "column": 2,
+                      "program": "overload_with_generics.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 21,
+                    "column": 10,
+                    "program": "overload_with_generics.ets"
+                  },
+                  "end": {
+                    "line": 25,
+                    "column": 2,
+                    "program": "overload_with_generics.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 21,
+                  "column": 10,
+                  "program": "overload_with_generics.ets"
+                },
+                "end": {
+                  "line": 25,
+                  "column": 2,
+                  "program": "overload_with_generics.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 21,
+                "column": 1,
+                "program": "overload_with_generics.ets"
+              },
+              "end": {
+                "line": 25,
+                "column": 2,
+                "program": "overload_with_generics.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "overload_with_generics.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "overload_with_generics.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "overload_with_generics.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "overload_with_generics.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "overload_with_generics.ets"
+    },
+    "end": {
+      "line": 26,
+      "column": 1,
+      "program": "overload_with_generics.ets"
+    }
+  }
+}

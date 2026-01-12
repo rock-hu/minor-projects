@@ -1,0 +1,1013 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "A",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 16,
+              "column": 7,
+              "program": "assignNullableToNonNullableArray.ets"
+            },
+            "end": {
+              "line": 16,
+              "column": 8,
+              "program": "assignNullableToNonNullableArray.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "assignNullableToNonNullableArray.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "assignNullableToNonNullableArray.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "assignNullableToNonNullableArray.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "assignNullableToNonNullableArray.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "assignNullableToNonNullableArray.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "assignNullableToNonNullableArray.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 10,
+                    "program": "assignNullableToNonNullableArray.ets"
+                  },
+                  "end": {
+                    "line": 16,
+                    "column": 10,
+                    "program": "assignNullableToNonNullableArray.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "assignNullableToNonNullableArray.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "assignNullableToNonNullableArray.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 9,
+            "program": "assignNullableToNonNullableArray.ets"
+          },
+          "end": {
+            "line": 18,
+            "column": 9,
+            "program": "assignNullableToNonNullableArray.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 1,
+          "program": "assignNullableToNonNullableArray.ets"
+        },
+        "end": {
+          "line": 18,
+          "column": 9,
+          "program": "assignNullableToNonNullableArray.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "assignNullableToNonNullableArray.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "assignNullableToNonNullableArray.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "assignNullableToNonNullableArray.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "assignNullableToNonNullableArray.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 10,
+                  "program": "assignNullableToNonNullableArray.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 14,
+                  "program": "assignNullableToNonNullableArray.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 10,
+                      "program": "assignNullableToNonNullableArray.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 14,
+                      "program": "assignNullableToNonNullableArray.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 18,
+                      "program": "assignNullableToNonNullableArray.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 22,
+                      "program": "assignNullableToNonNullableArray.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "xo",
+                            "typeAnnotation": {
+                              "type": "ETSTypeReference",
+                              "part": {
+                                "type": "ETSTypeReferencePart",
+                                "name": {
+                                  "type": "Identifier",
+                                  "name": "FixedArray",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 19,
+                                      "column": 14,
+                                      "program": "assignNullableToNonNullableArray.ets"
+                                    },
+                                    "end": {
+                                      "line": 19,
+                                      "column": 24,
+                                      "program": "assignNullableToNonNullableArray.ets"
+                                    }
+                                  }
+                                },
+                                "typeParams": {
+                                  "type": "TSTypeParameterInstantiation",
+                                  "params": [
+                                    {
+                                      "type": "ETSTypeReference",
+                                      "part": {
+                                        "type": "ETSTypeReferencePart",
+                                        "name": {
+                                          "type": "Identifier",
+                                          "name": "Object",
+                                          "decorators": [],
+                                          "loc": {
+                                            "start": {
+                                              "line": 19,
+                                              "column": 25,
+                                              "program": "assignNullableToNonNullableArray.ets"
+                                            },
+                                            "end": {
+                                              "line": 19,
+                                              "column": 31,
+                                              "program": "assignNullableToNonNullableArray.ets"
+                                            }
+                                          }
+                                        },
+                                        "loc": {
+                                          "start": {
+                                            "line": 19,
+                                            "column": 25,
+                                            "program": "assignNullableToNonNullableArray.ets"
+                                          },
+                                          "end": {
+                                            "line": 19,
+                                            "column": 32,
+                                            "program": "assignNullableToNonNullableArray.ets"
+                                          }
+                                        }
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 19,
+                                          "column": 25,
+                                          "program": "assignNullableToNonNullableArray.ets"
+                                        },
+                                        "end": {
+                                          "line": 19,
+                                          "column": 32,
+                                          "program": "assignNullableToNonNullableArray.ets"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "loc": {
+                                    "start": {
+                                      "line": 19,
+                                      "column": 24,
+                                      "program": "assignNullableToNonNullableArray.ets"
+                                    },
+                                    "end": {
+                                      "line": 19,
+                                      "column": 32,
+                                      "program": "assignNullableToNonNullableArray.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 19,
+                                    "column": 14,
+                                    "program": "assignNullableToNonNullableArray.ets"
+                                  },
+                                  "end": {
+                                    "line": 19,
+                                    "column": 33,
+                                    "program": "assignNullableToNonNullableArray.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 19,
+                                  "column": 14,
+                                  "program": "assignNullableToNonNullableArray.ets"
+                                },
+                                "end": {
+                                  "line": 19,
+                                  "column": 33,
+                                  "program": "assignNullableToNonNullableArray.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 19,
+                                "column": 9,
+                                "program": "assignNullableToNonNullableArray.ets"
+                              },
+                              "end": {
+                                "line": 19,
+                                "column": 11,
+                                "program": "assignNullableToNonNullableArray.ets"
+                              }
+                            }
+                          },
+                          "init": null,
+                          "loc": {
+                            "start": {
+                              "line": 19,
+                              "column": 9,
+                              "program": "assignNullableToNonNullableArray.ets"
+                            },
+                            "end": {
+                              "line": 19,
+                              "column": 11,
+                              "program": "assignNullableToNonNullableArray.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 19,
+                          "column": 5,
+                          "program": "assignNullableToNonNullableArray.ets"
+                        },
+                        "end": {
+                          "line": 19,
+                          "column": 33,
+                          "program": "assignNullableToNonNullableArray.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "an",
+                            "typeAnnotation": {
+                              "type": "ETSUnionType",
+                              "types": [
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "FixedArray",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 20,
+                                          "column": 14,
+                                          "program": "assignNullableToNonNullableArray.ets"
+                                        },
+                                        "end": {
+                                          "line": 20,
+                                          "column": 24,
+                                          "program": "assignNullableToNonNullableArray.ets"
+                                        }
+                                      }
+                                    },
+                                    "typeParams": {
+                                      "type": "TSTypeParameterInstantiation",
+                                      "params": [
+                                        {
+                                          "type": "ETSTypeReference",
+                                          "part": {
+                                            "type": "ETSTypeReferencePart",
+                                            "name": {
+                                              "type": "Identifier",
+                                              "name": "A",
+                                              "decorators": [],
+                                              "loc": {
+                                                "start": {
+                                                  "line": 20,
+                                                  "column": 25,
+                                                  "program": "assignNullableToNonNullableArray.ets"
+                                                },
+                                                "end": {
+                                                  "line": 20,
+                                                  "column": 26,
+                                                  "program": "assignNullableToNonNullableArray.ets"
+                                                }
+                                              }
+                                            },
+                                            "loc": {
+                                              "start": {
+                                                "line": 20,
+                                                "column": 25,
+                                                "program": "assignNullableToNonNullableArray.ets"
+                                              },
+                                              "end": {
+                                                "line": 20,
+                                                "column": 27,
+                                                "program": "assignNullableToNonNullableArray.ets"
+                                              }
+                                            }
+                                          },
+                                          "loc": {
+                                            "start": {
+                                              "line": 20,
+                                              "column": 25,
+                                              "program": "assignNullableToNonNullableArray.ets"
+                                            },
+                                            "end": {
+                                              "line": 20,
+                                              "column": 27,
+                                              "program": "assignNullableToNonNullableArray.ets"
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "loc": {
+                                        "start": {
+                                          "line": 20,
+                                          "column": 24,
+                                          "program": "assignNullableToNonNullableArray.ets"
+                                        },
+                                        "end": {
+                                          "line": 20,
+                                          "column": 27,
+                                          "program": "assignNullableToNonNullableArray.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 20,
+                                        "column": 14,
+                                        "program": "assignNullableToNonNullableArray.ets"
+                                      },
+                                      "end": {
+                                        "line": 20,
+                                        "column": 29,
+                                        "program": "assignNullableToNonNullableArray.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 14,
+                                      "program": "assignNullableToNonNullableArray.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 29,
+                                      "program": "assignNullableToNonNullableArray.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSNullType",
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 30,
+                                      "program": "assignNullableToNonNullableArray.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 34,
+                                      "program": "assignNullableToNonNullableArray.ets"
+                                    }
+                                  }
+                                }
+                              ],
+                              "loc": {
+                                "start": {
+                                  "line": 20,
+                                  "column": 14,
+                                  "program": "assignNullableToNonNullableArray.ets"
+                                },
+                                "end": {
+                                  "line": 20,
+                                  "column": 34,
+                                  "program": "assignNullableToNonNullableArray.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 20,
+                                "column": 9,
+                                "program": "assignNullableToNonNullableArray.ets"
+                              },
+                              "end": {
+                                "line": 20,
+                                "column": 11,
+                                "program": "assignNullableToNonNullableArray.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "ArrayExpression",
+                            "elements": [
+                              {
+                                "type": "ETSNewClassInstanceExpression",
+                                "typeReference": {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "A",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 20,
+                                          "column": 42,
+                                          "program": "assignNullableToNonNullableArray.ets"
+                                        },
+                                        "end": {
+                                          "line": 20,
+                                          "column": 43,
+                                          "program": "assignNullableToNonNullableArray.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 20,
+                                        "column": 42,
+                                        "program": "assignNullableToNonNullableArray.ets"
+                                      },
+                                      "end": {
+                                        "line": 20,
+                                        "column": 44,
+                                        "program": "assignNullableToNonNullableArray.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 42,
+                                      "program": "assignNullableToNonNullableArray.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 44,
+                                      "program": "assignNullableToNonNullableArray.ets"
+                                    }
+                                  }
+                                },
+                                "arguments": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 20,
+                                    "column": 38,
+                                    "program": "assignNullableToNonNullableArray.ets"
+                                  },
+                                  "end": {
+                                    "line": 20,
+                                    "column": 46,
+                                    "program": "assignNullableToNonNullableArray.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "ETSNewClassInstanceExpression",
+                                "typeReference": {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "A",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 20,
+                                          "column": 51,
+                                          "program": "assignNullableToNonNullableArray.ets"
+                                        },
+                                        "end": {
+                                          "line": 20,
+                                          "column": 52,
+                                          "program": "assignNullableToNonNullableArray.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 20,
+                                        "column": 51,
+                                        "program": "assignNullableToNonNullableArray.ets"
+                                      },
+                                      "end": {
+                                        "line": 20,
+                                        "column": 53,
+                                        "program": "assignNullableToNonNullableArray.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 51,
+                                      "program": "assignNullableToNonNullableArray.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 53,
+                                      "program": "assignNullableToNonNullableArray.ets"
+                                    }
+                                  }
+                                },
+                                "arguments": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 20,
+                                    "column": 47,
+                                    "program": "assignNullableToNonNullableArray.ets"
+                                  },
+                                  "end": {
+                                    "line": 20,
+                                    "column": 55,
+                                    "program": "assignNullableToNonNullableArray.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "loc": {
+                              "start": {
+                                "line": 20,
+                                "column": 37,
+                                "program": "assignNullableToNonNullableArray.ets"
+                              },
+                              "end": {
+                                "line": 20,
+                                "column": 55,
+                                "program": "assignNullableToNonNullableArray.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 20,
+                              "column": 9,
+                              "program": "assignNullableToNonNullableArray.ets"
+                            },
+                            "end": {
+                              "line": 20,
+                              "column": 55,
+                              "program": "assignNullableToNonNullableArray.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 20,
+                          "column": 5,
+                          "program": "assignNullableToNonNullableArray.ets"
+                        },
+                        "end": {
+                          "line": 20,
+                          "column": 56,
+                          "program": "assignNullableToNonNullableArray.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "AssignmentExpression",
+                        "operator": "=",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "xo",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 22,
+                              "column": 5,
+                              "program": "assignNullableToNonNullableArray.ets"
+                            },
+                            "end": {
+                              "line": 22,
+                              "column": 7,
+                              "program": "assignNullableToNonNullableArray.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "Identifier",
+                          "name": "an",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 22,
+                              "column": 10,
+                              "program": "assignNullableToNonNullableArray.ets"
+                            },
+                            "end": {
+                              "line": 22,
+                              "column": 12,
+                              "program": "assignNullableToNonNullableArray.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 22,
+                            "column": 5,
+                            "program": "assignNullableToNonNullableArray.ets"
+                          },
+                          "end": {
+                            "line": 22,
+                            "column": 12,
+                            "program": "assignNullableToNonNullableArray.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 22,
+                          "column": 5,
+                          "program": "assignNullableToNonNullableArray.ets"
+                        },
+                        "end": {
+                          "line": 22,
+                          "column": 13,
+                          "program": "assignNullableToNonNullableArray.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 23,
+                      "program": "assignNullableToNonNullableArray.ets"
+                    },
+                    "end": {
+                      "line": 23,
+                      "column": 2,
+                      "program": "assignNullableToNonNullableArray.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 18,
+                    "column": 10,
+                    "program": "assignNullableToNonNullableArray.ets"
+                  },
+                  "end": {
+                    "line": 23,
+                    "column": 2,
+                    "program": "assignNullableToNonNullableArray.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 10,
+                  "program": "assignNullableToNonNullableArray.ets"
+                },
+                "end": {
+                  "line": 23,
+                  "column": 2,
+                  "program": "assignNullableToNonNullableArray.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 18,
+                "column": 1,
+                "program": "assignNullableToNonNullableArray.ets"
+              },
+              "end": {
+                "line": 23,
+                "column": 2,
+                "program": "assignNullableToNonNullableArray.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "assignNullableToNonNullableArray.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "assignNullableToNonNullableArray.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "assignNullableToNonNullableArray.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "assignNullableToNonNullableArray.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "assignNullableToNonNullableArray.ets"
+    },
+    "end": {
+      "line": 24,
+      "column": 1,
+      "program": "assignNullableToNonNullableArray.ets"
+    }
+  }
+}

@@ -1,0 +1,296 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "arg",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 5,
+                "program": "switch_statement.ts"
+              },
+              "end": {
+                "line": 16,
+                "column": 8,
+                "program": "switch_statement.ts"
+              }
+            }
+          },
+          "init": {
+            "type": "UnaryExpression",
+            "operator": "-",
+            "prefix": true,
+            "argument": {
+              "type": "NumberLiteral",
+              "value": 1,
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 12,
+                  "program": "switch_statement.ts"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 13,
+                  "program": "switch_statement.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 11,
+                "program": "switch_statement.ts"
+              },
+              "end": {
+                "line": 16,
+                "column": 13,
+                "program": "switch_statement.ts"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 16,
+              "column": 5,
+              "program": "switch_statement.ts"
+            },
+            "end": {
+              "line": 16,
+              "column": 13,
+              "program": "switch_statement.ts"
+            }
+          }
+        }
+      ],
+      "kind": "var",
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 1,
+          "program": "switch_statement.ts"
+        },
+        "end": {
+          "line": 16,
+          "column": 14,
+          "program": "switch_statement.ts"
+        }
+      }
+    },
+    {
+      "type": "SwitchStatement",
+      "discriminant": {
+        "type": "Identifier",
+        "name": "arg",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 9,
+            "program": "switch_statement.ts"
+          },
+          "end": {
+            "line": 17,
+            "column": 12,
+            "program": "switch_statement.ts"
+          }
+        }
+      },
+      "cases": [
+        {
+          "type": "SwitchCase",
+          "test": {
+            "type": "NumberLiteral",
+            "value": 0,
+            "loc": {
+              "start": {
+                "line": 18,
+                "column": 6,
+                "program": "switch_statement.ts"
+              },
+              "end": {
+                "line": 18,
+                "column": 7,
+                "program": "switch_statement.ts"
+              }
+            }
+          },
+          "consequent": [],
+          "loc": {
+            "start": {
+              "line": 18,
+              "column": 1,
+              "program": "switch_statement.ts"
+            },
+            "end": {
+              "line": 18,
+              "column": 8,
+              "program": "switch_statement.ts"
+            }
+          }
+        },
+        {
+          "type": "SwitchCase",
+          "test": {
+            "type": "NumberLiteral",
+            "value": 1,
+            "loc": {
+              "start": {
+                "line": 19,
+                "column": 6,
+                "program": "switch_statement.ts"
+              },
+              "end": {
+                "line": 19,
+                "column": 7,
+                "program": "switch_statement.ts"
+              }
+            }
+          },
+          "consequent": [],
+          "loc": {
+            "start": {
+              "line": 19,
+              "column": 1,
+              "program": "switch_statement.ts"
+            },
+            "end": {
+              "line": 19,
+              "column": 8,
+              "program": "switch_statement.ts"
+            }
+          }
+        },
+        {
+          "type": "SwitchCase",
+          "test": null,
+          "consequent": [
+            {
+              "type": "ExpressionStatement",
+              "expression": {
+                "type": "AssignmentExpression",
+                "operator": "=",
+                "left": {
+                  "type": "Identifier",
+                  "name": "arg",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 21,
+                      "column": 4,
+                      "program": "switch_statement.ts"
+                    },
+                    "end": {
+                      "line": 21,
+                      "column": 7,
+                      "program": "switch_statement.ts"
+                    }
+                  }
+                },
+                "right": {
+                  "type": "NumberLiteral",
+                  "value": 1,
+                  "loc": {
+                    "start": {
+                      "line": 21,
+                      "column": 8,
+                      "program": "switch_statement.ts"
+                    },
+                    "end": {
+                      "line": 21,
+                      "column": 9,
+                      "program": "switch_statement.ts"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 21,
+                    "column": 4,
+                    "program": "switch_statement.ts"
+                  },
+                  "end": {
+                    "line": 21,
+                    "column": 9,
+                    "program": "switch_statement.ts"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 21,
+                  "column": 4,
+                  "program": "switch_statement.ts"
+                },
+                "end": {
+                  "line": 21,
+                  "column": 9,
+                  "program": "switch_statement.ts"
+                }
+              }
+            },
+            {
+              "type": "BreakStatement",
+              "label": null,
+              "loc": {
+                "start": {
+                  "line": 22,
+                  "column": 4,
+                  "program": "switch_statement.ts"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 10,
+                  "program": "switch_statement.ts"
+                }
+              }
+            }
+          ],
+          "loc": {
+            "start": {
+              "line": 20,
+              "column": 1,
+              "program": "switch_statement.ts"
+            },
+            "end": {
+              "line": 22,
+              "column": 10,
+              "program": "switch_statement.ts"
+            }
+          }
+        }
+      ],
+      "loc": {
+        "start": {
+          "line": 17,
+          "column": 1,
+          "program": "switch_statement.ts"
+        },
+        "end": {
+          "line": 23,
+          "column": 2,
+          "program": "switch_statement.ts"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "switch_statement.ts"
+    },
+    "end": {
+      "line": 24,
+      "column": 1,
+      "program": "switch_statement.ts"
+    }
+  }
+}

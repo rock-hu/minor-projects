@@ -1,0 +1,1048 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "foo",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 16,
+              "column": 7,
+              "program": "overrideStaticFunc.ets"
+            },
+            "end": {
+              "line": 16,
+              "column": 10,
+              "program": "overrideStaticFunc.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "method",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 12,
+                  "program": "overrideStaticFunc.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 18,
+                  "program": "overrideStaticFunc.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "method",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 12,
+                      "program": "overrideStaticFunc.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 18,
+                      "program": "overrideStaticFunc.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 22,
+                      "program": "overrideStaticFunc.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 26,
+                      "program": "overrideStaticFunc.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 27,
+                      "program": "overrideStaticFunc.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 29,
+                      "program": "overrideStaticFunc.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 18,
+                    "program": "overrideStaticFunc.ets"
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 29,
+                    "program": "overrideStaticFunc.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 18,
+                  "program": "overrideStaticFunc.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 29,
+                  "program": "overrideStaticFunc.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 5,
+                "program": "overrideStaticFunc.ets"
+              },
+              "end": {
+                "line": 17,
+                "column": 29,
+                "program": "overrideStaticFunc.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 12,
+                  "program": "overrideStaticFunc.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 12,
+                  "program": "overrideStaticFunc.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 12,
+                      "program": "overrideStaticFunc.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 12,
+                      "program": "overrideStaticFunc.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 12,
+                      "program": "overrideStaticFunc.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 12,
+                      "program": "overrideStaticFunc.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 12,
+                    "program": "overrideStaticFunc.ets"
+                  },
+                  "end": {
+                    "line": 16,
+                    "column": 12,
+                    "program": "overrideStaticFunc.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 12,
+                  "program": "overrideStaticFunc.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 12,
+                  "program": "overrideStaticFunc.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 11,
+            "program": "overrideStaticFunc.ets"
+          },
+          "end": {
+            "line": 20,
+            "column": 6,
+            "program": "overrideStaticFunc.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 1,
+          "program": "overrideStaticFunc.ets"
+        },
+        "end": {
+          "line": 20,
+          "column": 6,
+          "program": "overrideStaticFunc.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "bar",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 20,
+              "column": 7,
+              "program": "overrideStaticFunc.ets"
+            },
+            "end": {
+              "line": 20,
+              "column": 10,
+              "program": "overrideStaticFunc.ets"
+            }
+          }
+        },
+        "superClass": {
+          "type": "ETSTypeReference",
+          "part": {
+            "type": "ETSTypeReferencePart",
+            "name": {
+              "type": "Identifier",
+              "name": "foo",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 19,
+                  "program": "overrideStaticFunc.ets"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 22,
+                  "program": "overrideStaticFunc.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 20,
+                "column": 19,
+                "program": "overrideStaticFunc.ets"
+              },
+              "end": {
+                "line": 20,
+                "column": 24,
+                "program": "overrideStaticFunc.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 20,
+              "column": 19,
+              "program": "overrideStaticFunc.ets"
+            },
+            "end": {
+              "line": 20,
+              "column": 24,
+              "program": "overrideStaticFunc.ets"
+            }
+          }
+        },
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "method",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 21,
+                  "column": 5,
+                  "program": "overrideStaticFunc.ets"
+                },
+                "end": {
+                  "line": 21,
+                  "column": 11,
+                  "program": "overrideStaticFunc.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "method",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 21,
+                      "column": 5,
+                      "program": "overrideStaticFunc.ets"
+                    },
+                    "end": {
+                      "line": 21,
+                      "column": 11,
+                      "program": "overrideStaticFunc.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 21,
+                      "column": 15,
+                      "program": "overrideStaticFunc.ets"
+                    },
+                    "end": {
+                      "line": 21,
+                      "column": 19,
+                      "program": "overrideStaticFunc.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 21,
+                      "column": 20,
+                      "program": "overrideStaticFunc.ets"
+                    },
+                    "end": {
+                      "line": 21,
+                      "column": 22,
+                      "program": "overrideStaticFunc.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 21,
+                    "column": 11,
+                    "program": "overrideStaticFunc.ets"
+                  },
+                  "end": {
+                    "line": 21,
+                    "column": 22,
+                    "program": "overrideStaticFunc.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 21,
+                  "column": 11,
+                  "program": "overrideStaticFunc.ets"
+                },
+                "end": {
+                  "line": 21,
+                  "column": 22,
+                  "program": "overrideStaticFunc.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 21,
+                "column": 5,
+                "program": "overrideStaticFunc.ets"
+              },
+              "end": {
+                "line": 21,
+                "column": 22,
+                "program": "overrideStaticFunc.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 24,
+                  "program": "overrideStaticFunc.ets"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 24,
+                  "program": "overrideStaticFunc.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 24,
+                      "program": "overrideStaticFunc.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 24,
+                      "program": "overrideStaticFunc.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 24,
+                      "program": "overrideStaticFunc.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 24,
+                      "program": "overrideStaticFunc.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 20,
+                    "column": 24,
+                    "program": "overrideStaticFunc.ets"
+                  },
+                  "end": {
+                    "line": 20,
+                    "column": 24,
+                    "program": "overrideStaticFunc.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 24,
+                  "program": "overrideStaticFunc.ets"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 24,
+                  "program": "overrideStaticFunc.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 20,
+            "column": 23,
+            "program": "overrideStaticFunc.ets"
+          },
+          "end": {
+            "line": 24,
+            "column": 10,
+            "program": "overrideStaticFunc.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 20,
+          "column": 1,
+          "program": "overrideStaticFunc.ets"
+        },
+        "end": {
+          "line": 24,
+          "column": 10,
+          "program": "overrideStaticFunc.ets"
+        }
+      }
+    },
+    {
+      "type": "TSInterfaceDeclaration",
+      "body": {
+        "type": "TSInterfaceBody",
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "keys",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 25,
+                  "column": 5,
+                  "program": "overrideStaticFunc.ets"
+                },
+                "end": {
+                  "line": 25,
+                  "column": 9,
+                  "program": "overrideStaticFunc.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "keys",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 25,
+                      "column": 5,
+                      "program": "overrideStaticFunc.ets"
+                    },
+                    "end": {
+                      "line": 25,
+                      "column": 9,
+                      "program": "overrideStaticFunc.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 25,
+                      "column": 13,
+                      "program": "overrideStaticFunc.ets"
+                    },
+                    "end": {
+                      "line": 25,
+                      "column": 17,
+                      "program": "overrideStaticFunc.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 25,
+                      "column": 18,
+                      "program": "overrideStaticFunc.ets"
+                    },
+                    "end": {
+                      "line": 25,
+                      "column": 20,
+                      "program": "overrideStaticFunc.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 25,
+                    "column": 9,
+                    "program": "overrideStaticFunc.ets"
+                  },
+                  "end": {
+                    "line": 25,
+                    "column": 20,
+                    "program": "overrideStaticFunc.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 25,
+                  "column": 9,
+                  "program": "overrideStaticFunc.ets"
+                },
+                "end": {
+                  "line": 25,
+                  "column": 20,
+                  "program": "overrideStaticFunc.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 25,
+                "column": 5,
+                "program": "overrideStaticFunc.ets"
+              },
+              "end": {
+                "line": 25,
+                "column": 20,
+                "program": "overrideStaticFunc.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 24,
+            "column": 17,
+            "program": "overrideStaticFunc.ets"
+          },
+          "end": {
+            "line": 26,
+            "column": 2,
+            "program": "overrideStaticFunc.ets"
+          }
+        }
+      },
+      "id": {
+        "type": "Identifier",
+        "name": "inter",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 24,
+            "column": 11,
+            "program": "overrideStaticFunc.ets"
+          },
+          "end": {
+            "line": 24,
+            "column": 16,
+            "program": "overrideStaticFunc.ets"
+          }
+        }
+      },
+      "extends": [],
+      "loc": {
+        "start": {
+          "line": 24,
+          "column": 1,
+          "program": "overrideStaticFunc.ets"
+        },
+        "end": {
+          "line": 27,
+          "column": 1,
+          "program": "overrideStaticFunc.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "overrideStaticFunc.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "overrideStaticFunc.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "overrideStaticFunc.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "overrideStaticFunc.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "overrideStaticFunc.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "overrideStaticFunc.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "overrideStaticFunc.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "overrideStaticFunc.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "overrideStaticFunc.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "overrideStaticFunc.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "overrideStaticFunc.ets"
+    },
+    "end": {
+      "line": 27,
+      "column": 1,
+      "program": "overrideStaticFunc.ets"
+    }
+  }
+}

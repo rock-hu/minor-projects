@@ -1,0 +1,664 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "ambient_declaration.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "ambient_declaration.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "ambient_declaration.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "ambient_declaration.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "baz",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 18,
+                  "program": "ambient_declaration.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 21,
+                  "program": "ambient_declaration.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "baz",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 18,
+                      "program": "ambient_declaration.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 21,
+                      "program": "ambient_declaration.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "x",
+                      "typeAnnotation": {
+                        "type": "ETSPrimitiveType",
+                        "loc": {
+                          "start": {
+                            "line": 16,
+                            "column": 27,
+                            "program": "ambient_declaration.ets"
+                          },
+                          "end": {
+                            "line": 16,
+                            "column": 30,
+                            "program": "ambient_declaration.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 16,
+                          "column": 22,
+                          "program": "ambient_declaration.ets"
+                        },
+                        "end": {
+                          "line": 16,
+                          "column": 30,
+                          "program": "ambient_declaration.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 16,
+                        "column": 22,
+                        "program": "ambient_declaration.ets"
+                      },
+                      "end": {
+                        "line": 16,
+                        "column": 30,
+                        "program": "ambient_declaration.ets"
+                      }
+                    }
+                  },
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "y",
+                      "typeAnnotation": {
+                        "type": "ETSTypeReference",
+                        "part": {
+                          "type": "ETSTypeReferencePart",
+                          "name": {
+                            "type": "Identifier",
+                            "name": "number",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 16,
+                                "column": 36,
+                                "program": "ambient_declaration.ets"
+                              },
+                              "end": {
+                                "line": 16,
+                                "column": 42,
+                                "program": "ambient_declaration.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 16,
+                              "column": 36,
+                              "program": "ambient_declaration.ets"
+                            },
+                            "end": {
+                              "line": 16,
+                              "column": 43,
+                              "program": "ambient_declaration.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 16,
+                            "column": 36,
+                            "program": "ambient_declaration.ets"
+                          },
+                          "end": {
+                            "line": 16,
+                            "column": 43,
+                            "program": "ambient_declaration.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 16,
+                          "column": 32,
+                          "program": "ambient_declaration.ets"
+                        },
+                        "end": {
+                          "line": 16,
+                          "column": 43,
+                          "program": "ambient_declaration.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 16,
+                        "column": 32,
+                        "program": "ambient_declaration.ets"
+                      },
+                      "end": {
+                        "line": 16,
+                        "column": 43,
+                        "program": "ambient_declaration.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 46,
+                      "program": "ambient_declaration.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 50,
+                      "program": "ambient_declaration.ets"
+                    }
+                  }
+                },
+                "declare": true,
+                "annotations": [
+                  {
+                    "expr_": {
+                      "type": "ETSTypeReference",
+                      "part": {
+                        "type": "ETSTypeReferencePart",
+                        "name": {
+                          "type": "TSQualifiedName",
+                          "left": {
+                            "type": "Identifier",
+                            "name": "functions",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 16,
+                                "column": 18,
+                                "program": "ambient_declaration.ets"
+                              },
+                              "end": {
+                                "line": 16,
+                                "column": 21,
+                                "program": "ambient_declaration.ets"
+                              }
+                            }
+                          },
+                          "right": {
+                            "type": "Identifier",
+                            "name": "OptionalParametersAnnotation",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 16,
+                                "column": 18,
+                                "program": "ambient_declaration.ets"
+                              },
+                              "end": {
+                                "line": 16,
+                                "column": 21,
+                                "program": "ambient_declaration.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 16,
+                              "column": 18,
+                              "program": "ambient_declaration.ets"
+                            },
+                            "end": {
+                              "line": 16,
+                              "column": 21,
+                              "program": "ambient_declaration.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 16,
+                            "column": 18,
+                            "program": "ambient_declaration.ets"
+                          },
+                          "end": {
+                            "line": 16,
+                            "column": 21,
+                            "program": "ambient_declaration.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 16,
+                          "column": 18,
+                          "program": "ambient_declaration.ets"
+                        },
+                        "end": {
+                          "line": 16,
+                          "column": 21,
+                          "program": "ambient_declaration.ets"
+                        }
+                      }
+                    },
+                    "properties": [
+                      {
+                        "type": "ClassProperty",
+                        "key": {
+                          "type": "Identifier",
+                          "name": "minArgCount",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 16,
+                              "column": 18,
+                              "program": "ambient_declaration.ets"
+                            },
+                            "end": {
+                              "line": 16,
+                              "column": 21,
+                              "program": "ambient_declaration.ets"
+                            }
+                          }
+                        },
+                        "value": {
+                          "type": "NumberLiteral",
+                          "value": 0,
+                          "loc": {
+                            "start": {
+                              "line": 16,
+                              "column": 18,
+                              "program": "ambient_declaration.ets"
+                            },
+                            "end": {
+                              "line": 16,
+                              "column": 21,
+                              "program": "ambient_declaration.ets"
+                            }
+                          }
+                        },
+                        "static": false,
+                        "readonly": false,
+                        "declare": false,
+                        "optional": false,
+                        "computed": false,
+                        "definite": false,
+                        "decorators": [],
+                        "loc": {
+                          "start": {
+                            "line": 16,
+                            "column": 18,
+                            "program": "ambient_declaration.ets"
+                          },
+                          "end": {
+                            "line": 16,
+                            "column": 21,
+                            "program": "ambient_declaration.ets"
+                          }
+                        }
+                      }
+                    ],
+                    "loc": {
+                      "start": {
+                        "line": 16,
+                        "column": 18,
+                        "program": "ambient_declaration.ets"
+                      },
+                      "end": {
+                        "line": 16,
+                        "column": 21,
+                        "program": "ambient_declaration.ets"
+                      }
+                    }
+                  }
+                ],
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 18,
+                    "program": "ambient_declaration.ets"
+                  },
+                  "end": {
+                    "line": 16,
+                    "column": 21,
+                    "program": "ambient_declaration.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 18,
+                  "program": "ambient_declaration.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 21,
+                  "program": "ambient_declaration.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 1,
+                "program": "ambient_declaration.ets"
+              },
+              "end": {
+                "line": 16,
+                "column": 21,
+                "program": "ambient_declaration.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 10,
+                  "program": "ambient_declaration.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 14,
+                  "program": "ambient_declaration.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 10,
+                      "program": "ambient_declaration.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 14,
+                      "program": "ambient_declaration.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 17,
+                      "program": "ambient_declaration.ets"
+                    },
+                    "end": {
+                      "line": 19,
+                      "column": 2,
+                      "program": "ambient_declaration.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 18,
+                    "column": 10,
+                    "program": "ambient_declaration.ets"
+                  },
+                  "end": {
+                    "line": 19,
+                    "column": 2,
+                    "program": "ambient_declaration.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 10,
+                  "program": "ambient_declaration.ets"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 2,
+                  "program": "ambient_declaration.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 18,
+                "column": 1,
+                "program": "ambient_declaration.ets"
+              },
+              "end": {
+                "line": 19,
+                "column": 2,
+                "program": "ambient_declaration.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "ambient_declaration.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "ambient_declaration.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "ambient_declaration.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "ambient_declaration.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "ambient_declaration.ets"
+    },
+    "end": {
+      "line": 20,
+      "column": 1,
+      "program": "ambient_declaration.ets"
+    }
+  }
+}

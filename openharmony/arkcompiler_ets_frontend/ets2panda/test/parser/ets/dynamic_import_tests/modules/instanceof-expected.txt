@@ -1,0 +1,376 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "instanceof.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "instanceof.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "instanceof.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "instanceof.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "instanceof.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "instanceof.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ADeclared",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 20,
+              "column": 22,
+              "program": "instanceof.ets"
+            },
+            "end": {
+              "line": 20,
+              "column": 31,
+              "program": "instanceof.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 33,
+                  "program": "instanceof.ets"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 33,
+                  "program": "instanceof.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 33,
+                      "program": "instanceof.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 33,
+                      "program": "instanceof.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 33,
+                      "program": "instanceof.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 33,
+                      "program": "instanceof.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 20,
+                    "column": 33,
+                    "program": "instanceof.ets"
+                  },
+                  "end": {
+                    "line": 20,
+                    "column": 33,
+                    "program": "instanceof.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 33,
+                  "program": "instanceof.ets"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 33,
+                  "program": "instanceof.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 20,
+            "column": 32,
+            "program": "instanceof.ets"
+          },
+          "end": {
+            "line": 23,
+            "column": 7,
+            "program": "instanceof.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 20,
+          "column": 16,
+          "program": "instanceof.ets"
+        },
+        "end": {
+          "line": 23,
+          "column": 7,
+          "program": "instanceof.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "BDeclared",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 23,
+              "column": 22,
+              "program": "instanceof.ets"
+            },
+            "end": {
+              "line": 23,
+              "column": 31,
+              "program": "instanceof.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 23,
+                  "column": 33,
+                  "program": "instanceof.ets"
+                },
+                "end": {
+                  "line": 23,
+                  "column": 33,
+                  "program": "instanceof.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 23,
+                      "column": 33,
+                      "program": "instanceof.ets"
+                    },
+                    "end": {
+                      "line": 23,
+                      "column": 33,
+                      "program": "instanceof.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 23,
+                      "column": 33,
+                      "program": "instanceof.ets"
+                    },
+                    "end": {
+                      "line": 23,
+                      "column": 33,
+                      "program": "instanceof.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 23,
+                    "column": 33,
+                    "program": "instanceof.ets"
+                  },
+                  "end": {
+                    "line": 23,
+                    "column": 33,
+                    "program": "instanceof.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 23,
+                  "column": 33,
+                  "program": "instanceof.ets"
+                },
+                "end": {
+                  "line": 23,
+                  "column": 33,
+                  "program": "instanceof.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 23,
+            "column": 32,
+            "program": "instanceof.ets"
+          },
+          "end": {
+            "line": 25,
+            "column": 1,
+            "program": "instanceof.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 23,
+          "column": 16,
+          "program": "instanceof.ets"
+        },
+        "end": {
+          "line": 25,
+          "column": 1,
+          "program": "instanceof.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "instanceof.ets"
+    },
+    "end": {
+      "line": 25,
+      "column": 1,
+      "program": "instanceof.ets"
+    }
+  }
+}

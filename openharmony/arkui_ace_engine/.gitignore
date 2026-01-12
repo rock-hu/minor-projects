@@ -1,0 +1,21 @@
+.vs/
+.vscode/
+*.iml
+.idea/
+adapter/*
+!adapter/ohos/
+!adapter/preview/
+cmake-build-debug/
+lite/appfwk/
+lite/base/
+lite/interfaces/
+lite/jsfwk/
+lite/maplejs/
+lite/tools/
+lite/ui/
+.clangd
+__pycache__/
+output/
+test/benchmark/reports/
+# placeholder for generated file
+frameworks/core/components/theme/theme_constants_defines.h

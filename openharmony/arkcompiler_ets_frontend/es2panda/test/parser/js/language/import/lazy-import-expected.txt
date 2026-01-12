@@ -1,0 +1,288 @@
+slotNum = 0x6
+.language ECMAScript
+.function any .#~A=#A(any a0, any a1, any a2) {
+label_1: 
+label_0: 
+	callruntime.ldlazysendablemodulevar 0x0
+	sta v0
+	throw.undefinedifholewithname a
+	lda v0
+	stobjbyname 0x0, u, a2
+	callruntime.ldsendableexternalmodulevar 0x2
+	sta v0
+	throw.undefinedifholewithname c
+	lda v0
+	stobjbyname 0x2, v, a2
+	callruntime.ldlazysendablemodulevar 0x3
+	sta v0
+	throw.undefinedifholewithname d
+	lda v0
+	stobjbyname 0x4, w, a2
+	lda a2
+	return
+label_2: 
+}
+
+slotNum = 0x1
+.language ECMAScript
+.function any .func_main_0(any a0, any a1, any a2) {
+label_1: 
+label_0: 
+	callruntime.ldlazymodulevar 0x0
+	throw.undefinedifholewithname a
+	ldexternalmodulevar 0x1
+	throw.undefinedifholewithname b
+	ldhole
+	sta v0
+	callruntime.definesendableclass 0x0, .#~A=#A, _4, 0x0, v0
+	returnundefined
+label_2: 
+}
+
+
+======> literal array buffer <======
+------------------------------------
+slot _0
+------------------------------------
+slot _1
+{
+  index: 0
+    tag: 2
+    val: 4
+},
+{
+  index: 1
+    tag: 5
+    val: ./a
+},
+{
+  index: 2
+    tag: 5
+    val: ./b
+},
+{
+  index: 3
+    tag: 5
+    val: ./a
+},
+{
+  index: 4
+    tag: 5
+    val: ./c
+},
+{
+  index: 5
+    tag: 2
+    val: 5
+},
+{
+  index: 6
+    tag: 5
+    val: a
+},
+{
+  index: 7
+    tag: 5
+    val: a
+},
+{
+  index: 8
+    tag: 9
+    val: 0
+},
+{
+  index: 9
+    tag: 5
+    val: b
+},
+{
+  index: 10
+    tag: 5
+    val: b
+},
+{
+  index: 11
+    tag: 9
+    val: 1
+},
+{
+  index: 12
+    tag: 5
+    val: c
+},
+{
+  index: 13
+    tag: 5
+    val: default
+},
+{
+  index: 14
+    tag: 9
+    val: 2
+},
+{
+  index: 15
+    tag: 5
+    val: d
+},
+{
+  index: 16
+    tag: 5
+    val: default
+},
+{
+  index: 17
+    tag: 9
+    val: 3
+},
+{
+  index: 18
+    tag: 5
+    val: lazy
+},
+{
+  index: 19
+    tag: 5
+    val: default
+},
+{
+  index: 20
+    tag: 9
+    val: 1
+},
+{
+  index: 21
+    tag: 2
+    val: 0
+},
+{
+  index: 22
+    tag: 2
+    val: 0
+},
+{
+  index: 23
+    tag: 2
+    val: 0
+},
+{
+  index: 24
+    tag: 2
+    val: 0
+},
+------------------------------------
+slot _2
+{
+  index: 0
+    tag: 0
+    val: 1
+},
+{
+  index: 1
+    tag: 0
+    val: 0
+},
+{
+  index: 2
+    tag: 0
+    val: 0
+},
+{
+  index: 3
+    tag: 0
+    val: 1
+},
+------------------------------------
+slot _3
+{
+  index: 0
+    tag: 0
+    val: 5
+},
+{
+  index: 1
+    tag: 5
+    val: u
+},
+{
+  index: 2
+    tag: 0
+    val: 2
+},
+{
+  index: 3
+    tag: 2
+    val: 2
+},
+{
+  index: 4
+    tag: 0
+    val: 5
+},
+{
+  index: 5
+    tag: 5
+    val: v
+},
+{
+  index: 6
+    tag: 0
+    val: 2
+},
+{
+  index: 7
+    tag: 2
+    val: 1
+},
+{
+  index: 8
+    tag: 0
+    val: 5
+},
+{
+  index: 9
+    tag: 5
+    val: w
+},
+{
+  index: 10
+    tag: 0
+    val: 2
+},
+{
+  index: 11
+    tag: 2
+    val: 2
+},
+{
+  index: 12
+    tag: 0
+    val: 2
+},
+{
+  index: 13
+    tag: 2
+    val: 3
+},
+------------------------------------
+slot _4
+{
+  index: 0
+    tag: 0
+    val: 2
+},
+{
+  index: 1
+    tag: 2
+    val: 0
+},
+{
+  index: 2
+    tag: 0
+    val: 24
+},
+{
+  index: 3
+    tag: 24
+    val: _3
+},

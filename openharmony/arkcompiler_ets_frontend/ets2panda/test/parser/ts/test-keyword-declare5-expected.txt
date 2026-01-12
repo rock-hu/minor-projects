@@ -1,0 +1,119 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "TSDeclareFunction",
+      "function": {
+        "type": "ScriptFunction",
+        "id": {
+          "type": "Identifier",
+          "name": "a",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 17,
+              "column": 10,
+              "program": "test-keyword-declare5.ts"
+            },
+            "end": {
+              "line": 17,
+              "column": 11,
+              "program": "test-keyword-declare5.ts"
+            }
+          }
+        },
+        "generator": false,
+        "async": false,
+        "expression": false,
+        "params": [],
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 1,
+            "program": "test-keyword-declare5.ts"
+          },
+          "end": {
+            "line": 17,
+            "column": 14,
+            "program": "test-keyword-declare5.ts"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 17,
+          "column": 1,
+          "program": "test-keyword-declare5.ts"
+        },
+        "end": {
+          "line": 17,
+          "column": 14,
+          "program": "test-keyword-declare5.ts"
+        }
+      }
+    },
+    {
+      "type": "TSDeclareFunction",
+      "function": {
+        "type": "ScriptFunction",
+        "id": {
+          "type": "Identifier",
+          "name": "a",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 18,
+              "column": 18,
+              "program": "test-keyword-declare5.ts"
+            },
+            "end": {
+              "line": 18,
+              "column": 19,
+              "program": "test-keyword-declare5.ts"
+            }
+          }
+        },
+        "generator": false,
+        "async": false,
+        "expression": false,
+        "params": [],
+        "loc": {
+          "start": {
+            "line": 18,
+            "column": 9,
+            "program": "test-keyword-declare5.ts"
+          },
+          "end": {
+            "line": 18,
+            "column": 22,
+            "program": "test-keyword-declare5.ts"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 18,
+          "column": 9,
+          "program": "test-keyword-declare5.ts"
+        },
+        "end": {
+          "line": 18,
+          "column": 22,
+          "program": "test-keyword-declare5.ts"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "test-keyword-declare5.ts"
+    },
+    "end": {
+      "line": 18,
+      "column": 22,
+      "program": "test-keyword-declare5.ts"
+    }
+  }
+}

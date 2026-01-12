@@ -1,0 +1,19 @@
+{
+    "name": "IMPORTENTRY_RECORD",
+    "offsets": [
+        {
+            "name": "ImportName",
+            "offset": 0,
+            "size": 8
+        },
+        {
+            "name": "LocalName",
+            "offset": 8,
+            "size": 8
+        }
+    ],
+    "end_offset": 24,
+    "parents": [
+        "RECORD"
+    ]
+}

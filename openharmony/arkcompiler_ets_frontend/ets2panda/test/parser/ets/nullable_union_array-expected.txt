@@ -1,0 +1,664 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "nullable_union_array.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "nullable_union_array.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "nullable_union_array.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "nullable_union_array.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "nullable_union_array.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 14,
+                  "program": "nullable_union_array.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "nullable_union_array.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 14,
+                      "program": "nullable_union_array.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 18,
+                      "program": "nullable_union_array.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 22,
+                      "program": "nullable_union_array.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "values",
+                            "typeAnnotation": {
+                              "type": "ETSTypeReference",
+                              "part": {
+                                "type": "ETSTypeReferencePart",
+                                "name": {
+                                  "type": "Identifier",
+                                  "name": "Array",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 1,
+                                      "column": 1,
+                                      "program": "nullable_union_array.ets"
+                                    },
+                                    "end": {
+                                      "line": 1,
+                                      "column": 3,
+                                      "program": "nullable_union_array.ets"
+                                    }
+                                  }
+                                },
+                                "typeParams": {
+                                  "type": "TSTypeParameterInstantiation",
+                                  "params": [
+                                    {
+                                      "type": "ETSUnionType",
+                                      "types": [
+                                        {
+                                          "type": "ETSTypeReference",
+                                          "part": {
+                                            "type": "ETSTypeReferencePart",
+                                            "name": {
+                                              "type": "Identifier",
+                                              "name": "string",
+                                              "decorators": [],
+                                              "loc": {
+                                                "start": {
+                                                  "line": 1,
+                                                  "column": 3,
+                                                  "program": "nullable_union_array.ets"
+                                                },
+                                                "end": {
+                                                  "line": 1,
+                                                  "column": 3,
+                                                  "program": "nullable_union_array.ets"
+                                                }
+                                              }
+                                            },
+                                            "loc": {
+                                              "start": {
+                                                "line": 1,
+                                                "column": 3,
+                                                "program": "nullable_union_array.ets"
+                                              },
+                                              "end": {
+                                                "line": 1,
+                                                "column": 3,
+                                                "program": "nullable_union_array.ets"
+                                              }
+                                            }
+                                          },
+                                          "loc": {
+                                            "start": {
+                                              "line": 1,
+                                              "column": 3,
+                                              "program": "nullable_union_array.ets"
+                                            },
+                                            "end": {
+                                              "line": 1,
+                                              "column": 3,
+                                              "program": "nullable_union_array.ets"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "type": "ETSTypeReference",
+                                          "part": {
+                                            "type": "ETSTypeReferencePart",
+                                            "name": {
+                                              "type": "Identifier",
+                                              "name": "Int",
+                                              "decorators": [],
+                                              "loc": {
+                                                "start": {
+                                                  "line": 1,
+                                                  "column": 3,
+                                                  "program": "nullable_union_array.ets"
+                                                },
+                                                "end": {
+                                                  "line": 1,
+                                                  "column": 3,
+                                                  "program": "nullable_union_array.ets"
+                                                }
+                                              }
+                                            },
+                                            "loc": {
+                                              "start": {
+                                                "line": 1,
+                                                "column": 3,
+                                                "program": "nullable_union_array.ets"
+                                              },
+                                              "end": {
+                                                "line": 1,
+                                                "column": 3,
+                                                "program": "nullable_union_array.ets"
+                                              }
+                                            }
+                                          },
+                                          "loc": {
+                                            "start": {
+                                              "line": 1,
+                                              "column": 3,
+                                              "program": "nullable_union_array.ets"
+                                            },
+                                            "end": {
+                                              "line": 1,
+                                              "column": 3,
+                                              "program": "nullable_union_array.ets"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "type": "ETSNullType",
+                                          "loc": {
+                                            "start": {
+                                              "line": 1,
+                                              "column": 3,
+                                              "program": "nullable_union_array.ets"
+                                            },
+                                            "end": {
+                                              "line": 1,
+                                              "column": 3,
+                                              "program": "nullable_union_array.ets"
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "loc": {
+                                        "start": {
+                                          "line": 1,
+                                          "column": 3,
+                                          "program": "nullable_union_array.ets"
+                                        },
+                                        "end": {
+                                          "line": 1,
+                                          "column": 3,
+                                          "program": "nullable_union_array.ets"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "loc": {
+                                    "start": {
+                                      "line": 1,
+                                      "column": 3,
+                                      "program": "nullable_union_array.ets"
+                                    },
+                                    "end": {
+                                      "line": 1,
+                                      "column": 3,
+                                      "program": "nullable_union_array.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 1,
+                                    "program": "nullable_union_array.ets"
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 3,
+                                    "program": "nullable_union_array.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 17,
+                                  "column": 34,
+                                  "program": "nullable_union_array.ets"
+                                },
+                                "end": {
+                                  "line": 17,
+                                  "column": 36,
+                                  "program": "nullable_union_array.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 17,
+                                "column": 9,
+                                "program": "nullable_union_array.ets"
+                              },
+                              "end": {
+                                "line": 17,
+                                "column": 15,
+                                "program": "nullable_union_array.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "ArrayExpression",
+                            "elements": [
+                              {
+                                "type": "StringLiteral",
+                                "value": "Test",
+                                "loc": {
+                                  "start": {
+                                    "line": 17,
+                                    "column": 40,
+                                    "program": "nullable_union_array.ets"
+                                  },
+                                  "end": {
+                                    "line": 17,
+                                    "column": 46,
+                                    "program": "nullable_union_array.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "NumberLiteral",
+                                "value": 2,
+                                "loc": {
+                                  "start": {
+                                    "line": 17,
+                                    "column": 48,
+                                    "program": "nullable_union_array.ets"
+                                  },
+                                  "end": {
+                                    "line": 17,
+                                    "column": 49,
+                                    "program": "nullable_union_array.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "NumberLiteral",
+                                "value": 3,
+                                "loc": {
+                                  "start": {
+                                    "line": 17,
+                                    "column": 51,
+                                    "program": "nullable_union_array.ets"
+                                  },
+                                  "end": {
+                                    "line": 17,
+                                    "column": 52,
+                                    "program": "nullable_union_array.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "NullLiteral",
+                                "value": null,
+                                "loc": {
+                                  "start": {
+                                    "line": 17,
+                                    "column": 54,
+                                    "program": "nullable_union_array.ets"
+                                  },
+                                  "end": {
+                                    "line": 17,
+                                    "column": 58,
+                                    "program": "nullable_union_array.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "NumberLiteral",
+                                "value": 5,
+                                "loc": {
+                                  "start": {
+                                    "line": 17,
+                                    "column": 60,
+                                    "program": "nullable_union_array.ets"
+                                  },
+                                  "end": {
+                                    "line": 17,
+                                    "column": 61,
+                                    "program": "nullable_union_array.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "NumberLiteral",
+                                "value": 10,
+                                "loc": {
+                                  "start": {
+                                    "line": 17,
+                                    "column": 63,
+                                    "program": "nullable_union_array.ets"
+                                  },
+                                  "end": {
+                                    "line": 17,
+                                    "column": 65,
+                                    "program": "nullable_union_array.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "NullLiteral",
+                                "value": null,
+                                "loc": {
+                                  "start": {
+                                    "line": 17,
+                                    "column": 67,
+                                    "program": "nullable_union_array.ets"
+                                  },
+                                  "end": {
+                                    "line": 17,
+                                    "column": 71,
+                                    "program": "nullable_union_array.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "loc": {
+                              "start": {
+                                "line": 17,
+                                "column": 39,
+                                "program": "nullable_union_array.ets"
+                              },
+                              "end": {
+                                "line": 17,
+                                "column": 72,
+                                "program": "nullable_union_array.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 17,
+                              "column": 9,
+                              "program": "nullable_union_array.ets"
+                            },
+                            "end": {
+                              "line": 17,
+                              "column": 72,
+                              "program": "nullable_union_array.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 17,
+                          "column": 5,
+                          "program": "nullable_union_array.ets"
+                        },
+                        "end": {
+                          "line": 17,
+                          "column": 73,
+                          "program": "nullable_union_array.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 23,
+                      "program": "nullable_union_array.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 2,
+                      "program": "nullable_union_array.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 10,
+                    "program": "nullable_union_array.ets"
+                  },
+                  "end": {
+                    "line": 18,
+                    "column": 2,
+                    "program": "nullable_union_array.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "nullable_union_array.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 2,
+                  "program": "nullable_union_array.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 1,
+                "program": "nullable_union_array.ets"
+              },
+              "end": {
+                "line": 18,
+                "column": 2,
+                "program": "nullable_union_array.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "nullable_union_array.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "nullable_union_array.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "nullable_union_array.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "nullable_union_array.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "nullable_union_array.ets"
+    },
+    "end": {
+      "line": 19,
+      "column": 1,
+      "program": "nullable_union_array.ets"
+    }
+  }
+}

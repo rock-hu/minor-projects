@@ -1,0 +1,198 @@
+slotNum = 0x0
+.language ECMAScript
+.function any .#*#(any a0, any a1, any a2) {
+label_1: 
+label_0: 
+	returnundefined
+label_2: 
+}
+
+slotNum = 0x0
+.language ECMAScript
+.function any .#*#^1(any a0, any a1, any a2) {
+label_1: 
+label_0: 
+	returnundefined
+label_2: 
+}
+
+slotNum = 0x0
+.language ECMAScript
+.function any .#*#asyncFoo(any a0, any a1, any a2) {
+	nop
+label_5: 
+label_0: 
+	asyncfunctionenter
+	sta v0
+label_1: 
+label_3: 
+	ldundefined
+	asyncfunctionresolve v0
+	return
+label_2: 
+end_label_2: 
+label_7: 
+	sta v1
+label_4: 
+	lda v1
+	asyncfunctionreject v0
+	return
+label_6: 
+}
+
+.catchall label_1, end_label_2, label_7
+
+slotNum = 0x1
+.language ECMAScript
+.function any .#*#bar(any a0, any a1, any a2) {
+label_1: 
+label_0: 
+	definefunc 0x0, .#*@0*#bar, 0x0
+	returnundefined
+label_2: 
+}
+
+slotNum = 0x0
+.language ECMAScript
+.function any .#*#f(any a0, any a1, any a2) {
+label_1: 
+label_0: 
+	returnundefined
+label_2: 
+}
+
+slotNum = 0x0
+.language ECMAScript
+.function any .#*#f^1(any a0, any a1, any a2) {
+label_1: 
+label_0: 
+	returnundefined
+label_2: 
+}
+
+slotNum = 0x0
+.language ECMAScript
+.function any .#*#foo(any a0, any a1, any a2) {
+label_1: 
+label_0: 
+	returnundefined
+label_2: 
+}
+
+slotNum = 0x2
+.language ECMAScript
+.function any .#*#genFoo(any a0, any a1, any a2) {
+	nop
+label_8: 
+label_5: 
+label_0: 
+	creategeneratorobj a0
+	sta v1
+	ldundefined
+	suspendgenerator v1
+	lda v1
+	resumegenerator
+	sta v2
+	lda v1
+	getresumemode
+	sta v1
+	ldai 0x0
+	eq 0x0, v1
+	jeqz label_1
+label_2: 
+	lda v2
+	return
+label_1: 
+	ldai 0x1
+	eq 0x1, v1
+	jeqz label_3
+label_4: 
+	lda v2
+	throw
+label_3: 
+	ldundefined
+	return
+label_6: 
+end_label_6: 
+label_10: 
+	sta v0
+label_7: 
+	lda v0
+	throw
+label_9: 
+}
+
+.catchall label_5, end_label_6, label_10
+
+slotNum = 0x0
+.language ECMAScript
+.function any .#*@0*#bar(any a0, any a1, any a2) {
+label_1: 
+label_0: 
+	returnundefined
+label_2: 
+}
+
+slotNum = 0x8
+.language ECMAScript
+.function any .func_main_0(any a0, any a1, any a2) {
+label_1: 
+label_0: 
+	definefunc 0x0, .#*#asyncFoo, 0x0
+	definefunc 0x1, .#*#bar, 0x0
+	definefunc 0x2, .#*#foo, 0x0
+	definefunc 0x3, .#*#genFoo, 0x0
+	definefunc 0x4, .#*#, 0x0
+	definefunc 0x5, .#*#^1, 0x0
+	definefunc 0x6, .#*#f, 0x0
+	definefunc 0x7, .#*#f^1, 0x0
+	returnundefined
+label_2: 
+}
+
+
+======> literal array buffer <======
+------------------------------------
+slot _0
+{
+  index: 0
+    tag: 0
+    val: 5
+},
+{
+  index: 1
+    tag: 5
+    val: bar
+},
+------------------------------------
+slot _1
+{
+  index: 0
+    tag: 2
+    val: 0
+},
+{
+  index: 1
+    tag: 2
+    val: 0
+},
+{
+  index: 2
+    tag: 2
+    val: 0
+},
+{
+  index: 3
+    tag: 2
+    val: 0
+},
+{
+  index: 4
+    tag: 2
+    val: 0
+},
+{
+  index: 5
+    tag: 2
+    val: 0
+},
