@@ -1,0 +1,116 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "Weather"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "Multiple weather conditions"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "Weather"
+    },
+    {
+      "name": "midnight",
+      "value": "Midnight"
+    },
+    {
+      "name": "early_morning",
+      "value": "Early Morning"
+    },
+    {
+      "name": "morning",
+      "value": "Morning"
+    },
+    {
+      "name": "yesterday",
+      "value": "Yesterday"
+    },
+    {
+      "name": "today",
+      "value": "Today"
+    },
+    {
+      "name": "air",
+      "value": "Air"
+    },
+    {
+      "name": "air_quality",
+      "value": "Air Quality"
+    },
+    {
+      "name": "weather",
+      "value": "Weather"
+    },
+    {
+      "name": "china_weather",
+      "value": "China Weather"
+    },
+    {
+      "name": "weather_version",
+      "value": "Weather version：11.1.0"
+    },
+    {
+      "name": "weather_statement",
+      "value": "Statement on Weather and Privacy"
+    },
+    {
+      "name": "weather_copyright",
+      "value": "Copyright © 2020 OpenHarmony Technology Co., Ltd."
+    },
+    {
+      "name": "du",
+      "value": "℃"
+    },
+    {
+      "name": "manage_city",
+      "value": "Manage City"
+    },
+    {
+      "name": "add_city",
+      "value": "Add City"
+    },
+    {
+      "name": "search_placeholder",
+      "value": "Search for city (Chinese/Pinyin)"
+    },
+    {
+      "name": "update_interval",
+      "value": "Update Interval"
+    },
+    {
+      "name": "cancel",
+      "value": "Cancel"
+    },
+    {
+      "name": "hot_city",
+      "value": "Hot City"
+    },
+    {
+      "name": "sunrise_begin",
+      "value": "Sunrise 6:00 AM"
+    },
+    {
+      "name": "sunset_final",
+      "value": "Sunset 5:32 PM"
+    },
+    {
+      "name": "moonrise_begin",
+      "value": "Moonrise 5:12 PM"
+    },
+    {
+      "name": "moonset_final",
+      "value": "Moonset 6:20 AM"
+    },
+    {
+      "name": "first_quarter",
+      "value": "First Quarter"
+    },
+    {
+      "name": "empty",
+      "value": " "
+    }
+  ]
+}
