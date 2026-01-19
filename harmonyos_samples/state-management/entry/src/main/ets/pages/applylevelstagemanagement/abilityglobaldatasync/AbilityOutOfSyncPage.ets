@@ -18,7 +18,7 @@ import { ViewCodeText } from '../../../commoncomponents/ViewCodeText';
 import { TitleBarDark } from '../../../commoncomponents/TitleBarDark';
 import { TitleBar } from '../../../commoncomponents/TitleBar';
 
-const uiContext: UIContext | undefined = AppStorage.get('uiContext');
+const uiContext: UIContext | undefined = AppStorage.get('OutOfSyncUiContext');
 let storage: LocalStorage = uiContext?.getSharedLocalStorage()!;
 
 @Entry(storage)

@@ -1,9 +1,8 @@
 #include "napi/native_api.h"
 
-  // [Start can_not_get_prototype_on_non_ecma_object_napi_case]
-napi_value objvalues;
-static napi_value Add(napi_env env, napi_callback_info info)
-{
+// [Start can_not_get_prototype_on_non_ecma_object_napi_case]
+napi_value objValues;
+static napi_value Add(napi_env env, napi_callback_info info) {
     size_t argc = 2;
     napi_value args[2] = {nullptr};
 
@@ -23,7 +22,7 @@ static napi_value Add(napi_env env, napi_callback_info info)
 
     napi_value sum;
     napi_create_double(env, value0 + value1, &sum);
-    
+
     napi_status status;
     napi_handle_scope scope;
     status = napi_open_handle_scope(env, &scope);
@@ -36,24 +35,19 @@ static napi_value Add(napi_env env, napi_callback_info info)
         napi_set_element(env, jsArray, i, element);
     }
     status = napi_close_handle_scope(env, scope); // 作用域关闭，jsArray 被清理
-    objvalues = jsArray; // 问题所在！
-    
+    objValues = jsArray;                          // 问题所在！
+
     return sum;
-
 }
 
-static napi_value GetValue(napi_env env, napi_callback_info info)
-{
-    return objvalues;
-}
-  // [End can_not_get_prototype_on_non_ecma_object_napi_case]
+static napi_value GetValue(napi_env env, napi_callback_info info) { return objValues; }
+// [End can_not_get_prototype_on_non_ecma_object_napi_case]
 
-  // [Start out_of_memory_error_napi_case]
-static napi_value TestLeak(napi_env env, napi_callback_info info)
-{
+// [Start TestLeak]
+static napi_value TestLeak(napi_env env, napi_callback_info info) {
     size_t argc = 1;
     napi_value args[1] = {nullptr};
-    napi_get_cb_info(env, info, &argc, args , nullptr, nullptr);
+    napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
     napi_value proxy = args[0];
     napi_ref task_ref;
     napi_create_reference(env, proxy, 1, &task_ref);
@@ -61,14 +55,14 @@ static napi_value TestLeak(napi_env env, napi_callback_info info)
     // napi_delete_reference(env, task_ref->ref);
     return nullptr;
 }
-  // [End out_of_memory_error_napi_case]
+// [End TestLeak]
 
 EXTERN_C_START
-static napi_value Init(napi_env env, napi_value exports)
-{
+static napi_value Init(napi_env env, napi_value exports) {
     napi_property_descriptor desc[] = {
-        { "add", nullptr, Add, nullptr, nullptr, nullptr, napi_default, nullptr },
-        { "TestLeak", nullptr, TestLeak, nullptr, nullptr, nullptr, napi_default, nullptr }
+        {"add", nullptr, Add, nullptr, nullptr, nullptr, napi_default, nullptr},
+        {"TestLeak", nullptr, TestLeak, nullptr, nullptr, nullptr, napi_default, nullptr},
+        {"getValue", nullptr, GetValue, nullptr, nullptr, nullptr, napi_default, nullptr},
     };
     napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc);
     return exports;
@@ -81,11 +75,8 @@ static napi_module demoModule = {
     .nm_filename = nullptr,
     .nm_register_func = Init,
     .nm_modname = "entry",
-    .nm_priv = ((void*)0),
-    .reserved = { 0 },
+    .nm_priv = ((void *)0),
+    .reserved = {0},
 };
 
-extern "C" __attribute__((constructor)) void RegisterEntryModule(void)
-{
-    napi_module_register(&demoModule);
-}
+extern "C" __attribute__((constructor)) void RegisterEntryModule(void) { napi_module_register(&demoModule); }

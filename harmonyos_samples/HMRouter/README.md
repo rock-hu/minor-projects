@@ -9,7 +9,7 @@
 
 ## 效果预览
 
-![img.png](screenshots/img.png)
+ <img src="./screenshots/image.png" width="320">
 
 ## 工程目录
 ```

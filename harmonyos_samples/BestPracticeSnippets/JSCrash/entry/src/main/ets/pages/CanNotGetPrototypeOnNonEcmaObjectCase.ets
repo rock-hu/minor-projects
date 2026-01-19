@@ -7,7 +7,7 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 import testNapi from 'libentry.so';
 
 declare class ArkTools {
-    static hintGC(): void;
+  static hintGC(): void;
 }
 
 @Entry
@@ -23,11 +23,10 @@ struct Index {
           .fontWeight(FontWeight.Bold)
           .onClick(() => {
             hilog.info(0x0000, 'testTag', 'Test NAPI 2 + 3 = %{public}d', testNapi.add(2, 3));
-            ArkTools.hintGC();  // 触发GC
+            ArkTools.hintGC(); // 触发GC
             // setTimeout(()=> {  // 异步方法
-            testNapi.getvalue().length; 
+            testNapi.getValue().length;
             // }, 1000);
-
           })
       }
       .width('100%')
@@ -35,4 +34,5 @@ struct Index {
     .height('100%')
   }
 }
+
 // [End can_not_get_prototype_on_non_ecma_object_case]

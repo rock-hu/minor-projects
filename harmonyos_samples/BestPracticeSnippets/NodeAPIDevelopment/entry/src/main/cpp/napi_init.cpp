@@ -87,8 +87,8 @@ static void OpenHandleScope(napi_env env, napi_callback_info info) {
     // In the following example, at the end of each loop, the lifecycle of the local variable res has ended. Therefore, adding scope to release its held JS objects in a timely manner to prevent memory leakage
     for (int i = 0; i < 100000; i++) {
         napi_handle_scope scope = nullptr;
-        napi_open_handle_scope(env, &scope);
-        if (scope == nullptr) {
+        napi_status status = napi_open_handle_scope(env, &scope);
+        if (status != napi_ok) {
             return;
         }
         napi_value res;
@@ -144,8 +144,8 @@ void callbackTest(CallbackContext* context)
         [](uv_work_t* work, int status) {
             CallbackContext* context = (CallbackContext*)work->data;
             napi_handle_scope scope = nullptr;
-            napi_open_handle_scope(context->env, &scope);
-            if (scope == nullptr) {
+            napi_status scope_status = napi_open_handle_scope(context->env, &scope);
+            if (scope_status != napi_ok) {
                 if (work != nullptr) {
                     delete work;
                 }

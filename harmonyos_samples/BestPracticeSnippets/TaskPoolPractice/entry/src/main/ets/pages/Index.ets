@@ -114,6 +114,21 @@ struct Index {
                 hilog.error(0x000, 'testTag', `pushUrl failed, code=${err.code}, message=${err.message}`);
               })
           })
+        
+        Button('Sample7')
+          .height(40)
+          .width('100%')
+          .onClick(() => {
+            this.getUIContext()
+              .getRouter()
+              .pushUrl({ url: "pages/sample7/Sample7" })
+              .then(() => {
+                hilog.info(0x000, 'testTag', 'pushUrl success');
+              })
+              .catch((err: BusinessError) => {
+                hilog.error(0x000, 'testTag', `pushUrl failed, code=${err.code}, message=${err.message}`);
+              })
+          })
       }
       .height('100%')
       .width('100%')

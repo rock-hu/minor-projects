@@ -2,20 +2,22 @@
  * 最佳实践：JSCrash问题案例分析
  */
 
-// [Start taskpool_failed_to_serialize_result_case]
+// [Start JSCrashCaseAnalyse8]
 import taskpool from '@ohos.taskpool'
-import {printArgs} from './utils'
-import {BusinessError} from '@ohos.base'
+import { printArgs } from './utils'
+import { BusinessError } from '@ohos.base'
+
 @Concurrent
-function createTask(a:number, b:number) {
+function createTask(a: number, b: number) {
   let sum = a + b;
-  let task:taskpool.Task = new taskpool.Task(printArgs, sum);
+  let task: taskpool.Task = new taskpool.Task(printArgs, sum);
   return task; //返回值task任务是无法被序列化，导致问题产生
 }
+
 function resultError() {
   let task: taskpool.Task = new taskpool.Task(createTask, 1, 2);
-  taskpool.execute(task).then((res)=>{
-  }).catch((e:BusinessError)=>{
+  taskpool.execute(task).then((res) => {
+  }).catch((e: BusinessError) => {
     console.error("resultError task catch message:" + e.message)
   })
 }
@@ -38,7 +40,7 @@ struct Index {
         .onClick(() => {
           this.message = 'Welcome';
         })
-        Button("resultError")
+      Button("resultError")
         .onClick(() => {
           resultError()
         })
@@ -47,4 +49,5 @@ struct Index {
     .width('100%')
   }
 }
-// [End taskpool_failed_to_serialize_result_case]
+
+// [End JSCrashCaseAnalyse8]

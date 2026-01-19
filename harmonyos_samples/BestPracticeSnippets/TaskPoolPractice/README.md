@@ -25,6 +25,7 @@
 │      ├──sample4                           // 示例4
 │      ├──sample5                           // 示例5
 │      ├──sample6                           // 示例6
+│      ├──sample7                           // 示例7
 │      ├──Index.ets                         // 首页
 │      └──test.ets                          // 常见问题示例代码
 └──entry/src/main/resources                 // 应用静态资源目录
@@ -36,7 +37,7 @@
 
 ### 相关权限
 
-不涉及。
+1. Internet网络权限：ohos.permission.INTERNET
 
 ### 依赖
 

@@ -2,21 +2,23 @@
  * 最佳实践：JSCrash问题案例分析
  */
 
-// [Start taskpool_failed_to_serialize_result_fix]
+// [Start JSCrashCaseAnalyse9]
 import taskpool from '@ohos.taskpool'
-import {printArgs} from './utils'
-import {BusinessError} from '@ohos.base'
+import { printArgs } from './utils'
+import { BusinessError } from '@ohos.base'
+
 @Concurrent
-function createTask(a:number, b:number) {
+function createTask(a: number, b: number) {
   let sum = a + b;
   return sum;
 }
+
 function resultError() {
   let task: taskpool.Task = new taskpool.Task(createTask, 1, 2);
-  taskpool.execute(task).then((res)=>{
-    let task2:taskpool.Task = new taskpool.Task(printArgs, res);
+  taskpool.execute(task).then((res) => {
+    let task2: taskpool.Task = new taskpool.Task(printArgs, res);
     console.info("resultError task success")
-  }).catch((e:BusinessError)=>{
+  }).catch((e: BusinessError) => {
     console.error("resultError task catch message:" + e.message)
   })
 }
@@ -39,7 +41,7 @@ struct Index {
         .onClick(() => {
           this.message = 'Welcome';
         })
-        Button("resultError")
+      Button("resultError")
         .onClick(() => {
           resultError()
         })
@@ -48,4 +50,5 @@ struct Index {
     .width('100%')
   }
 }
-// [End taskpool_failed_to_serialize_result_fix]
+
+// [End JSCrashCaseAnalyse9]

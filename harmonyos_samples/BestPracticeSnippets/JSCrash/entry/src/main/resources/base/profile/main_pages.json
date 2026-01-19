@@ -1,5 +1,16 @@
 {
   "src": [
-    "pages/Index"
+    "pages/Index",
+    "pages/CanNotGetPrototypeOnNonEcmaObjectCase",
+    "pages/CannotReadPropertyXXXOfUndefinedCase",
+    "pages/CannotReadPropertyXXXOfUndefinedFix",
+    "pages/OutOfMemoryErrorCase",
+    "pages/TaskpoolFailedToSerializeResultCase",
+    "pages/TaskpoolFailedToSerializeResultFix",
+    "pages/ThrowNewError",
+    "pages/OperationFailedCase",
+    "pages/OperationFailedFix",
+    "pages/XXXIsNotInitializedFix",
+    "pages/XXXIsNotInitializedCase"
   ]
 }

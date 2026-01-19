@@ -2,7 +2,7 @@
  * 最佳实践：JSCrash问题案例分析
  */
 
-// [Start out_of_memory_error_case]
+// [Start JSCrashCaseAnalyse14]
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import testNapi from 'libentry.so';
 
@@ -23,7 +23,7 @@ struct Index {
             this.message = 'Welcome';
             hilog.info(DOMAIN, 'testTag', 'Test NAPI 2 + 3 = %{public}d', testNapi.add(2, 3));
             let obj = new Object();
-            let proxy11  = new Proxy(testYY, obj);
+            let proxy11 = new Proxy(testYY, obj);
             testNapi.TestLeak(proxy11);
           })
       }
@@ -36,4 +36,5 @@ struct Index {
 function testYY() {
   console.log("test leak");
 }
-// [End out_of_memory_error_case]
+
+// [End JSCrashCaseAnalyse14]

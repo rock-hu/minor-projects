@@ -29,7 +29,7 @@ This sample shows how to query network details, resolve domain names, and listen
 ```
 
 ### How to Implement
-Use the APIs of @ohos.net.connection to obtain network information, resolve domain names, and listening for network status. Source code: **Index.ets**
+Use the APIs of @ohos.net.connection to obtain network information, resolve domain names, and listening for network status.
 
 
 ### Required Permissions

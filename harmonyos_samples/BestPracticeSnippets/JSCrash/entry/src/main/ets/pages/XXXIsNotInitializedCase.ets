@@ -2,8 +2,16 @@
  * 最佳实践：JSCrash问题案例分析
  */
 
-import { hidebug } from '@kit.PerformanceAnalysisKit';
+// [Start JSCrashCaseAnalyse10]
+import { Animal } from './XXXIsNotInitializedCase1'
 
+export let a = "this is A";
+
+export function A() {
+  return new Animal;
+}
+
+// [End JSCrashCaseAnalyse10]
 @Entry
 @Component
 struct Index {
@@ -13,20 +21,15 @@ struct Index {
     RelativeContainer() {
       Text(this.message)
         .id('HelloWorld')
-        .fontSize(50)
+        .fontSize($r('app.float.page_text_font_size'))
         .fontWeight(FontWeight.Bold)
         .alignRules({
           center: { anchor: '__container__', align: VerticalAlign.Center },
           middle: { anchor: '__container__', align: HorizontalAlign.Center }
         })
-        .onClick(()=>{
-          hidebug.getPss();
-          // [Start throw_new_error_case]
-          // In a production environment, encrypted error codes should be used instead of plain text descriptions.
-          throw new Error("TEST JS ERROR")
-          // [End throw_new_error_case]
+        .onClick(() => {
+          this.message = 'Welcome';
         })
-
     }
     .height('100%')
     .width('100%')

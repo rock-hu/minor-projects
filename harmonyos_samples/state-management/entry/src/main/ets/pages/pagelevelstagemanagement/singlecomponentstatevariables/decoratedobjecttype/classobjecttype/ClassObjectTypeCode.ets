@@ -46,23 +46,22 @@ export struct ClassObjectTypeCode {
         }
         .width('100%')
 
-        Column() {
+        Row() {
+          Text(this.classObjectData.attributeTitle)
+            .fontSize(20)
           Row() {
-            Text(this.classObjectData.attributeTitle)
-              .fontSize(20)
+            Divider()
+              .layoutWeight(1)
+              .strokeWidth(1)
+              .margin({ top: 20 })
             Text(`${this.classObjectData.attribute}`)
               .fontSize(20)
               .textAlign(TextAlign.End)
+              .margin({ left: 5 })
           }
-          .width('100%')
-          .justifyContent(FlexAlign.SpaceBetween)
-
-          Divider()
-            .width('100%')
-            .strokeWidth(1)
+          .layoutWeight(1)
         }
         .width('100%')
-        .padding({ left: 50 })
 
         ChildObjectComp({ childObject: this.classObjectData.child }) // The properties of the object, displayed using subcomponents.
       }
@@ -126,23 +125,22 @@ struct ChildObjectComp {
   @ObjectLink childObject: ChildClass;
 
   build() {
-    Column() {
+    Row() {
+      Text(this.childObject.title)
+        .fontSize(20)
       Row() {
-        Text(this.childObject.title)
-          .fontSize(20)
+        Divider()
+          .layoutWeight(1)
+          .strokeWidth(1)
+          .margin({ top: 20 })
         Text(`${this.childObject.attribute}`)
           .fontSize(20)
           .textAlign(TextAlign.End)
+          .margin({ left: 5 })
       }
-      .width('100%')
-      .justifyContent(FlexAlign.SpaceBetween)
-
-      Divider()
-        .width('100%')
-        .strokeWidth(1)
+      .layoutWeight(1)
     }
     .width('100%')
-    .padding({ left: 100 })
   }
 }
 

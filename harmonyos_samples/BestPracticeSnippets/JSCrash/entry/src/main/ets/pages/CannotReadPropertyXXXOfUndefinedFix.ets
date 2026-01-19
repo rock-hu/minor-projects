@@ -23,19 +23,20 @@ struct Index {
   @State recentScale: number = 0;
   @State multiCardsNum: number = 0;
 
-  // [Start cannot_read_property_xxx_of_undefined_fix]
+  // [Start updateGestureValue2]
   // Update the attributes related to manual effects
   public updateGestureValue(screenWidth: number, recentScale: number,
     sceneContainerSessionList: SCBSceneContainerSession[]): void {
     // Calculation of the distance moved by the hand
     this.translationUpY = (this.multiCardsNum >= 1) ?
-    sceneContainerSessionList[this.multiCardsNum - 1]?.needRenderTranslate.translateY : 0;
+      sceneContainerSessionList[this.multiCardsNum - 1]?.needRenderTranslate.translateY : 0;
     this.translationDownY = (this.multiCardsNum >= 2) ?
-    sceneContainerSessionList[this.multiCardsNum - 2]?.needRenderTranslate.translateY : 0;
+      sceneContainerSessionList[this.multiCardsNum - 2]?.needRenderTranslate.translateY : 0;
     this.screenWidth = this.getUIContext().px2vp(screenWidth);
     this.recentScale = recentScale;
   }
-  // [End cannot_read_property_xxx_of_undefined_fix]
+
+  // [End updateGestureValue2]
 
   build() {
     RelativeContainer() {
@@ -47,9 +48,7 @@ struct Index {
           center: { anchor: '__container__', align: VerticalAlign.Center },
           middle: { anchor: '__container__', align: HorizontalAlign.Center }
         })
-        .onClick(()=>{
-          hidebug.getPss();
-          throw new Error("TEST JS ERROR")
+        .onClick(() => {
         })
 
     }

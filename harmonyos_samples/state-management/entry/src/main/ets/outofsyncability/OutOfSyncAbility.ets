@@ -16,6 +16,7 @@
 import { UIAbility , Want ,AbilityConstant } from '@kit.AbilityKit';
 import { window  } from '@kit.ArkUI';
 import Logger from '../utils/Logger';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 const TAG = 'OutOfSyncAbility';
 
@@ -37,6 +38,15 @@ export default class OutOfSyncAbility extends UIAbility {
         Logger.error(TAG, `Failed to load the content. Cause: %{public}s${JSON.stringify(err)}`);
         return;
       }
+      windowStage.getMainWindow().then((windowObj) => {
+        try {
+          AppStorage.setOrCreate('OutOfSyncUiContext', windowObj.getUIContext());
+        } catch (err) {
+          Logger.error(TAG, `getUIContext failed. code=${err.code}, message=${err.message}`);
+        }
+      }).catch((err: BusinessError) => {
+        Logger.error(TAG, `getMainWindow failed. code=${err.code}, message=${err.message}`);
+      });
       Logger.info(TAG, `Succeeded in loading the content. Data: %{public}s${JSON.stringify(data)}}`);
     });
   }

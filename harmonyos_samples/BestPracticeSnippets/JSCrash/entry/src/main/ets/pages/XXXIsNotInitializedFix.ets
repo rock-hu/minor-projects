@@ -1,30 +1,38 @@
 /**
- * 最佳实践：JS Crash问题排查方法
+ * 最佳实践：JSCrash问题案例分析
  */
 
-// [Start JSCrashQuestionCheck]
-import { hidebug } from '@kit.PerformanceAnalysisKit';
+// [Start JSCrashCaseAnalyse12]
+import { Animal } from './XXXIsNotInitializedFix1'
+
+export let a = "this is A";
+
+export function A() {
+  return new Animal;
+}
+
+// [End JSCrashCaseAnalyse12]
 
 @Entry
 @Component
 struct Index {
   @State message: string = 'Hello World';
+
   build() {
     RelativeContainer() {
       Text(this.message)
         .id('HelloWorld')
-        .fontSize(50)
+        .fontSize($r('app.float.page_text_font_size'))
         .fontWeight(FontWeight.Bold)
         .alignRules({
           center: { anchor: '__container__', align: VerticalAlign.Center },
           middle: { anchor: '__container__', align: HorizontalAlign.Center }
         })
         .onClick(() => {
-          hidebug.getPss();
+          this.message = 'Welcome';
         })
     }
     .height('100%')
     .width('100%')
   }
 }
-// [End JSCrashQuestionCheck]
