@@ -18,11 +18,11 @@
     },
     {
       "name": "my_funding",
-      "value": "我的基金 （元）"
+      "value": "My fund (RMB)"
     },
     {
       "name": "my_concern",
-      "value": "我的关注"
+      "value": "My concern"
     },
     {
       "name": "my_amount",
@@ -30,39 +30,39 @@
     },
     {
       "name": "funding_news",
-      "value": "快来看看大家最近都在购买的基金"
+      "value": "Let's take a look at the funds everyone's buying."
     },
     {
       "name": "funding_ranking",
-      "value": "排行榜"
+      "value": "rankings"
     },
     {
       "name": "funding_index_zone",
-      "value": "指数专区"
+      "value": "index zone"
     },
     {
       "name": "fixed_investment",
-      "value": "定投专区"
+      "value": "fixed_investment"
     },
     {
       "name": "investment_star_selection",
-      "value": "投资星选"
+      "value": "Investment Star Selection"
     },
     {
       "name": "funding_good_chance",
-      "value": "好机会"
+      "value": "good chance"
     },
     {
       "name": "funding_folder_add",
-      "value": "自建组合"
+      "value": "Self-built combination"
     },
     {
       "name": "steady_growth",
-      "value": "稳健增长"
+      "value": "steady growth"
     },
     {
       "name": "funding_short_term_B",
-      "value": "XXX短债基金B"
+      "value": "XXXshort-term debt fund B"
     },
     {
       "name": "funding_amplitude",
@@ -70,23 +70,23 @@
     },
     {
       "name": "funding_industrial",
-      "value": "XXX产业基金C"
+      "value": "XXXindustrial fund"
     },
     {
       "name": "funding_mixed_currency",
-      "value": "XXX混合货币"
+      "value": "XXX Mixed Currency"
     },
     {
       "name": "funding_bonds",
-      "value": "XXX债券A"
+      "value": "XXXBonds"
     },
     {
       "name": "one_year_amplitude",
-      "value": "近一年涨跌幅"
+      "value": "Ups and downs in the past year"
     },
     {
       "name": "funding_title",
-      "value": "基金详情"
+      "value": "Fund Details"
     },
     {
       "name": "funding_code",
@@ -94,15 +94,15 @@
     },
     {
       "name": "currency_type",
-      "value": "货币型"
+      "value": "Currency type"
     },
     {
       "name": "medium_risk",
-      "value": "R3-中风险"
+      "value": "R3-Medium risk"
     },
     {
       "name": "purchase_rmb",
-      "value": "1.00元起购"
+      "value": "Purchase from ￥1.00"
     },
     {
       "name": "one_day_amplitude_data",
@@ -110,7 +110,7 @@
     },
     {
       "name": "one_day_amplitude",
-      "value": "日涨跌幅"
+      "value": "Daily rise and fall"
     },
     {
       "name": "last_net_value_data",
@@ -118,7 +118,7 @@
     },
     {
       "name": "last_net_value",
-      "value": "最新净值"
+      "value": "Last net value"
     },
     {
       "name": "last_net_not_show",
@@ -126,51 +126,51 @@
     },
     {
       "name": "three_year_rating",
-      "value": "三年评级"
+      "value": "Three-year rating"
     },
     {
       "name": "the_fund",
-      "value": "本基金"
+      "value": "The fund"
     },
     {
       "name": "same_average",
-      "value": "同类平均"
+      "value": "Average"
     },
     {
       "name": "other_funding",
-      "value": "沪深300"
+      "value": "Shanghai and Shenzhen"
     },
     {
       "name": "funding_contrasts",
-      "value": "对比"
+      "value": "contrasts"
     },
     {
       "name": "funding_concerned",
-      "value": "关注"
+      "value": "concerned"
     },
     {
       "name": "fixed_investment_button",
-      "value": "定投"
+      "value": "fixed investment"
     },
     {
       "name": "buying_button",
-      "value": "购买"
+      "value": "buying"
     },
     {
       "name": "performance_trends",
-      "value": "业绩走势"
+      "value": "Performance Trends"
     },
     {
       "name": "unit_net_value",
-      "value": "单位净值"
+      "value": "Unit Net Value"
     },
     {
       "name": "near_month",
-      "value": "near %d month"
+      "value": "%d month"
     },
     {
       "name": "near_year",
-      "value": "near %d year"
+      "value": "%d year"
     },
     {
       "name": "search_placeholder",
@@ -179,6 +179,10 @@
     {
       "name": "pursue_profit",
       "value": "pursue profit"
+    },
+    {
+      "name": "index_funds",
+      "value": "index funds"
     },
     {
       "name": "common_stock",
@@ -191,10 +195,6 @@
     {
       "name": "flexible_configuration",
       "value": "flexible configuration"
-    },
-    {
-      "name": "index_funds",
-      "value": "index funds"
     },
     {
       "name": "tab_bar_home",

@@ -18,11 +18,11 @@
     },
     {
       "name": "select_fund",
-      "value": "Please select the fund from above"
+      "value": "Select funds"
     },
     {
       "name": "start_comparison",
-      "value": "Start the comparison"
+      "value": "Compare"
     },
     {
       "name": "no_currency",
@@ -38,7 +38,7 @@
     },
     {
       "name": "max_count_choose",
-      "value": "A maximum of 10 items can be selected for a single type"
+      "value": "10 items can be selected"
     },
     {
       "name": "funding_comparison_title",
@@ -54,39 +54,39 @@
     },
     {
       "name": "category_fund_code",
-      "value": "fund code"
+      "value": "code"
     },
     {
       "name": "category_fund_type",
-      "value": "fund type"
+      "value": "type"
     },
     {
       "name": "category_established_time",
-      "value": "established time"
+      "value": "setup"
     },
     {
       "name": "category_new_scale",
-      "value": "new scale"
+      "value": "scale"
     },
     {
       "name": "category_risks_level",
-      "value": "risks level"
+      "value": "risks"
     },
     {
       "name": "category_three_rating",
-      "value": "three year rating"
+      "value": "rating"
     },
     {
       "name": "category_accumulated_dividends",
-      "value": "accumulated dividends"
+      "value": "dividend"
     },
     {
       "name": "category_dividends_count",
-      "value": "dividends count"
+      "value": "count"
     },
     {
       "name": "category_fund_manager",
-      "value": "fund manager"
+      "value": "manager"
     }
   ]
 }

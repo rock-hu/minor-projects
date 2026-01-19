@@ -39,21 +39,24 @@
 │  │  └─TypicalScenarios.ets                 // 典型场景
 │  ├─entryability
 │  │  ├─EntryAbility.ets                     // 入口组件
-│  │  └─ShareUIAbility.ets                   // 应用处理分享内容组件
+│  │  ├─ShareUIAbility.ets                   // 应用处理分享内容组件
+│  │  └─SubShareUIAbility.ets                // 应用处理分享内容组件（子分享方式）
 │  ├─extensionAbility
-│  │  └─ShareExtAbility.ets                  // 二级面板处理分享内容组件
+│  │  ├─ShareExtAbility.ets                  // 二级面板处理分享内容组件
+│  │  └─SubShareExtAbility.ets               // 二级面板处理分享内容组件（子分享方式）
 │  ├─pages
 │  │  ├─Index.ets                            // 主页界面
 │  │  ├─ShareExtDialog.ets                   // 二级面板处理分享内容界面
-│  │  └─ShareUIPage.ets                      // 应用处理分享内容界面
+│  │  ├─ShareUIPage.ets                      // 应用处理分享内容界面
+│  │  ├─SubShareExtDialog.ets                // 二级面板处理分享内容界面（子分享方式）
+│  │  └─SubShareUIPage.ets                   // 应用处理分享内容界面（子分享方式）
 │  ├─scenario                                // 场景示例
 │  │  ├─AppLinkingScenario.ets               // AppLinking分享
 │  │  ├─ImageScenario.ets                    // 图片分享
 │  │  ├─LinkScenario.ets                     // 链接分享
 │  │  ├─PostersScenario.ets                  // 海报+链接分享
 │  │  ├─TextScenario.ets                     // 纯文本分享
-│  │  ├─VideoScenario.ets                    // 视频分享
-│  │  └─ZipScenario.ets                      // 压缩包分享
+│  │  └─VideoScenario.ets                    // 视频分享
 │  └─utils                                   // 工具类
 ├─entry/src/main/resources                   // 应用资源目录
 │  ├─base

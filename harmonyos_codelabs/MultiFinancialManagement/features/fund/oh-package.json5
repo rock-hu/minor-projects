@@ -10,7 +10,7 @@
   "dynamicDependencies": {},
   "dependencies": {
     "transaction": "file:../transaction",
-    "fundComparison": "file:../fundComparison",
+    "fundcomparison": "file:../fundcomparison",
     "basic": "file:../../commons/basic",
     "@ohos/mpchart": "3.0.23-rc.0"
   }

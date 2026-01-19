@@ -196,7 +196,7 @@ export default struct KnockShareTips {
     const uiContext: UIContext = this.getUIContext();
     const contextFaker: Context = uiContext.getHostContext() as Context;
     let filePath = contextFaker.filesDir + '/exampleDocx.docx';
-    let utdTypeId = utd.getUniformDataTypeByFilenameExtension('.docx', utd.UniformDataType.FILE);
+    let utdTypeId = utd.getUniformDataTypeByFilenameExtension('.docx', utd.UniformDataType.COMPOSITE_OBJECT);
     let shareData: systemShare.SharedData = new systemShare.SharedData({
       utd: utdTypeId,
       uri: fileUri.getUriFromPath(filePath),

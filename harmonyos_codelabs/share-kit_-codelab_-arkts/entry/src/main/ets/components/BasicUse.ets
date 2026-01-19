@@ -120,6 +120,47 @@ export default struct BaseDemo {
   }
 
   @Builder
+  TargetShare() {
+    Flex({ direction: FlexDirection.Row }) {
+      Column() {
+        Flex({ direction: FlexDirection.Row }) {
+          Text('目标应用接收分享')
+            .flexGrow(1)
+            .fontSize(18)
+            .fontWeight(500)
+
+          Button($r('app.string.share_btn'))
+            .width(80)
+            .height(30)
+            .margin({ left: 12 })
+            .onClick(() => {
+              this.handelTargetShare();
+            })
+        }
+        .width('100%')
+
+        Flex({ direction: FlexDirection.Row }) {
+          Row() {
+            Image($r('app.media.share_preview_target')).width(100);
+          }
+          .width(150)
+          .margin({ right: 12 })
+
+          Column() {
+            this.DescriptionTitle($r('app.string.function_title'));
+            this.DescriptionText($r('app.string.share_target_ability'), 1);
+            this.DescriptionText($r('app.string.share_target_sub_sharing_mode'), 2);
+          }
+          .flexGrow(1)
+        }
+        .width('100%')
+      }
+      .width('100%')
+    }
+    .margin({ top: 20 })
+  }
+
+  @Builder
   Dismiss() {
     Flex({ direction: FlexDirection.Row }) {
       Column() {
@@ -184,20 +225,57 @@ export default struct BaseDemo {
     .margin({ top: 20 })
   }
 
+  @Builder
+  AppLaunchTrustInfo() {
+    Flex({ direction: FlexDirection.Row }) {
+      Column() {
+        Flex({ direction: FlexDirection.Row }) {
+          Text('配置目标应用名单')
+            .flexGrow(1)
+            .fontSize(18)
+            .fontWeight(500)
+
+          Button($r('app.string.share_btn'))
+            .width(80)
+            .height(30)
+            .margin({ left: 12 })
+            .onClick(() => {
+              this.handelShareTrustInfo();
+            })
+        }
+        .width('100%')
+
+        Column() {
+          this.DescriptionTitle($r('app.string.function_title'));
+          this.DescriptionText($r('app.string.trustInfo_description_1'), 1);
+          this.DescriptionText($r('app.string.trustInfo_description_2'), 2);
+          this.DescriptionText($r('app.string.trustInfo_description_3'), 2);
+        }
+        .width('100%')
+      }
+    }
+    .margin({ top: 20 })
+  }
+
   build() {
     Scroll() {
       Flex({ direction: FlexDirection.Column }) {
         // 宿主应用发起分享
         this.HostShare();
 
+        // 目标应用接入 支持子分享方式
+        this.TargetShare();
+
         // 监听分享面板关闭
         this.Dismiss();
 
         // 获取分享结果
         this.ShareCompleted();
+
+        // 配置目标应用名单
+        this.AppLaunchTrustInfo();
       }
       .width('100%')
-      .height('100%')
       .padding({ top: 12, left: 20, right: 20 })
     }
     .width('100%')
@@ -255,6 +333,26 @@ export default struct BaseDemo {
     });
   }
 
+  private async handelTargetShare(): Promise<void> {
+    const uiContext: UIContext = this.getUIContext();
+    const contextFaker: Context = uiContext.getHostContext() as Context;
+    let shareData: systemShare.SharedData = new systemShare.SharedData({
+      utd: utd.getUniformDataTypeByFilenameExtension('.png', utd.UniformDataType.IMAGE),
+      uri: fileUri.getUriFromPath(contextFaker.filesDir + '/exampleKnock2.png'),
+      title: 'Image Title',
+      description: 'Image Description',
+    });
+    let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
+    const context: common.UIAbilityContext = uiContext.getHostContext() as common.UIAbilityContext;
+    controller.show(context, {
+      previewMode: systemShare.SharePreviewMode.DETAIL,
+    }).then(() => {
+      logger.info('HuaweiShare_ show');
+    }).catch((error: BusinessError) => {
+      logger.error(`HuaweiShare_ show error. Code: ${error?.code}, message: ${error?.message}`);
+    });
+  }
+
   private async handelShareDismiss(): Promise<void> {
     const uiContext: UIContext = this.getUIContext();
     let shareData: systemShare.SharedData = new systemShare.SharedData({
@@ -302,6 +400,30 @@ export default struct BaseDemo {
     controller.show(context, {
       previewMode: systemShare.SharePreviewMode.DETAIL,
       selectionMode: systemShare.SelectionMode.SINGLE,
+    }).then(() => {
+      logger.info('HuaweiShare_ show');
+    }).catch((error: BusinessError) => {
+      logger.error(`HuaweiShare_ show error. Code: ${error?.code}, message: ${error?.message}`);
+    });
+  }
+
+  private async handelShareTrustInfo(): Promise<void> {
+    const uiContext: UIContext = this.getUIContext();
+    const contextFaker: Context = uiContext.getHostContext() as Context;
+    let filePath = contextFaker.filesDir + '/exampleImage.jpg';
+    let utdTypeId = utd.getUniformDataTypeByFilenameExtension('.jpg', utd.UniformDataType.IMAGE);
+    let shareData: systemShare.SharedData = new systemShare.SharedData({
+      utd: utdTypeId,
+      uri: fileUri.getUriFromPath(filePath),
+      title: 'Picture Title',
+      description: 'Picture Description',
+    });
+    let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
+    const context: common.UIAbilityContext = uiContext.getHostContext() as common.UIAbilityContext;
+    controller.show(context, {
+      previewMode: systemShare.SharePreviewMode.DETAIL,
+      selectionMode: systemShare.SelectionMode.SINGLE,
+      appLaunchTrustInfo: ['5765880207853068793', '1171817433862777600'],
     }).then(() => {
       logger.info('HuaweiShare_ show');
     }).catch((error: BusinessError) => {

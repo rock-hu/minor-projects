@@ -31,7 +31,7 @@ export default struct VideoScenario {
       logger.error(`packToData error. Code: ${error?.code}, message: ${error?.message}`);
     }
 
-    let filePath = contextFaker.filesDir + '/exampleImage.jpg';
+    let filePath = contextFaker.filesDir + '/exampleVideo.mp4';
     let shareData: systemShare.SharedData = new systemShare.SharedData({
       utd: utd.UniformDataType.VIDEO,
       uri: fileUri.getUriFromPath(filePath),

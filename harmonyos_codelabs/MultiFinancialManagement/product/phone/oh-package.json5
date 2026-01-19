@@ -11,6 +11,6 @@
     "basic": "file:../../commons/basic",
     "home": "file:../../features/home",
     "fund": "file:../../features/fund",
-    "fundComparison": "file:../../features/fundComparison"
+    "fundcomparison": "file:../../features/fundcomparison"
   }
 }

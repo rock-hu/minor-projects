@@ -76,6 +76,30 @@
             ]
           }
         ]
+      },
+      {
+        "name": "SubShareUIAbility",
+        "srcEntry": "./ets/entryability/SubShareUIAbility.ets",
+        "description": "$string:EntryAbility_desc",
+        "icon": "$media:launcher",
+        "label": "$string:SubShareUIAbility_label",
+        "startWindowIcon": "$media:launcher",
+        "startWindowBackground": "$color:start_window_background",
+        "exported": true,
+        "skills": [
+          {
+            "actions": [
+              "ohos.want.action.sendData"
+            ],
+            "uris": [
+              {
+                "scheme": "file",
+                "utd": "general.png",
+                "maxFileSupported": 1
+              }
+            ]
+          }
+        ]
       }
     ],
     "extensionAbilities": [
@@ -95,16 +119,33 @@
             "uris": [
               {
                 "scheme": "file",
-                "utd": "general.image",
-                "maxFileSupported": 3
+                "utd": "general.jpeg",
+                "maxFileSupported": 1
               }
             ]
           }
-        ],
-        "metadata": [
+        ]
+      },
+      {
+        "name": "SubShareExtensionAbility",
+        "srcEntry": "./ets/extensionAbility/SubShareExtAbility.ets",
+        "description": "$string:EntryAbility_desc",
+        "icon": "$media:launcher",
+        "label": "$string:SubShareExtensionAbility_label",
+        "type": "share",
+        "exported": true,
+        "skills": [
           {
-            "name": "systemShare.uiExtension.layout.preferredHeight",
-            "value": "400"
+            "actions": [
+              "ohos.want.action.sendData"
+            ],
+            "uris": [
+              {
+                "scheme": "file",
+                "utd": "general.png",
+                "maxFileSupported": 1
+              }
+            ]
           }
         ]
       }
@@ -118,6 +159,13 @@
         "name": "shareBundleName",
         "value": "com.example.sharekit_sample_demo",
       }
-    ]
+    ],
+    // 需申请该权限后可使用（该权限仅支持企业应用申请） 可配置目标应用名单
+//    "requestPermissions": [
+//      {
+//        "name": "ohos.permission.SET_SYSTEMSHARE_APPLAUNCHTRUSTLIST",
+//        "reason": '$string:permission_reason_set_system_share_app_launch_trust_list'
+//      },
+//    ]
   }
 }

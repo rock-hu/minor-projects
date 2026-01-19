@@ -39,21 +39,24 @@ Share Kit enables content such as text, images, and videos to be shared across a
 │  │  └─TypicalScenarios.ets                 // Typical scenarios.
 │  ├─entryability
 │  │  ├─EntryAbility.ets                     // Entry component.
-│  │  └─ShareUIAbility.ets                   // Component for an app to process the shared content.
+│  │  ├─ShareUIAbility.ets                   // Component for an app to process the shared content.
+│  │  └─SubShareUIAbility.ets                // Component for an app to process the shared content. (sub-shared mode)
 │  ├─extensionAbility
-│  │  └─ShareExtAbility.ets                  // Component for the level-2 panel to process the shared content.
+│  │  ├─ShareExtAbility.ets                  // Component for the level-2 panel to process the shared content.
+│  │  └─SubShareExtAbility.ets               // Component for the level-2 panel to process the shared content. (sub-sharing mode)
 │  ├─pages
 │  │  ├─Index.ets                            // Home page.
-│     ├─ShareExtDialog.ets                   // Page for the level-2 panel to process the shared content.
-│     └─ShareUIPage.ets                      // Page for an app to process the shared content.
+│  │  ├─ShareExtDialog.ets                   // Page for the level-2 panel to process the shared content.
+│  │  ├─ShareUIPage.ets                      // Page for an app to process the shared content.
+│  │  ├─SubShareExtDialog.ets                // Page for the level-2 panel to process the shared content. (sub-sharing mode)
+│  │  └─SubShareUIPage.ets                   // Page for an app to process the shared content. (sub-sharing mode)
 │  ├─scenario                                // Scenario examples.
 │  │  ├─AppLinkingScenario.ets               // Sharing a link of App Linking.
 │  │  ├─ImageScenario.ets                    // Image sharing.
 │  │  ├─LinkScenario.ets                     // Link sharing.
 │  │  ├─PostersScenario.ets                  // Poster and link sharing.
 │  │  ├─TextScenario.ets                     // Text sharing.
-│  │  ├─VideoScenario.ets                    // Video sharing.
-│  │  └─ZipScenario.ets                      // Zip sharing.
+│  │  └─VideoScenario.ets                    // Video sharing.
 │  └─utils                                   // Utility class.
 ├─entry/src/main/resources                   // App resource directory.
 │  ├─base

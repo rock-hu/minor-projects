@@ -1,6 +1,10 @@
 {
   "string": [
     {
+      "name": "permission_reason_set_system_share_app_launch_trust_list",
+      "value": "With this permission, the application can choose the target applications for system sharing."
+    },
+    {
       "name": "system_share",
       "value": "System Share"
     },
@@ -31,6 +35,14 @@
     {
       "name": "ShareUIAbility_label",
       "value": "Target Application"
+    },
+    {
+      "name": "SubShareUIAbility_label",
+      "value": "Sub-sharing mode 1"
+    },
+    {
+      "name": "SubShareExtensionAbility_label",
+      "value": "Sub-sharing mode 2"
     },
     {
       "name": "ShareExtensionAbility_label",
@@ -109,6 +121,14 @@
       "value": "The function of listening to the event of disabling the sharing panel is implemented."
     },
     {
+      "name": "share_target_ability",
+      "value": "Achieved the capability of integrating target applications into the sharing panel."
+    },
+    {
+      "name": "share_target_sub_sharing_mode",
+      "value": "Achieved the goal of supporting multiple sharing methods for the application."
+    },
+    {
       "name": "function_title",
       "value": "Function description"
     },
@@ -139,6 +159,18 @@
     {
       "name": "shareCompleted_description_4",
       "value": "Developers can cancel registered event listeners by calling the off method."
+    },
+    {
+      "name": "trustInfo_description_1",
+      "value": "This API depends on the permission ohos.permission.SET_SYSTEMSHARE_APPLAUNCHTRUSTLIST. Please refer to the development guide to apply for the permission."
+    },
+    {
+      "name": "trustInfo_description_2",
+      "value": "You can configure a list of target applications; apps not on this list will not appear on the sharing panel. Up to 50 items can be configured."
+    },
+    {
+      "name": "trustInfo_description_3",
+      "value": "When Huawei Share is disabled, the ability to share via recommended devices and Tap-to-Share will also be disabled."
     },
     {
       "name": "single_mode",
@@ -331,6 +363,14 @@
     {
       "name": "delay_description",
       "value": "When receiving a tap callback, if the preview image needs to be downloaded from the cloud, you can first call the share interface to initiate the sharing process. Once the preview image is downloaded, use updateShareData to update the preview image. "
+    },
+    {
+      "name": "non_share_title",
+      "value": "No content touch guide"
+    },
+    {
+      "name": "non_share_description",
+      "value": "When receiving a \"Tap to Share\" callback, if there is no shareable content on the current screen, you can call the clarifyNonShare interface to terminate this sharing attempt and guide the user to go to a scenario that supports Tap to Share and try again."
     },
     {
       "name": "sandbox_title",

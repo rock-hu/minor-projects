@@ -1,6 +1,6 @@
 import { common } from '@kit.AbilityKit';
 import { SymbolGlyphModifier } from '@kit.ArkUI';
-import { fileIo as fs } from '@kit.CoreFileKit';
+import { fileIo as fs, fileUri } from '@kit.CoreFileKit';
 import { deviceInfo } from '@kit.BasicServicesKit';
 import AccessModel from '../components/AccessModel';
 import BasicUse from '../components/BasicUse';
@@ -43,10 +43,15 @@ struct Index {
         [context.resourceManager.getMediaContentSync($r('app.media.exampleDocx').id), '/exampleDocx.docx'],
         // [context.resourceManager.getMediaContentSync($r('app.media.exampleZip').id), '/exampleZip.zip'],
       ].forEach(item => {
-        let file = fs.openSync(filesDir + item[1], fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
-        let writeLen = fs.writeSync(file.fd, (item[0] as Uint8Array).buffer);
-        logger.info("write data to file succeed and size is:" + writeLen);
-        fs.closeSync(file);
+        try {
+          logger.info('openSync path:', filesDir + item[1]);
+          let file = fs.openSync(filesDir + item[1], fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
+          let writeLen = fs.writeSync(file.fd, (item[0] as Uint8Array).buffer);
+          logger.info("write data to file succeed and size is:" + writeLen);
+          fs.closeSync(file);
+        } catch (error) {
+          logger.error('aboutToAppear failed.', error?.code, error?.message);
+        }
       });
     } catch (error) {
       logger.error(`getMediaContentSync error. Code: ${error?.code}, message: ${error?.message}`);

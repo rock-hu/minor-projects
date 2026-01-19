@@ -9,6 +9,7 @@ import VideoScenario from '../scenario/VideoScenario';
 import TextScenario from '../scenario/TextScenario';
 import AppLinkingScenario from '../scenario/AppLinkingScenario';
 import LinkScenario from '../scenario/LinkScenario';
+// import ZipScenario from '../scenario/ZipScenario';
 
 @Component
 export default struct UTDDemo {
@@ -57,6 +58,7 @@ export default struct UTDDemo {
         VideoScenario()
         TextScenario()
         PostersScenario()
+        // ZipScenario()
       }
       .width('100%')
       .constraintSize({ minHeight: '100%' })

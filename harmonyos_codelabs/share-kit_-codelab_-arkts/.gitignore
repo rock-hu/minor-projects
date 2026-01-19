@@ -1,5 +1,6 @@
 .idea
 .hvigor
+.codemate
 oh-package-lock.json5
 **/build
 **/oh_modules

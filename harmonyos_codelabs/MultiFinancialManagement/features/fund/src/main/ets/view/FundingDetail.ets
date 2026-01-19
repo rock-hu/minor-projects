@@ -14,7 +14,7 @@
  */
 
 import { CommonConstants } from 'basic/';
-import { ComparisonComponent, ComparisonInfo, ComparisonDetailComponent } from 'fundComparison/';
+import { ComparisonComponent, ComparisonInfo, ComparisonDetailComponent } from 'fundcomparison';
 import { TransactionComponent } from 'transaction';
 import { FundConstants } from '../constants/FundConstants';
 import { DetailComponent } from './DetailComponent';

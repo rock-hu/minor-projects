@@ -14,6 +14,7 @@ export default struct KnockShareApi {
   @State ShareStatus: boolean = false;
   @State rejectStatus: boolean = false;
   @State updateStatus: boolean = false;
+  @State nonShareStatus: boolean = false;
 
   aboutToAppear(): void {
     logger.info('invoked');
@@ -206,6 +207,61 @@ export default struct KnockShareApi {
     .margin({ bottom: 20 })
   }
 
+  @Builder
+  ClarifyNonShareMode() {
+    Flex({ direction: FlexDirection.Row }) {
+      Row() {
+        Image($r('app.media.knock_non_share'))
+          .width(100)
+      }
+      .width(150)
+      .margin({ right: 12 })
+
+      Column() {
+        Text($r('app.string.non_share_title'))
+          .flexGrow(1)
+          .fontSize(20)
+          .fontWeight(500)
+
+        Stack() {
+          if (this.nonShareStatus) {
+            Button() {
+              Row() {
+                LoadingProgress().width(20).height(20).margin({ left: 12 }).color(0xFFFFFF)
+                Text($r('app.string.knock_listening')).fontSize(12).fontColor(0xffffff).margin({ left: 5, right: 12 })
+              }.alignItems(VerticalAlign.Center)
+            }
+            .width(200)
+            .height(30)
+            .margin({ left: 8 })
+            .onClick(() => {
+              this.nonShareDisablingListening();
+            })
+          } else {
+            Button($r('app.string.knock_click'))
+              .width(200)
+              .height(30)
+              .fontSize(14)
+              .margin({ left: 8 })
+              .onClick(() => {
+                this.nonShareListening();
+              })
+          }
+        }.margin({ top: 12 })
+
+        Column() {
+          Text($r('app.string.non_share_description'))
+            .width('100%')
+            .margin({ top: 12 })
+            .fontWeight(FontWeight.Bold)
+        }.width('100%')
+      }
+      .flexGrow(1)
+      .alignItems(HorizontalAlign.Start)
+    }
+    .margin({ bottom: 20 })
+  }
+
   build() {
     NavDestination() {
       Scroll() {
@@ -215,6 +271,8 @@ export default struct KnockShareApi {
           this.RejectMode()
 
           this.UpdateMode()
+
+          this.ClarifyNonShareMode()
         }
         .width('100%')
         .constraintSize({ minHeight: '100%' })
@@ -240,6 +298,9 @@ export default struct KnockShareApi {
     }
     if (this.updateStatus) {
       this.updateDisablingListening();
+    }
+    if (this.nonShareStatus) {
+      this.nonShareDisablingListening();
     }
   }
 
@@ -336,7 +397,32 @@ export default struct KnockShareApi {
     this.updateStatus = false;
   }
 
+  private nonShareCallback = (sharableTarget: harmonyShare.SharableTarget) => {
+    setTimeout(() => {
+      sharableTarget.clarifyNonShare({ message: '请在支持碰一碰分享的界面再试' });
+    }, 1000);
+  }
+
+  private nonShareListening() {
+    if (this.isNoListening()) {
+      harmonyShare.on('knockShare', this.nonShareCallback);
+      this.nonShareStatus = true;
+    } else {
+      try {
+        const uiContext: UIContext = this.getUIContext();
+        uiContext.getPromptAction().showToast({ message: $r('app.string.knock_close_other') });
+      } catch (error) {
+        logger.error(`showToast error. Code: ${error?.code}, message: ${error?.message}`);
+      }
+    }
+  }
+
+  private nonShareDisablingListening() {
+    harmonyShare.off('knockShare', this.nonShareCallback);
+    this.nonShareStatus = false;
+  }
+
   private isNoListening() {
-    return !this.ShareStatus && !this.rejectStatus && !this.updateStatus;
+    return !this.ShareStatus && !this.rejectStatus && !this.updateStatus && !this.nonShareStatus;
   }
 }

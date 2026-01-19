@@ -166,11 +166,11 @@
     },
     {
       "name": "near_month",
-      "value": "near %d month"
+      "value": "%d month"
     },
     {
       "name": "near_year",
-      "value": "near %d year"
+      "value": "%d year"
     },
     {
       "name": "search_placeholder",

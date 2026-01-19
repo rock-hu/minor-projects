@@ -17,7 +17,7 @@ import { window } from '@kit.ArkUI';
 import { BreakpointUtil, CommonConstants, RouterConstants } from 'basic';
 import { AccountPage, AdvertisementDialog, HomeComponent } from 'home';
 import { Funding, FundingDetail, TrendsPage } from 'fund';
-import { ComparisonDetailPage, ComparisonInfo } from 'fundComparison';
+import { ComparisonDetailPage, ComparisonInfo } from 'fundcomparison';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 

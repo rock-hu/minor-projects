@@ -1,6 +1,10 @@
 {
   "string": [
     {
+      "name": "permission_reason_set_system_share_app_launch_trust_list",
+      "value": "获取该权限后，应用可控制系统分享的目标应用范围。"
+    },
+    {
       "name": "system_share",
       "value": "系统分享"
     },
@@ -31,6 +35,14 @@
     {
       "name": "ShareUIAbility_label",
       "value": "目标应用"
+    },
+    {
+      "name": "SubShareUIAbility_label",
+      "value": "子分享方式一"
+    },
+    {
+      "name": "SubShareExtensionAbility_label",
+      "value": "子分享方式二"
     },
     {
       "name": "ShareExtensionAbility_label",
@@ -109,6 +121,14 @@
       "value": "实现了关闭分享面板事件监听能力"
     },
     {
+      "name": "share_target_ability",
+      "value": "实现了目标应用接入分享面板的能力"
+    },
+    {
+      "name": "share_target_sub_sharing_mode",
+      "value": "实现了目标应用支持多种子分享方式的能力"
+    },
+    {
       "name": "function_title",
       "value": "功能描述"
     },
@@ -139,6 +159,18 @@
     {
       "name": "shareCompleted_description_4",
       "value": "开发者可通过调用off方法取消已注册的事件监听."
+    },
+    {
+      "name": "trustInfo_description_1",
+      "value": "该api依赖权限ohos.permission.SET_SYSTEMSHARE_APPLAUNCHTRUSTLIST. 请参考开发指南申请权限."
+    },
+    {
+      "name": "trustInfo_description_2",
+      "value": "可配置目标应用名单,不再名单内的应用将不出现在分享面板,最多支持配置50项."
+    },
+    {
+      "name": "trustInfo_description_3",
+      "value": "禁用华为分享时,将同步禁用推荐位设备以及碰一碰分享能力."
     },
     {
       "name": "single_mode",
@@ -330,7 +362,15 @@
     },
     {
       "name": "delay_description",
-      "value": "当接收到碰一碰回调时，如果预览图需要从云端下载，可先调用share接口发起分线，待预览图下载完成后，再使用updateShareData更新预览图。"
+      "value": "当接收到碰一碰回调时，如果预览图需要从云端下载，可先调用share接口发起分享，待预览图下载完成后，再使用updateShareData更新预览图。"
+    },
+    {
+      "name": "non_share_title",
+      "value": "无内容碰一碰引导"
+    },
+    {
+      "name": "non_share_description",
+      "value": "当接收到碰一碰回调时，如果当前界面无可分享的内容，可调用clarifyNonShare接口终止本次分享，并引导用户前往支持碰一碰的场景再试。"
     },
     {
       "name": "sandbox_title",

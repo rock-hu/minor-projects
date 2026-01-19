@@ -40,14 +40,16 @@ export struct TrendsPage {
     if (this.isLandScape && data === display.FoldDisplayMode.FOLD_DISPLAY_MODE_FULL) {
       window.getLastWindow(this.getUIContext().getHostContext()).then((stage: window.Window) => {
         stage.setPreferredOrientation(window.Orientation.PORTRAIT).catch((error: BusinessError) => {
-          hilog.error(0x0000, 'TrendsPage', `Failed to set window orientation. Cause code: ${error.code}, message: ${error.message}`)
+          hilog.error(0x0000, 'TrendsPage',
+            `Failed to set window orientation. Cause code: ${error.code}, message: ${error.message}`)
         });
       });
     }
     if (data === display.FoldDisplayMode.FOLD_DISPLAY_MODE_MAIN) {
       window.getLastWindow(this.getUIContext().getHostContext()).then((stage: window.Window) => {
         stage.setPreferredOrientation(window.Orientation.LANDSCAPE).catch((error: BusinessError) => {
-          hilog.error(0x0000, 'TrendsPage', `Failed to set window orientation. Cause code: ${error.code}, message: ${error.message}`)
+          hilog.error(0x0000, 'TrendsPage',
+            `Failed to set window orientation. Cause code: ${error.code}, message: ${error.message}`)
         })
       });
       this.isLandScape = true;
@@ -98,7 +100,7 @@ export struct TrendsPage {
                 this.pageIndexInfos.pop();
               })
           }
-          .padding({top:40})
+          .padding({ top: 40 })
           .width(CommonConstants.FULL_WIDTH_PERCENT)
           .justifyContent(FlexAlign.SpaceBetween)
         }
@@ -225,7 +227,6 @@ export struct TrendsPage {
                     Button($r('app.string.near_year', 3))
                       .chartButtonStyle()
                   }
-                  .width(CommonConstants.FULL_WIDTH_PERCENT)
                   .justifyContent(FlexAlign.SpaceBetween)
                   .margin({
                     top: $r('app.float.chart_button_margin')
@@ -264,13 +265,15 @@ export struct TrendsPage {
     .onAppear(() => {
       window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
         windowStage.setWindowLayoutFullScreen(true).catch((error: BusinessError) => {
-          hilog.error(0x0000, 'TrendsPage', `Failed to set the window layout to full-screen mode. Cause code: ${error.code}, message: ${error.message}`)
+          hilog.error(0x0000, 'TrendsPage',
+            `Failed to set the window layout to full-screen mode. Cause code: ${error.code}, message: ${error.message}`)
         });
       })
       if (!this.isLandScape && this.breakPoint === CommonConstants.BREAK_POINT_SM) {
         window.getLastWindow(this.getUIContext().getHostContext()).then((stage: window.Window) => {
           stage.setPreferredOrientation(window.Orientation.LANDSCAPE).catch((error: BusinessError) => {
-            hilog.error(0x0000, 'TrendsPage', `Failed to set window orientation. Cause code: ${error.code}, message: ${error.message}`);
+            hilog.error(0x0000, 'TrendsPage',
+              `Failed to set window orientation. Cause code: ${error.code}, message: ${error.message}`);
           });
           this.isLandScape = true;
         });
@@ -284,13 +287,15 @@ export struct TrendsPage {
     .onWillDisappear(() => {
       window.getLastWindow(this.getUIContext().getHostContext()).then((windowStage: window.Window) => {
         windowStage.setWindowLayoutFullScreen(true).catch((error: BusinessError) => {
-          hilog.error(0x0000, 'TrendsPage', `Failed to set the window layout to full-screen mode. Cause code: ${error.code}, message: ${error.message}`);
+          hilog.error(0x0000, 'TrendsPage',
+            `Failed to set the window layout to full-screen mode. Cause code: ${error.code}, message: ${error.message}`);
         });
       })
       if (this.isLandScape) {
         window.getLastWindow(this.getUIContext().getHostContext()).then((stage: window.Window) => {
           stage.setPreferredOrientation(window.Orientation.PORTRAIT).catch((error: BusinessError) => {
-            hilog.error(0x0000, 'TrendsPage', `Failed to set window orientation. Cause code: ${error.code}, message: ${error.message}`);
+            hilog.error(0x0000, 'TrendsPage',
+              `Failed to set window orientation. Cause code: ${error.code}, message: ${error.message}`);
           });
         });
         this.isLandScape = false;
