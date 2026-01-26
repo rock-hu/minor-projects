@@ -1,6 +1,6 @@
 {
   "module": {
-    "name": "musicComment",
+    "name": "musiclist",
     "type": "har",
     "description": "$string:shared_desc",
     "deviceTypes": [

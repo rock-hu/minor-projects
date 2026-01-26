@@ -1,7 +1,8 @@
 {
   "module": {
-    "name": "constantsCommon",
+    "name": "musiccomment",
     "type": "har",
+    "description": "$string:shared_desc",
     "deviceTypes": [
       "phone",
       "tablet"

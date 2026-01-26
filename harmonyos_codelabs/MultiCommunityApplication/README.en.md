@@ -4,15 +4,15 @@
 
 Based on the adaptive and responsive layout, implement community comment pages with one-time development for multi-device deployment.
 
-The figure shows the effect on the mobile phone:
+The figure shows the effect on the Bar phone:
 
 ![](screenshots/device/phone.en.png)
 
-The figure shows the effect on the foldable phone:
+The figure shows the effect on the Bi-fold phone:
 
 ![](screenshots/device/foldable.en.png)
 
-The figure shows the effect on the tablet:
+The figure shows the effect on the Tablet:
 
 ![](screenshots/device/tablet.en.png)
 
@@ -27,7 +27,7 @@ The figure shows the effect on the tablet:
 
 ## How to Use
 
-1. Install and open an app on a mobile phone, foldable phone, or tablet. The responsive layout and adaptive layout are used to display different effects on the app pages over different devices.
+1. Install and open an app on a Bar phone, Bi-fold phone, or tablet. The responsive layout and adaptive layout are used to display different effects on the app pages over different devices.
 2. Tap home, hot topics, message, or mine tab at the bottom to switch to the corresponding tab page. By default, the message tab page is displayed.
 3. Tap a category of hot searches to switch to the corresponding list.
 4. Tap the button for viewing complete rankings. The hot search rankings page is displayed. You can swipe up, down, left, or right on the hot search rankings page and tap the back button to return to the hot topics page.
@@ -40,7 +40,7 @@ N/A.
 
 ## Constraints
 
-1. The sample app is supported only on Huawei phones, tablets, PC/2in1 running the standard system.
+1. The sample app is supported only on Bar phone, Bi-fold (Mate X series) and Tablet running the standard system.
 2. HarmonyOS: HarmonyOS 5.0.5 Release or later
-3. DevEco Studio: DevEco Studio 6.0.0 Release or later
-4. HarmonyOS SDK: HarmonyOS 6.0.0 Release SDK or later
+3. DevEco Studio: DevEco Studio 6.0.2 Release or later
+4. HarmonyOS SDK: HarmonyOS 6.0.2 Release SDK or later

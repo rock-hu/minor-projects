@@ -6,11 +6,11 @@
   "author": "",
   "license": "",
   "dependencies": {
-    "musiclist": "file:../../features/musicList",
-    "constantscommon": "file:../../common/constantsCommon",
+    "musiclist": "file:../../features/musiclist",
+    "constantscommon": "file:../../common/constantscommon",
     "live": "file:../../features/live",
-    "musiccomment": "file:../../features/musicComment",
-    "mediacommon": "file:../../common/mediaCommon",
+    "musiccomment": "file:../../features/musiccomment",
+    "mediacommon": "file:../../common/mediacommon"
   }
 }
 

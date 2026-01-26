@@ -7,9 +7,9 @@
   "main": "",
   "version": "1.0.0",
   "dependencies": {
-    "constantscommon": "file:../../common/constantsCommon",
+    "constantscommon": "file:../../common/constantscommon",
     "live": "file:../../features/live",
-    "musiccomment": "file:../../features/musicComment",
-    "musiclist": "file:../../features/musicList"
+    "musiccomment": "file:../../features/musiccomment",
+    "musiclist": "file:../../features/musiclist"
   }
 }

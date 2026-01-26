@@ -47,5 +47,5 @@
 
 1. 本示例仅支持标准系统上运行，支持设备：华为手机。
 2. HarmonyOS系统：HarmonyOS 5.1.1 Release及以上。
-3. DevEco Studio版本：DevEco Studio 6.0.0 Release及以上。
-4. HarmonyOS SDK版本：HarmonyOS 6.0.0 Release SDK及以上。
+3. DevEco Studio版本：DevEco Studio 6.0.2 Release及以上。
+4. HarmonyOS SDK版本：HarmonyOS 6.0.2 Release SDK及以上。

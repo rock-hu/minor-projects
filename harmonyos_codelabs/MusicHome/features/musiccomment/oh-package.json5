@@ -2,12 +2,12 @@
   "license": "Apache-2.0",
   "devDependencies": {},
   "author": "",
-  "name": "musiclist",
+  "name": "musiccomment",
   "description": "Please describe the basic information.",
   "main": "./Index.ets",
   "version": "1.0.0",
   "dependencies": {
-    "mediacommon": "file:../../common/mediaCommon",
-    "constantscommon": "file:../../common/constantsCommon"
+    "mediacommon": "file:../../common/mediacommon",
+    "constantscommon": "file:../../common/constantscommon"
   }
 }

@@ -1,6 +1,6 @@
 {
   "module": {
-    "name": "mediaCommon",
+    "name": "mediacommon",
     "type": "har",
     "deviceTypes": [
       "phone",

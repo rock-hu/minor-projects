@@ -6,7 +6,7 @@
         "name": "default",
         "signingConfig": "default",
         "compatibleSdkVersion": "5.1.0(18)",
-        "targetSdkVersion": "6.0.0(20)",
+        "targetSdkVersion": "6.0.2(22)",
         "runtimeOS": "HarmonyOS"
       }
     ],
@@ -33,8 +33,8 @@
       ]
     },
     {
-      "name": "musicList",
-      "srcPath": "./features/musicList",
+      "name": "musiclist",
+      "srcPath": "./features/musiclist",
       "targets": [
         {
           "name": "default",
@@ -45,8 +45,8 @@
       ]
     },
     {
-      "name": "musicComment",
-      "srcPath": "./features/musicComment",
+      "name": "musiccomment",
+      "srcPath": "./features/musiccomment",
       "targets": [
         {
           "name": "default",
@@ -69,12 +69,12 @@
       ]
     },
     {
-      "name": "mediaCommon",
-      "srcPath": "./common/mediaCommon"
+      "name": "mediacommon",
+      "srcPath": "./common/mediacommon"
     },
     {
-      "name": "constantsCommon",
-      "srcPath": "./common/constantsCommon"
+      "name": "constantscommon",
+      "srcPath": "./common/constantscommon"
     },
     {
       "name": "watch",
