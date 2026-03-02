@@ -112,6 +112,7 @@
           - 拉起指定应用<!--directional-redirection-->
             - [拉起指定应用概述](application-models/app-startup-overview.md)
             - [（可选）使用canOpenLink判断应用是否可访问](application-models/canopenlink.md)
+            - [获取目标应用的URL信息](application-models/obtaining-target-app-url-info.md)
             - [使用Deep Linking实现应用间跳转](application-models/deep-linking-startup.md)
             - [使用App Linking实现应用间跳转](application-models/app-linking-startup.md)
             - [显式Want跳转切换应用链接跳转适配指导](application-models/uiability-startup-adjust.md)
@@ -1333,7 +1334,7 @@
         - [Connectivity Kit术语](connectivity/terminology.md)
       - Distributed Service Kit（分布式管理服务）<!--distributed-service-kit-->
         - [Distributed Service Kit简介](distributedservice/distributedservice-kit-intro.md)
-        - [分布式设备管理](distributedservice/devicemanager-guidelines.md)
+        - [分布式设备管理开发指南](distributedservice/devicemanager-guidelines.md)
         - 应用跨设备连接管理<!--abilityconnect-distributed-->
           - [UIAbility与UIAbility连接开发指南](distributedservice/abilityconnectmanager-guidelines.md)
           <!--Del-->
@@ -2344,6 +2345,7 @@
           - [@ohos.ability.screenLockFileManager (锁屏敏感数据管理)(系统接口)](reference/apis-ability-kit/js-apis-screenLockFileManager-sys.md)
           - [@ohos.app.ability.abilityManager (AbilityManager)(系统接口)](reference/apis-ability-kit/js-apis-app-ability-abilityManager-sys.md)
           - [@ohos.app.ability.appManager (appManager)(系统接口)](reference/apis-ability-kit/js-apis-app-ability-appManager-sys.md)
+          - [@ohos.app.agent.agentManager (Agent信息管理)(系统接口)](reference/apis-ability-kit/js-apis-app-agent-agentManager-sys.md)
           - [@ohos.app.ability.kioskManager (Kiosk管理模块)(系统接口)](reference/apis-ability-kit/js-apis-app-ability-kioskManager-sys.md)
           - [@ohos.app.ability.missionManager (missionManager)(系统接口)](reference/apis-ability-kit/js-apis-app-ability-missionManager-sys.md)
           - [@ohos.app.ability.quickFixManager (quickFixManager)(系统接口)](reference/apis-ability-kit/js-apis-app-ability-quickFixManager-sys.md)
@@ -2385,6 +2387,7 @@
             - [AbilityStageMonitor](reference/apis-ability-kit/js-apis-inner-application-abilityStageMonitor.md)
             - [AbilityStartCallback](reference/apis-ability-kit/js-apis-inner-application-abilityStartCallback.md)
             - [AbilityStateData](reference/apis-ability-kit/js-apis-inner-application-abilityStateData.md)
+            - [AgentCard](reference/apis-ability-kit/js-apis-inner-application-AgentCard.md)
             - [ApplicationContext (应用上下文)](reference/apis-ability-kit/js-apis-inner-application-applicationContext.md)
             - [ApplicationStateObserver](reference/apis-ability-kit/js-apis-inner-application-applicationStateObserver.md)
             - [AppServiceExtensionContext (应用后台服务扩展组件上下文)](reference/apis-ability-kit/js-apis-inner-application-appServiceExtensionContext.md)
