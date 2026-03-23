@@ -285,13 +285,23 @@
     - [动画概述](ndk-use-animation.md)
     - [使用动画开发指导](ndk-use-animation-scene.md)
   - 构建布局<!--arkts-build-layout-ndk-->
+    - [使用布局组件](ndk-layout-container.md)
+    - [设置通用布局属性](ndk-common-attribute-layout.md)
     - [使用列表](ndk-loading-long-list.md)
     - [使用瀑布流](ndk-waterflow.md)
     - [使用网格](ndk-grid.md)
   - 使用文本<!--arkts-build-text-ndk-->
-      - [Text组件的文本绘制与显示](ndk-styled-string.md)
+      - [使用Text组件](ndk-use-text-component.md)
+      - [使用属性字符串的文本绘制与显示](ndk-styled-string.md)
       - [输入框文本事件监听](ndk-textarea-event.md)
+  - 使用选择类组件<!--arkts-build-picker-ndk-->
+      - [使用滑动选择器Picker](ndk-picker.md)
+  - [显示图片（Image）](ndk-image-component.md)
   - [构建弹窗](ndk-build-pop-up-window.md)
+  - [构建表单组件](ndk-build-form-components.md)
+  - 构建导航类组件<!--arkts-build-navigation-ndk-->
+    - [导航页面信息查询](ndk-navigation-query.md)
+    - [使用滑块视图容器 (Swiper)](ndk-swiper.md)
   - [构建自定义组件](ndk-build-custom-components.md)
   - [嵌入ArkTS组件](ndk-embed-arkts-components.md)
   - [构建渲染节点](ndk-embed-render-components.md)
