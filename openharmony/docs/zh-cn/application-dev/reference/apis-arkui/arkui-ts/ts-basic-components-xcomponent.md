@@ -106,7 +106,7 @@ XComponent(value: {id: string, type: string, libraryname?: string, controller?: 
 
 ## NativeXComponentParameters<sup>19+</sup>
 
-定义XComponent的具体配置参数。通过这种构造参数创建的XComponent，可以将其对应的[FrameNode](../js-apis-arkui-frameNode.md)对象传递至Native侧，使用NDK接口进行Surface生命周期的相关设置和[监听组件事件](../../../ui/ndk-listen-to-component-events.md)。
+定义XComponent的具体配置参数。通过这种构造参数创建的XComponent，可以将其对应的[FrameNode](../js-apis-arkui-frameNode.md)对象传递至Native侧，使用NDK接口进行Surface生命周期的相关设置和[添加事件监听](../../../ui/ndk-add-component-events.md)。
 
 **原子化服务API：** 从API version 19开始，该接口支持在原子化服务中使用。
 
@@ -205,8 +205,8 @@ hdrBrightness(brightness: number, type?: HdrType)
 调整组件播放HDR视频时的亮度，该接口仅对HDR视频生效。
 > **说明：**
 > 
-> - 仅XComponent构造参数中的type为[XComponentType](ts-appendix-enums.md#xcomponenttype10).SURFACE时该接口生效。
-> - 调用该接口前，需要通过[Display](../js-apis-display.md#display)实例获取`hdrFormats`，判断当前设备是否支持指定的HDR类型。
+> - 仅XComponent构造参数中的type为[XComponentType](ts-appendix-enums.md#xcomponenttype10).SURFACE时该接口生效，否则该接口不生效。
+> - 如果将参数type设置为[HdrType](#hdrtype24枚举说明).AIHDR，调用该接口前需先检查[Display](../js-apis-display.md#display)的hdrFormats属性是否包含[HDRFormat](../../apis-arkgraphics2d/js-apis-hdrCapability.md#hdrformat).VIDEO_AIHDR。仅当包含HDRFormat.VIDEO_AIHDR时，当前设备才支持AI HDR类型，参数设置才会生效；否则按默认值HdrType.DEFAULT处理。
 > - 不支持[ArkUI NDK接口](../../../ui/ndk-build-ui-overview.md)创建的XComponent组件。
 
 **原子化服务API：** 从API version 24开始，该接口支持在原子化服务中使用。
