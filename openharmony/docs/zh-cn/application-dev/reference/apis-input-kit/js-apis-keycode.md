@@ -288,7 +288,7 @@ import { KeyCode } from '@kit.InputKit';
 | KEYCODE_SPREADSHEET              |  2703 | 电子表格键。                       |
 | KEYCODE_GRAPHICSEDITOR           |  2704 | 图形编辑器键。                      |
 | KEYCODE_PRESENTATION             |  2705 | 演示文稿键。                       |
-| KEYCODE_DATABASE                 |  2706 | 数据库键标。                       |
+| KEYCODE_DATABASE                 |  2706 | 数据库键。                       |
 | KEYCODE_NEWS                     |  2707 | 新闻键。                         |
 | KEYCODE_VOICEMAIL                |  2708 | 语音信箱。                        |
 | KEYCODE_ADDRESSBOOK              |  2709 | 通讯簿。                         |
@@ -378,3 +378,4 @@ import { KeyCode } from '@kit.InputKit';
 | KEYCODE_DAGGER_DOUBLE_CLICK<sup>18+</sup> | 3212 | 智能手表智感窗按键双击。 |
 | KEYCODE_DAGGER_LONG_PRESS<sup>18+</sup> | 3213 | 智能手表智感窗按键长按。 |
 | KEYCODE_DIV<sup>20+</sup> | 3220 | 智能手表左按键。 |
+| KEYCODE_XKEY | 3232 | 自定义快捷键。<br/>**起始版本：** 26.0.0 |
