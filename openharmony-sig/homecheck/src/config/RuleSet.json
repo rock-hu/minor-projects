@@ -1,0 +1,18 @@
+{
+  "plugin:@performance/all": [
+    "@performance/number-init-check:1",
+    "@performance/sparse-array-check:1",
+    "@performance/typed-array-check:1",
+    "@performance/high-frequency-log-check:3",
+    "@performance/waterflow-data-perload-check:3",
+    "@performance/start-window-icon-check:1",
+    "@performance/timezone-interface-check:3",
+    "@performance/lottie-animation-destroy-check:3"
+  ],
+  "plugin:@performance/recommended": [
+    "@performance/high-frequency-log-check:3"
+  ],
+  "plugin:@security/all": [
+    "@security/specified-interface-call-chain-check:3"
+  ]
+}

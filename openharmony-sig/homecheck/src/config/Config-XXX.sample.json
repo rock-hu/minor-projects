@@ -1,0 +1,33 @@
+{
+  "projectName":"OpenSource",//项目名称
+  "ohosSdkPath": "D:\\DevEco Studio\\sdk\\default\\openharmony\\ets", // openharmony sdk路径, ets目录
+  "hmsSdkPath": "D:\\DevEco Studio\\sdk\\default\\hms\\ets", // hms sdk路径，ets目录
+  "projectPath": "C:/work/applications_photos",//检测项目路径,只能填写目录，不能写文件路径
+  "product": "default",//产品名称
+  "files": [//检测文件类型
+    "**/*.ets",
+    "**/*.ts"
+  ],
+  "ignored": [//无需检测文件--所有规则,生成文件目录时生效
+    "**/node_modules/**/*",
+    "**/build/**/*"
+  ],
+  "ignoreFiles": [//无需检测文件--自定义规则，后过滤生效
+    {
+      "filePath": "xxx",//文件路径
+      "disableLine": [
+        {
+          "line": 1,//无需检测的代码行数
+          "rules": ["rule1","rule2"]//无需检测的规则，为空代表全规则不检查
+        },
+        {
+        }
+      ]
+    }
+  ],
+  "ruleSet": [//检测规则集
+    "plugin:@performance/recommended"
+  ],
+  "rules": ["@performance/array-definition-check:1"],//检测规则，可以新增或覆盖规则集中规则，例如改变某条规则的告警等级
+  "overrides": []
+}
