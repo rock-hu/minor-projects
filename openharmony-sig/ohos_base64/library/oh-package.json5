@@ -1,0 +1,17 @@
+{
+  "license": "Apache License 2.0",
+  "types": "",
+  "devDependencies": {},
+  "keywords": [
+    "OpenHarmony",
+    "base64",
+    "HarmonyOS"
+  ],
+  "author": "hihope",
+  "name": "@ohos/base64",
+  "description": "base64编解码器，是一款轻量化的编解码工具，可以将对文件内容编解码，也可以将编解码内容输出到文件",
+  "main": "index.ets",
+  "repository": "https://gitee.com/openharmony-sig/base64",
+  "version": "2.0.1",
+  "dependencies": {}
+}
