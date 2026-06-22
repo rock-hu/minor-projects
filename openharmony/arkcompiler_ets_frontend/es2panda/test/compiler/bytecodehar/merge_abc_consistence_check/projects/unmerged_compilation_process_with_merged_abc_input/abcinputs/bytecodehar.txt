@@ -1,2 +1,0 @@
-bytecodehar-file1.js
-bytecodehar-file2.js

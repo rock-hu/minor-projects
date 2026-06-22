@@ -1,4 +1,0 @@
--keep-global-name 
-RemoteHarGlobal
--keep-property-name 
-remoteHarProperty

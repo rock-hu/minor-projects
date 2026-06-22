@@ -1,1 +1,0 @@
-test-ts-function-1

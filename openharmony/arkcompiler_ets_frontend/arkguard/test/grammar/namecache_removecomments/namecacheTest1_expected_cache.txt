@@ -1,8 +1,0 @@
-{
-  "IdentifierCache": {
-    "#NameCacheTest1": "g"
-  },
-  "MemberMethodCache": {
-    "foo:22:25": "h"
-  }
-}

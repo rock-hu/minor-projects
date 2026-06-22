@@ -1,2 +1,0 @@
--enable-export-obfuscation
--enable-toplevel-obfuscation

@@ -1,6 +1,0 @@
-{
-  "IdentifierCache": {
-    "#__exportClass": "a"
-  },
-  "MemberMethodCache": {}
-}

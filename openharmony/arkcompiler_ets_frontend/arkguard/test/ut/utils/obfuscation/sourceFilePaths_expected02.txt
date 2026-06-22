@@ -1,3 +1,0 @@
-test/ut/utils/testData/filePath1.ts
-test/ut/utils/testData/filePath3.ts
-test/ut/utils/testData/filePath4.ts

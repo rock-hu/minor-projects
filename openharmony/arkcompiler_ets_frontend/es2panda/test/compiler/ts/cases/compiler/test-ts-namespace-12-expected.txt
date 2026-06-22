@@ -1,3 +1,0 @@
-test-ts-namespace-12 flag3
-test-ts-namespace-12 flag1
-test-ts-namespace-12 flag2

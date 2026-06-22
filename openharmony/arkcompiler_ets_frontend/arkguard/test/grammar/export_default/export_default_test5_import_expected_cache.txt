@@ -1,6 +1,0 @@
-{
-  "IdentifierCache": {
-    "#anonymousDefaultFunction": "c1"
-  },
-  "MemberMethodCache": {}
-}

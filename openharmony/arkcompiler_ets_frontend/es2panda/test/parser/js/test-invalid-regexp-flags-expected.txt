@@ -1,1 +1,0 @@
-SyntaxError: Invalid RegExp flag [test-invalid-regexp-flags.js:16:8]

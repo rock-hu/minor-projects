@@ -1,5 +1,0 @@
--enable-property-obfuscation
--keep-global-name
-globalName00
--keep-property-name
-propertyName00

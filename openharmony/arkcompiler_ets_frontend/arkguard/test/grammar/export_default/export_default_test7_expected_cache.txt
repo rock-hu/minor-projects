@@ -1,6 +1,0 @@
-{
-  "IdentifierCache": {
-    "#hiMessage": "e1"
-  },
-  "MemberMethodCache": {}
-}

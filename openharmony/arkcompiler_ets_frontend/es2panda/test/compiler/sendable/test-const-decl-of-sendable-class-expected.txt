@@ -1,2 +1,0 @@
-TypeError
-Assignment to const variable A

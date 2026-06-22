@@ -1,3 +1,0 @@
-exec POST, url= /xxx.com
-exec POST, propertyKey= method1
-exec descriptor, args

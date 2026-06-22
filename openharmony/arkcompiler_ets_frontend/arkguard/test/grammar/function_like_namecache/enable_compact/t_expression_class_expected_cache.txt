@@ -1,9 +1,0 @@
-{
-  "IdentifierCache": {
-    "#clsEpx1": "i2",
-    "#clsEpx2": "j2"
-  },
-  "MemberMethodCache": {
-    "AAA:17:17": "AAA"
-  }
-}
