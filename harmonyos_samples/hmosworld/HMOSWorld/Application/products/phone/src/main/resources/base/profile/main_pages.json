@@ -1,8 +1,0 @@
-{
-  "src": [
-    "pages/MainPage",
-    "pages/SplashPage",
-    "pages/SafePage",
-    "pages/PrivacyPage"
-  ]
-}

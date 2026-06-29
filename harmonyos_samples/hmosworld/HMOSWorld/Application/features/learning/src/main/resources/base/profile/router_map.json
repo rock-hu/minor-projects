@@ -1,9 +1,0 @@
-{
-  "routerMap": [
-    {
-      "name": "LearningDetailView",
-      "pageSourceFile": "src/main/ets/views/LearningDetailView.ets",
-      "buildFunction": "LearningDetailViewBuilder"
-    }
-  ]
-}

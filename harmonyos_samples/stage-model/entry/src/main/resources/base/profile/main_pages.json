@@ -1,9 +1,0 @@
-{
-  "src": [
-    "pages/Index",
-    "pages/AbilityContextPage",
-    "pages/TestPage",
-    "pages/AbilityAccessCtrlPage",
-    "pages/WindowPage"
-  ]
-}

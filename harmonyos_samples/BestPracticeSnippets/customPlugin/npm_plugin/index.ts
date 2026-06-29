@@ -1,1 +1,0 @@
-export { renameHarTask } from './pure_plugin'
