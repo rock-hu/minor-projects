@@ -1,3 +1,0 @@
-A.js;A;esm;A.js;xxAxx
-B.js;B;esm;B.js;xxBxx
-dynamicimportcontext.js;dynamicimportcontext;esm;dynamicimportcontext.js;xxdynamicimportcontextxx

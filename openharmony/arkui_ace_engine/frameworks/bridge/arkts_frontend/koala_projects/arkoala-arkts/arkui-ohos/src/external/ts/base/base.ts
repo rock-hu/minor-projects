@@ -1,1 +1,0 @@
-export type BusinessError<T = void> = any

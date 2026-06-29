@@ -1,2 +1,0 @@
-base_modify1.js;base;esm;base.js;entry
-module_modify1.js;module;esm;module.js;entry
