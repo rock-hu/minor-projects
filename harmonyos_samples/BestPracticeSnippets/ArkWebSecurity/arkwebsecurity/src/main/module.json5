@@ -1,0 +1,50 @@
+{
+  "module": {
+    "name": "arkwebsecurity",
+    "type": "entry",
+    "description": "$string:module_desc",
+    "mainElement": "ArkWebSecurityAbility",
+    "deviceTypes": [
+      "phone"
+    ],
+    "deliveryWithInstall": true,
+    "installationFree": false,
+    "pages": "$profile:main_pages",
+    "abilities": [
+      {
+        "name": "ArkWebSecurityAbility",
+        "srcEntry": "./ets/arkwebsecurityability/ArkWebSecurityAbility.ets",
+        "description": "$string:ArkWebSecurityAbility_desc",
+        "icon": "$media:layered_image",
+        "label": "$string:ArkWebSecurityAbility_label",
+        "startWindowIcon": "$media:startIcon",
+        "startWindowBackground": "$color:start_window_background",
+        "exported": true,
+        "skills": [
+          {
+            "entities": [
+              "entity.system.home"
+            ],
+            "actions": [
+              "ohos.want.action.home"
+            ]
+          }
+        ]
+      }
+    ],
+    "extensionAbilities": [
+      {
+        "name": "ArkWebSecurityBackupAbility",
+        "srcEntry": "./ets/arkwebsecuritybackupability/ArkWebSecurityBackupAbility.ets",
+        "type": "backup",
+        "exported": false,
+        "metadata": [
+          {
+            "name": "ohos.extension.backup",
+            "resource": "$profile:backup_config"
+          }
+        ]
+      }
+    ]
+  }
+}
