@@ -1,0 +1,24 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "Base64"
+    },
+    {
+      "name": "encrypted_data",
+      "value": "encrypted_data"
+    },
+    {
+      "name": "decrypt_encrypted_data",
+      "value": "Decrypt encrypted data"
+    }
+  ]
+}
