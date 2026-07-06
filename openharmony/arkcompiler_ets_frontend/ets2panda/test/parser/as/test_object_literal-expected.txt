@@ -1,0 +1,294 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "a",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 5,
+                "program": "test_object_literal.ts"
+              },
+              "end": {
+                "line": 17,
+                "column": 6,
+                "program": "test_object_literal.ts"
+              }
+            }
+          },
+          "init": {
+            "type": "ObjectExpression",
+            "properties": [
+              {
+                "type": "Property",
+                "method": false,
+                "shorthand": true,
+                "computed": false,
+                "key": {
+                  "type": "Identifier",
+                  "name": "a",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 11,
+                      "program": "test_object_literal.ts"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 12,
+                      "program": "test_object_literal.ts"
+                    }
+                  }
+                },
+                "value": {
+                  "type": "Identifier",
+                  "name": "a",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 11,
+                      "program": "test_object_literal.ts"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 12,
+                      "program": "test_object_literal.ts"
+                    }
+                  }
+                },
+                "kind": "init",
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 11,
+                    "program": "test_object_literal.ts"
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 12,
+                    "program": "test_object_literal.ts"
+                  }
+                }
+              },
+              {
+                "type": "Property",
+                "method": false,
+                "shorthand": true,
+                "computed": false,
+                "key": {
+                  "type": "StringLiteral",
+                  "value": "b",
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 14,
+                      "program": "test_object_literal.ts"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 17,
+                      "program": "test_object_literal.ts"
+                    }
+                  }
+                },
+                "value": {
+                  "type": "NumberLiteral",
+                  "value": 6,
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 19,
+                      "program": "test_object_literal.ts"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 20,
+                      "program": "test_object_literal.ts"
+                    }
+                  }
+                },
+                "kind": "init",
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 14,
+                    "program": "test_object_literal.ts"
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 20,
+                    "program": "test_object_literal.ts"
+                  }
+                }
+              },
+              {
+                "type": "Property",
+                "method": false,
+                "shorthand": true,
+                "computed": false,
+                "key": {
+                  "type": "Identifier",
+                  "name": "c",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 22,
+                      "program": "test_object_literal.ts"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 23,
+                      "program": "test_object_literal.ts"
+                    }
+                  }
+                },
+                "value": {
+                  "type": "Identifier",
+                  "name": "c",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 22,
+                      "program": "test_object_literal.ts"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 23,
+                      "program": "test_object_literal.ts"
+                    }
+                  }
+                },
+                "kind": "init",
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 22,
+                    "program": "test_object_literal.ts"
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 23,
+                    "program": "test_object_literal.ts"
+                  }
+                }
+              },
+              {
+                "type": "Property",
+                "method": false,
+                "shorthand": true,
+                "computed": false,
+                "key": {
+                  "type": "Identifier",
+                  "name": "d",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 25,
+                      "program": "test_object_literal.ts"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 26,
+                      "program": "test_object_literal.ts"
+                    }
+                  }
+                },
+                "value": {
+                  "type": "Identifier",
+                  "name": "d",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 25,
+                      "program": "test_object_literal.ts"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 26,
+                      "program": "test_object_literal.ts"
+                    }
+                  }
+                },
+                "kind": "init",
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 25,
+                    "program": "test_object_literal.ts"
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 26,
+                    "program": "test_object_literal.ts"
+                  }
+                }
+              }
+            ],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 9,
+                "program": "test_object_literal.ts"
+              },
+              "end": {
+                "line": 17,
+                "column": 28,
+                "program": "test_object_literal.ts"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 17,
+              "column": 5,
+              "program": "test_object_literal.ts"
+            },
+            "end": {
+              "line": 17,
+              "column": 28,
+              "program": "test_object_literal.ts"
+            }
+          }
+        }
+      ],
+      "kind": "let",
+      "loc": {
+        "start": {
+          "line": 17,
+          "column": 1,
+          "program": "test_object_literal.ts"
+        },
+        "end": {
+          "line": 17,
+          "column": 28,
+          "program": "test_object_literal.ts"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "test_object_literal.ts"
+    },
+    "end": {
+      "line": 18,
+      "column": 1,
+      "program": "test_object_literal.ts"
+    }
+  }
+}

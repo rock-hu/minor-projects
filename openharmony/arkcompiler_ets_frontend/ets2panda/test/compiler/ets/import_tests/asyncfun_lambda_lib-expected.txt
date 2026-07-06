@@ -1,0 +1,1704 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "AC",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 16,
+              "column": 14,
+              "program": "asyncfun_lambda_lib.ets"
+            },
+            "end": {
+              "line": 16,
+              "column": 16,
+              "program": "asyncfun_lambda_lib.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "foo",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 25,
+                  "program": "asyncfun_lambda_lib.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 28,
+                  "program": "asyncfun_lambda_lib.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "foo",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 25,
+                      "program": "asyncfun_lambda_lib.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 28,
+                      "program": "asyncfun_lambda_lib.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": true,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSTypeReference",
+                  "part": {
+                    "type": "ETSTypeReferencePart",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "Promise",
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 16,
+                          "column": 32,
+                          "program": "asyncfun_lambda_lib.ets"
+                        },
+                        "end": {
+                          "line": 16,
+                          "column": 39,
+                          "program": "asyncfun_lambda_lib.ets"
+                        }
+                      }
+                    },
+                    "typeParams": {
+                      "type": "TSTypeParameterInstantiation",
+                      "params": [
+                        {
+                          "type": "ETSUnionType",
+                          "types": [
+                            {
+                              "type": "ETSTypeReference",
+                              "part": {
+                                "type": "ETSTypeReferencePart",
+                                "name": {
+                                  "type": "Identifier",
+                                  "name": "Object",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 16,
+                                      "column": 40,
+                                      "program": "asyncfun_lambda_lib.ets"
+                                    },
+                                    "end": {
+                                      "line": 16,
+                                      "column": 46,
+                                      "program": "asyncfun_lambda_lib.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 16,
+                                    "column": 40,
+                                    "program": "asyncfun_lambda_lib.ets"
+                                  },
+                                  "end": {
+                                    "line": 16,
+                                    "column": 47,
+                                    "program": "asyncfun_lambda_lib.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 16,
+                                  "column": 40,
+                                  "program": "asyncfun_lambda_lib.ets"
+                                },
+                                "end": {
+                                  "line": 16,
+                                  "column": 47,
+                                  "program": "asyncfun_lambda_lib.ets"
+                                }
+                              }
+                            },
+                            {
+                              "type": "ETSNullType",
+                              "loc": {
+                                "start": {
+                                  "line": 16,
+                                  "column": 47,
+                                  "program": "asyncfun_lambda_lib.ets"
+                                },
+                                "end": {
+                                  "line": 16,
+                                  "column": 51,
+                                  "program": "asyncfun_lambda_lib.ets"
+                                }
+                              }
+                            }
+                          ],
+                          "loc": {
+                            "start": {
+                              "line": 16,
+                              "column": 40,
+                              "program": "asyncfun_lambda_lib.ets"
+                            },
+                            "end": {
+                              "line": 16,
+                              "column": 51,
+                              "program": "asyncfun_lambda_lib.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "loc": {
+                        "start": {
+                          "line": 16,
+                          "column": 39,
+                          "program": "asyncfun_lambda_lib.ets"
+                        },
+                        "end": {
+                          "line": 16,
+                          "column": 52,
+                          "program": "asyncfun_lambda_lib.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 16,
+                        "column": 32,
+                        "program": "asyncfun_lambda_lib.ets"
+                      },
+                      "end": {
+                        "line": 16,
+                        "column": 54,
+                        "program": "asyncfun_lambda_lib.ets"
+                      }
+                    }
+                  },
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 32,
+                      "program": "asyncfun_lambda_lib.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 54,
+                      "program": "asyncfun_lambda_lib.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "ReturnStatement",
+                      "argument": {
+                        "type": "NullLiteral",
+                        "value": null,
+                        "loc": {
+                          "start": {
+                            "line": 16,
+                            "column": 62,
+                            "program": "asyncfun_lambda_lib.ets"
+                          },
+                          "end": {
+                            "line": 16,
+                            "column": 66,
+                            "program": "asyncfun_lambda_lib.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 16,
+                          "column": 55,
+                          "program": "asyncfun_lambda_lib.ets"
+                        },
+                        "end": {
+                          "line": 16,
+                          "column": 67,
+                          "program": "asyncfun_lambda_lib.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 53,
+                      "program": "asyncfun_lambda_lib.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 69,
+                      "program": "asyncfun_lambda_lib.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 28,
+                    "program": "asyncfun_lambda_lib.ets"
+                  },
+                  "end": {
+                    "line": 16,
+                    "column": 69,
+                    "program": "asyncfun_lambda_lib.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 28,
+                  "program": "asyncfun_lambda_lib.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 69,
+                  "program": "asyncfun_lambda_lib.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 19,
+                "program": "asyncfun_lambda_lib.ets"
+              },
+              "end": {
+                "line": 16,
+                "column": 69,
+                "program": "asyncfun_lambda_lib.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 18,
+                  "program": "asyncfun_lambda_lib.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 18,
+                  "program": "asyncfun_lambda_lib.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 18,
+                      "program": "asyncfun_lambda_lib.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 18,
+                      "program": "asyncfun_lambda_lib.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 18,
+                      "program": "asyncfun_lambda_lib.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 18,
+                      "program": "asyncfun_lambda_lib.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 18,
+                    "program": "asyncfun_lambda_lib.ets"
+                  },
+                  "end": {
+                    "line": 16,
+                    "column": 18,
+                    "program": "asyncfun_lambda_lib.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 18,
+                  "program": "asyncfun_lambda_lib.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 18,
+                  "program": "asyncfun_lambda_lib.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 17,
+            "program": "asyncfun_lambda_lib.ets"
+          },
+          "end": {
+            "line": 17,
+            "column": 7,
+            "program": "asyncfun_lambda_lib.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 8,
+          "program": "asyncfun_lambda_lib.ets"
+        },
+        "end": {
+          "line": 17,
+          "column": 7,
+          "program": "asyncfun_lambda_lib.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "BC",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 17,
+              "column": 14,
+              "program": "asyncfun_lambda_lib.ets"
+            },
+            "end": {
+              "line": 17,
+              "column": 16,
+              "program": "asyncfun_lambda_lib.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "bar",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 19,
+                  "program": "asyncfun_lambda_lib.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 22,
+                  "program": "asyncfun_lambda_lib.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "bar",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 19,
+                      "program": "asyncfun_lambda_lib.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 22,
+                      "program": "asyncfun_lambda_lib.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSUnionType",
+                  "types": [
+                    {
+                      "type": "ETSTypeReference",
+                      "part": {
+                        "type": "ETSTypeReferencePart",
+                        "name": {
+                          "type": "Identifier",
+                          "name": "Object",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 17,
+                              "column": 26,
+                              "program": "asyncfun_lambda_lib.ets"
+                            },
+                            "end": {
+                              "line": 17,
+                              "column": 32,
+                              "program": "asyncfun_lambda_lib.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 17,
+                            "column": 26,
+                            "program": "asyncfun_lambda_lib.ets"
+                          },
+                          "end": {
+                            "line": 17,
+                            "column": 34,
+                            "program": "asyncfun_lambda_lib.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 17,
+                          "column": 26,
+                          "program": "asyncfun_lambda_lib.ets"
+                        },
+                        "end": {
+                          "line": 17,
+                          "column": 34,
+                          "program": "asyncfun_lambda_lib.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ETSNullType",
+                      "loc": {
+                        "start": {
+                          "line": 17,
+                          "column": 35,
+                          "program": "asyncfun_lambda_lib.ets"
+                        },
+                        "end": {
+                          "line": 17,
+                          "column": 39,
+                          "program": "asyncfun_lambda_lib.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 26,
+                      "program": "asyncfun_lambda_lib.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 39,
+                      "program": "asyncfun_lambda_lib.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "ReturnStatement",
+                      "argument": {
+                        "type": "NullLiteral",
+                        "value": null,
+                        "loc": {
+                          "start": {
+                            "line": 17,
+                            "column": 49,
+                            "program": "asyncfun_lambda_lib.ets"
+                          },
+                          "end": {
+                            "line": 17,
+                            "column": 53,
+                            "program": "asyncfun_lambda_lib.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 17,
+                          "column": 42,
+                          "program": "asyncfun_lambda_lib.ets"
+                        },
+                        "end": {
+                          "line": 17,
+                          "column": 53,
+                          "program": "asyncfun_lambda_lib.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 40,
+                      "program": "asyncfun_lambda_lib.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 55,
+                      "program": "asyncfun_lambda_lib.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 22,
+                    "program": "asyncfun_lambda_lib.ets"
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 55,
+                    "program": "asyncfun_lambda_lib.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 22,
+                  "program": "asyncfun_lambda_lib.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 55,
+                  "program": "asyncfun_lambda_lib.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 19,
+                "program": "asyncfun_lambda_lib.ets"
+              },
+              "end": {
+                "line": 17,
+                "column": 55,
+                "program": "asyncfun_lambda_lib.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 18,
+                  "program": "asyncfun_lambda_lib.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 18,
+                  "program": "asyncfun_lambda_lib.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 18,
+                      "program": "asyncfun_lambda_lib.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 18,
+                      "program": "asyncfun_lambda_lib.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 18,
+                      "program": "asyncfun_lambda_lib.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 18,
+                      "program": "asyncfun_lambda_lib.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 18,
+                    "program": "asyncfun_lambda_lib.ets"
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 18,
+                    "program": "asyncfun_lambda_lib.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 18,
+                  "program": "asyncfun_lambda_lib.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 18,
+                  "program": "asyncfun_lambda_lib.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 17,
+            "program": "asyncfun_lambda_lib.ets"
+          },
+          "end": {
+            "line": 18,
+            "column": 7,
+            "program": "asyncfun_lambda_lib.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 17,
+          "column": 8,
+          "program": "asyncfun_lambda_lib.ets"
+        },
+        "end": {
+          "line": 18,
+          "column": 7,
+          "program": "asyncfun_lambda_lib.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "CC",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 18,
+              "column": 14,
+              "program": "asyncfun_lambda_lib.ets"
+            },
+            "end": {
+              "line": 18,
+              "column": 16,
+              "program": "asyncfun_lambda_lib.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "baz",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 19,
+                  "program": "asyncfun_lambda_lib.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 22,
+                  "program": "asyncfun_lambda_lib.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "baz",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 19,
+                      "program": "asyncfun_lambda_lib.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 22,
+                      "program": "asyncfun_lambda_lib.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "a0",
+                      "typeAnnotation": {
+                        "type": "ETSFunctionType",
+                        "params": [],
+                        "returnType": {
+                          "type": "ETSPrimitiveType",
+                          "loc": {
+                            "start": {
+                              "line": 18,
+                              "column": 33,
+                              "program": "asyncfun_lambda_lib.ets"
+                            },
+                            "end": {
+                              "line": 18,
+                              "column": 37,
+                              "program": "asyncfun_lambda_lib.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 18,
+                            "column": 27,
+                            "program": "asyncfun_lambda_lib.ets"
+                          },
+                          "end": {
+                            "line": 18,
+                            "column": 37,
+                            "program": "asyncfun_lambda_lib.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 18,
+                          "column": 23,
+                          "program": "asyncfun_lambda_lib.ets"
+                        },
+                        "end": {
+                          "line": 18,
+                          "column": 37,
+                          "program": "asyncfun_lambda_lib.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 18,
+                        "column": 23,
+                        "program": "asyncfun_lambda_lib.ets"
+                      },
+                      "end": {
+                        "line": 18,
+                        "column": 37,
+                        "program": "asyncfun_lambda_lib.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 40,
+                      "program": "asyncfun_lambda_lib.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 44,
+                      "program": "asyncfun_lambda_lib.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 45,
+                      "program": "asyncfun_lambda_lib.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 47,
+                      "program": "asyncfun_lambda_lib.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 18,
+                    "column": 22,
+                    "program": "asyncfun_lambda_lib.ets"
+                  },
+                  "end": {
+                    "line": 18,
+                    "column": 47,
+                    "program": "asyncfun_lambda_lib.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 22,
+                  "program": "asyncfun_lambda_lib.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 47,
+                  "program": "asyncfun_lambda_lib.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 18,
+                "column": 19,
+                "program": "asyncfun_lambda_lib.ets"
+              },
+              "end": {
+                "line": 18,
+                "column": 47,
+                "program": "asyncfun_lambda_lib.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 18,
+                  "program": "asyncfun_lambda_lib.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 18,
+                  "program": "asyncfun_lambda_lib.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 18,
+                      "program": "asyncfun_lambda_lib.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 18,
+                      "program": "asyncfun_lambda_lib.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 18,
+                      "program": "asyncfun_lambda_lib.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 18,
+                      "program": "asyncfun_lambda_lib.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 18,
+                    "column": 18,
+                    "program": "asyncfun_lambda_lib.ets"
+                  },
+                  "end": {
+                    "line": 18,
+                    "column": 18,
+                    "program": "asyncfun_lambda_lib.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 18,
+                  "program": "asyncfun_lambda_lib.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 18,
+                  "program": "asyncfun_lambda_lib.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 18,
+            "column": 17,
+            "program": "asyncfun_lambda_lib.ets"
+          },
+          "end": {
+            "line": 19,
+            "column": 7,
+            "program": "asyncfun_lambda_lib.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 18,
+          "column": 8,
+          "program": "asyncfun_lambda_lib.ets"
+        },
+        "end": {
+          "line": 19,
+          "column": 7,
+          "program": "asyncfun_lambda_lib.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "DC",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 19,
+              "column": 14,
+              "program": "asyncfun_lambda_lib.ets"
+            },
+            "end": {
+              "line": 19,
+              "column": 16,
+              "program": "asyncfun_lambda_lib.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "ClassProperty",
+            "key": {
+              "type": "Identifier",
+              "name": "foz",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 19,
+                  "program": "asyncfun_lambda_lib.ets"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 22,
+                  "program": "asyncfun_lambda_lib.ets"
+                }
+              }
+            },
+            "value": {
+              "type": "ArrowFunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": null,
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 19,
+                      "column": 43,
+                      "program": "asyncfun_lambda_lib.ets"
+                    },
+                    "end": {
+                      "line": 19,
+                      "column": 45,
+                      "program": "asyncfun_lambda_lib.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 19,
+                    "column": 37,
+                    "program": "asyncfun_lambda_lib.ets"
+                  },
+                  "end": {
+                    "line": 19,
+                    "column": 45,
+                    "program": "asyncfun_lambda_lib.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 37,
+                  "program": "asyncfun_lambda_lib.ets"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 45,
+                  "program": "asyncfun_lambda_lib.ets"
+                }
+              }
+            },
+            "accessibility": "public",
+            "static": false,
+            "readonly": false,
+            "declare": false,
+            "optional": false,
+            "computed": false,
+            "typeAnnotation": {
+              "type": "ETSFunctionType",
+              "params": [],
+              "returnType": {
+                "type": "ETSPrimitiveType",
+                "loc": {
+                  "start": {
+                    "line": 19,
+                    "column": 30,
+                    "program": "asyncfun_lambda_lib.ets"
+                  },
+                  "end": {
+                    "line": 19,
+                    "column": 34,
+                    "program": "asyncfun_lambda_lib.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 24,
+                  "program": "asyncfun_lambda_lib.ets"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 34,
+                  "program": "asyncfun_lambda_lib.ets"
+                }
+              }
+            },
+            "definite": false,
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 19,
+                "column": 19,
+                "program": "asyncfun_lambda_lib.ets"
+              },
+              "end": {
+                "line": 19,
+                "column": 45,
+                "program": "asyncfun_lambda_lib.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 18,
+                  "program": "asyncfun_lambda_lib.ets"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 18,
+                  "program": "asyncfun_lambda_lib.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 19,
+                      "column": 18,
+                      "program": "asyncfun_lambda_lib.ets"
+                    },
+                    "end": {
+                      "line": 19,
+                      "column": 18,
+                      "program": "asyncfun_lambda_lib.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 19,
+                      "column": 18,
+                      "program": "asyncfun_lambda_lib.ets"
+                    },
+                    "end": {
+                      "line": 19,
+                      "column": 18,
+                      "program": "asyncfun_lambda_lib.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 19,
+                    "column": 18,
+                    "program": "asyncfun_lambda_lib.ets"
+                  },
+                  "end": {
+                    "line": 19,
+                    "column": 18,
+                    "program": "asyncfun_lambda_lib.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 18,
+                  "program": "asyncfun_lambda_lib.ets"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 18,
+                  "program": "asyncfun_lambda_lib.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 19,
+            "column": 17,
+            "program": "asyncfun_lambda_lib.ets"
+          },
+          "end": {
+            "line": 19,
+            "column": 48,
+            "program": "asyncfun_lambda_lib.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 19,
+          "column": 8,
+          "program": "asyncfun_lambda_lib.ets"
+        },
+        "end": {
+          "line": 19,
+          "column": 48,
+          "program": "asyncfun_lambda_lib.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "asyncfun_lambda_lib.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "asyncfun_lambda_lib.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "asyncfun_lambda_lib.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "asyncfun_lambda_lib.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "asyncfun_lambda_lib.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "asyncfun_lambda_lib.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "asyncfun_lambda_lib.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "asyncfun_lambda_lib.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "asyncfun_lambda_lib.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "asyncfun_lambda_lib.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "asyncfun_lambda_lib.ets"
+    },
+    "end": {
+      "line": 20,
+      "column": 1,
+      "program": "asyncfun_lambda_lib.ets"
+    }
+  }
+}

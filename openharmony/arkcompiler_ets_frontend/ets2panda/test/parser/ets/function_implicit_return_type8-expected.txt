@@ -1,0 +1,1752 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "function_implicit_return_type8.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "function_implicit_return_type8.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "function_implicit_return_type8.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "function_implicit_return_type8.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "fun",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 10,
+                  "program": "function_implicit_return_type8.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 13,
+                  "program": "function_implicit_return_type8.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "fun",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 10,
+                      "program": "function_implicit_return_type8.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 13,
+                      "program": "function_implicit_return_type8.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "x",
+                      "typeAnnotation": {
+                        "type": "ETSPrimitiveType",
+                        "loc": {
+                          "start": {
+                            "line": 17,
+                            "column": 17,
+                            "program": "function_implicit_return_type8.ets"
+                          },
+                          "end": {
+                            "line": 17,
+                            "column": 20,
+                            "program": "function_implicit_return_type8.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 17,
+                          "column": 14,
+                          "program": "function_implicit_return_type8.ets"
+                        },
+                        "end": {
+                          "line": 17,
+                          "column": 20,
+                          "program": "function_implicit_return_type8.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 17,
+                        "column": 14,
+                        "program": "function_implicit_return_type8.ets"
+                      },
+                      "end": {
+                        "line": 17,
+                        "column": 20,
+                        "program": "function_implicit_return_type8.ets"
+                      }
+                    }
+                  }
+                ],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "z",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 18,
+                                "column": 7,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 18,
+                                "column": 8,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "CharLiteral",
+                            "value": "Д",
+                            "loc": {
+                              "start": {
+                                "line": 18,
+                                "column": 12,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 18,
+                                "column": 16,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 18,
+                              "column": 7,
+                              "program": "function_implicit_return_type8.ets"
+                            },
+                            "end": {
+                              "line": 18,
+                              "column": 16,
+                              "program": "function_implicit_return_type8.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 18,
+                          "column": 3,
+                          "program": "function_implicit_return_type8.ets"
+                        },
+                        "end": {
+                          "line": 18,
+                          "column": 17,
+                          "program": "function_implicit_return_type8.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "y",
+                            "typeAnnotation": {
+                              "type": "ETSPrimitiveType",
+                              "loc": {
+                                "start": {
+                                  "line": 19,
+                                  "column": 10,
+                                  "program": "function_implicit_return_type8.ets"
+                                },
+                                "end": {
+                                  "line": 19,
+                                  "column": 16,
+                                  "program": "function_implicit_return_type8.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 19,
+                                "column": 7,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 19,
+                                "column": 8,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "NumberLiteral",
+                            "value": 7.7,
+                            "loc": {
+                              "start": {
+                                "line": 19,
+                                "column": 19,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 19,
+                                "column": 22,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 19,
+                              "column": 7,
+                              "program": "function_implicit_return_type8.ets"
+                            },
+                            "end": {
+                              "line": 19,
+                              "column": 22,
+                              "program": "function_implicit_return_type8.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 19,
+                          "column": 3,
+                          "program": "function_implicit_return_type8.ets"
+                        },
+                        "end": {
+                          "line": 19,
+                          "column": 23,
+                          "program": "function_implicit_return_type8.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "IfStatement",
+                      "test": {
+                        "type": "BinaryExpression",
+                        "operator": ">",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "x",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 21,
+                              "column": 7,
+                              "program": "function_implicit_return_type8.ets"
+                            },
+                            "end": {
+                              "line": 21,
+                              "column": 8,
+                              "program": "function_implicit_return_type8.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "NumberLiteral",
+                          "value": 0,
+                          "loc": {
+                            "start": {
+                              "line": 21,
+                              "column": 11,
+                              "program": "function_implicit_return_type8.ets"
+                            },
+                            "end": {
+                              "line": 21,
+                              "column": 12,
+                              "program": "function_implicit_return_type8.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 21,
+                            "column": 7,
+                            "program": "function_implicit_return_type8.ets"
+                          },
+                          "end": {
+                            "line": 21,
+                            "column": 12,
+                            "program": "function_implicit_return_type8.ets"
+                          }
+                        }
+                      },
+                      "consequent": {
+                        "type": "BlockStatement",
+                        "statements": [
+                          {
+                            "type": "ReturnStatement",
+                            "argument": {
+                              "type": "Identifier",
+                              "name": "z",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 22,
+                                  "column": 12,
+                                  "program": "function_implicit_return_type8.ets"
+                                },
+                                "end": {
+                                  "line": 22,
+                                  "column": 13,
+                                  "program": "function_implicit_return_type8.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 22,
+                                "column": 5,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 22,
+                                "column": 14,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "loc": {
+                          "start": {
+                            "line": 21,
+                            "column": 14,
+                            "program": "function_implicit_return_type8.ets"
+                          },
+                          "end": {
+                            "line": 23,
+                            "column": 4,
+                            "program": "function_implicit_return_type8.ets"
+                          }
+                        }
+                      },
+                      "alternate": null,
+                      "loc": {
+                        "start": {
+                          "line": 21,
+                          "column": 3,
+                          "program": "function_implicit_return_type8.ets"
+                        },
+                        "end": {
+                          "line": 23,
+                          "column": 4,
+                          "program": "function_implicit_return_type8.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "IfStatement",
+                      "test": {
+                        "type": "BinaryExpression",
+                        "operator": "==",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "x",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 25,
+                              "column": 7,
+                              "program": "function_implicit_return_type8.ets"
+                            },
+                            "end": {
+                              "line": 25,
+                              "column": 8,
+                              "program": "function_implicit_return_type8.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "NumberLiteral",
+                          "value": 0,
+                          "loc": {
+                            "start": {
+                              "line": 25,
+                              "column": 12,
+                              "program": "function_implicit_return_type8.ets"
+                            },
+                            "end": {
+                              "line": 25,
+                              "column": 13,
+                              "program": "function_implicit_return_type8.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 25,
+                            "column": 7,
+                            "program": "function_implicit_return_type8.ets"
+                          },
+                          "end": {
+                            "line": 25,
+                            "column": 13,
+                            "program": "function_implicit_return_type8.ets"
+                          }
+                        }
+                      },
+                      "consequent": {
+                        "type": "BlockStatement",
+                        "statements": [
+                          {
+                            "type": "ReturnStatement",
+                            "argument": {
+                              "type": "Identifier",
+                              "name": "y",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 26,
+                                  "column": 12,
+                                  "program": "function_implicit_return_type8.ets"
+                                },
+                                "end": {
+                                  "line": 26,
+                                  "column": 13,
+                                  "program": "function_implicit_return_type8.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 26,
+                                "column": 5,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 26,
+                                "column": 14,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "loc": {
+                          "start": {
+                            "line": 25,
+                            "column": 15,
+                            "program": "function_implicit_return_type8.ets"
+                          },
+                          "end": {
+                            "line": 27,
+                            "column": 4,
+                            "program": "function_implicit_return_type8.ets"
+                          }
+                        }
+                      },
+                      "alternate": null,
+                      "loc": {
+                        "start": {
+                          "line": 25,
+                          "column": 3,
+                          "program": "function_implicit_return_type8.ets"
+                        },
+                        "end": {
+                          "line": 27,
+                          "column": 4,
+                          "program": "function_implicit_return_type8.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ReturnStatement",
+                      "argument": {
+                        "type": "NumberLiteral",
+                        "value": -33,
+                        "loc": {
+                          "start": {
+                            "line": 29,
+                            "column": 10,
+                            "program": "function_implicit_return_type8.ets"
+                          },
+                          "end": {
+                            "line": 29,
+                            "column": 13,
+                            "program": "function_implicit_return_type8.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 29,
+                          "column": 3,
+                          "program": "function_implicit_return_type8.ets"
+                        },
+                        "end": {
+                          "line": 29,
+                          "column": 13,
+                          "program": "function_implicit_return_type8.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 23,
+                      "program": "function_implicit_return_type8.ets"
+                    },
+                    "end": {
+                      "line": 30,
+                      "column": 2,
+                      "program": "function_implicit_return_type8.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 10,
+                    "program": "function_implicit_return_type8.ets"
+                  },
+                  "end": {
+                    "line": 30,
+                    "column": 2,
+                    "program": "function_implicit_return_type8.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 10,
+                  "program": "function_implicit_return_type8.ets"
+                },
+                "end": {
+                  "line": 30,
+                  "column": 2,
+                  "program": "function_implicit_return_type8.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 1,
+                "program": "function_implicit_return_type8.ets"
+              },
+              "end": {
+                "line": 30,
+                "column": 2,
+                "program": "function_implicit_return_type8.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 32,
+                  "column": 10,
+                  "program": "function_implicit_return_type8.ets"
+                },
+                "end": {
+                  "line": 32,
+                  "column": 14,
+                  "program": "function_implicit_return_type8.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 32,
+                      "column": 10,
+                      "program": "function_implicit_return_type8.ets"
+                    },
+                    "end": {
+                      "line": 32,
+                      "column": 14,
+                      "program": "function_implicit_return_type8.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "x",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 34,
+                                "column": 8,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 34,
+                                "column": 9,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "Identifier",
+                              "name": "fun",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 34,
+                                  "column": 12,
+                                  "program": "function_implicit_return_type8.ets"
+                                },
+                                "end": {
+                                  "line": 34,
+                                  "column": 15,
+                                  "program": "function_implicit_return_type8.ets"
+                                }
+                              }
+                            },
+                            "arguments": [
+                              {
+                                "type": "NumberLiteral",
+                                "value": 2,
+                                "loc": {
+                                  "start": {
+                                    "line": 34,
+                                    "column": 16,
+                                    "program": "function_implicit_return_type8.ets"
+                                  },
+                                  "end": {
+                                    "line": 34,
+                                    "column": 17,
+                                    "program": "function_implicit_return_type8.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "optional": false,
+                            "loc": {
+                              "start": {
+                                "line": 34,
+                                "column": 12,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 34,
+                                "column": 18,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 34,
+                              "column": 8,
+                              "program": "function_implicit_return_type8.ets"
+                            },
+                            "end": {
+                              "line": 34,
+                              "column": 18,
+                              "program": "function_implicit_return_type8.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 34,
+                          "column": 4,
+                          "program": "function_implicit_return_type8.ets"
+                        },
+                        "end": {
+                          "line": 34,
+                          "column": 19,
+                          "program": "function_implicit_return_type8.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "y",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 35,
+                                "column": 8,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 35,
+                                "column": 9,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "Identifier",
+                              "name": "fun",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 35,
+                                  "column": 12,
+                                  "program": "function_implicit_return_type8.ets"
+                                },
+                                "end": {
+                                  "line": 35,
+                                  "column": 15,
+                                  "program": "function_implicit_return_type8.ets"
+                                }
+                              }
+                            },
+                            "arguments": [
+                              {
+                                "type": "NumberLiteral",
+                                "value": 0,
+                                "loc": {
+                                  "start": {
+                                    "line": 35,
+                                    "column": 16,
+                                    "program": "function_implicit_return_type8.ets"
+                                  },
+                                  "end": {
+                                    "line": 35,
+                                    "column": 17,
+                                    "program": "function_implicit_return_type8.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "optional": false,
+                            "loc": {
+                              "start": {
+                                "line": 35,
+                                "column": 12,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 35,
+                                "column": 18,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 35,
+                              "column": 8,
+                              "program": "function_implicit_return_type8.ets"
+                            },
+                            "end": {
+                              "line": 35,
+                              "column": 18,
+                              "program": "function_implicit_return_type8.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 35,
+                          "column": 4,
+                          "program": "function_implicit_return_type8.ets"
+                        },
+                        "end": {
+                          "line": 35,
+                          "column": 19,
+                          "program": "function_implicit_return_type8.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "z",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 36,
+                                "column": 8,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 36,
+                                "column": 9,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "Identifier",
+                              "name": "fun",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 36,
+                                  "column": 12,
+                                  "program": "function_implicit_return_type8.ets"
+                                },
+                                "end": {
+                                  "line": 36,
+                                  "column": 15,
+                                  "program": "function_implicit_return_type8.ets"
+                                }
+                              }
+                            },
+                            "arguments": [
+                              {
+                                "type": "NumberLiteral",
+                                "value": -1,
+                                "loc": {
+                                  "start": {
+                                    "line": 36,
+                                    "column": 16,
+                                    "program": "function_implicit_return_type8.ets"
+                                  },
+                                  "end": {
+                                    "line": 36,
+                                    "column": 18,
+                                    "program": "function_implicit_return_type8.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "optional": false,
+                            "loc": {
+                              "start": {
+                                "line": 36,
+                                "column": 12,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 36,
+                                "column": 19,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 36,
+                              "column": 8,
+                              "program": "function_implicit_return_type8.ets"
+                            },
+                            "end": {
+                              "line": 36,
+                              "column": 19,
+                              "program": "function_implicit_return_type8.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 36,
+                          "column": 4,
+                          "program": "function_implicit_return_type8.ets"
+                        },
+                        "end": {
+                          "line": 36,
+                          "column": 20,
+                          "program": "function_implicit_return_type8.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "cons",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 38,
+                                "column": 8,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 38,
+                                "column": 12,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "ETSNewClassInstanceExpression",
+                            "typeReference": {
+                              "type": "ETSTypeReference",
+                              "part": {
+                                "type": "ETSTypeReferencePart",
+                                "name": {
+                                  "type": "Identifier",
+                                  "name": "Console",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 38,
+                                      "column": 19,
+                                      "program": "function_implicit_return_type8.ets"
+                                    },
+                                    "end": {
+                                      "line": 38,
+                                      "column": 26,
+                                      "program": "function_implicit_return_type8.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 38,
+                                    "column": 19,
+                                    "program": "function_implicit_return_type8.ets"
+                                  },
+                                  "end": {
+                                    "line": 38,
+                                    "column": 27,
+                                    "program": "function_implicit_return_type8.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 38,
+                                  "column": 19,
+                                  "program": "function_implicit_return_type8.ets"
+                                },
+                                "end": {
+                                  "line": 38,
+                                  "column": 27,
+                                  "program": "function_implicit_return_type8.ets"
+                                }
+                              }
+                            },
+                            "arguments": [],
+                            "loc": {
+                              "start": {
+                                "line": 38,
+                                "column": 15,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 38,
+                                "column": 27,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 38,
+                              "column": 8,
+                              "program": "function_implicit_return_type8.ets"
+                            },
+                            "end": {
+                              "line": 38,
+                              "column": 27,
+                              "program": "function_implicit_return_type8.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 38,
+                          "column": 4,
+                          "program": "function_implicit_return_type8.ets"
+                        },
+                        "end": {
+                          "line": 38,
+                          "column": 27,
+                          "program": "function_implicit_return_type8.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "object": {
+                            "type": "Identifier",
+                            "name": "cons",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 39,
+                                "column": 4,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 39,
+                                "column": 8,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "print",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 39,
+                                "column": 9,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 39,
+                                "column": 14,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          },
+                          "computed": false,
+                          "optional": false,
+                          "loc": {
+                            "start": {
+                              "line": 39,
+                              "column": 4,
+                              "program": "function_implicit_return_type8.ets"
+                            },
+                            "end": {
+                              "line": 39,
+                              "column": 14,
+                              "program": "function_implicit_return_type8.ets"
+                            }
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "BinaryExpression",
+                            "operator": "+",
+                            "left": {
+                              "type": "BinaryExpression",
+                              "operator": "+",
+                              "left": {
+                                "type": "StringLiteral",
+                                "value": "x = ",
+                                "loc": {
+                                  "start": {
+                                    "line": 39,
+                                    "column": 15,
+                                    "program": "function_implicit_return_type8.ets"
+                                  },
+                                  "end": {
+                                    "line": 39,
+                                    "column": 21,
+                                    "program": "function_implicit_return_type8.ets"
+                                  }
+                                }
+                              },
+                              "right": {
+                                "type": "Identifier",
+                                "name": "x",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 39,
+                                    "column": 24,
+                                    "program": "function_implicit_return_type8.ets"
+                                  },
+                                  "end": {
+                                    "line": 39,
+                                    "column": 25,
+                                    "program": "function_implicit_return_type8.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 39,
+                                  "column": 15,
+                                  "program": "function_implicit_return_type8.ets"
+                                },
+                                "end": {
+                                  "line": 39,
+                                  "column": 25,
+                                  "program": "function_implicit_return_type8.ets"
+                                }
+                              }
+                            },
+                            "right": {
+                              "type": "StringLiteral",
+                              "value": "\n",
+                              "loc": {
+                                "start": {
+                                  "line": 39,
+                                  "column": 28,
+                                  "program": "function_implicit_return_type8.ets"
+                                },
+                                "end": {
+                                  "line": 39,
+                                  "column": 32,
+                                  "program": "function_implicit_return_type8.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 39,
+                                "column": 15,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 39,
+                                "column": 32,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 39,
+                            "column": 4,
+                            "program": "function_implicit_return_type8.ets"
+                          },
+                          "end": {
+                            "line": 39,
+                            "column": 33,
+                            "program": "function_implicit_return_type8.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 39,
+                          "column": 4,
+                          "program": "function_implicit_return_type8.ets"
+                        },
+                        "end": {
+                          "line": 39,
+                          "column": 34,
+                          "program": "function_implicit_return_type8.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "object": {
+                            "type": "Identifier",
+                            "name": "cons",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 40,
+                                "column": 4,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 40,
+                                "column": 8,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "print",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 40,
+                                "column": 9,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 40,
+                                "column": 14,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          },
+                          "computed": false,
+                          "optional": false,
+                          "loc": {
+                            "start": {
+                              "line": 40,
+                              "column": 4,
+                              "program": "function_implicit_return_type8.ets"
+                            },
+                            "end": {
+                              "line": 40,
+                              "column": 14,
+                              "program": "function_implicit_return_type8.ets"
+                            }
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "BinaryExpression",
+                            "operator": "+",
+                            "left": {
+                              "type": "BinaryExpression",
+                              "operator": "+",
+                              "left": {
+                                "type": "StringLiteral",
+                                "value": "y = ",
+                                "loc": {
+                                  "start": {
+                                    "line": 40,
+                                    "column": 15,
+                                    "program": "function_implicit_return_type8.ets"
+                                  },
+                                  "end": {
+                                    "line": 40,
+                                    "column": 21,
+                                    "program": "function_implicit_return_type8.ets"
+                                  }
+                                }
+                              },
+                              "right": {
+                                "type": "Identifier",
+                                "name": "y",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 40,
+                                    "column": 24,
+                                    "program": "function_implicit_return_type8.ets"
+                                  },
+                                  "end": {
+                                    "line": 40,
+                                    "column": 25,
+                                    "program": "function_implicit_return_type8.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 40,
+                                  "column": 15,
+                                  "program": "function_implicit_return_type8.ets"
+                                },
+                                "end": {
+                                  "line": 40,
+                                  "column": 25,
+                                  "program": "function_implicit_return_type8.ets"
+                                }
+                              }
+                            },
+                            "right": {
+                              "type": "StringLiteral",
+                              "value": "\n",
+                              "loc": {
+                                "start": {
+                                  "line": 40,
+                                  "column": 28,
+                                  "program": "function_implicit_return_type8.ets"
+                                },
+                                "end": {
+                                  "line": 40,
+                                  "column": 32,
+                                  "program": "function_implicit_return_type8.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 40,
+                                "column": 15,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 40,
+                                "column": 32,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 40,
+                            "column": 4,
+                            "program": "function_implicit_return_type8.ets"
+                          },
+                          "end": {
+                            "line": 40,
+                            "column": 33,
+                            "program": "function_implicit_return_type8.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 40,
+                          "column": 4,
+                          "program": "function_implicit_return_type8.ets"
+                        },
+                        "end": {
+                          "line": 40,
+                          "column": 34,
+                          "program": "function_implicit_return_type8.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "object": {
+                            "type": "Identifier",
+                            "name": "cons",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 41,
+                                "column": 4,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 41,
+                                "column": 8,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "print",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 41,
+                                "column": 9,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 41,
+                                "column": 14,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          },
+                          "computed": false,
+                          "optional": false,
+                          "loc": {
+                            "start": {
+                              "line": 41,
+                              "column": 4,
+                              "program": "function_implicit_return_type8.ets"
+                            },
+                            "end": {
+                              "line": 41,
+                              "column": 14,
+                              "program": "function_implicit_return_type8.ets"
+                            }
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "BinaryExpression",
+                            "operator": "+",
+                            "left": {
+                              "type": "BinaryExpression",
+                              "operator": "+",
+                              "left": {
+                                "type": "StringLiteral",
+                                "value": "z = ",
+                                "loc": {
+                                  "start": {
+                                    "line": 41,
+                                    "column": 15,
+                                    "program": "function_implicit_return_type8.ets"
+                                  },
+                                  "end": {
+                                    "line": 41,
+                                    "column": 21,
+                                    "program": "function_implicit_return_type8.ets"
+                                  }
+                                }
+                              },
+                              "right": {
+                                "type": "Identifier",
+                                "name": "z",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 41,
+                                    "column": 24,
+                                    "program": "function_implicit_return_type8.ets"
+                                  },
+                                  "end": {
+                                    "line": 41,
+                                    "column": 25,
+                                    "program": "function_implicit_return_type8.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 41,
+                                  "column": 15,
+                                  "program": "function_implicit_return_type8.ets"
+                                },
+                                "end": {
+                                  "line": 41,
+                                  "column": 25,
+                                  "program": "function_implicit_return_type8.ets"
+                                }
+                              }
+                            },
+                            "right": {
+                              "type": "StringLiteral",
+                              "value": "\n",
+                              "loc": {
+                                "start": {
+                                  "line": 41,
+                                  "column": 28,
+                                  "program": "function_implicit_return_type8.ets"
+                                },
+                                "end": {
+                                  "line": 41,
+                                  "column": 32,
+                                  "program": "function_implicit_return_type8.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 41,
+                                "column": 15,
+                                "program": "function_implicit_return_type8.ets"
+                              },
+                              "end": {
+                                "line": 41,
+                                "column": 32,
+                                "program": "function_implicit_return_type8.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 41,
+                            "column": 4,
+                            "program": "function_implicit_return_type8.ets"
+                          },
+                          "end": {
+                            "line": 41,
+                            "column": 33,
+                            "program": "function_implicit_return_type8.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 41,
+                          "column": 4,
+                          "program": "function_implicit_return_type8.ets"
+                        },
+                        "end": {
+                          "line": 41,
+                          "column": 34,
+                          "program": "function_implicit_return_type8.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 33,
+                      "column": 1,
+                      "program": "function_implicit_return_type8.ets"
+                    },
+                    "end": {
+                      "line": 42,
+                      "column": 2,
+                      "program": "function_implicit_return_type8.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 32,
+                    "column": 10,
+                    "program": "function_implicit_return_type8.ets"
+                  },
+                  "end": {
+                    "line": 42,
+                    "column": 2,
+                    "program": "function_implicit_return_type8.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 32,
+                  "column": 10,
+                  "program": "function_implicit_return_type8.ets"
+                },
+                "end": {
+                  "line": 42,
+                  "column": 2,
+                  "program": "function_implicit_return_type8.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 32,
+                "column": 1,
+                "program": "function_implicit_return_type8.ets"
+              },
+              "end": {
+                "line": 42,
+                "column": 2,
+                "program": "function_implicit_return_type8.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "function_implicit_return_type8.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "function_implicit_return_type8.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "function_implicit_return_type8.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "function_implicit_return_type8.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "function_implicit_return_type8.ets"
+    },
+    "end": {
+      "line": 43,
+      "column": 1,
+      "program": "function_implicit_return_type8.ets"
+    }
+  }
+}

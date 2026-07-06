@@ -1,0 +1,391 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "TryStatement",
+      "block": {
+        "type": "BlockStatement",
+        "statements": [],
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 5,
+            "program": "test-try-statement.js"
+          },
+          "end": {
+            "line": 17,
+            "column": 8,
+            "program": "test-try-statement.js"
+          }
+        }
+      },
+      "handler": [
+        {
+          "type": "CatchClause",
+          "body": {
+            "type": "BlockStatement",
+            "statements": [],
+            "loc": {
+              "start": {
+                "line": 18,
+                "column": 10,
+                "program": "test-try-statement.js"
+              },
+              "end": {
+                "line": 18,
+                "column": 13,
+                "program": "test-try-statement.js"
+              }
+            }
+          },
+          "param": {
+            "type": "Identifier",
+            "name": "e",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 18,
+                "column": 7,
+                "program": "test-try-statement.js"
+              },
+              "end": {
+                "line": 18,
+                "column": 8,
+                "program": "test-try-statement.js"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 18,
+              "column": 1,
+              "program": "test-try-statement.js"
+            },
+            "end": {
+              "line": 18,
+              "column": 13,
+              "program": "test-try-statement.js"
+            }
+          }
+        }
+      ],
+      "finalizer": {
+        "type": "BlockStatement",
+        "statements": [],
+        "loc": {
+          "start": {
+            "line": 19,
+            "column": 9,
+            "program": "test-try-statement.js"
+          },
+          "end": {
+            "line": 19,
+            "column": 12,
+            "program": "test-try-statement.js"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 17,
+          "column": 1,
+          "program": "test-try-statement.js"
+        },
+        "end": {
+          "line": 19,
+          "column": 12,
+          "program": "test-try-statement.js"
+        }
+      }
+    },
+    {
+      "type": "TryStatement",
+      "block": {
+        "type": "BlockStatement",
+        "statements": [],
+        "loc": {
+          "start": {
+            "line": 21,
+            "column": 5,
+            "program": "test-try-statement.js"
+          },
+          "end": {
+            "line": 21,
+            "column": 8,
+            "program": "test-try-statement.js"
+          }
+        }
+      },
+      "handler": [
+        {
+          "type": "CatchClause",
+          "body": {
+            "type": "BlockStatement",
+            "statements": [],
+            "loc": {
+              "start": {
+                "line": 22,
+                "column": 7,
+                "program": "test-try-statement.js"
+              },
+              "end": {
+                "line": 22,
+                "column": 10,
+                "program": "test-try-statement.js"
+              }
+            }
+          },
+          "param": null,
+          "loc": {
+            "start": {
+              "line": 22,
+              "column": 1,
+              "program": "test-try-statement.js"
+            },
+            "end": {
+              "line": 22,
+              "column": 10,
+              "program": "test-try-statement.js"
+            }
+          }
+        }
+      ],
+      "finalizer": {
+        "type": "BlockStatement",
+        "statements": [],
+        "loc": {
+          "start": {
+            "line": 23,
+            "column": 9,
+            "program": "test-try-statement.js"
+          },
+          "end": {
+            "line": 23,
+            "column": 12,
+            "program": "test-try-statement.js"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 21,
+          "column": 1,
+          "program": "test-try-statement.js"
+        },
+        "end": {
+          "line": 23,
+          "column": 12,
+          "program": "test-try-statement.js"
+        }
+      }
+    },
+    {
+      "type": "TryStatement",
+      "block": {
+        "type": "BlockStatement",
+        "statements": [],
+        "loc": {
+          "start": {
+            "line": 25,
+            "column": 5,
+            "program": "test-try-statement.js"
+          },
+          "end": {
+            "line": 25,
+            "column": 8,
+            "program": "test-try-statement.js"
+          }
+        }
+      },
+      "handler": [],
+      "finalizer": {
+        "type": "BlockStatement",
+        "statements": [],
+        "loc": {
+          "start": {
+            "line": 26,
+            "column": 9,
+            "program": "test-try-statement.js"
+          },
+          "end": {
+            "line": 26,
+            "column": 12,
+            "program": "test-try-statement.js"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 25,
+          "column": 1,
+          "program": "test-try-statement.js"
+        },
+        "end": {
+          "line": 26,
+          "column": 12,
+          "program": "test-try-statement.js"
+        }
+      }
+    },
+    {
+      "type": "TryStatement",
+      "block": {
+        "type": "BlockStatement",
+        "statements": [],
+        "loc": {
+          "start": {
+            "line": 28,
+            "column": 5,
+            "program": "test-try-statement.js"
+          },
+          "end": {
+            "line": 28,
+            "column": 8,
+            "program": "test-try-statement.js"
+          }
+        }
+      },
+      "handler": [
+        {
+          "type": "CatchClause",
+          "body": {
+            "type": "BlockStatement",
+            "statements": [],
+            "loc": {
+              "start": {
+                "line": 29,
+                "column": 10,
+                "program": "test-try-statement.js"
+              },
+              "end": {
+                "line": 29,
+                "column": 13,
+                "program": "test-try-statement.js"
+              }
+            }
+          },
+          "param": {
+            "type": "Identifier",
+            "name": "e",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 29,
+                "column": 7,
+                "program": "test-try-statement.js"
+              },
+              "end": {
+                "line": 29,
+                "column": 8,
+                "program": "test-try-statement.js"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 29,
+              "column": 1,
+              "program": "test-try-statement.js"
+            },
+            "end": {
+              "line": 29,
+              "column": 13,
+              "program": "test-try-statement.js"
+            }
+          }
+        }
+      ],
+      "finalizer": null,
+      "loc": {
+        "start": {
+          "line": 28,
+          "column": 1,
+          "program": "test-try-statement.js"
+        },
+        "end": {
+          "line": 29,
+          "column": 13,
+          "program": "test-try-statement.js"
+        }
+      }
+    },
+    {
+      "type": "TryStatement",
+      "block": {
+        "type": "BlockStatement",
+        "statements": [],
+        "loc": {
+          "start": {
+            "line": 31,
+            "column": 5,
+            "program": "test-try-statement.js"
+          },
+          "end": {
+            "line": 31,
+            "column": 8,
+            "program": "test-try-statement.js"
+          }
+        }
+      },
+      "handler": [
+        {
+          "type": "CatchClause",
+          "body": {
+            "type": "BlockStatement",
+            "statements": [],
+            "loc": {
+              "start": {
+                "line": 32,
+                "column": 7,
+                "program": "test-try-statement.js"
+              },
+              "end": {
+                "line": 32,
+                "column": 10,
+                "program": "test-try-statement.js"
+              }
+            }
+          },
+          "param": null,
+          "loc": {
+            "start": {
+              "line": 32,
+              "column": 1,
+              "program": "test-try-statement.js"
+            },
+            "end": {
+              "line": 32,
+              "column": 10,
+              "program": "test-try-statement.js"
+            }
+          }
+        }
+      ],
+      "finalizer": null,
+      "loc": {
+        "start": {
+          "line": 31,
+          "column": 1,
+          "program": "test-try-statement.js"
+        },
+        "end": {
+          "line": 32,
+          "column": 10,
+          "program": "test-try-statement.js"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "test-try-statement.js"
+    },
+    "end": {
+      "line": 33,
+      "column": 1,
+      "program": "test-try-statement.js"
+    }
+  }
+}

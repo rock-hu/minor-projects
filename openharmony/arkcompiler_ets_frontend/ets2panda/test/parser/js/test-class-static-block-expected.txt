@@ -1,0 +1,1066 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "A",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 16,
+              "column": 7,
+              "program": "test-class-static-block.js"
+            },
+            "end": {
+              "line": 16,
+              "column": 8,
+              "program": "test-class-static-block.js"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "constructor": {
+          "type": "MethodDefinition",
+          "key": {
+            "type": "Identifier",
+            "name": "constructor",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 10,
+                "program": "test-class-static-block.js"
+              },
+              "end": {
+                "line": 16,
+                "column": 10,
+                "program": "test-class-static-block.js"
+              }
+            }
+          },
+          "kind": "constructor",
+          "static": false,
+          "optional": false,
+          "computed": false,
+          "value": {
+            "type": "FunctionExpression",
+            "function": {
+              "type": "ScriptFunction",
+              "id": null,
+              "generator": false,
+              "async": false,
+              "expression": false,
+              "params": [],
+              "body": {
+                "type": "BlockStatement",
+                "statements": [],
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 10,
+                    "program": "test-class-static-block.js"
+                  },
+                  "end": {
+                    "line": 16,
+                    "column": 10,
+                    "program": "test-class-static-block.js"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "test-class-static-block.js"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "test-class-static-block.js"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 10,
+                "program": "test-class-static-block.js"
+              },
+              "end": {
+                "line": 16,
+                "column": 10,
+                "program": "test-class-static-block.js"
+              }
+            }
+          },
+          "overloads": [],
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": null
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": null
+            }
+          }
+        },
+        "body": [
+          {
+            "type": "ClassStaticBlock",
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": null,
+                "generator": false,
+                "async": false,
+                "expression": true,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 19,
+                "column": 5,
+                "program": "test-class-static-block.js"
+              },
+              "end": {
+                "line": 19,
+                "column": 6,
+                "program": "test-class-static-block.js"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "a",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 5,
+                  "program": "test-class-static-block.js"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 6,
+                  "program": "test-class-static-block.js"
+                }
+              }
+            },
+            "kind": "method",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": null,
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 9,
+                      "program": "test-class-static-block.js"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 12,
+                      "program": "test-class-static-block.js"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 20,
+                    "column": 6,
+                    "program": "test-class-static-block.js"
+                  },
+                  "end": {
+                    "line": 20,
+                    "column": 12,
+                    "program": "test-class-static-block.js"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 6,
+                  "program": "test-class-static-block.js"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 12,
+                  "program": "test-class-static-block.js"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 20,
+                "column": 5,
+                "program": "test-class-static-block.js"
+              },
+              "end": {
+                "line": 20,
+                "column": 12,
+                "program": "test-class-static-block.js"
+              }
+            }
+          },
+          {
+            "type": "ClassStaticBlock",
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": null,
+                "generator": false,
+                "async": false,
+                "expression": true,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "a",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 22,
+                                "column": 13,
+                                "program": "test-class-static-block.js"
+                              },
+                              "end": {
+                                "line": 22,
+                                "column": 14,
+                                "program": "test-class-static-block.js"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "NumberLiteral",
+                            "value": 5,
+                            "loc": {
+                              "start": {
+                                "line": 22,
+                                "column": 17,
+                                "program": "test-class-static-block.js"
+                              },
+                              "end": {
+                                "line": 22,
+                                "column": 18,
+                                "program": "test-class-static-block.js"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 22,
+                              "column": 13,
+                              "program": "test-class-static-block.js"
+                            },
+                            "end": {
+                              "line": 22,
+                              "column": 18,
+                              "program": "test-class-static-block.js"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 22,
+                          "column": 9,
+                          "program": "test-class-static-block.js"
+                        },
+                        "end": {
+                          "line": 22,
+                          "column": 19,
+                          "program": "test-class-static-block.js"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "AssignmentExpression",
+                        "operator": "=",
+                        "left": {
+                          "type": "MemberExpression",
+                          "object": {
+                            "type": "ThisExpression",
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 9,
+                                "program": "test-class-static-block.js"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 13,
+                                "program": "test-class-static-block.js"
+                              }
+                            }
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "b",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 14,
+                                "program": "test-class-static-block.js"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 15,
+                                "program": "test-class-static-block.js"
+                              }
+                            }
+                          },
+                          "computed": false,
+                          "optional": false,
+                          "loc": {
+                            "start": {
+                              "line": 23,
+                              "column": 9,
+                              "program": "test-class-static-block.js"
+                            },
+                            "end": {
+                              "line": 23,
+                              "column": 15,
+                              "program": "test-class-static-block.js"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "NumberLiteral",
+                          "value": 12,
+                          "loc": {
+                            "start": {
+                              "line": 23,
+                              "column": 18,
+                              "program": "test-class-static-block.js"
+                            },
+                            "end": {
+                              "line": 23,
+                              "column": 20,
+                              "program": "test-class-static-block.js"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 23,
+                            "column": 9,
+                            "program": "test-class-static-block.js"
+                          },
+                          "end": {
+                            "line": 23,
+                            "column": 20,
+                            "program": "test-class-static-block.js"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 23,
+                          "column": 9,
+                          "program": "test-class-static-block.js"
+                        },
+                        "end": {
+                          "line": 23,
+                          "column": 21,
+                          "program": "test-class-static-block.js"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 24,
+                "column": 5,
+                "program": "test-class-static-block.js"
+              },
+              "end": {
+                "line": 24,
+                "column": 6,
+                "program": "test-class-static-block.js"
+              }
+            }
+          },
+          {
+            "type": "ClassProperty",
+            "key": {
+              "type": "Identifier",
+              "name": "b",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 25,
+                  "column": 12,
+                  "program": "test-class-static-block.js"
+                },
+                "end": {
+                  "line": 25,
+                  "column": 13,
+                  "program": "test-class-static-block.js"
+                }
+              }
+            },
+            "value": {
+              "type": "NumberLiteral",
+              "value": 3,
+              "loc": {
+                "start": {
+                  "line": 25,
+                  "column": 16,
+                  "program": "test-class-static-block.js"
+                },
+                "end": {
+                  "line": 25,
+                  "column": 17,
+                  "program": "test-class-static-block.js"
+                }
+              }
+            },
+            "static": true,
+            "readonly": false,
+            "declare": false,
+            "optional": false,
+            "computed": false,
+            "definite": false,
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 25,
+                "column": 5,
+                "program": "test-class-static-block.js"
+              },
+              "end": {
+                "line": 25,
+                "column": 17,
+                "program": "test-class-static-block.js"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 9,
+            "program": "test-class-static-block.js"
+          },
+          "end": {
+            "line": 28,
+            "column": 6,
+            "program": "test-class-static-block.js"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 1,
+          "program": "test-class-static-block.js"
+        },
+        "end": {
+          "line": 28,
+          "column": 6,
+          "program": "test-class-static-block.js"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "B",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 28,
+              "column": 7,
+              "program": "test-class-static-block.js"
+            },
+            "end": {
+              "line": 28,
+              "column": 8,
+              "program": "test-class-static-block.js"
+            }
+          }
+        },
+        "superClass": {
+          "type": "Identifier",
+          "name": "A",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 28,
+              "column": 17,
+              "program": "test-class-static-block.js"
+            },
+            "end": {
+              "line": 28,
+              "column": 18,
+              "program": "test-class-static-block.js"
+            }
+          }
+        },
+        "implements": [],
+        "constructor": {
+          "type": "MethodDefinition",
+          "key": {
+            "type": "Identifier",
+            "name": "constructor",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 28,
+                "column": 20,
+                "program": "test-class-static-block.js"
+              },
+              "end": {
+                "line": 28,
+                "column": 20,
+                "program": "test-class-static-block.js"
+              }
+            }
+          },
+          "kind": "constructor",
+          "static": false,
+          "optional": false,
+          "computed": false,
+          "value": {
+            "type": "FunctionExpression",
+            "function": {
+              "type": "ScriptFunction",
+              "id": null,
+              "generator": false,
+              "async": false,
+              "expression": false,
+              "params": [
+                {
+                  "type": "RestElement",
+                  "argument": {
+                    "type": "Identifier",
+                    "name": "args",
+                    "decorators": [],
+                    "loc": {
+                      "start": {
+                        "line": 28,
+                        "column": 20,
+                        "program": "test-class-static-block.js"
+                      },
+                      "end": {
+                        "line": 28,
+                        "column": 20,
+                        "program": "test-class-static-block.js"
+                      }
+                    }
+                  },
+                  "loc": {
+                    "start": {
+                      "line": 28,
+                      "column": 20,
+                      "program": "test-class-static-block.js"
+                    },
+                    "end": {
+                      "line": 28,
+                      "column": 20,
+                      "program": "test-class-static-block.js"
+                    }
+                  }
+                }
+              ],
+              "body": {
+                "type": "BlockStatement",
+                "statements": [
+                  {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                      "type": "CallExpression",
+                      "callee": {
+                        "type": "Super",
+                        "loc": {
+                          "start": {
+                            "line": 28,
+                            "column": 20,
+                            "program": "test-class-static-block.js"
+                          },
+                          "end": {
+                            "line": 28,
+                            "column": 20,
+                            "program": "test-class-static-block.js"
+                          }
+                        }
+                      },
+                      "arguments": [
+                        {
+                          "type": "SpreadElement",
+                          "argument": {
+                            "type": "Identifier",
+                            "name": "args",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 28,
+                                "column": 20,
+                                "program": "test-class-static-block.js"
+                              },
+                              "end": {
+                                "line": 28,
+                                "column": 20,
+                                "program": "test-class-static-block.js"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 28,
+                              "column": 20,
+                              "program": "test-class-static-block.js"
+                            },
+                            "end": {
+                              "line": 28,
+                              "column": 20,
+                              "program": "test-class-static-block.js"
+                            }
+                          }
+                        }
+                      ],
+                      "optional": false,
+                      "loc": {
+                        "start": {
+                          "line": 28,
+                          "column": 20,
+                          "program": "test-class-static-block.js"
+                        },
+                        "end": {
+                          "line": 28,
+                          "column": 20,
+                          "program": "test-class-static-block.js"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 28,
+                        "column": 20,
+                        "program": "test-class-static-block.js"
+                      },
+                      "end": {
+                        "line": 28,
+                        "column": 20,
+                        "program": "test-class-static-block.js"
+                      }
+                    }
+                  }
+                ],
+                "loc": {
+                  "start": {
+                    "line": 28,
+                    "column": 20,
+                    "program": "test-class-static-block.js"
+                  },
+                  "end": {
+                    "line": 28,
+                    "column": 20,
+                    "program": "test-class-static-block.js"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 28,
+                  "column": 20,
+                  "program": "test-class-static-block.js"
+                },
+                "end": {
+                  "line": 28,
+                  "column": 20,
+                  "program": "test-class-static-block.js"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 28,
+                "column": 20,
+                "program": "test-class-static-block.js"
+              },
+              "end": {
+                "line": 28,
+                "column": 20,
+                "program": "test-class-static-block.js"
+              }
+            }
+          },
+          "overloads": [],
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": null
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": null
+            }
+          }
+        },
+        "body": [
+          {
+            "type": "ClassProperty",
+            "key": {
+              "type": "Identifier",
+              "name": "k",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 29,
+                  "column": 12,
+                  "program": "test-class-static-block.js"
+                },
+                "end": {
+                  "line": 29,
+                  "column": 13,
+                  "program": "test-class-static-block.js"
+                }
+              }
+            },
+            "static": true,
+            "readonly": false,
+            "declare": false,
+            "optional": false,
+            "computed": false,
+            "definite": false,
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 29,
+                "column": 5,
+                "program": "test-class-static-block.js"
+              },
+              "end": {
+                "line": 29,
+                "column": 13,
+                "program": "test-class-static-block.js"
+              }
+            }
+          },
+          {
+            "type": "ClassStaticBlock",
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": null,
+                "generator": false,
+                "async": false,
+                "expression": true,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "AssignmentExpression",
+                        "operator": "=",
+                        "left": {
+                          "type": "MemberExpression",
+                          "object": {
+                            "type": "Super",
+                            "loc": {
+                              "start": {
+                                "line": 31,
+                                "column": 9,
+                                "program": "test-class-static-block.js"
+                              },
+                              "end": {
+                                "line": 31,
+                                "column": 14,
+                                "program": "test-class-static-block.js"
+                              }
+                            }
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "b",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 31,
+                                "column": 15,
+                                "program": "test-class-static-block.js"
+                              },
+                              "end": {
+                                "line": 31,
+                                "column": 16,
+                                "program": "test-class-static-block.js"
+                              }
+                            }
+                          },
+                          "computed": false,
+                          "optional": false,
+                          "loc": {
+                            "start": {
+                              "line": 31,
+                              "column": 9,
+                              "program": "test-class-static-block.js"
+                            },
+                            "end": {
+                              "line": 31,
+                              "column": 16,
+                              "program": "test-class-static-block.js"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "NumberLiteral",
+                          "value": 5,
+                          "loc": {
+                            "start": {
+                              "line": 31,
+                              "column": 19,
+                              "program": "test-class-static-block.js"
+                            },
+                            "end": {
+                              "line": 31,
+                              "column": 20,
+                              "program": "test-class-static-block.js"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 31,
+                            "column": 9,
+                            "program": "test-class-static-block.js"
+                          },
+                          "end": {
+                            "line": 31,
+                            "column": 20,
+                            "program": "test-class-static-block.js"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 31,
+                          "column": 9,
+                          "program": "test-class-static-block.js"
+                        },
+                        "end": {
+                          "line": 31,
+                          "column": 21,
+                          "program": "test-class-static-block.js"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 32,
+                "column": 5,
+                "program": "test-class-static-block.js"
+              },
+              "end": {
+                "line": 32,
+                "column": 6,
+                "program": "test-class-static-block.js"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 28,
+            "column": 19,
+            "program": "test-class-static-block.js"
+          },
+          "end": {
+            "line": 34,
+            "column": 1,
+            "program": "test-class-static-block.js"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 28,
+          "column": 1,
+          "program": "test-class-static-block.js"
+        },
+        "end": {
+          "line": 34,
+          "column": 1,
+          "program": "test-class-static-block.js"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "test-class-static-block.js"
+    },
+    "end": {
+      "line": 34,
+      "column": 1,
+      "program": "test-class-static-block.js"
+    }
+  }
+}

@@ -1,0 +1,88 @@
+{
+	"testInfo": [
+        {
+            "className": "clip_test_radius_01",
+            "pageNav": ["Clip", "Next"],
+            "testSteps": [
+                {
+                    "viewID": "radius+5",
+                    "eventID": 0,
+                    "eventValue": [1,2],
+                    "saveCheckPoint": true
+                },
+                {
+                    "viewID": "radius-5",
+                    "eventID": 0,
+                    "eventValue": [1,2],
+                    "saveCheckPoint": true
+                },
+                {
+                    "viewID": "radius+1",
+                    "eventID": 0,
+                    "eventValue": [1,2],
+                    "saveCheckPoint": true
+                },
+                {
+                    "viewID": "radius-1",
+                    "eventID": 0,
+                    "eventValue": [1,2],
+                    "saveCheckPoint": true
+                }
+            ]
+        },
+        {
+            "className": "clip_test_radius_02",
+            "pageNav": ["Clip"],
+            "testSteps": [
+                {
+                    "viewID": "arkui_ui_lite_test_case_id",
+                    "eventID": 1,
+                    "eventValue": [0, -100],
+                    "saveCheckPoint": true
+                },
+                {
+                    "viewID": "startAngle+1",
+                    "eventID": 0,
+                    "eventValue": [1,2],
+                    "saveCheckPoint": true
+                },
+                {
+                    "viewID": "endAngle+1",
+                    "eventID": 0,
+                    "eventValue": [1,2],
+                    "saveCheckPoint": true
+                },
+                {
+                    "viewID": "startAngle-1",
+                    "eventID": 0,
+                    "eventValue": [1,2],
+                    "saveCheckPoint": true
+                },
+                {
+                    "viewID": "endAngle-1",
+                    "eventID": 0,
+                    "eventValue": [1,2],
+                    "saveCheckPoint": true
+                },
+                {
+                    "viewID": "arkui_ui_lite_test_case_id",
+                    "eventID": 1,
+                    "eventValue": [0, -100],
+                    "saveCheckPoint": true
+                },
+                {
+                    "viewID": "arkui_ui_lite_test_case_id",
+                    "eventID": 1,
+                    "eventValue": [0, -100],
+                    "saveCheckPoint": true
+                },
+                {
+                    "viewID": "arkui_ui_lite_test_case_id",
+                    "eventID": 1,
+                    "eventValue": [0, -100],
+                    "saveCheckPoint": true
+                }
+            ]
+        }
+	]
+}

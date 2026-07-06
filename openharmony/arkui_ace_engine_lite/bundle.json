@@ -1,0 +1,68 @@
+{
+  "name": "@ohos/ace_engine_lite",
+  "description": "JS APP development frameworks.",
+  "version": "3.1",
+  "license": "Apache License 2.0",
+  "pubiishAs": "code-segment",
+  "segment": {
+    "destPath": "foundation/arkui/ace_engine_lite"
+  },
+  "dirs": {},
+  "scripts": {},
+  "component": {
+    "name": "ace_engine_lite",
+    "subsystem": "arkui",
+    "syscap": [
+       "SystemCapability.ArkUI.ArkUI.Lite"
+    ],
+    "features": [
+      "ace_engine_lite_feature_product_config"
+    ],
+    "adapted_system_type": [ "mini","small" ],
+    "rom": "521KB",
+    "ram": "~82KB",
+    "deps": {
+      "third_party": [
+          "bounds_checking_function",
+          "cJSON",
+          "freetype",
+          "jerryscript"
+      ],
+      "components": [
+         "bundle_framework_lite",
+         "huks",
+         "ui_lite",
+         "surface_lite",
+         "i18n_lite",
+         "resource_management_lite",
+         "kv_store",
+         "utils_lite",
+         "ability_lite",
+         "init",
+         "camera_lite",
+         "media_lite",
+         "battery_lite",
+         "netstack",
+         "device_attest_lite"
+       ]
+    },
+    "build": {
+      "sub_component": [ 
+      "//foundation/arkui/ace_engine_lite/test:unittest",
+      "//foundation/arkui/ace_engine_lite/frameworks:jsfwk"
+      ],
+      "inner_kits": [
+        {
+          "name": "//foundation/arkui/ace_engine_lite/frameworks/targets/simulator:ace_lite",
+          "header": {
+            "header_files": [
+              "acelite_config.h"
+            ],
+            "header_base": "//foundation/arkui/ace_engine_lite/frameworks/targets/simulator"
+          }
+        }
+      ],
+      "test": []
+    }
+  }
+}

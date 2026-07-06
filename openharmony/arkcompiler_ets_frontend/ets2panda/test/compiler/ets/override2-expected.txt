@@ -1,0 +1,1006 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "TSInterfaceDeclaration",
+      "body": {
+        "type": "TSInterfaceBody",
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "fn",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 3,
+                  "program": "override2.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 5,
+                  "program": "override2.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "fn",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 3,
+                      "program": "override2.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 5,
+                      "program": "override2.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 9,
+                      "program": "override2.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 12,
+                      "program": "override2.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 5,
+                    "program": "override2.ets"
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 12,
+                    "program": "override2.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 5,
+                  "program": "override2.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 12,
+                  "program": "override2.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 3,
+                "program": "override2.ets"
+              },
+              "end": {
+                "line": 17,
+                "column": 13,
+                "program": "override2.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 13,
+            "program": "override2.ets"
+          },
+          "end": {
+            "line": 18,
+            "column": 2,
+            "program": "override2.ets"
+          }
+        }
+      },
+      "id": {
+        "type": "Identifier",
+        "name": "I",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 11,
+            "program": "override2.ets"
+          },
+          "end": {
+            "line": 16,
+            "column": 12,
+            "program": "override2.ets"
+          }
+        }
+      },
+      "extends": [],
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 1,
+          "program": "override2.ets"
+        },
+        "end": {
+          "line": 20,
+          "column": 6,
+          "program": "override2.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "A",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 20,
+              "column": 7,
+              "program": "override2.ets"
+            },
+            "end": {
+              "line": 20,
+              "column": 8,
+              "program": "override2.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "fn",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 21,
+                  "column": 10,
+                  "program": "override2.ets"
+                },
+                "end": {
+                  "line": 21,
+                  "column": 12,
+                  "program": "override2.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "fn",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 21,
+                      "column": 10,
+                      "program": "override2.ets"
+                    },
+                    "end": {
+                      "line": 21,
+                      "column": 12,
+                      "program": "override2.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 21,
+                      "column": 16,
+                      "program": "override2.ets"
+                    },
+                    "end": {
+                      "line": 21,
+                      "column": 19,
+                      "program": "override2.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "ReturnStatement",
+                      "argument": {
+                        "type": "NumberLiteral",
+                        "value": 42,
+                        "loc": {
+                          "start": {
+                            "line": 21,
+                            "column": 29,
+                            "program": "override2.ets"
+                          },
+                          "end": {
+                            "line": 21,
+                            "column": 31,
+                            "program": "override2.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 21,
+                          "column": 22,
+                          "program": "override2.ets"
+                        },
+                        "end": {
+                          "line": 21,
+                          "column": 32,
+                          "program": "override2.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 21,
+                      "column": 20,
+                      "program": "override2.ets"
+                    },
+                    "end": {
+                      "line": 21,
+                      "column": 34,
+                      "program": "override2.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 21,
+                    "column": 12,
+                    "program": "override2.ets"
+                  },
+                  "end": {
+                    "line": 21,
+                    "column": 34,
+                    "program": "override2.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 21,
+                  "column": 12,
+                  "program": "override2.ets"
+                },
+                "end": {
+                  "line": 21,
+                  "column": 34,
+                  "program": "override2.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 21,
+                "column": 3,
+                "program": "override2.ets"
+              },
+              "end": {
+                "line": 21,
+                "column": 34,
+                "program": "override2.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 10,
+                  "program": "override2.ets"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 10,
+                  "program": "override2.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 10,
+                      "program": "override2.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 10,
+                      "program": "override2.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 10,
+                      "program": "override2.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 10,
+                      "program": "override2.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 20,
+                    "column": 10,
+                    "program": "override2.ets"
+                  },
+                  "end": {
+                    "line": 20,
+                    "column": 10,
+                    "program": "override2.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 10,
+                  "program": "override2.ets"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 10,
+                  "program": "override2.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 20,
+            "column": 9,
+            "program": "override2.ets"
+          },
+          "end": {
+            "line": 24,
+            "column": 9,
+            "program": "override2.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 20,
+          "column": 1,
+          "program": "override2.ets"
+        },
+        "end": {
+          "line": 24,
+          "column": 9,
+          "program": "override2.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "B",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 24,
+              "column": 16,
+              "program": "override2.ets"
+            },
+            "end": {
+              "line": 24,
+              "column": 17,
+              "program": "override2.ets"
+            }
+          }
+        },
+        "superClass": {
+          "type": "ETSTypeReference",
+          "part": {
+            "type": "ETSTypeReferencePart",
+            "name": {
+              "type": "Identifier",
+              "name": "A",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 24,
+                  "column": 26,
+                  "program": "override2.ets"
+                },
+                "end": {
+                  "line": 24,
+                  "column": 27,
+                  "program": "override2.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 24,
+                "column": 26,
+                "program": "override2.ets"
+              },
+              "end": {
+                "line": 24,
+                "column": 38,
+                "program": "override2.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 24,
+              "column": 26,
+              "program": "override2.ets"
+            },
+            "end": {
+              "line": 24,
+              "column": 38,
+              "program": "override2.ets"
+            }
+          }
+        },
+        "implements": [
+          {
+            "type": "TSClassImplements",
+            "expression": {
+              "type": "ETSTypeReference",
+              "part": {
+                "type": "ETSTypeReferencePart",
+                "name": {
+                  "type": "Identifier",
+                  "name": "I",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 24,
+                      "column": 39,
+                      "program": "override2.ets"
+                    },
+                    "end": {
+                      "line": 24,
+                      "column": 40,
+                      "program": "override2.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 24,
+                    "column": 39,
+                    "program": "override2.ets"
+                  },
+                  "end": {
+                    "line": 24,
+                    "column": 42,
+                    "program": "override2.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 24,
+                  "column": 39,
+                  "program": "override2.ets"
+                },
+                "end": {
+                  "line": 24,
+                  "column": 42,
+                  "program": "override2.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 24,
+                "column": 39,
+                "program": "override2.ets"
+              },
+              "end": {
+                "line": 24,
+                "column": 42,
+                "program": "override2.ets"
+              }
+            }
+          }
+        ],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 24,
+                  "column": 42,
+                  "program": "override2.ets"
+                },
+                "end": {
+                  "line": 24,
+                  "column": 42,
+                  "program": "override2.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 24,
+                      "column": 42,
+                      "program": "override2.ets"
+                    },
+                    "end": {
+                      "line": 24,
+                      "column": 42,
+                      "program": "override2.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 24,
+                      "column": 42,
+                      "program": "override2.ets"
+                    },
+                    "end": {
+                      "line": 24,
+                      "column": 42,
+                      "program": "override2.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 24,
+                    "column": 42,
+                    "program": "override2.ets"
+                  },
+                  "end": {
+                    "line": 24,
+                    "column": 42,
+                    "program": "override2.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 24,
+                  "column": 42,
+                  "program": "override2.ets"
+                },
+                "end": {
+                  "line": 24,
+                  "column": 42,
+                  "program": "override2.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 24,
+            "column": 41,
+            "program": "override2.ets"
+          },
+          "end": {
+            "line": 25,
+            "column": 1,
+            "program": "override2.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 24,
+          "column": 10,
+          "program": "override2.ets"
+        },
+        "end": {
+          "line": 25,
+          "column": 1,
+          "program": "override2.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "override2.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "override2.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "override2.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "override2.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "override2.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "override2.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "override2.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "override2.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "override2.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "override2.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "override2.ets"
+    },
+    "end": {
+      "line": 25,
+      "column": 1,
+      "program": "override2.ets"
+    }
+  }
+}

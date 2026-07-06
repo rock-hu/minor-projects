@@ -1,0 +1,94 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "ImportExpression",
+        "source": {
+          "type": "MetaProperty",
+          "kind": "import.Meta",
+          "loc": {
+            "start": {
+              "line": 21,
+              "column": 8,
+              "program": "test-import-meta.js"
+            },
+            "end": {
+              "line": 21,
+              "column": 14,
+              "program": "test-import-meta.js"
+            }
+          }
+        },
+        "loc": {
+          "start": {
+            "line": 21,
+            "column": 1,
+            "program": "test-import-meta.js"
+          },
+          "end": {
+            "line": 21,
+            "column": 20,
+            "program": "test-import-meta.js"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 21,
+          "column": 1,
+          "program": "test-import-meta.js"
+        },
+        "end": {
+          "line": 21,
+          "column": 20,
+          "program": "test-import-meta.js"
+        }
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "MetaProperty",
+        "kind": "import.Meta",
+        "loc": {
+          "start": {
+            "line": 22,
+            "column": 1,
+            "program": "test-import-meta.js"
+          },
+          "end": {
+            "line": 22,
+            "column": 7,
+            "program": "test-import-meta.js"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 22,
+          "column": 1,
+          "program": "test-import-meta.js"
+        },
+        "end": {
+          "line": 22,
+          "column": 7,
+          "program": "test-import-meta.js"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "test-import-meta.js"
+    },
+    "end": {
+      "line": 22,
+      "column": 12,
+      "program": "test-import-meta.js"
+    }
+  }
+}

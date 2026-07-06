@@ -1,0 +1,1086 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "TSInterfaceDeclaration",
+      "body": {
+        "type": "TSInterfaceBody",
+        "body": [
+          {
+            "type": "TSPropertySignature",
+            "computed": false,
+            "optional": false,
+            "readonly": false,
+            "key": {
+              "type": "Identifier",
+              "name": "a",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 5,
+                  "program": "test_interface.ts"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 6,
+                  "program": "test_interface.ts"
+                }
+              }
+            },
+            "typeAnnotation": {
+              "type": "NamedType",
+              "name": {
+                "type": "Identifier",
+                "name": "u8",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 18,
+                    "column": 8,
+                    "program": "test_interface.ts"
+                  },
+                  "end": {
+                    "line": 18,
+                    "column": 10,
+                    "program": "test_interface.ts"
+                  }
+                }
+              },
+              "isNullable": false,
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 8,
+                  "program": "test_interface.ts"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 10,
+                  "program": "test_interface.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 18,
+                "column": 5,
+                "program": "test_interface.ts"
+              },
+              "end": {
+                "line": 18,
+                "column": 11,
+                "program": "test_interface.ts"
+              }
+            }
+          },
+          {
+            "type": "TSPropertySignature",
+            "computed": false,
+            "optional": false,
+            "readonly": false,
+            "key": {
+              "type": "Identifier",
+              "name": "b",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 5,
+                  "program": "test_interface.ts"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 6,
+                  "program": "test_interface.ts"
+                }
+              }
+            },
+            "typeAnnotation": {
+              "type": "NamedType",
+              "name": {
+                "type": "Identifier",
+                "name": "Array",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 19,
+                    "column": 16,
+                    "program": "test_interface.ts"
+                  },
+                  "end": {
+                    "line": 19,
+                    "column": 20,
+                    "program": "test_interface.ts"
+                  }
+                }
+              },
+              "typeParameters": {
+                "type": "TSTypeParameterInstantiation",
+                "params": [
+                  {
+                    "type": "NamedType",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "i32",
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 19,
+                          "column": 8,
+                          "program": "test_interface.ts"
+                        },
+                        "end": {
+                          "line": 19,
+                          "column": 11,
+                          "program": "test_interface.ts"
+                        }
+                      }
+                    },
+                    "isNullable": false,
+                    "loc": {
+                      "start": {
+                        "line": 19,
+                        "column": 8,
+                        "program": "test_interface.ts"
+                      },
+                      "end": {
+                        "line": 19,
+                        "column": 11,
+                        "program": "test_interface.ts"
+                      }
+                    }
+                  }
+                ],
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "isNullable": true,
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 8,
+                  "program": "test_interface.ts"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 20,
+                  "program": "test_interface.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 19,
+                "column": 5,
+                "program": "test_interface.ts"
+              },
+              "end": {
+                "line": 19,
+                "column": 21,
+                "program": "test_interface.ts"
+              }
+            }
+          },
+          {
+            "type": "TSMethodSignature",
+            "computed": false,
+            "optional": false,
+            "key": {
+              "type": "Identifier",
+              "name": "c",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 5,
+                  "program": "test_interface.ts"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 6,
+                  "program": "test_interface.ts"
+                }
+              }
+            },
+            "params": [
+              {
+                "type": "Identifier",
+                "name": "a",
+                "typeAnnotation": {
+                  "type": "TSFunctionType",
+                  "params": [
+                    {
+                      "type": "Identifier",
+                      "name": "a",
+                      "typeAnnotation": {
+                        "type": "NamedType",
+                        "name": {
+                          "type": "Identifier",
+                          "name": "Array",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 20,
+                              "column": 19,
+                              "program": "test_interface.ts"
+                            },
+                            "end": {
+                              "line": 20,
+                              "column": 20,
+                              "program": "test_interface.ts"
+                            }
+                          }
+                        },
+                        "typeParameters": {
+                          "type": "TSTypeParameterInstantiation",
+                          "params": [
+                            {
+                              "type": "NamedType",
+                              "name": {
+                                "type": "Identifier",
+                                "name": "i64",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 20,
+                                    "column": 14,
+                                    "program": "test_interface.ts"
+                                  },
+                                  "end": {
+                                    "line": 20,
+                                    "column": 17,
+                                    "program": "test_interface.ts"
+                                  }
+                                }
+                              },
+                              "isNullable": false,
+                              "loc": {
+                                "start": {
+                                  "line": 20,
+                                  "column": 14,
+                                  "program": "test_interface.ts"
+                                },
+                                "end": {
+                                  "line": 20,
+                                  "column": 17,
+                                  "program": "test_interface.ts"
+                                }
+                              }
+                            }
+                          ],
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 1,
+                              "program": null
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 1,
+                              "program": null
+                            }
+                          }
+                        },
+                        "isNullable": false,
+                        "loc": {
+                          "start": {
+                            "line": 20,
+                            "column": 14,
+                            "program": "test_interface.ts"
+                          },
+                          "end": {
+                            "line": 20,
+                            "column": 20,
+                            "program": "test_interface.ts"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 20,
+                          "column": 11,
+                          "program": "test_interface.ts"
+                        },
+                        "end": {
+                          "line": 20,
+                          "column": 12,
+                          "program": "test_interface.ts"
+                        }
+                      }
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "b",
+                      "typeAnnotation": {
+                        "type": "NamedType",
+                        "name": {
+                          "type": "Identifier",
+                          "name": "void",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 20,
+                              "column": 24,
+                              "program": "test_interface.ts"
+                            },
+                            "end": {
+                              "line": 20,
+                              "column": 28,
+                              "program": "test_interface.ts"
+                            }
+                          }
+                        },
+                        "isNullable": false,
+                        "loc": {
+                          "start": {
+                            "line": 20,
+                            "column": 24,
+                            "program": "test_interface.ts"
+                          },
+                          "end": {
+                            "line": 20,
+                            "column": 28,
+                            "program": "test_interface.ts"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 20,
+                          "column": 21,
+                          "program": "test_interface.ts"
+                        },
+                        "end": {
+                          "line": 20,
+                          "column": 22,
+                          "program": "test_interface.ts"
+                        }
+                      }
+                    }
+                  ],
+                  "returnType": {
+                    "type": "NamedType",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "u64",
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 20,
+                          "column": 33,
+                          "program": "test_interface.ts"
+                        },
+                        "end": {
+                          "line": 20,
+                          "column": 36,
+                          "program": "test_interface.ts"
+                        }
+                      }
+                    },
+                    "isNullable": false,
+                    "loc": {
+                      "start": {
+                        "line": 20,
+                        "column": 33,
+                        "program": "test_interface.ts"
+                      },
+                      "end": {
+                        "line": 20,
+                        "column": 36,
+                        "program": "test_interface.ts"
+                      }
+                    }
+                  },
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 10,
+                      "program": "test_interface.ts"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 36,
+                      "program": "test_interface.ts"
+                    }
+                  }
+                },
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 20,
+                    "column": 7,
+                    "program": "test_interface.ts"
+                  },
+                  "end": {
+                    "line": 20,
+                    "column": 8,
+                    "program": "test_interface.ts"
+                  }
+                }
+              },
+              {
+                "type": "Identifier",
+                "name": "b",
+                "typeAnnotation": {
+                  "type": "NamedType",
+                  "name": {
+                    "type": "Identifier",
+                    "name": "Array",
+                    "decorators": [],
+                    "loc": {
+                      "start": {
+                        "line": 20,
+                        "column": 46,
+                        "program": "test_interface.ts"
+                      },
+                      "end": {
+                        "line": 20,
+                        "column": 47,
+                        "program": "test_interface.ts"
+                      }
+                    }
+                  },
+                  "typeParameters": {
+                    "type": "TSTypeParameterInstantiation",
+                    "params": [
+                      {
+                        "type": "NamedType",
+                        "name": {
+                          "type": "Identifier",
+                          "name": "u8",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 20,
+                              "column": 42,
+                              "program": "test_interface.ts"
+                            },
+                            "end": {
+                              "line": 20,
+                              "column": 44,
+                              "program": "test_interface.ts"
+                            }
+                          }
+                        },
+                        "isNullable": false,
+                        "loc": {
+                          "start": {
+                            "line": 20,
+                            "column": 42,
+                            "program": "test_interface.ts"
+                          },
+                          "end": {
+                            "line": 20,
+                            "column": 44,
+                            "program": "test_interface.ts"
+                          }
+                        }
+                      }
+                    ],
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 1,
+                        "program": null
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 1,
+                        "program": null
+                      }
+                    }
+                  },
+                  "isNullable": false,
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 42,
+                      "program": "test_interface.ts"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 47,
+                      "program": "test_interface.ts"
+                    }
+                  }
+                },
+                "optional": true,
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 20,
+                    "column": 38,
+                    "program": "test_interface.ts"
+                  },
+                  "end": {
+                    "line": 20,
+                    "column": 39,
+                    "program": "test_interface.ts"
+                  }
+                }
+              }
+            ],
+            "typeAnnotation": {
+              "type": "NamedType",
+              "name": {
+                "type": "Identifier",
+                "name": "bool",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 20,
+                    "column": 49,
+                    "program": "test_interface.ts"
+                  },
+                  "end": {
+                    "line": 20,
+                    "column": 53,
+                    "program": "test_interface.ts"
+                  }
+                }
+              },
+              "isNullable": false,
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 49,
+                  "program": "test_interface.ts"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 53,
+                  "program": "test_interface.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 20,
+                "column": 5,
+                "program": "test_interface.ts"
+              },
+              "end": {
+                "line": 20,
+                "column": 54,
+                "program": "test_interface.ts"
+              }
+            }
+          },
+          {
+            "type": "TSMethodSignature",
+            "computed": false,
+            "optional": false,
+            "key": {
+              "type": "Identifier",
+              "name": "k",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 21,
+                  "column": 5,
+                  "program": "test_interface.ts"
+                },
+                "end": {
+                  "line": 21,
+                  "column": 6,
+                  "program": "test_interface.ts"
+                }
+              }
+            },
+            "params": [
+              {
+                "type": "Identifier",
+                "name": "a",
+                "typeAnnotation": {
+                  "type": "NamedType",
+                  "name": {
+                    "type": "Identifier",
+                    "name": "v128",
+                    "decorators": [],
+                    "loc": {
+                      "start": {
+                        "line": 21,
+                        "column": 16,
+                        "program": "test_interface.ts"
+                      },
+                      "end": {
+                        "line": 21,
+                        "column": 20,
+                        "program": "test_interface.ts"
+                      }
+                    }
+                  },
+                  "isNullable": false,
+                  "loc": {
+                    "start": {
+                      "line": 21,
+                      "column": 16,
+                      "program": "test_interface.ts"
+                    },
+                    "end": {
+                      "line": 21,
+                      "column": 20,
+                      "program": "test_interface.ts"
+                    }
+                  }
+                },
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 21,
+                    "column": 13,
+                    "program": "test_interface.ts"
+                  },
+                  "end": {
+                    "line": 21,
+                    "column": 14,
+                    "program": "test_interface.ts"
+                  }
+                }
+              }
+            ],
+            "typeParameters": {
+              "type": "TSTypeParameterDeclaration",
+              "params": [
+                {
+                  "type": "TSTypeParameter",
+                  "name": {
+                    "type": "Identifier",
+                    "name": "R",
+                    "decorators": [],
+                    "loc": {
+                      "start": {
+                        "line": 21,
+                        "column": 7,
+                        "program": "test_interface.ts"
+                      },
+                      "end": {
+                        "line": 21,
+                        "column": 8,
+                        "program": "test_interface.ts"
+                      }
+                    }
+                  },
+                  "loc": {
+                    "start": {
+                      "line": 21,
+                      "column": 7,
+                      "program": "test_interface.ts"
+                    },
+                    "end": {
+                      "line": 21,
+                      "column": 9,
+                      "program": "test_interface.ts"
+                    }
+                  }
+                },
+                {
+                  "type": "TSTypeParameter",
+                  "name": {
+                    "type": "Identifier",
+                    "name": "U",
+                    "decorators": [],
+                    "loc": {
+                      "start": {
+                        "line": 21,
+                        "column": 10,
+                        "program": "test_interface.ts"
+                      },
+                      "end": {
+                        "line": 21,
+                        "column": 11,
+                        "program": "test_interface.ts"
+                      }
+                    }
+                  },
+                  "loc": {
+                    "start": {
+                      "line": 21,
+                      "column": 10,
+                      "program": "test_interface.ts"
+                    },
+                    "end": {
+                      "line": 21,
+                      "column": 12,
+                      "program": "test_interface.ts"
+                    }
+                  }
+                }
+              ],
+              "loc": {
+                "start": {
+                  "line": 21,
+                  "column": 6,
+                  "program": "test_interface.ts"
+                },
+                "end": {
+                  "line": 21,
+                  "column": 12,
+                  "program": "test_interface.ts"
+                }
+              }
+            },
+            "typeAnnotation": {
+              "type": "NamedType",
+              "name": {
+                "type": "Identifier",
+                "name": "i8",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 21,
+                    "column": 23,
+                    "program": "test_interface.ts"
+                  },
+                  "end": {
+                    "line": 21,
+                    "column": 25,
+                    "program": "test_interface.ts"
+                  }
+                }
+              },
+              "isNullable": false,
+              "loc": {
+                "start": {
+                  "line": 21,
+                  "column": 23,
+                  "program": "test_interface.ts"
+                },
+                "end": {
+                  "line": 21,
+                  "column": 25,
+                  "program": "test_interface.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 21,
+                "column": 5,
+                "program": "test_interface.ts"
+              },
+              "end": {
+                "line": 21,
+                "column": 26,
+                "program": "test_interface.ts"
+              }
+            }
+          },
+          {
+            "type": "TSIndexSignature",
+            "parameters": {
+              "type": "Identifier",
+              "name": "key",
+              "typeAnnotation": {
+                "type": "NamedType",
+                "name": {
+                  "type": "Identifier",
+                  "name": "i8",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 22,
+                      "column": 11,
+                      "program": "test_interface.ts"
+                    },
+                    "end": {
+                      "line": 22,
+                      "column": 13,
+                      "program": "test_interface.ts"
+                    }
+                  }
+                },
+                "isNullable": false,
+                "loc": {
+                  "start": {
+                    "line": 22,
+                    "column": 11,
+                    "program": "test_interface.ts"
+                  },
+                  "end": {
+                    "line": 22,
+                    "column": 13,
+                    "program": "test_interface.ts"
+                  }
+                }
+              },
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 22,
+                  "column": 6,
+                  "program": "test_interface.ts"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 9,
+                  "program": "test_interface.ts"
+                }
+              }
+            },
+            "typeAnnotation": {
+              "type": "NamedType",
+              "name": {
+                "type": "Identifier",
+                "name": "v128",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 22,
+                    "column": 16,
+                    "program": "test_interface.ts"
+                  },
+                  "end": {
+                    "line": 22,
+                    "column": 20,
+                    "program": "test_interface.ts"
+                  }
+                }
+              },
+              "isNullable": false,
+              "loc": {
+                "start": {
+                  "line": 22,
+                  "column": 16,
+                  "program": "test_interface.ts"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 20,
+                  "program": "test_interface.ts"
+                }
+              }
+            },
+            "readonly": false,
+            "loc": {
+              "start": {
+                "line": 22,
+                "column": 5,
+                "program": "test_interface.ts"
+              },
+              "end": {
+                "line": 23,
+                "column": 2,
+                "program": "test_interface.ts"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 39,
+            "program": "test_interface.ts"
+          },
+          "end": {
+            "line": 23,
+            "column": 2,
+            "program": "test_interface.ts"
+          }
+        }
+      },
+      "id": {
+        "type": "Identifier",
+        "name": "foo",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 11,
+            "program": "test_interface.ts"
+          },
+          "end": {
+            "line": 17,
+            "column": 14,
+            "program": "test_interface.ts"
+          }
+        }
+      },
+      "extends": [],
+      "typeParameters": {
+        "type": "TSTypeParameterDeclaration",
+        "params": [
+          {
+            "type": "TSTypeParameter",
+            "name": {
+              "type": "Identifier",
+              "name": "T",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 15,
+                  "program": "test_interface.ts"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 16,
+                  "program": "test_interface.ts"
+                }
+              }
+            },
+            "default": {
+              "type": "NamedType",
+              "name": {
+                "type": "Identifier",
+                "name": "i32",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 19,
+                    "program": "test_interface.ts"
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 22,
+                    "program": "test_interface.ts"
+                  }
+                }
+              },
+              "isNullable": false,
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 19,
+                  "program": "test_interface.ts"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 22,
+                  "program": "test_interface.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 15,
+                "program": "test_interface.ts"
+              },
+              "end": {
+                "line": 17,
+                "column": 23,
+                "program": "test_interface.ts"
+              }
+            }
+          },
+          {
+            "type": "TSTypeParameter",
+            "name": {
+              "type": "Identifier",
+              "name": "Z",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 24,
+                  "program": "test_interface.ts"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 25,
+                  "program": "test_interface.ts"
+                }
+              }
+            },
+            "default": {
+              "type": "NamedType",
+              "name": {
+                "type": "Identifier",
+                "name": "externref",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 28,
+                    "program": "test_interface.ts"
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 37,
+                    "program": "test_interface.ts"
+                  }
+                }
+              },
+              "isNullable": false,
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 28,
+                  "program": "test_interface.ts"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 37,
+                  "program": "test_interface.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 24,
+                "program": "test_interface.ts"
+              },
+              "end": {
+                "line": 17,
+                "column": 38,
+                "program": "test_interface.ts"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 14,
+            "program": "test_interface.ts"
+          },
+          "end": {
+            "line": 17,
+            "column": 38,
+            "program": "test_interface.ts"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 17,
+          "column": 1,
+          "program": "test_interface.ts"
+        },
+        "end": {
+          "line": 23,
+          "column": 2,
+          "program": "test_interface.ts"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "test_interface.ts"
+    },
+    "end": {
+      "line": 24,
+      "column": 1,
+      "program": "test_interface.ts"
+    }
+  }
+}

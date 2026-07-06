@@ -1,0 +1,522 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ETSReExportDeclaration",
+      "ets_import_declarations": {
+        "type": "ImportDeclaration",
+        "source": {
+          "type": "StringLiteral",
+          "value": "./export",
+          "loc": {
+            "start": {
+              "line": 16,
+              "column": 39,
+              "program": "re-export_with_alias.ets"
+            },
+            "end": {
+              "line": 16,
+              "column": 49,
+              "program": "re-export_with_alias.ets"
+            }
+          }
+        },
+        "specifiers": [
+          {
+            "type": "ImportSpecifier",
+            "local": {
+              "type": "Identifier",
+              "name": "aliased_var",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 21,
+                  "program": "re-export_with_alias.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 32,
+                  "program": "re-export_with_alias.ets"
+                }
+              }
+            },
+            "imported": {
+              "type": "Identifier",
+              "name": "test_var",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 9,
+                  "program": "re-export_with_alias.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 17,
+                  "program": "re-export_with_alias.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 9,
+                "program": "re-export_with_alias.ets"
+              },
+              "end": {
+                "line": 16,
+                "column": 32,
+                "program": "re-export_with_alias.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 8,
+            "program": "re-export_with_alias.ets"
+          },
+          "end": {
+            "line": 16,
+            "column": 50,
+            "program": "re-export_with_alias.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": null
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": null
+        }
+      }
+    },
+    {
+      "type": "ETSReExportDeclaration",
+      "ets_import_declarations": {
+        "type": "ImportDeclaration",
+        "source": {
+          "type": "StringLiteral",
+          "value": "./export",
+          "loc": {
+            "start": {
+              "line": 17,
+              "column": 68,
+              "program": "re-export_with_alias.ets"
+            },
+            "end": {
+              "line": 17,
+              "column": 78,
+              "program": "re-export_with_alias.ets"
+            }
+          }
+        },
+        "specifiers": [
+          {
+            "type": "ImportSpecifier",
+            "local": {
+              "type": "Identifier",
+              "name": "aliased_func",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 22,
+                  "program": "re-export_with_alias.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 34,
+                  "program": "re-export_with_alias.ets"
+                }
+              }
+            },
+            "imported": {
+              "type": "Identifier",
+              "name": "test_func",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 9,
+                  "program": "re-export_with_alias.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 18,
+                  "program": "re-export_with_alias.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 9,
+                "program": "re-export_with_alias.ets"
+              },
+              "end": {
+                "line": 17,
+                "column": 34,
+                "program": "re-export_with_alias.ets"
+              }
+            }
+          },
+          {
+            "type": "ImportSpecifier",
+            "local": {
+              "type": "Identifier",
+              "name": "AliasedClass",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 49,
+                  "program": "re-export_with_alias.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 61,
+                  "program": "re-export_with_alias.ets"
+                }
+              }
+            },
+            "imported": {
+              "type": "Identifier",
+              "name": "TestClass",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 36,
+                  "program": "re-export_with_alias.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 45,
+                  "program": "re-export_with_alias.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 36,
+                "program": "re-export_with_alias.ets"
+              },
+              "end": {
+                "line": 17,
+                "column": 61,
+                "program": "re-export_with_alias.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 8,
+            "program": "re-export_with_alias.ets"
+          },
+          "end": {
+            "line": 17,
+            "column": 79,
+            "program": "re-export_with_alias.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": null
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": null
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "re-export_with_alias.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "re-export_with_alias.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "re-export_with_alias.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "re-export_with_alias.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "re-export_with_alias.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "re-export_with_alias.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "re-export_with_alias.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "re-export_with_alias.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "re-export_with_alias.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "re-export_with_alias.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "re-export_with_alias.ets"
+    },
+    "end": {
+      "line": 18,
+      "column": 1,
+      "program": "re-export_with_alias.ets"
+    }
+  }
+}

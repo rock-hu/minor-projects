@@ -1,0 +1,81 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ExportAllDeclaration",
+      "source": {
+        "type": "StringLiteral",
+        "value": "foo",
+        "loc": {
+          "start": {
+            "line": 20,
+            "column": 15,
+            "program": "test-export-all.js"
+          },
+          "end": {
+            "line": 20,
+            "column": 20,
+            "program": "test-export-all.js"
+          }
+        }
+      },
+      "exported": null,
+      "loc": {
+        "start": {
+          "line": 20,
+          "column": 1,
+          "program": "test-export-all.js"
+        },
+        "end": {
+          "line": 20,
+          "column": 20,
+          "program": "test-export-all.js"
+        }
+      }
+    },
+    {
+      "type": "ExportAllDeclaration",
+      "source": {
+        "type": "StringLiteral",
+        "value": "bar",
+        "loc": {
+          "start": {
+            "line": 21,
+            "column": 15,
+            "program": "test-export-all.js"
+          },
+          "end": {
+            "line": 21,
+            "column": 20,
+            "program": "test-export-all.js"
+          }
+        }
+      },
+      "exported": null,
+      "loc": {
+        "start": {
+          "line": 21,
+          "column": 1,
+          "program": "test-export-all.js"
+        },
+        "end": {
+          "line": 21,
+          "column": 21,
+          "program": "test-export-all.js"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "test-export-all.js"
+    },
+    "end": {
+      "line": 23,
+      "column": 1,
+      "program": "test-export-all.js"
+    }
+  }
+}

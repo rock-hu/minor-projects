@@ -1,0 +1,1298 @@
+{
+    "functions": [
+      {
+        "name": ".func_main_0",
+        "signature": {
+          "retType": "any",
+          "params": [
+            "any",
+            "any",
+            "any"
+          ]
+      },
+      "ins": [
+        {
+          "opcode": "mov",
+          "regs": [
+            0,
+            10
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": -1
+          }
+        },
+        {
+          "opcode": "mov",
+          "regs": [
+            1,
+            11
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": -1
+          }
+        },
+        {
+          "opcode": "mov",
+          "regs": [
+            2,
+            12
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": -1
+          }
+        },
+        {
+          "opcode": "ldai",
+          "regs": [],
+          "ids": [],
+          "imms": [
+            0
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 15
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            6
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 15
+          }
+        },
+        {
+          "opcode": "LABEL_2: ",
+          "regs": [],
+          "ids": [],
+          "imms": [],
+          "label": "LABEL_2",
+          "debug_pos_info": {
+            "sourceLineNum": 15
+          }
+        },
+        {
+          "opcode": "lda",
+          "regs": [
+            6
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 15
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 15
+          }
+        },
+        {
+          "opcode": "ldai",
+          "regs": [],
+          "ids": [],
+          "imms": [
+            5
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 15
+          }
+        },
+        {
+          "opcode": "less",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [
+            0
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 15
+          }
+        },
+        {
+          "opcode": "jeqz",
+          "regs": [],
+          "ids": [
+            "LABEL_0"
+          ],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 15
+          }
+        },
+        {
+          "opcode": "ldai",
+          "regs": [],
+          "ids": [],
+          "imms": [
+            1
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 16
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 16
+          }
+        },
+        {
+          "opcode": "lda.str",
+          "regs": [],
+          "ids": [
+            "aaaa"
+          ],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 17
+          }
+        },
+        {
+          "opcode": "LABEL_1: ",
+          "regs": [],
+          "ids": [],
+          "imms": [],
+          "label": "LABEL_1",
+          "debug_pos_info": {
+            "sourceLineNum": 15
+          }
+        },
+        {
+          "opcode": "lda",
+          "regs": [
+            6
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 15
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 15
+          }
+        },
+        {
+          "opcode": "lda",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 15
+          }
+        },
+        {
+          "opcode": "tonumeric",
+          "regs": [],
+          "ids": [],
+          "imms": [
+            1
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 15
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 15
+          }
+        },
+        {
+          "opcode": "lda",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 15
+          }
+        },
+        {
+          "opcode": "inc",
+          "regs": [],
+          "ids": [],
+          "imms": [
+            2
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 15
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            6
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 15
+          }
+        },
+        {
+          "opcode": "lda",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 15
+          }
+        },
+        {
+          "opcode": "jmp",
+          "regs": [],
+          "ids": [
+            "LABEL_2"
+          ],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 15
+          }
+        },
+        {
+          "opcode": "LABEL_0: ",
+          "regs": [],
+          "ids": [],
+          "imms": [],
+          "label": "LABEL_0",
+          "debug_pos_info": {
+            "sourceLineNum": 15
+          }
+        },
+        {
+          "opcode": "ldai",
+          "regs": [],
+          "ids": [],
+          "imms": [
+            2
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 19
+          }
+        },
+        {
+          "opcode": "sttoglobalrecord",
+          "regs": [],
+          "ids": [
+            "b"
+          ],
+          "imms": [
+            3
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 19
+          }
+        },
+        {
+          "opcode": "ldai",
+          "regs": [],
+          "ids": [],
+          "imms": [
+            0
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 20
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            6
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 20
+          }
+        },
+        {
+          "opcode": "LABEL_5: ",
+          "regs": [],
+          "ids": [],
+          "imms": [],
+          "label": "LABEL_5",
+          "debug_pos_info": {
+            "sourceLineNum": 20
+          }
+        },
+        {
+          "opcode": "lda",
+          "regs": [
+            6
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 20
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 20
+          }
+        },
+        {
+          "opcode": "ldai",
+          "regs": [],
+          "ids": [],
+          "imms": [
+            10
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 20
+          }
+        },
+        {
+          "opcode": "less",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [
+            4
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 20
+          }
+        },
+        {
+          "opcode": "jeqz",
+          "regs": [],
+          "ids": [
+            "LABEL_3"
+          ],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 20
+          }
+        },
+        {
+          "opcode": "ldai",
+          "regs": [],
+          "ids": [],
+          "imms": [
+            3
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 21
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 21
+          }
+        },
+        {
+          "opcode": "tryldglobalbyname",
+          "regs": [],
+          "ids": [
+            "print"
+          ],
+          "imms": [
+            5
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 22
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            8
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 22
+          }
+        },
+        {
+          "opcode": "lda",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 22
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            9
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 22
+          }
+        },
+        {
+          "opcode": "lda",
+          "regs": [
+            8
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 22
+          }
+        },
+        {
+          "opcode": "callarg1",
+          "regs": [
+            9
+          ],
+          "ids": [],
+          "imms": [
+            6
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 22
+          }
+        },
+        {
+          "opcode": "LABEL_4: ",
+          "regs": [],
+          "ids": [],
+          "imms": [],
+          "label": "LABEL_4",
+          "debug_pos_info": {
+            "sourceLineNum": 19
+          }
+        },
+        {
+          "opcode": "lda",
+          "regs": [
+            6
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 20
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 20
+          }
+        },
+        {
+          "opcode": "lda",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 20
+          }
+        },
+        {
+          "opcode": "tonumeric",
+          "regs": [],
+          "ids": [],
+          "imms": [
+            8
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 20
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 20
+          }
+        },
+        {
+          "opcode": "lda",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 20
+          }
+        },
+        {
+          "opcode": "inc",
+          "regs": [],
+          "ids": [],
+          "imms": [
+            9
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 20
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            6
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 20
+          }
+        },
+        {
+          "opcode": "lda",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 20
+          }
+        },
+        {
+          "opcode": "jmp",
+          "regs": [],
+          "ids": [
+            "LABEL_5"
+          ],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 20
+          }
+        },
+        {
+          "opcode": "LABEL_3: ",
+          "regs": [],
+          "ids": [],
+          "imms": [],
+          "label": "LABEL_3",
+          "debug_pos_info": {
+            "sourceLineNum": 19
+          }
+        },
+        {
+          "opcode": "ldai",
+          "regs": [],
+          "ids": [],
+          "imms": [
+            10
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 24
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            6
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 24
+          }
+        },
+        {
+          "opcode": "LABEL_8: ",
+          "regs": [],
+          "ids": [],
+          "imms": [],
+          "label": "LABEL_8",
+          "debug_pos_info": {
+            "sourceLineNum": 24
+          }
+        },
+        {
+          "opcode": "lda",
+          "regs": [
+            6
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 24
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 24
+          }
+        },
+        {
+          "opcode": "ldai",
+          "regs": [],
+          "ids": [],
+          "imms": [
+            0
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 24
+          }
+        },
+        {
+          "opcode": "greater",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [
+            10
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 24
+          }
+        },
+        {
+          "opcode": "jeqz",
+          "regs": [],
+          "ids": [
+            "LABEL_6"
+          ],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 24
+          }
+        },
+        {
+          "opcode": "ldai",
+          "regs": [],
+          "ids": [],
+          "imms": [
+            10
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 25
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            8
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 25
+          }
+        },
+        {
+          "opcode": "LABEL_11: ",
+          "regs": [],
+          "ids": [],
+          "imms": [],
+          "label": "LABEL_11",
+          "debug_pos_info": {
+            "sourceLineNum": 25
+          }
+        },
+        {
+          "opcode": "lda",
+          "regs": [
+            8
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 25
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            9
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 25
+          }
+        },
+        {
+          "opcode": "ldai",
+          "regs": [],
+          "ids": [],
+          "imms": [
+            0
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 25
+          }
+        },
+        {
+          "opcode": "greater",
+          "regs": [
+            9
+          ],
+          "ids": [],
+          "imms": [
+            11
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 25
+          }
+        },
+        {
+          "opcode": "jeqz",
+          "regs": [],
+          "ids": [
+            "LABEL_9"
+          ],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 25
+          }
+        },
+        {
+          "opcode": "ldai",
+          "regs": [],
+          "ids": [],
+          "imms": [
+            4
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 26
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            9
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 26
+          }
+        },
+        {
+          "opcode": "LABEL_10: ",
+          "regs": [],
+          "ids": [],
+          "imms": [],
+          "label": "LABEL_10",
+          "debug_pos_info": {
+            "sourceLineNum": 24
+          }
+        },
+        {
+          "opcode": "lda",
+          "regs": [
+            8
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 25
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            9
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 25
+          }
+        },
+        {
+          "opcode": "lda",
+          "regs": [
+            9
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 25
+          }
+        },
+        {
+          "opcode": "tonumeric",
+          "regs": [],
+          "ids": [],
+          "imms": [
+            12
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 25
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            9
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 25
+          }
+        },
+        {
+          "opcode": "lda",
+          "regs": [
+            9
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 25
+          }
+        },
+        {
+          "opcode": "dec",
+          "regs": [],
+          "ids": [],
+          "imms": [
+            13
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 25
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            8
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 25
+          }
+        },
+        {
+          "opcode": "lda",
+          "regs": [
+            9
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 25
+          }
+        },
+        {
+          "opcode": "jmp",
+          "regs": [],
+          "ids": [
+            "LABEL_11"
+          ],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 25
+          }
+        },
+        {
+          "opcode": "LABEL_9: ",
+          "regs": [],
+          "ids": [],
+          "imms": [],
+          "label": "LABEL_9",
+          "debug_pos_info": {
+            "sourceLineNum": 24
+          }
+        },
+        {
+          "opcode": "LABEL_7: ",
+          "regs": [],
+          "ids": [],
+          "imms": [],
+          "label": "LABEL_7",
+          "debug_pos_info": {
+            "sourceLineNum": 19
+          }
+        },
+        {
+          "opcode": "lda",
+          "regs": [
+            6
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 24
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 24
+          }
+        },
+        {
+          "opcode": "lda",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 24
+          }
+        },
+        {
+          "opcode": "tonumeric",
+          "regs": [],
+          "ids": [],
+          "imms": [
+            14
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 24
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 24
+          }
+        },
+        {
+          "opcode": "lda",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 24
+          }
+        },
+        {
+          "opcode": "dec",
+          "regs": [],
+          "ids": [],
+          "imms": [
+            15
+          ],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 24
+          }
+        },
+        {
+          "opcode": "sta",
+          "regs": [
+            6
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 24
+          }
+        },
+        {
+          "opcode": "lda",
+          "regs": [
+            7
+          ],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 24
+          }
+        },
+        {
+          "opcode": "jmp",
+          "regs": [],
+          "ids": [
+            "LABEL_8"
+          ],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": 24
+          }
+        },
+        {
+          "opcode": "LABEL_6: ",
+          "regs": [],
+          "ids": [],
+          "imms": [],
+          "label": "LABEL_6",
+          "debug_pos_info": {
+            "sourceLineNum": 19
+          }
+        },
+        {
+          "opcode": "ldundefined",
+          "regs": [],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": -1
+          }
+        },
+        {
+          "opcode": "returnundefined",
+          "regs": [],
+          "ids": [],
+          "imms": [],
+          "label": "",
+          "debug_pos_info": {
+            "sourceLineNum": -1
+          }
+        }
+      ],
+      "variables": [
+        {
+          "name": "d",
+          "signature": "any",
+          "signatureType": "any",
+          "reg": 9,
+          "start": 72,
+          "length": 2
+        },
+        {
+          "name": "n",
+          "signature": "any",
+          "signatureType": "any",
+          "reg": 8,
+          "start": 64,
+          "length": 22
+        },
+        {
+          "name": "m",
+          "signature": "any",
+          "signatureType": "any",
+          "reg": 6,
+          "start": 56,
+          "length": 42
+        },
+        {
+          "name": "c",
+          "signature": "any",
+          "signatureType": "any",
+          "reg": 7,
+          "start": 36,
+          "length": 8
+        },
+        {
+          "name": "j",
+          "signature": "any",
+          "signatureType": "any",
+          "reg": 6,
+          "start": 28,
+          "length": 28
+        },
+        {
+          "name": "a",
+          "signature": "any",
+          "signatureType": "any",
+          "reg": 7,
+          "start": 11,
+          "length": 3
+        },
+        {
+          "name": "i",
+          "signature": "any",
+          "signatureType": "any",
+          "reg": 6,
+          "start": 3,
+          "length": 23
+        },
+        {
+          "name": "this",
+          "signature": "any",
+          "signatureType": "any",
+          "reg": 2,
+          "start": 3,
+          "length": 97
+        },
+        {
+          "name": "b",
+          "signature": "any",
+          "signatureType": "any",
+          "reg": 3,
+          "start": 3,
+          "length": 97
+        },
+        {
+          "name": "4newTarget",
+          "signature": "any",
+          "signatureType": "any",
+          "reg": 1,
+          "start": 3,
+          "length": 97
+        },
+        {
+          "name": "4funcObj",
+          "signature": "any",
+          "signatureType": "any",
+          "reg": 0,
+          "start": 3,
+          "length": 97
+        }
+      ],
+        "sourceFile": "debug-info.js",
+        "sourceCode": "not supported",
+        "SlotNumber": 16,    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "files": [
+    "**/*.ets",
+    "**/*.ts",
+    "**/*.js"
+  ],
+  "ignore": [
+    "**/ohosTest/**/*",
+    "**/node_modules/**/*",
+    "**/build/**/*",
+    "**/hvigorfile/**/*",
+    "**/oh_modules/**/*",
+    "**/.preview/**/*"
+  ],
+  "rules": {
+  },
+  "ruleSet": [
+    "plugin:@migration/all"
+  ],
+  "overrides": [],
+  "extRuleSet": []
+}

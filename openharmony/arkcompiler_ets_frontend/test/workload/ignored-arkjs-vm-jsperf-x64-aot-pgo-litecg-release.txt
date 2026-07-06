@@ -1,0 +1,2 @@
+# Known failures list for jsperf - release-x64-aot-litecg
+

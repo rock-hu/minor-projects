@@ -1,0 +1,11 @@
+{
+    "include": [
+        "./src/**/*.ts",
+        "./test/**/ark*ts/*.ts"
+    ],
+    "compilerOptions": {
+        "outDir": "build",
+        "baseUrl": ".",
+        "paths": {}
+    }
+}

@@ -1,0 +1,990 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "A",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 16,
+              "column": 7,
+              "program": "callMethodWithNullableParam.ets"
+            },
+            "end": {
+              "line": 16,
+              "column": 8,
+              "program": "callMethodWithNullableParam.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "foo",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 5,
+                  "program": "callMethodWithNullableParam.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 8,
+                  "program": "callMethodWithNullableParam.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "foo",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 5,
+                      "program": "callMethodWithNullableParam.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 8,
+                      "program": "callMethodWithNullableParam.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "a",
+                      "typeAnnotation": {
+                        "type": "ETSTypeReference",
+                        "part": {
+                          "type": "ETSTypeReferencePart",
+                          "name": {
+                            "type": "Identifier",
+                            "name": "A",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 17,
+                                "column": 13,
+                                "program": "callMethodWithNullableParam.ets"
+                              },
+                              "end": {
+                                "line": 17,
+                                "column": 14,
+                                "program": "callMethodWithNullableParam.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 17,
+                              "column": 13,
+                              "program": "callMethodWithNullableParam.ets"
+                            },
+                            "end": {
+                              "line": 17,
+                              "column": 15,
+                              "program": "callMethodWithNullableParam.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 17,
+                            "column": 13,
+                            "program": "callMethodWithNullableParam.ets"
+                          },
+                          "end": {
+                            "line": 17,
+                            "column": 15,
+                            "program": "callMethodWithNullableParam.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 17,
+                          "column": 9,
+                          "program": "callMethodWithNullableParam.ets"
+                        },
+                        "end": {
+                          "line": 17,
+                          "column": 15,
+                          "program": "callMethodWithNullableParam.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 17,
+                        "column": 9,
+                        "program": "callMethodWithNullableParam.ets"
+                      },
+                      "end": {
+                        "line": 17,
+                        "column": 15,
+                        "program": "callMethodWithNullableParam.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 18,
+                      "program": "callMethodWithNullableParam.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 22,
+                      "program": "callMethodWithNullableParam.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 23,
+                      "program": "callMethodWithNullableParam.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 25,
+                      "program": "callMethodWithNullableParam.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 8,
+                    "program": "callMethodWithNullableParam.ets"
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 25,
+                    "program": "callMethodWithNullableParam.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 8,
+                  "program": "callMethodWithNullableParam.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 25,
+                  "program": "callMethodWithNullableParam.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 5,
+                "program": "callMethodWithNullableParam.ets"
+              },
+              "end": {
+                "line": 17,
+                "column": 25,
+                "program": "callMethodWithNullableParam.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "callMethodWithNullableParam.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "callMethodWithNullableParam.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "callMethodWithNullableParam.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "callMethodWithNullableParam.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "callMethodWithNullableParam.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "callMethodWithNullableParam.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 10,
+                    "program": "callMethodWithNullableParam.ets"
+                  },
+                  "end": {
+                    "line": 16,
+                    "column": 10,
+                    "program": "callMethodWithNullableParam.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "callMethodWithNullableParam.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "callMethodWithNullableParam.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 9,
+            "program": "callMethodWithNullableParam.ets"
+          },
+          "end": {
+            "line": 20,
+            "column": 9,
+            "program": "callMethodWithNullableParam.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 1,
+          "program": "callMethodWithNullableParam.ets"
+        },
+        "end": {
+          "line": 20,
+          "column": 9,
+          "program": "callMethodWithNullableParam.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "callMethodWithNullableParam.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "callMethodWithNullableParam.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "callMethodWithNullableParam.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "callMethodWithNullableParam.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 10,
+                  "program": "callMethodWithNullableParam.ets"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 14,
+                  "program": "callMethodWithNullableParam.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 10,
+                      "program": "callMethodWithNullableParam.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 14,
+                      "program": "callMethodWithNullableParam.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 18,
+                      "program": "callMethodWithNullableParam.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 22,
+                      "program": "callMethodWithNullableParam.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "an",
+                            "typeAnnotation": {
+                              "type": "ETSUnionType",
+                              "types": [
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "A",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 21,
+                                          "column": 14,
+                                          "program": "callMethodWithNullableParam.ets"
+                                        },
+                                        "end": {
+                                          "line": 21,
+                                          "column": 15,
+                                          "program": "callMethodWithNullableParam.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 21,
+                                        "column": 14,
+                                        "program": "callMethodWithNullableParam.ets"
+                                      },
+                                      "end": {
+                                        "line": 21,
+                                        "column": 17,
+                                        "program": "callMethodWithNullableParam.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 21,
+                                      "column": 14,
+                                      "program": "callMethodWithNullableParam.ets"
+                                    },
+                                    "end": {
+                                      "line": 21,
+                                      "column": 17,
+                                      "program": "callMethodWithNullableParam.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSNullType",
+                                  "loc": {
+                                    "start": {
+                                      "line": 21,
+                                      "column": 18,
+                                      "program": "callMethodWithNullableParam.ets"
+                                    },
+                                    "end": {
+                                      "line": 21,
+                                      "column": 22,
+                                      "program": "callMethodWithNullableParam.ets"
+                                    }
+                                  }
+                                }
+                              ],
+                              "loc": {
+                                "start": {
+                                  "line": 21,
+                                  "column": 14,
+                                  "program": "callMethodWithNullableParam.ets"
+                                },
+                                "end": {
+                                  "line": 21,
+                                  "column": 22,
+                                  "program": "callMethodWithNullableParam.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 21,
+                                "column": 9,
+                                "program": "callMethodWithNullableParam.ets"
+                              },
+                              "end": {
+                                "line": 21,
+                                "column": 11,
+                                "program": "callMethodWithNullableParam.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "ETSNewClassInstanceExpression",
+                            "typeReference": {
+                              "type": "ETSTypeReference",
+                              "part": {
+                                "type": "ETSTypeReferencePart",
+                                "name": {
+                                  "type": "Identifier",
+                                  "name": "A",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 21,
+                                      "column": 29,
+                                      "program": "callMethodWithNullableParam.ets"
+                                    },
+                                    "end": {
+                                      "line": 21,
+                                      "column": 30,
+                                      "program": "callMethodWithNullableParam.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 21,
+                                    "column": 29,
+                                    "program": "callMethodWithNullableParam.ets"
+                                  },
+                                  "end": {
+                                    "line": 21,
+                                    "column": 31,
+                                    "program": "callMethodWithNullableParam.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 21,
+                                  "column": 29,
+                                  "program": "callMethodWithNullableParam.ets"
+                                },
+                                "end": {
+                                  "line": 21,
+                                  "column": 31,
+                                  "program": "callMethodWithNullableParam.ets"
+                                }
+                              }
+                            },
+                            "arguments": [],
+                            "loc": {
+                              "start": {
+                                "line": 21,
+                                "column": 25,
+                                "program": "callMethodWithNullableParam.ets"
+                              },
+                              "end": {
+                                "line": 21,
+                                "column": 33,
+                                "program": "callMethodWithNullableParam.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 21,
+                              "column": 9,
+                              "program": "callMethodWithNullableParam.ets"
+                            },
+                            "end": {
+                              "line": 21,
+                              "column": 33,
+                              "program": "callMethodWithNullableParam.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 21,
+                          "column": 5,
+                          "program": "callMethodWithNullableParam.ets"
+                        },
+                        "end": {
+                          "line": 21,
+                          "column": 33,
+                          "program": "callMethodWithNullableParam.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "object": {
+                            "type": "ETSNewClassInstanceExpression",
+                            "typeReference": {
+                              "type": "ETSTypeReference",
+                              "part": {
+                                "type": "ETSTypeReferencePart",
+                                "name": {
+                                  "type": "Identifier",
+                                  "name": "A",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 23,
+                                      "column": 9,
+                                      "program": "callMethodWithNullableParam.ets"
+                                    },
+                                    "end": {
+                                      "line": 23,
+                                      "column": 10,
+                                      "program": "callMethodWithNullableParam.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 23,
+                                    "column": 9,
+                                    "program": "callMethodWithNullableParam.ets"
+                                  },
+                                  "end": {
+                                    "line": 23,
+                                    "column": 11,
+                                    "program": "callMethodWithNullableParam.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 23,
+                                  "column": 9,
+                                  "program": "callMethodWithNullableParam.ets"
+                                },
+                                "end": {
+                                  "line": 23,
+                                  "column": 11,
+                                  "program": "callMethodWithNullableParam.ets"
+                                }
+                              }
+                            },
+                            "arguments": [],
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 5,
+                                "program": "callMethodWithNullableParam.ets"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 13,
+                                "program": "callMethodWithNullableParam.ets"
+                              }
+                            }
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "foo",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 13,
+                                "program": "callMethodWithNullableParam.ets"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 16,
+                                "program": "callMethodWithNullableParam.ets"
+                              }
+                            }
+                          },
+                          "computed": false,
+                          "optional": false,
+                          "loc": {
+                            "start": {
+                              "line": 23,
+                              "column": 5,
+                              "program": "callMethodWithNullableParam.ets"
+                            },
+                            "end": {
+                              "line": 23,
+                              "column": 16,
+                              "program": "callMethodWithNullableParam.ets"
+                            }
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "an",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 17,
+                                "program": "callMethodWithNullableParam.ets"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 19,
+                                "program": "callMethodWithNullableParam.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 23,
+                            "column": 5,
+                            "program": "callMethodWithNullableParam.ets"
+                          },
+                          "end": {
+                            "line": 23,
+                            "column": 20,
+                            "program": "callMethodWithNullableParam.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 23,
+                          "column": 5,
+                          "program": "callMethodWithNullableParam.ets"
+                        },
+                        "end": {
+                          "line": 23,
+                          "column": 21,
+                          "program": "callMethodWithNullableParam.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 23,
+                      "program": "callMethodWithNullableParam.ets"
+                    },
+                    "end": {
+                      "line": 24,
+                      "column": 2,
+                      "program": "callMethodWithNullableParam.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 20,
+                    "column": 10,
+                    "program": "callMethodWithNullableParam.ets"
+                  },
+                  "end": {
+                    "line": 24,
+                    "column": 2,
+                    "program": "callMethodWithNullableParam.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 10,
+                  "program": "callMethodWithNullableParam.ets"
+                },
+                "end": {
+                  "line": 24,
+                  "column": 2,
+                  "program": "callMethodWithNullableParam.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 20,
+                "column": 1,
+                "program": "callMethodWithNullableParam.ets"
+              },
+              "end": {
+                "line": 24,
+                "column": 2,
+                "program": "callMethodWithNullableParam.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "callMethodWithNullableParam.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "callMethodWithNullableParam.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "callMethodWithNullableParam.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "callMethodWithNullableParam.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "callMethodWithNullableParam.ets"
+    },
+    "end": {
+      "line": 25,
+      "column": 1,
+      "program": "callMethodWithNullableParam.ets"
+    }
+  }
+}

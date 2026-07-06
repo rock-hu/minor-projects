@@ -1,0 +1,40 @@
+# Copyright (c) 2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+SendableLocalClass, SendableUseLocalModuleValue::static block
+sendableLocalFunc, SendableUseLocalModuleValue::static block
+LocalClass, SendableUseLocalModuleValue::static block
+localFunc, SendableUseLocalModuleValue::static block
+SendableLocalClass, InStaticSendableClass::foo
+sendableLocalFunc, InStaticSendableClass::foo
+LocalClass, InStaticSendableClass::foo
+localFunc, InStaticSendableClass::foo
+SendableLocalClass, InStaticClass::foo
+sendableLocalFunc, InStaticClass::foo
+LocalClass, InStaticClass::foo
+localFunc, InStaticClass::foo
+(This is strA!)
+testOneLevelContext
+(This is strA!)(This is strB!)
+testImportFunction
+foo():(This is strA!)
+testImportFunction
+ClassB: foo():(This is strB!)foo2
+SendableLocalClass, SendableUseLocalModuleValue::start
+sendableLocalFunc, SendableUseLocalModuleValue::start
+LocalClass, SendableUseLocalModuleValue::start
+localFunc, SendableUseLocalModuleValue::start
+SendableLocalClass, SendableFuncUseLocalModuleValue
+sendableLocalFunc, SendableFuncUseLocalModuleValue
+LocalClass, SendableFuncUseLocalModuleValue
+localFunc, SendableFuncUseLocalModuleValue

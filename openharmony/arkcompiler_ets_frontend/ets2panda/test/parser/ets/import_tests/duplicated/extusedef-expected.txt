@@ -1,0 +1,411 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ImportDeclaration",
+      "source": {
+        "type": "StringLiteral",
+        "value": "./extdef",
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 23,
+            "program": "extusedef.ets"
+          },
+          "end": {
+            "line": 16,
+            "column": 33,
+            "program": "extusedef.ets"
+          }
+        }
+      },
+      "specifiers": [
+        {
+          "type": "ImportSpecifier",
+          "local": {
+            "type": "Identifier",
+            "name": "getDate",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 9,
+                "program": "extusedef.ets"
+              },
+              "end": {
+                "line": 16,
+                "column": 16,
+                "program": "extusedef.ets"
+              }
+            }
+          },
+          "imported": {
+            "type": "Identifier",
+            "name": "getDate",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 9,
+                "program": "extusedef.ets"
+              },
+              "end": {
+                "line": 16,
+                "column": 16,
+                "program": "extusedef.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 16,
+              "column": 9,
+              "program": "extusedef.ets"
+            },
+            "end": {
+              "line": 16,
+              "column": 16,
+              "program": "extusedef.ets"
+            }
+          }
+        }
+      ],
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 1,
+          "program": "extusedef.ets"
+        },
+        "end": {
+          "line": 16,
+          "column": 33,
+          "program": "extusedef.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "extusedef.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "extusedef.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "extusedef.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "extusedef.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 10,
+                  "program": "extusedef.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 14,
+                  "program": "extusedef.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 10,
+                      "program": "extusedef.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 14,
+                      "program": "extusedef.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "getDate",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 19,
+                              "column": 5,
+                              "program": "extusedef.ets"
+                            },
+                            "end": {
+                              "line": 19,
+                              "column": 12,
+                              "program": "extusedef.ets"
+                            }
+                          }
+                        },
+                        "arguments": [],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 19,
+                            "column": 5,
+                            "program": "extusedef.ets"
+                          },
+                          "end": {
+                            "line": 19,
+                            "column": 14,
+                            "program": "extusedef.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 19,
+                          "column": 5,
+                          "program": "extusedef.ets"
+                        },
+                        "end": {
+                          "line": 19,
+                          "column": 15,
+                          "program": "extusedef.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 16,
+                      "program": "extusedef.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 2,
+                      "program": "extusedef.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 18,
+                    "column": 10,
+                    "program": "extusedef.ets"
+                  },
+                  "end": {
+                    "line": 20,
+                    "column": 2,
+                    "program": "extusedef.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 10,
+                  "program": "extusedef.ets"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 2,
+                  "program": "extusedef.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 18,
+                "column": 1,
+                "program": "extusedef.ets"
+              },
+              "end": {
+                "line": 20,
+                "column": 2,
+                "program": "extusedef.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "extusedef.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "extusedef.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "extusedef.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "extusedef.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "extusedef.ets"
+    },
+    "end": {
+      "line": 21,
+      "column": 1,
+      "program": "extusedef.ets"
+    }
+  }
+}

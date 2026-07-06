@@ -1,0 +1,1454 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "string_template_1.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "string_template_1.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "string_template_1.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "string_template_1.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "string_template_1.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 14,
+                  "program": "string_template_1.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "string_template_1.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 14,
+                      "program": "string_template_1.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 18,
+                      "program": "string_template_1.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 22,
+                      "program": "string_template_1.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "n",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 17,
+                                "column": 7,
+                                "program": "string_template_1.ets"
+                              },
+                              "end": {
+                                "line": 17,
+                                "column": 8,
+                                "program": "string_template_1.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "NumberLiteral",
+                            "value": 2,
+                            "loc": {
+                              "start": {
+                                "line": 17,
+                                "column": 11,
+                                "program": "string_template_1.ets"
+                              },
+                              "end": {
+                                "line": 17,
+                                "column": 12,
+                                "program": "string_template_1.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 17,
+                              "column": 7,
+                              "program": "string_template_1.ets"
+                            },
+                            "end": {
+                              "line": 17,
+                              "column": 12,
+                              "program": "string_template_1.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 17,
+                          "column": 3,
+                          "program": "string_template_1.ets"
+                        },
+                        "end": {
+                          "line": 17,
+                          "column": 13,
+                          "program": "string_template_1.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "y",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 18,
+                                "column": 7,
+                                "program": "string_template_1.ets"
+                              },
+                              "end": {
+                                "line": 18,
+                                "column": 8,
+                                "program": "string_template_1.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "StringLiteral",
+                            "value": "d",
+                            "loc": {
+                              "start": {
+                                "line": 18,
+                                "column": 11,
+                                "program": "string_template_1.ets"
+                              },
+                              "end": {
+                                "line": 18,
+                                "column": 14,
+                                "program": "string_template_1.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 18,
+                              "column": 7,
+                              "program": "string_template_1.ets"
+                            },
+                            "end": {
+                              "line": 18,
+                              "column": 14,
+                              "program": "string_template_1.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 18,
+                          "column": 3,
+                          "program": "string_template_1.ets"
+                        },
+                        "end": {
+                          "line": 18,
+                          "column": 14,
+                          "program": "string_template_1.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "x",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 20,
+                                "column": 7,
+                                "program": "string_template_1.ets"
+                              },
+                              "end": {
+                                "line": 20,
+                                "column": 8,
+                                "program": "string_template_1.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "BinaryExpression",
+                            "operator": "+",
+                            "left": {
+                              "type": "BinaryExpression",
+                              "operator": "+",
+                              "left": {
+                                "type": "BinaryExpression",
+                                "operator": "+",
+                                "left": {
+                                  "type": "BinaryExpression",
+                                  "operator": "+",
+                                  "left": {
+                                    "type": "StringLiteral",
+                                    "value": "abc ",
+                                    "loc": {
+                                      "start": {
+                                        "line": 20,
+                                        "column": 11,
+                                        "program": "string_template_1.ets"
+                                      },
+                                      "end": {
+                                        "line": 20,
+                                        "column": 17,
+                                        "program": "string_template_1.ets"
+                                      }
+                                    }
+                                  },
+                                  "right": {
+                                    "type": "Identifier",
+                                    "name": "y",
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 20,
+                                        "column": 20,
+                                        "program": "string_template_1.ets"
+                                      },
+                                      "end": {
+                                        "line": 20,
+                                        "column": 21,
+                                        "program": "string_template_1.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 11,
+                                      "program": "string_template_1.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 21,
+                                      "program": "string_template_1.ets"
+                                    }
+                                  }
+                                },
+                                "right": {
+                                  "type": "StringLiteral",
+                                  "value": " = ",
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 24,
+                                      "program": "string_template_1.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 29,
+                                      "program": "string_template_1.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 20,
+                                    "column": 11,
+                                    "program": "string_template_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 20,
+                                    "column": 29,
+                                    "program": "string_template_1.ets"
+                                  }
+                                }
+                              },
+                              "right": {
+                                "type": "BinaryExpression",
+                                "operator": "*",
+                                "left": {
+                                  "type": "Identifier",
+                                  "name": "n",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 32,
+                                      "program": "string_template_1.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 33,
+                                      "program": "string_template_1.ets"
+                                    }
+                                  }
+                                },
+                                "right": {
+                                  "type": "NumberLiteral",
+                                  "value": 2,
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 34,
+                                      "program": "string_template_1.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 35,
+                                      "program": "string_template_1.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 20,
+                                    "column": 32,
+                                    "program": "string_template_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 20,
+                                    "column": 35,
+                                    "program": "string_template_1.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 20,
+                                  "column": 11,
+                                  "program": "string_template_1.ets"
+                                },
+                                "end": {
+                                  "line": 20,
+                                  "column": 35,
+                                  "program": "string_template_1.ets"
+                                }
+                              }
+                            },
+                            "right": {
+                              "type": "CharLiteral",
+                              "value": "!",
+                              "loc": {
+                                "start": {
+                                  "line": 20,
+                                  "column": 38,
+                                  "program": "string_template_1.ets"
+                                },
+                                "end": {
+                                  "line": 20,
+                                  "column": 42,
+                                  "program": "string_template_1.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 20,
+                                "column": 11,
+                                "program": "string_template_1.ets"
+                              },
+                              "end": {
+                                "line": 20,
+                                "column": 42,
+                                "program": "string_template_1.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 20,
+                              "column": 7,
+                              "program": "string_template_1.ets"
+                            },
+                            "end": {
+                              "line": 20,
+                              "column": 42,
+                              "program": "string_template_1.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 20,
+                          "column": 3,
+                          "program": "string_template_1.ets"
+                        },
+                        "end": {
+                          "line": 20,
+                          "column": 43,
+                          "program": "string_template_1.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "z",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 21,
+                                "column": 7,
+                                "program": "string_template_1.ets"
+                              },
+                              "end": {
+                                "line": 21,
+                                "column": 8,
+                                "program": "string_template_1.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "TemplateLiteral",
+                            "expressions": [
+                              {
+                                "type": "Identifier",
+                                "name": "y",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 21,
+                                    "column": 18,
+                                    "program": "string_template_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 21,
+                                    "column": 19,
+                                    "program": "string_template_1.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "BinaryExpression",
+                                "operator": "*",
+                                "left": {
+                                  "type": "Identifier",
+                                  "name": "n",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 21,
+                                      "column": 26,
+                                      "program": "string_template_1.ets"
+                                    },
+                                    "end": {
+                                      "line": 21,
+                                      "column": 27,
+                                      "program": "string_template_1.ets"
+                                    }
+                                  }
+                                },
+                                "right": {
+                                  "type": "NumberLiteral",
+                                  "value": 2,
+                                  "loc": {
+                                    "start": {
+                                      "line": 21,
+                                      "column": 28,
+                                      "program": "string_template_1.ets"
+                                    },
+                                    "end": {
+                                      "line": 21,
+                                      "column": 29,
+                                      "program": "string_template_1.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 21,
+                                    "column": 26,
+                                    "program": "string_template_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 21,
+                                    "column": 29,
+                                    "program": "string_template_1.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "quasis": [
+                              {
+                                "type": "TemplateElement",
+                                "value": {
+                                  "raw": "abc ",
+                                  "cooked": "abc "
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 21,
+                                    "column": 12,
+                                    "program": "string_template_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 21,
+                                    "column": 16,
+                                    "program": "string_template_1.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "TemplateElement",
+                                "value": {
+                                  "raw": " = ",
+                                  "cooked": " = "
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 21,
+                                    "column": 20,
+                                    "program": "string_template_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 21,
+                                    "column": 23,
+                                    "program": "string_template_1.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "TemplateElement",
+                                "value": {
+                                  "raw": "!",
+                                  "cooked": "!"
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 21,
+                                    "column": 31,
+                                    "program": "string_template_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 21,
+                                    "column": 32,
+                                    "program": "string_template_1.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "loc": {
+                              "start": {
+                                "line": 21,
+                                "column": 11,
+                                "program": "string_template_1.ets"
+                              },
+                              "end": {
+                                "line": 21,
+                                "column": 33,
+                                "program": "string_template_1.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 21,
+                              "column": 7,
+                              "program": "string_template_1.ets"
+                            },
+                            "end": {
+                              "line": 21,
+                              "column": 33,
+                              "program": "string_template_1.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 21,
+                          "column": 3,
+                          "program": "string_template_1.ets"
+                        },
+                        "end": {
+                          "line": 21,
+                          "column": 34,
+                          "program": "string_template_1.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "v1",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 7,
+                                "program": "string_template_1.ets"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 9,
+                                "program": "string_template_1.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "TemplateLiteral",
+                            "expressions": [
+                              {
+                                "type": "BinaryExpression",
+                                "operator": "+",
+                                "left": {
+                                  "type": "Identifier",
+                                  "name": "y",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 23,
+                                      "column": 19,
+                                      "program": "string_template_1.ets"
+                                    },
+                                    "end": {
+                                      "line": 23,
+                                      "column": 20,
+                                      "program": "string_template_1.ets"
+                                    }
+                                  }
+                                },
+                                "right": {
+                                  "type": "Identifier",
+                                  "name": "z",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 23,
+                                      "column": 23,
+                                      "program": "string_template_1.ets"
+                                    },
+                                    "end": {
+                                      "line": 23,
+                                      "column": 24,
+                                      "program": "string_template_1.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 23,
+                                    "column": 19,
+                                    "program": "string_template_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 23,
+                                    "column": 24,
+                                    "program": "string_template_1.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "quasis": [
+                              {
+                                "type": "TemplateElement",
+                                "value": {
+                                  "raw": "--- ",
+                                  "cooked": "--- "
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 23,
+                                    "column": 13,
+                                    "program": "string_template_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 23,
+                                    "column": 17,
+                                    "program": "string_template_1.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "TemplateElement",
+                                "value": {
+                                  "raw": " ---",
+                                  "cooked": " ---"
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 23,
+                                    "column": 25,
+                                    "program": "string_template_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 23,
+                                    "column": 29,
+                                    "program": "string_template_1.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 12,
+                                "program": "string_template_1.ets"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 30,
+                                "program": "string_template_1.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 23,
+                              "column": 7,
+                              "program": "string_template_1.ets"
+                            },
+                            "end": {
+                              "line": 23,
+                              "column": 30,
+                              "program": "string_template_1.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 23,
+                          "column": 3,
+                          "program": "string_template_1.ets"
+                        },
+                        "end": {
+                          "line": 23,
+                          "column": 31,
+                          "program": "string_template_1.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "v2",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 24,
+                                "column": 7,
+                                "program": "string_template_1.ets"
+                              },
+                              "end": {
+                                "line": 24,
+                                "column": 9,
+                                "program": "string_template_1.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "TemplateLiteral",
+                            "expressions": [
+                              {
+                                "type": "BinaryExpression",
+                                "operator": "+",
+                                "left": {
+                                  "type": "Identifier",
+                                  "name": "y",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 24,
+                                      "column": 19,
+                                      "program": "string_template_1.ets"
+                                    },
+                                    "end": {
+                                      "line": 24,
+                                      "column": 20,
+                                      "program": "string_template_1.ets"
+                                    }
+                                  }
+                                },
+                                "right": {
+                                  "type": "TemplateLiteral",
+                                  "expressions": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "y",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 24,
+                                          "column": 30,
+                                          "program": "string_template_1.ets"
+                                        },
+                                        "end": {
+                                          "line": 24,
+                                          "column": 31,
+                                          "program": "string_template_1.ets"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "BinaryExpression",
+                                      "operator": "*",
+                                      "left": {
+                                        "type": "Identifier",
+                                        "name": "n",
+                                        "decorators": [],
+                                        "loc": {
+                                          "start": {
+                                            "line": 24,
+                                            "column": 38,
+                                            "program": "string_template_1.ets"
+                                          },
+                                          "end": {
+                                            "line": 24,
+                                            "column": 39,
+                                            "program": "string_template_1.ets"
+                                          }
+                                        }
+                                      },
+                                      "right": {
+                                        "type": "NumberLiteral",
+                                        "value": 2,
+                                        "loc": {
+                                          "start": {
+                                            "line": 24,
+                                            "column": 40,
+                                            "program": "string_template_1.ets"
+                                          },
+                                          "end": {
+                                            "line": 24,
+                                            "column": 41,
+                                            "program": "string_template_1.ets"
+                                          }
+                                        }
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 24,
+                                          "column": 38,
+                                          "program": "string_template_1.ets"
+                                        },
+                                        "end": {
+                                          "line": 24,
+                                          "column": 41,
+                                          "program": "string_template_1.ets"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "quasis": [
+                                    {
+                                      "type": "TemplateElement",
+                                      "value": {
+                                        "raw": "abc ",
+                                        "cooked": "abc "
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 24,
+                                          "column": 24,
+                                          "program": "string_template_1.ets"
+                                        },
+                                        "end": {
+                                          "line": 24,
+                                          "column": 28,
+                                          "program": "string_template_1.ets"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "TemplateElement",
+                                      "value": {
+                                        "raw": " = ",
+                                        "cooked": " = "
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 24,
+                                          "column": 32,
+                                          "program": "string_template_1.ets"
+                                        },
+                                        "end": {
+                                          "line": 24,
+                                          "column": 35,
+                                          "program": "string_template_1.ets"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "type": "TemplateElement",
+                                      "value": {
+                                        "raw": "!",
+                                        "cooked": "!"
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 24,
+                                          "column": 43,
+                                          "program": "string_template_1.ets"
+                                        },
+                                        "end": {
+                                          "line": 24,
+                                          "column": 44,
+                                          "program": "string_template_1.ets"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "loc": {
+                                    "start": {
+                                      "line": 24,
+                                      "column": 23,
+                                      "program": "string_template_1.ets"
+                                    },
+                                    "end": {
+                                      "line": 24,
+                                      "column": 45,
+                                      "program": "string_template_1.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 24,
+                                    "column": 19,
+                                    "program": "string_template_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 24,
+                                    "column": 45,
+                                    "program": "string_template_1.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "quasis": [
+                              {
+                                "type": "TemplateElement",
+                                "value": {
+                                  "raw": "--- ",
+                                  "cooked": "--- "
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 24,
+                                    "column": 13,
+                                    "program": "string_template_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 24,
+                                    "column": 17,
+                                    "program": "string_template_1.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "TemplateElement",
+                                "value": {
+                                  "raw": " ---",
+                                  "cooked": " ---"
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 24,
+                                    "column": 46,
+                                    "program": "string_template_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 24,
+                                    "column": 50,
+                                    "program": "string_template_1.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "loc": {
+                              "start": {
+                                "line": 24,
+                                "column": 12,
+                                "program": "string_template_1.ets"
+                              },
+                              "end": {
+                                "line": 24,
+                                "column": 51,
+                                "program": "string_template_1.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 24,
+                              "column": 7,
+                              "program": "string_template_1.ets"
+                            },
+                            "end": {
+                              "line": 24,
+                              "column": 51,
+                              "program": "string_template_1.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 24,
+                          "column": 3,
+                          "program": "string_template_1.ets"
+                        },
+                        "end": {
+                          "line": 24,
+                          "column": 52,
+                          "program": "string_template_1.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "assertEQ",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 31,
+                              "column": 3,
+                              "program": "string_template_1.ets"
+                            },
+                            "end": {
+                              "line": 31,
+                              "column": 11,
+                              "program": "string_template_1.ets"
+                            }
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "x",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 31,
+                                "column": 12,
+                                "program": "string_template_1.ets"
+                              },
+                              "end": {
+                                "line": 31,
+                                "column": 13,
+                                "program": "string_template_1.ets"
+                              }
+                            }
+                          },
+                          {
+                            "type": "Identifier",
+                            "name": "z",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 31,
+                                "column": 15,
+                                "program": "string_template_1.ets"
+                              },
+                              "end": {
+                                "line": 31,
+                                "column": 16,
+                                "program": "string_template_1.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 31,
+                            "column": 3,
+                            "program": "string_template_1.ets"
+                          },
+                          "end": {
+                            "line": 31,
+                            "column": 17,
+                            "program": "string_template_1.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 31,
+                          "column": 3,
+                          "program": "string_template_1.ets"
+                        },
+                        "end": {
+                          "line": 31,
+                          "column": 18,
+                          "program": "string_template_1.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "assertEQ",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 32,
+                              "column": 3,
+                              "program": "string_template_1.ets"
+                            },
+                            "end": {
+                              "line": 32,
+                              "column": 11,
+                              "program": "string_template_1.ets"
+                            }
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "v1",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 32,
+                                "column": 12,
+                                "program": "string_template_1.ets"
+                              },
+                              "end": {
+                                "line": 32,
+                                "column": 14,
+                                "program": "string_template_1.ets"
+                              }
+                            }
+                          },
+                          {
+                            "type": "Identifier",
+                            "name": "v2",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 32,
+                                "column": 16,
+                                "program": "string_template_1.ets"
+                              },
+                              "end": {
+                                "line": 32,
+                                "column": 18,
+                                "program": "string_template_1.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 32,
+                            "column": 3,
+                            "program": "string_template_1.ets"
+                          },
+                          "end": {
+                            "line": 32,
+                            "column": 19,
+                            "program": "string_template_1.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 32,
+                          "column": 3,
+                          "program": "string_template_1.ets"
+                        },
+                        "end": {
+                          "line": 32,
+                          "column": 20,
+                          "program": "string_template_1.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 23,
+                      "program": "string_template_1.ets"
+                    },
+                    "end": {
+                      "line": 33,
+                      "column": 2,
+                      "program": "string_template_1.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 10,
+                    "program": "string_template_1.ets"
+                  },
+                  "end": {
+                    "line": 33,
+                    "column": 2,
+                    "program": "string_template_1.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "string_template_1.ets"
+                },
+                "end": {
+                  "line": 33,
+                  "column": 2,
+                  "program": "string_template_1.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 1,
+                "program": "string_template_1.ets"
+              },
+              "end": {
+                "line": 33,
+                "column": 2,
+                "program": "string_template_1.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "string_template_1.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "string_template_1.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "string_template_1.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "string_template_1.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "string_template_1.ets"
+    },
+    "end": {
+      "line": 34,
+      "column": 1,
+      "program": "string_template_1.ets"
+    }
+  }
+}

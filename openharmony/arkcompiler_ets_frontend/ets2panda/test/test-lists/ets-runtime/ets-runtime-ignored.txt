@@ -1,0 +1,91 @@
+# SyntaxError: Cannot find type 'Class'.
+#10421
+ClassNewInstance.ets
+
+# SyntaxError: Cannot find type 'HashMap'.
+#10422
+StringFasta.ets
+
+# SyntaxError: Cannot find type 'Class'.
+#10423
+generics_1.ets
+
+#11502
+nullCoalesc.ets
+
+#11104
+unboxing.ets
+
+#11326
+GenericsTest.ets
+
+#11327
+objectEquality.ets
+
+#19809 FailKind.ES2PANDA_FAIL
+conditionalExpressionGenericLUB.ets
+
+# Failed due to lambda captures
+trailing-lambda-with-capture.ets
+
+# Disabled temporarily #I8EM2T implementation struct directly expanded to class
+struct-identifier.ets
+struct-init.ets
+struct-init2.ets
+struct_implements.ets
+top_level_03.ets
+
+# Functional type with rest parameter
+lambdaExpressionWithRestParameter.ets
+funcRefWithRestArguments.ets
+
+# Wrong type inferred for lambda
+type_param_in_union.ets
+
+#15276
+n_overrideWithNullable.ets
+nullableType.ets
+
+#21065
+implementsClassPropertyUnionType1.ets
+implementsClassPropertyUnionType2.ets
+
+#21834
+override_for_partial_02.ets
+optional_field.ets
+
+#22384
+Object-type-in-binary-logical-expression.ets
+trailing-lambda.ets
+BitwiseOperationsOnFloat.ets
+RecursiveTypeAlias11.ets
+char-type.ets
+conversionFloatIntLong.ets
+enum_const_variable.ets
+local_enum03.ets
+inallyCatchExecutedNormally.ets
+finallyTryExecutedNormally.ets
+finallyCatchExecutedNormally.ets
+enumConstExpression.ets
+
+#48215
+lambda_with_receiver/lambda_with_receiver_generics_return_this_rotate.ets
+lambda_with_receiver/lambda_with_receiver_return_this3.ets
+lambda_with_receiver/lambda_with_receiver_generics_return_this.ets
+lambda_with_receiver/lambda_with_receiver_trailing_in_class_method_return_this_rotate.ets
+lambda_with_receiver/lambda_with_receiver_trailing_in_function_return_this_rotate.ets
+
+#23074
+# generic bridges
+GenericBridges_01.ets
+GenericBridges_02.ets
+override_for_partial_01.ets
+
+#HEAD FILE NO NEED TO RUN
+import_self_head_tests/B/test.d.ets
+
+#Issue 25550
+enum-initialize-with-enum3.ets
+
+# 27159 Recursive type alias with generics
+RecursiveTypeAlias10.ets

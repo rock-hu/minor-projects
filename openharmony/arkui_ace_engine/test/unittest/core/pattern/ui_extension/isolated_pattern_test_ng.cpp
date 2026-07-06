@@ -1,0 +1,823 @@
+/*
+ * Copyright (c) 2024-2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "gtest/gtest.h"
+#include "base/memory/ace_type.h"
+#define private public
+#define protected public
+#include "frameworks/core/event/pointer_event.h"
+#include "accessibility_element_info.h"
+#include "core/components_ng/base/view_stack_processor.h"
+#include "adapter/ohos/osal/want_wrap_ohos.h"
+#include "core/components_ng/pattern/ui_extension/isolated_component/isolated_pattern.h"
+#include "frameworks/core/components_ng/pattern/ui_extension/platform_pattern.h"
+
+#include "test/mock/base/mock_task_executor.h"
+#include "test/mock/core/common/mock_container.h"
+#include "test/mock/core/pipeline/mock_pipeline_context.h"
+#include "adapter/ohos/entrance/ace_container.h"
+
+using namespace testing;
+using namespace testing::ext;
+
+namespace OHOS::Ace::NG {
+namespace {
+    const std::string ISOLATED_COMPONENT_ETS_TAG = "IsolatedComponent";
+    const std::string BUNDLE_NAME = "Test bundle name";
+    const std::string ABILITY_NAME = "Test ability name";
+    const std::string MOCK_HAP_PATH = "Test hap path";
+    const std::string MOCK_ABC_PATH = "Test abc path";
+    const std::string MOCK_ABC_ENTRY_POINT = "Test entry point";
+    constexpr char RESOURCE_PATH[] = "resourcePath";
+    constexpr char ABC_PATH[] = "abcPath";
+    constexpr char ENTRY_POINT[] = "entryPoint";
+    constexpr char REGISTER_COMPONENTS[] = "registerComponents";
+    const SizeF CONTENT_SIZE = SizeF(400.0, 500.0);
+    const OffsetF CONTENT_OFFSET = OffsetF(50.0, 60.0);
+    const std::string TAG = "Test node tag";
+} // namespace
+
+class IsolatedPatternTestNg : public Test {
+public:
+    void SetUp() override;
+    void TearDown() override;
+    static void SetUpTestCase();
+    static void TearDownTestCase();
+};
+
+void IsolatedPatternTestNg::SetUp() {}
+
+void IsolatedPatternTestNg::TearDown() {}
+
+
+void IsolatedPatternTestNg::SetUpTestCase()
+{
+    MockPipelineContext::SetUp();
+    MockContainer::SetUp();
+    MockContainer::Current()->taskExecutor_ = AceType::MakeRefPtr<MockTaskExecutor>();
+    MockContainer::Current()->pipelineContext_ = MockPipelineContext::GetCurrentContext();
+    MockContainer::Current()->pipelineContext_->taskExecutor_ = MockContainer::Current()->taskExecutor_;
+
+    std::unique_ptr<std::ostream> ostream = std::make_unique<std::ostringstream>();
+    ASSERT_NE(ostream, nullptr);
+}
+
+void IsolatedPatternTestNg::TearDownTestCase()
+{
+    MockPipelineContext::TearDown();
+    MockContainer::TearDown();
+}
+
+/**
+ * @tc.name: IsolatedPatternTest001
+ * @tc.desc: Test IsolatedPattern GetUiExtensionId/WrapExtensionAbilityId
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsolatedPatternTestNg, IsolatedPatternTest001, TestSize.Level1)
+{
+#ifdef OHOS_STANDARD_SYSTEM
+    /**
+     * @tc.steps: step1. construct a IsolatedComponent Node
+     */
+    auto isolatedNodeId = ElementRegister::GetInstance()->MakeUniqueId();
+    auto isolatedNode = FrameNode::GetOrCreateFrameNode(
+        ISOLATED_COMPONENT_ETS_TAG, isolatedNodeId, []() { return AceType::MakeRefPtr<IsolatedPattern>(); });
+    ASSERT_NE(isolatedNode, nullptr);
+    EXPECT_EQ(isolatedNode->GetTag(), V2::ISOLATED_COMPONENT_ETS_TAG);
+    
+    /**
+     * @tc.steps: step2. get IsolatedPattern
+     */
+    auto isolatedPattern = isolatedNode->GetPattern<IsolatedPattern>();
+    ASSERT_NE(isolatedPattern, nullptr);
+
+    /**
+     * @tc.steps: step3. call GetUiExtensionId.
+     * @tc.expected: expect result is 1
+     */
+    ASSERT_EQ(isolatedPattern->GetUiExtensionId(), 1);
+
+    /**
+     * @tc.steps: step4. call WrapExtensionAbilityId.
+     * @tc.expected: expect result is 1.
+     */
+    int32_t extensionOffset = 1;
+    int32_t abilityId = 1;
+    int32_t result = isolatedPattern->WrapExtensionAbilityId(extensionOffset, abilityId);
+    EXPECT_EQ(result, 2);
+#endif
+}
+
+/**
+ * @tc.name: IsolatedPatternTest002
+ * @tc.desc: Test IsolatedPattern WrapExtensionAbilityId/DumpInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsolatedPatternTestNg, IsolatedPatternTest002, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. construct a IsolatedComponent Node
+     */
+    auto isolatedNodeId = ElementRegister::GetInstance()->MakeUniqueId();
+    auto isolatedNode = FrameNode::GetOrCreateFrameNode(
+        ISOLATED_COMPONENT_ETS_TAG, isolatedNodeId, []() { return AceType::MakeRefPtr<IsolatedPattern>(); });
+    ASSERT_NE(isolatedNode, nullptr);
+    EXPECT_EQ(isolatedNode->GetTag(), V2::ISOLATED_COMPONENT_ETS_TAG);
+    
+    /**
+     * @tc.steps: step2. get IsolatedPattern
+     */
+    auto isolatedPattern = isolatedNode->GetPattern<IsolatedPattern>();
+    ASSERT_NE(isolatedPattern, nullptr);
+
+    /**
+     * @tc.steps: step3. call InitializeIsolatedComponent.
+     * @tc.expected: expect the feature of curIsolatedInfo_ is null after called due to the runtime.
+     */
+    auto wantWrap = AceType::MakeRefPtr<WantWrapOhos>(BUNDLE_NAME, ABILITY_NAME);
+    void* runtime = nullptr;
+    isolatedPattern->InitializeIsolatedComponent(wantWrap, runtime);
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.abcPath.empty());
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.resourcePath.empty());
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.entryPoint.empty());
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.registerComponents.empty());
+
+     /**
+     * @tc.steps: step4. call DumpInfo.
+     */
+    auto want = AceType::DynamicCast<WantWrapOhos>(wantWrap)->GetWant();
+    auto resourcePath = want.GetStringParam(RESOURCE_PATH);
+    auto abcPath = want.GetStringParam(ABC_PATH);
+    auto entryPoint = want.GetStringParam(ENTRY_POINT);
+    auto registerComponents = want.GetStringArrayParam(REGISTER_COMPONENTS);
+    isolatedPattern->curIsolatedInfo_.abcPath = abcPath;
+    isolatedPattern->curIsolatedInfo_.resourcePath = resourcePath;
+    isolatedPattern->curIsolatedInfo_.entryPoint = entryPoint;
+    isolatedPattern->curIsolatedInfo_.registerComponents = registerComponents;
+    isolatedPattern->DumpInfo();
+}
+
+/**
+ * @tc.name: IsolatedPatternTest003
+ * @tc.desc: Test IsolatedPattern
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsolatedPatternTestNg, IsolatedPatternTest003, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. construct a IsolatedComponent Node
+     */
+    auto isolatedNodeId = ElementRegister::GetInstance()->MakeUniqueId();
+    auto isolatedNode = FrameNode::GetOrCreateFrameNode(
+        ISOLATED_COMPONENT_ETS_TAG, isolatedNodeId, []() { return AceType::MakeRefPtr<IsolatedPattern>(); });
+    ASSERT_NE(isolatedNode, nullptr);
+    EXPECT_EQ(isolatedNode->GetTag(), V2::ISOLATED_COMPONENT_ETS_TAG);
+    
+    /**
+     * @tc.steps: step2. get IsolatedPattern
+     */
+    auto isolatedPattern = isolatedNode->GetPattern<IsolatedPattern>();
+    ASSERT_NE(isolatedPattern, nullptr);
+}
+
+/**
+ * @tc.name: IsolatedPatternTest004
+ * @tc.desc: Test IsolatedPattern SetAdaptiveWidth/SetAdaptiveHeight
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsolatedPatternTestNg, IsolatedPatternTest004, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. construct a IsolatedComponent Node
+     */
+    auto isolatedNodeId = ElementRegister::GetInstance()->MakeUniqueId();
+    auto isolatedNode = FrameNode::GetOrCreateFrameNode(
+        ISOLATED_COMPONENT_ETS_TAG, isolatedNodeId, []() { return AceType::MakeRefPtr<IsolatedPattern>(); });
+    ASSERT_NE(isolatedNode, nullptr);
+    EXPECT_EQ(isolatedNode->GetTag(), V2::ISOLATED_COMPONENT_ETS_TAG);
+    
+    /**
+     * @tc.steps: step2. get IsolatedPattern
+     */
+    auto isolatedPattern = isolatedNode->GetPattern<IsolatedPattern>();
+    ASSERT_NE(isolatedPattern, nullptr);
+
+    /**
+     * @tc.steps: step3. call SetAdaptiveWidth.
+     * @tc.expected: expect adaptiveHeight_ is true.
+     */
+    isolatedPattern->SetAdaptiveWidth(true);
+    EXPECT_TRUE(isolatedPattern->adaptiveWidth_);
+    isolatedPattern->SetAdaptiveWidth(false);
+    EXPECT_FALSE(isolatedPattern->adaptiveWidth_);
+
+    /**
+     * @tc.steps: step4. call SetAdaptiveHeight.
+     * @tc.expected: expect adaptiveHeight_ is true.
+     */
+    isolatedPattern->SetAdaptiveHeight(true);
+    EXPECT_TRUE(isolatedPattern->adaptiveHeight_);
+    isolatedPattern->SetAdaptiveHeight(false);
+    EXPECT_FALSE(isolatedPattern->adaptiveHeight_);
+}
+
+/**
+ * @tc.name: IsolatedPatternTest005
+ * @tc.desc: Test IsolatedPattern OnDirtyLayoutWrapperSwap/OnDetachFromFrameNode
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsolatedPatternTestNg, IsolatedPatternTest005, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. construct a IsolatedComponent Node
+     */
+    auto isolatedNodeId = ElementRegister::GetInstance()->MakeUniqueId();
+    auto isolatedNode = FrameNode::GetOrCreateFrameNode(
+        ISOLATED_COMPONENT_ETS_TAG, isolatedNodeId, []() { return AceType::MakeRefPtr<IsolatedPattern>(); });
+    ASSERT_NE(isolatedNode, nullptr);
+    EXPECT_EQ(isolatedNode->GetTag(), V2::ISOLATED_COMPONENT_ETS_TAG);
+
+    /**
+     * @tc.steps: step2. get IsolatedPattern
+     */
+    auto isolatedPattern = isolatedNode->GetPattern<IsolatedPattern>();
+    ASSERT_NE(isolatedPattern, nullptr);
+
+    /**
+     * @tc.steps: step3. call OnDirtyLayoutWrapperSwap.
+     */
+    auto pattern = AceType::MakeRefPtr<IsolatedPattern>();
+    auto frameNode = FrameNode::CreateFrameNode(TAG, 1, pattern);
+    ASSERT_NE(frameNode, nullptr);
+    frameNode->MarkModifyDone();
+
+    auto layoutProperty = frameNode->GetLayoutProperty();
+    ASSERT_NE(layoutProperty, nullptr);
+    auto geometryNode = frameNode->GetGeometryNode();
+    ASSERT_NE(geometryNode, nullptr);
+    geometryNode->SetContentSize(CONTENT_SIZE);
+    geometryNode->SetContentOffset(CONTENT_OFFSET);
+
+    RefPtr<LayoutWrapperNode> layoutWrapper =
+        AceType::MakeRefPtr<LayoutWrapperNode>(frameNode, geometryNode, layoutProperty);
+    ASSERT_NE(layoutWrapper, nullptr);
+
+    DirtySwapConfig dirtySwapConfig;
+    dirtySwapConfig.skipMeasure = false;
+    dirtySwapConfig.skipLayout = false;
+    isolatedPattern->OnDirtyLayoutWrapperSwap(layoutWrapper, dirtySwapConfig);
+    
+    /**
+     * @tc.steps: step4. call OnDetachFromFrameNode.
+     * @tc.expected: expect dynamicComponentRenderer_ is null after called.
+     */
+    IsolatedInfo curIsolatedInfo;
+    void* runtime = nullptr;
+    RefPtr<FrameNode> host = FrameNode::CreateFrameNode(TAG, 2, pattern);
+    isolatedPattern->dynamicComponentRenderer_ = DynamicComponentRenderer::Create(host, runtime, curIsolatedInfo);
+    ASSERT_NE(isolatedPattern->dynamicComponentRenderer_, nullptr);
+    isolatedPattern->OnDetachFromFrameNode(AceType::RawPtr(isolatedNode));
+    EXPECT_EQ(isolatedPattern->dynamicComponentRenderer_, nullptr);
+}
+
+/**
+ * @tc.name: IsolatedPatternTest006
+ * @tc.desc: Test IsolatedPattern/InitializeRender/SearchElementInfosByText/DispatchFocusActiveEvent/
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsolatedPatternTestNg, IsolatedPatternTest006, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. construct a IsolatedComponent Node
+     */
+    auto isolatedNodeId = ElementRegister::GetInstance()->MakeUniqueId();
+    auto isolatedNode = FrameNode::GetOrCreateFrameNode(
+        ISOLATED_COMPONENT_ETS_TAG, isolatedNodeId, []() { return AceType::MakeRefPtr<IsolatedPattern>(); });
+    ASSERT_NE(isolatedNode, nullptr);
+    EXPECT_EQ(isolatedNode->GetTag(), V2::ISOLATED_COMPONENT_ETS_TAG);
+
+    /**
+     * @tc.steps: step2. get IsolatedPattern
+     */
+    auto isolatedPattern = isolatedNode->GetPattern<IsolatedPattern>();
+    ASSERT_NE(isolatedPattern, nullptr);
+
+    /**
+     * @tc.steps: step3. call InitializeRender.
+     */
+    void* runtime = nullptr;
+    isolatedPattern->InitializeRender(runtime);
+    EXPECT_NE(isolatedPattern->dynamicComponentRenderer_, nullptr);
+
+    /**
+     * @tc.steps: step4. call DispatchPointerEvent.
+     */
+    std::shared_ptr<OHOS::MMI::PointerEvent> pointerEvent;
+    isolatedPattern->DispatchPointerEvent(pointerEvent);
+
+    
+    /**
+     * @tc.steps: step5. call DispatchPointerEvent.
+     */
+    IsolatedInfo curIsolatedInfo;
+    auto pattern = AceType::MakeRefPtr<IsolatedPattern>();
+    RefPtr<FrameNode> host = FrameNode::CreateFrameNode(TAG, 2, pattern);
+    isolatedPattern->dynamicComponentRenderer_ = DynamicComponentRenderer::Create(host, runtime, curIsolatedInfo);
+    isolatedPattern->DispatchPointerEvent(pointerEvent);
+    
+    /**
+     * @tc.steps: step6. call DispatchFocusActiveEvent.
+     */
+    int32_t focusType = 1;
+    isolatedPattern->DispatchFocusActiveEvent(true);
+
+    isolatedPattern->dynamicComponentRenderer_ = nullptr;
+    isolatedPattern->DispatchPointerEvent(pointerEvent);
+}
+
+/**
+ * @tc.name: IsolatedPatternTest007
+ * @tc.desc: Test IsolatedPattern HandleKeyEvent/HandleFocusEvent/HandleBlurEvent/OnAttachToFrameNode
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsolatedPatternTestNg, IsolatedPatternTest007, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. construct a IsolatedComponent Node
+     */
+    auto isolatedNodeId = ElementRegister::GetInstance()->MakeUniqueId();
+    auto isolatedNode = FrameNode::GetOrCreateFrameNode(
+        ISOLATED_COMPONENT_ETS_TAG, isolatedNodeId, []() { return AceType::MakeRefPtr<IsolatedPattern>(); });
+    ASSERT_NE(isolatedNode, nullptr);
+    EXPECT_EQ(isolatedNode->GetTag(), V2::ISOLATED_COMPONENT_ETS_TAG);
+
+    /**
+     * @tc.steps: step2. get IsolatedPattern
+     */
+    auto isolatedPattern = isolatedNode->GetPattern<IsolatedPattern>();
+    ASSERT_NE(isolatedPattern, nullptr);
+
+    /**
+     * @tc.steps: step3. call HandleKeyEvent.
+     */
+    KeyEvent keyEventOne(KeyCode::KEY_NUMPAD_1, KeyAction::DOWN);
+    auto result = isolatedPattern->HandleKeyEvent(keyEventOne);
+    EXPECT_FALSE(result);
+
+    /**
+     * @tc.steps: step4. call HandleFocusEvent.
+     */
+    IsolatedInfo curIsolatedInfo;
+    void* runtime = nullptr;
+    auto pattern = AceType::MakeRefPtr<IsolatedPattern>();
+    RefPtr<FrameNode> host = FrameNode::CreateFrameNode(TAG, 2, pattern);
+    isolatedPattern->dynamicComponentRenderer_ = DynamicComponentRenderer::Create(host, runtime, curIsolatedInfo);
+    isolatedPattern->HandleFocusEvent();
+    EXPECT_NE(isolatedPattern->dynamicComponentRenderer_, nullptr);
+
+    /**
+     * @tc.steps: step5. call HandleBlurEvent.0
+
+     */
+    isolatedPattern->HandleBlurEvent();
+
+    /**
+     * @tc.steps: step6. call OnAttachToFrameNode.
+     */
+    isolatedPattern->HandleBlurEvent();
+}
+
+/**
+ * @tc.name: IsolatedPatternTest008
+ * @tc.desc: Test IsolatedPattern SearchExtensionElementInfoByAccessibilityId/
+    SearchElementInfosByText/TransferExecuteAction
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsolatedPatternTestNg, IsolatedPatternTest008, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. construct a IsolatedComponent Node
+     */
+    auto isolatedNodeId = ElementRegister::GetInstance()->MakeUniqueId();
+    auto isolatedNode = FrameNode::GetOrCreateFrameNode(
+        ISOLATED_COMPONENT_ETS_TAG, isolatedNodeId, []() { return AceType::MakeRefPtr<IsolatedPattern>(); });
+    ASSERT_NE(isolatedNode, nullptr);
+    EXPECT_EQ(isolatedNode->GetTag(), V2::ISOLATED_COMPONENT_ETS_TAG);
+
+    /**
+     * @tc.steps: step2. get IsolatedPattern
+     */
+    auto isolatedPattern = isolatedNode->GetPattern<IsolatedPattern>();
+    IsolatedInfo curIsolatedInfo;
+    void* runtime = nullptr;
+    auto pattern = AceType::MakeRefPtr<IsolatedPattern>();
+    RefPtr<FrameNode> host = FrameNode::CreateFrameNode(TAG, 2, pattern);
+    isolatedPattern->dynamicComponentRenderer_ = DynamicComponentRenderer::Create(host, runtime, curIsolatedInfo);
+    ASSERT_NE(isolatedPattern, nullptr);
+
+    /**
+     * @tc.steps: step3. call SearchExtensionElementInfoByAccessibilityId.
+     */
+    int64_t elementId = 1;
+    int32_t mode = 1;
+    int64_t baseParent = 1;
+    std::list<Accessibility::AccessibilityElementInfo> outputList;
+    isolatedPattern->SearchExtensionElementInfoByAccessibilityId(elementId, mode, baseParent, outputList);
+
+    /**
+     * @tc.steps: step4. call SearchElementInfosByText.
+     */
+    std::string text = "test text";
+    isolatedPattern->SearchElementInfosByText(elementId, text, baseParent, outputList);
+
+    /**
+     * @tc.steps: step5. call TransferExecuteAction.
+     */
+    int32_t action = 1;
+    int32_t offset = 1;
+    std::map<std::string, std::string> actionArguments;
+    auto result = isolatedPattern->TransferExecuteAction(elementId, actionArguments, action, offset);
+    ASSERT_TRUE(result);
+}
+
+/**
+ * @tc.name: IsolatedPatternTest009
+ * @tc.desc: Test InitializeRender
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsolatedPatternTestNg, IsolatedPatternTest009, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. construct a IsolatedComponent Node
+     */
+    auto isolatedNodeId = ElementRegister::GetInstance()->MakeUniqueId();
+    auto isolatedNode = FrameNode::GetOrCreateFrameNode(
+        ISOLATED_COMPONENT_ETS_TAG, isolatedNodeId, []() { return AceType::MakeRefPtr<IsolatedPattern>(); });
+    ASSERT_NE(isolatedNode, nullptr);
+    EXPECT_EQ(isolatedNode->GetTag(), V2::ISOLATED_COMPONENT_ETS_TAG);
+
+    /**
+    * @tc.steps: step2. get IsolatedPattern
+    */
+    IsolatedInfo curIsolatedInfo;
+    auto isolatedPattern = isolatedNode->GetPattern<IsolatedPattern>();
+    void* runtime = nullptr;
+    auto pattern = AceType::MakeRefPtr<IsolatedPattern>();
+    RefPtr<FrameNode> host = FrameNode::CreateFrameNode(TAG, 2, pattern);
+    auto mockRenderer = DynamicComponentRenderer::Create(host, runtime, curIsolatedInfo);
+    isolatedPattern->dynamicComponentRenderer_ = mockRenderer;
+    isolatedPattern->InitializeRender(runtime);
+    //dynamicComponentRenderer_ not create again
+    EXPECT_EQ(isolatedPattern->dynamicComponentRenderer_, mockRenderer);
+}
+
+/**
+ * @tc.name: IsolatedPatternTest010
+ * @tc.desc: Test CheckConstraint
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsolatedPatternTestNg, IsolatedPatternTest010, TestSize.Level1)
+{
+    /**
+    * @tc.steps: step1. construct a IsolatedComponent Node
+    */
+    auto isolatedNodeId = ElementRegister::GetInstance()->MakeUniqueId();
+    auto isolatedNode = FrameNode::GetOrCreateFrameNode(
+        V2::ISOLATED_COMPONENT_ETS_TAG, isolatedNodeId, []() { return AceType::MakeRefPtr<IsolatedPattern>(); });
+    ASSERT_NE(isolatedNode, nullptr);
+    EXPECT_EQ(isolatedNode->GetTag(), V2::ISOLATED_COMPONENT_ETS_TAG);
+
+    /**
+    * @tc.steps: step2. get IsolatedPattern
+    */
+    auto isolatedPattern = isolatedNode->GetPattern<IsolatedPattern>();
+    EXPECT_TRUE(isolatedPattern->CheckConstraint());
+}
+
+/**
+ * @tc.name: IsolatedPatternTest011
+ * @tc.desc: Test IsolatedPattern InitializeIsolatedComponent
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsolatedPatternTestNg, IsolatedPatternTest011, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. construct a IsolatedComponent Node
+     */
+    auto isolatedNodeId = ElementRegister::GetInstance()->MakeUniqueId();
+    auto isolatedNode = FrameNode::GetOrCreateFrameNode(
+        ISOLATED_COMPONENT_ETS_TAG, isolatedNodeId, []() { return AceType::MakeRefPtr<IsolatedPattern>(); });
+    ASSERT_NE(isolatedNode, nullptr);
+    EXPECT_EQ(isolatedNode->GetTag(), V2::ISOLATED_COMPONENT_ETS_TAG);
+    
+    /**
+     * @tc.steps: step2. get IsolatedPattern
+     */
+    auto isolatedPattern = isolatedNode->GetPattern<IsolatedPattern>();
+    ASSERT_NE(isolatedPattern, nullptr);
+
+    /**
+     * @tc.steps: step3. call InitializeIsolatedComponent
+     */
+    auto wantWrap = AceType::MakeRefPtr<WantWrapOhos>(BUNDLE_NAME, ABILITY_NAME);
+    void* runtime = nullptr;
+    isolatedPattern->curIsolatedInfo_.abcPath = "test";
+    isolatedPattern->curIsolatedInfo_.resourcePath = "test";
+    isolatedPattern->curIsolatedInfo_.entryPoint = "test";
+    isolatedPattern->curIsolatedInfo_.registerComponents.push_back("test");
+    EXPECT_FALSE(isolatedPattern->curIsolatedInfo_.abcPath.empty());
+    EXPECT_FALSE(isolatedPattern->curIsolatedInfo_.resourcePath.empty());
+    EXPECT_FALSE(isolatedPattern->curIsolatedInfo_.entryPoint.empty());
+    EXPECT_FALSE(isolatedPattern->curIsolatedInfo_.registerComponents.empty());
+    isolatedPattern->InitializeIsolatedComponent(wantWrap, runtime);
+
+    isolatedPattern->curIsolatedInfo_.registerComponents.clear();
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.registerComponents.empty());
+    isolatedPattern->InitializeIsolatedComponent(wantWrap, runtime);
+
+    isolatedPattern->curIsolatedInfo_.entryPoint = "";
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.entryPoint.empty());
+    isolatedPattern->InitializeIsolatedComponent(wantWrap, runtime);
+
+    isolatedPattern->curIsolatedInfo_.resourcePath = "";
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.resourcePath.empty());
+    isolatedPattern->InitializeIsolatedComponent(wantWrap, runtime);
+
+    isolatedPattern->curIsolatedInfo_.abcPath = "";
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.abcPath.empty());
+    isolatedPattern->InitializeIsolatedComponent(wantWrap, runtime);
+}
+
+/**
+ * @tc.name: IsolatedPatternTest012
+ * @tc.desc: Test IsolatedPattern CheckConstraint and OnDirtyLayoutWrapperSwap
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsolatedPatternTestNg, IsolatedPatternTest012, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. construct a IsolatedComponent Node
+     */
+    auto isolatedNodeId = ElementRegister::GetInstance()->MakeUniqueId();
+    auto isolatedNode = FrameNode::GetOrCreateFrameNode(
+        ISOLATED_COMPONENT_ETS_TAG, isolatedNodeId, []() { return AceType::MakeRefPtr<IsolatedPattern>(); });
+    ASSERT_NE(isolatedNode, nullptr);
+    EXPECT_EQ(isolatedNode->GetTag(), V2::ISOLATED_COMPONENT_ETS_TAG);
+    
+    /**
+     * @tc.steps: step2. get IsolatedPattern
+     */
+    auto isolatedPattern = isolatedNode->GetPattern<IsolatedPattern>();
+    ASSERT_NE(isolatedPattern, nullptr);
+
+    /**
+     * @tc.steps: step3. call CheckConstraint
+     */
+    ASSERT_NE(isolatedPattern->frameNode_.Upgrade(), nullptr);
+    isolatedPattern->frameNode_.Upgrade()->instanceId_ = -2; // container = nullptr
+    auto container = Platform::AceContainer::GetContainer(isolatedPattern->frameNode_.Upgrade()->instanceId_);
+    ASSERT_EQ(container, nullptr);
+    ASSERT_FALSE(isolatedPattern->CheckConstraint());
+
+    isolatedPattern->frameNode_.Upgrade()->instanceId_ = 1; // container != nullptr
+    container = Platform::AceContainer::GetContainer(isolatedPattern->frameNode_.Upgrade()->instanceId_);
+    ASSERT_NE(container, nullptr);
+    ASSERT_TRUE(isolatedPattern->CheckConstraint());
+
+    /**
+     * @tc.steps: step3. call OnDirtyLayoutWrapperSwap
+     */
+    auto pattern = AceType::MakeRefPtr<IsolatedPattern>();
+    auto frameNode = FrameNode::CreateFrameNode(TAG, 1, pattern);
+    ASSERT_NE(frameNode, nullptr);
+    auto geometryNode = frameNode->GetGeometryNode();
+    ASSERT_NE(geometryNode, nullptr);
+    auto layoutProperty = frameNode->GetLayoutProperty();
+    ASSERT_NE(layoutProperty, nullptr);
+    RefPtr<LayoutWrapperNode> layoutWrapper =
+        AceType::MakeRefPtr<LayoutWrapperNode>(frameNode, geometryNode, layoutProperty);
+    ASSERT_NE(layoutWrapper, nullptr);
+
+    DirtySwapConfig dirtySwapConfig;
+    dirtySwapConfig.skipMeasure = true;
+    dirtySwapConfig.skipLayout = false;
+    EXPECT_FALSE(isolatedPattern->OnDirtyLayoutWrapperSwap(layoutWrapper, dirtySwapConfig));
+
+    dirtySwapConfig.skipMeasure = true;
+    dirtySwapConfig.skipLayout = true;
+    EXPECT_FALSE(isolatedPattern->OnDirtyLayoutWrapperSwap(layoutWrapper, dirtySwapConfig));
+}
+
+/**
+ * @tc.name: IsolatedPatternTest013
+ * @tc.desc: Test IsolatedPattern HandleFocusEvent
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsolatedPatternTestNg, IsolatedPatternTest013, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. construct a IsolatedComponent Node
+     */
+    auto isolatedNodeId = ElementRegister::GetInstance()->MakeUniqueId();
+    auto isolatedNode = FrameNode::GetOrCreateFrameNode(
+        ISOLATED_COMPONENT_ETS_TAG, isolatedNodeId, []() { return AceType::MakeRefPtr<IsolatedPattern>(); });
+    ASSERT_NE(isolatedNode, nullptr);
+    EXPECT_EQ(isolatedNode->GetTag(), V2::ISOLATED_COMPONENT_ETS_TAG);
+    
+    /**
+     * @tc.steps: step2. get IsolatedPattern
+     */
+    auto isolatedPattern = isolatedNode->GetPattern<IsolatedPattern>();
+    ASSERT_NE(isolatedPattern, nullptr);
+
+    /**
+     * @tc.steps: step3. call CheckConstraint
+     */
+    IsolatedInfo curIsolatedInfo;
+    void* runtime = nullptr;
+    auto pattern = AceType::MakeRefPtr<IsolatedPattern>();
+    RefPtr<FrameNode> host = FrameNode::CreateFrameNode(TAG, 2, pattern);
+    isolatedPattern->dynamicComponentRenderer_ = DynamicComponentRenderer::Create(host, runtime, curIsolatedInfo);
+    ASSERT_NE(isolatedPattern->dynamicComponentRenderer_, nullptr);
+    ASSERT_NE(isolatedPattern->GetHost(), nullptr);
+    auto pipe = MockPipelineContext::GetCurrent();
+    isolatedPattern->GetHost()->context_ = AceType::RawPtr(pipe);
+    ASSERT_FALSE(isolatedPattern->GetHost()->GetContext()->GetIsFocusActive());
+    isolatedPattern->HandleFocusEvent();
+
+    isolatedPattern->GetHost()->context_->GetOrCreateFocusManager()->isFocusActive_ = true;
+    ASSERT_TRUE(isolatedPattern->GetHost()->GetContext()->GetIsFocusActive());
+    isolatedPattern->HandleFocusEvent();
+}
+
+/**
+ * @tc.name: IsolatedPatternTest014
+ * @tc.desc: Test IsolatedPattern WrapExtensionAbilityId/DumpInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsolatedPatternTestNg, IsolatedPatternTest014, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. construct a IsolatedComponent Node
+     */
+    auto isolatedNodeId = ElementRegister::GetInstance()->MakeUniqueId();
+    auto isolatedNode = FrameNode::GetOrCreateFrameNode(
+        ISOLATED_COMPONENT_ETS_TAG, isolatedNodeId, []() { return AceType::MakeRefPtr<IsolatedPattern>(); });
+    ASSERT_NE(isolatedNode, nullptr);
+    EXPECT_EQ(isolatedNode->GetTag(), V2::ISOLATED_COMPONENT_ETS_TAG);
+    
+    /**
+     * @tc.steps: step2. get IsolatedPattern
+     */
+    auto isolatedPattern = isolatedNode->GetPattern<IsolatedPattern>();
+    ASSERT_NE(isolatedPattern, nullptr);
+
+    /**
+     * @tc.steps: step3. call InitializeIsolatedComponent.
+     * @tc.expected: expect the feature of curIsolatedInfo_ is null after called due to the runtime.
+     */
+    auto wantWrap = AceType::MakeRefPtr<WantWrapOhos>(BUNDLE_NAME, ABILITY_NAME);
+    void* runtime = nullptr;
+    isolatedPattern->InitializeIsolatedComponent(wantWrap, runtime);
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.abcPath.empty());
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.resourcePath.empty());
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.entryPoint.empty());
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.registerComponents.empty());
+
+    // resourcePath is not empty
+    std::string path = "test path";
+    wantWrap->want_.SetParam(RESOURCE_PATH, path);
+    EXPECT_FALSE(wantWrap->GetWant().GetStringParam(RESOURCE_PATH).empty());
+    isolatedPattern->InitializeIsolatedComponent(wantWrap, runtime);
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.abcPath.empty());
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.resourcePath.empty());
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.entryPoint.empty());
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.registerComponents.empty());
+
+    // abcPath is not empty
+    wantWrap->want_.SetParam(ABC_PATH, path);
+    EXPECT_FALSE(wantWrap->GetWant().GetStringParam(ABC_PATH).empty());
+    isolatedPattern->InitializeIsolatedComponent(wantWrap, runtime);
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.abcPath.empty());
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.resourcePath.empty());
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.entryPoint.empty());
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.registerComponents.empty());
+}
+
+/**
+ * @tc.name: IsolatedPatternTest015
+ * @tc.desc: Test IsolatedPattern WrapExtensionAbilityId/DumpInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsolatedPatternTestNg, IsolatedPatternTest015, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. construct a IsolatedComponent Node
+     */
+    auto isolatedNodeId = ElementRegister::GetInstance()->MakeUniqueId();
+    auto isolatedNode = FrameNode::GetOrCreateFrameNode(
+        ISOLATED_COMPONENT_ETS_TAG, isolatedNodeId, []() { return AceType::MakeRefPtr<IsolatedPattern>(); });
+    ASSERT_NE(isolatedNode, nullptr);
+    EXPECT_EQ(isolatedNode->GetTag(), V2::ISOLATED_COMPONENT_ETS_TAG);
+    
+    /**
+     * @tc.steps: step2. get IsolatedPattern
+     */
+    auto isolatedPattern = isolatedNode->GetPattern<IsolatedPattern>();
+    ASSERT_NE(isolatedPattern, nullptr);
+
+    /**
+     * @tc.steps: step3. call InitializeIsolatedComponent.
+     * @tc.expected: expect the feature of curIsolatedInfo_ is null after called due to the runtime.
+     */
+    auto wantWrap = AceType::MakeRefPtr<WantWrapOhos>(BUNDLE_NAME, ABILITY_NAME);
+    void* runtime = nullptr;
+
+    // resourcePath is not empty
+    std::string path = "test path";
+    wantWrap->want_.SetParam(RESOURCE_PATH, path);
+    EXPECT_FALSE(wantWrap->GetWant().GetStringParam(RESOURCE_PATH).empty());
+
+    // abcPath is not empty
+    wantWrap->want_.SetParam(ABC_PATH, path);
+    EXPECT_FALSE(wantWrap->GetWant().GetStringParam(ABC_PATH).empty());
+
+    // entryPoint is not empty
+    wantWrap->want_.SetParam(ENTRY_POINT, path);
+    EXPECT_FALSE(wantWrap->GetWant().GetStringParam(ENTRY_POINT).empty());
+    isolatedPattern->InitializeIsolatedComponent(wantWrap, runtime);
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.abcPath.empty());
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.resourcePath.empty());
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.entryPoint.empty());
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.registerComponents.empty());
+
+    // runtime is not empty
+    int dummyObject = 1;
+    runtime = &dummyObject;
+    isolatedPattern->InitializeIsolatedComponent(wantWrap, runtime);
+    EXPECT_FALSE(isolatedPattern->curIsolatedInfo_.abcPath.empty());
+    EXPECT_FALSE(isolatedPattern->curIsolatedInfo_.resourcePath.empty());
+    EXPECT_FALSE(isolatedPattern->curIsolatedInfo_.entryPoint.empty());
+    EXPECT_TRUE(isolatedPattern->curIsolatedInfo_.registerComponents.empty());
+
+    // registerComponents is not empty
+    std::vector<std::string> values = {"test value"};
+    wantWrap->want_.SetParam(REGISTER_COMPONENTS, values);
+    isolatedPattern->InitializeIsolatedComponent(wantWrap, runtime);
+    EXPECT_FALSE(isolatedPattern->curIsolatedInfo_.registerComponents.empty());
+}
+
+/**
+ * @tc.name: IsolatedPatternTest016
+ * @tc.desc: Test DumpInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsolatedPatternTestNg, IsolatedPatternTest016, TestSize.Level1)
+{
+    /**
+    * @tc.steps: step1. construct a IsolatedComponent Node
+    */
+    auto isolatedNodeId = ElementRegister::GetInstance()->MakeUniqueId();
+    auto isolatedNode = FrameNode::GetOrCreateFrameNode(
+        V2::ISOLATED_COMPONENT_ETS_TAG, isolatedNodeId, []() { return AceType::MakeRefPtr<IsolatedPattern>(); });
+    ASSERT_NE(isolatedNode, nullptr);
+    EXPECT_EQ(isolatedNode->GetTag(), V2::ISOLATED_COMPONENT_ETS_TAG);
+
+    /**
+    * @tc.steps: step2. init dynamicComponentRenderer_
+    */
+    auto isolatedPattern = isolatedNode->GetPattern<IsolatedPattern>();
+    EXPECT_TRUE(isolatedPattern->CheckConstraint());
+
+    /**
+    * @tc.steps: step3. initialize isolatedComponentPattern
+    */
+    std::unique_ptr<JsonValue> json = JsonUtil::Create(false);
+    isolatedPattern->platformId_ = 2;
+    isolatedPattern->curIsolatedInfo_.abcPath = ABC_PATH;
+    isolatedPattern->curIsolatedInfo_.resourcePath = RESOURCE_PATH;
+
+    EXPECT_NE(json->GetValue("isolatedId")->GetInt(), static_cast<int32_t>(isolatedPattern->platformId_));
+    EXPECT_NE(json->GetValue("abcPath")->GetString(), isolatedPattern->curIsolatedInfo_.abcPath.c_str());
+    EXPECT_NE(json->GetValue("resourcePath")->GetString(), isolatedPattern->curIsolatedInfo_.resourcePath.c_str());
+    EXPECT_NE(json->GetValue("entryPoint")->GetString(), isolatedPattern->curIsolatedInfo_.resourcePath.c_str());
+
+    isolatedPattern->DumpInfo(json);
+    EXPECT_EQ(json->GetValue("isolatedId")->GetInt(), static_cast<int32_t>(isolatedPattern->platformId_));
+    EXPECT_EQ(json->GetValue("abcPath")->GetString(), isolatedPattern->curIsolatedInfo_.abcPath.c_str());
+    EXPECT_EQ(json->GetValue("resourcePath")->GetString(), isolatedPattern->curIsolatedInfo_.resourcePath.c_str());
+    EXPECT_EQ(json->GetValue("entryPoint")->GetString(), isolatedPattern->curIsolatedInfo_.resourcePath.c_str());
+}
+} // namespace OHOS::Ace::NG

@@ -1,0 +1,1489 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "TSInterfaceDeclaration",
+      "body": {
+        "type": "TSInterfaceBody",
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "RED",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "get",
+            "accessibility": "public",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "RED",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 8,
+                      "program": "interfaces.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 11,
+                      "program": "interfaces.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 3,
+                    "program": "interfaces.ets"
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 12,
+                    "program": "interfaces.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 3,
+                  "program": "interfaces.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 12,
+                  "program": "interfaces.ets"
+                }
+              }
+            },
+            "overloads": [
+              {
+                "type": "MethodDefinition",
+                "key": {
+                  "type": "Identifier",
+                  "name": "RED",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "kind": "set",
+                "accessibility": "public",
+                "static": false,
+                "optional": false,
+                "computed": false,
+                "value": {
+                  "type": "FunctionExpression",
+                  "function": {
+                    "type": "ScriptFunction",
+                    "id": {
+                      "type": "Identifier",
+                      "name": "RED",
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 1,
+                          "program": null
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 1,
+                          "program": null
+                        }
+                      }
+                    },
+                    "generator": false,
+                    "async": false,
+                    "expression": false,
+                    "params": [
+                      {
+                        "type": "ETSParameterExpression",
+                        "name": {
+                          "type": "Identifier",
+                          "name": "RED",
+                          "typeAnnotation": {
+                            "type": "ETSPrimitiveType",
+                            "loc": {
+                              "start": {
+                                "line": 17,
+                                "column": 8,
+                                "program": "interfaces.ets"
+                              },
+                              "end": {
+                                "line": 17,
+                                "column": 11,
+                                "program": "interfaces.ets"
+                              }
+                            }
+                          },
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 17,
+                              "column": 3,
+                              "program": "interfaces.ets"
+                            },
+                            "end": {
+                              "line": 17,
+                              "column": 6,
+                              "program": "interfaces.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 17,
+                            "column": 3,
+                            "program": "interfaces.ets"
+                          },
+                          "end": {
+                            "line": 17,
+                            "column": 6,
+                            "program": "interfaces.ets"
+                          }
+                        }
+                      }
+                    ],
+                    "loc": {
+                      "start": {
+                        "line": 17,
+                        "column": 3,
+                        "program": "interfaces.ets"
+                      },
+                      "end": {
+                        "line": 17,
+                        "column": 12,
+                        "program": "interfaces.ets"
+                      }
+                    }
+                  },
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 3,
+                      "program": "interfaces.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 12,
+                      "program": "interfaces.ets"
+                    }
+                  }
+                },
+                "overloads": [],
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 3,
+                    "program": "interfaces.ets"
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 12,
+                    "program": "interfaces.ets"
+                  }
+                }
+              }
+            ],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 3,
+                "program": "interfaces.ets"
+              },
+              "end": {
+                "line": 17,
+                "column": 12,
+                "program": "interfaces.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "BLUE",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "get",
+            "accessibility": "public",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "BLUE",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 8,
+                      "program": "interfaces.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 11,
+                      "program": "interfaces.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 18,
+                    "column": 3,
+                    "program": "interfaces.ets"
+                  },
+                  "end": {
+                    "line": 18,
+                    "column": 12,
+                    "program": "interfaces.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 3,
+                  "program": "interfaces.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 12,
+                  "program": "interfaces.ets"
+                }
+              }
+            },
+            "overloads": [
+              {
+                "type": "MethodDefinition",
+                "key": {
+                  "type": "Identifier",
+                  "name": "BLUE",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "kind": "set",
+                "accessibility": "public",
+                "static": false,
+                "optional": false,
+                "computed": false,
+                "value": {
+                  "type": "FunctionExpression",
+                  "function": {
+                    "type": "ScriptFunction",
+                    "id": {
+                      "type": "Identifier",
+                      "name": "BLUE",
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 1,
+                          "program": null
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 1,
+                          "program": null
+                        }
+                      }
+                    },
+                    "generator": false,
+                    "async": false,
+                    "expression": false,
+                    "params": [
+                      {
+                        "type": "ETSParameterExpression",
+                        "name": {
+                          "type": "Identifier",
+                          "name": "BLUE",
+                          "typeAnnotation": {
+                            "type": "ETSPrimitiveType",
+                            "loc": {
+                              "start": {
+                                "line": 18,
+                                "column": 8,
+                                "program": "interfaces.ets"
+                              },
+                              "end": {
+                                "line": 18,
+                                "column": 11,
+                                "program": "interfaces.ets"
+                              }
+                            }
+                          },
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 18,
+                              "column": 3,
+                              "program": "interfaces.ets"
+                            },
+                            "end": {
+                              "line": 18,
+                              "column": 7,
+                              "program": "interfaces.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 18,
+                            "column": 3,
+                            "program": "interfaces.ets"
+                          },
+                          "end": {
+                            "line": 18,
+                            "column": 7,
+                            "program": "interfaces.ets"
+                          }
+                        }
+                      }
+                    ],
+                    "loc": {
+                      "start": {
+                        "line": 18,
+                        "column": 3,
+                        "program": "interfaces.ets"
+                      },
+                      "end": {
+                        "line": 18,
+                        "column": 12,
+                        "program": "interfaces.ets"
+                      }
+                    }
+                  },
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 3,
+                      "program": "interfaces.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 12,
+                      "program": "interfaces.ets"
+                    }
+                  }
+                },
+                "overloads": [],
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 18,
+                    "column": 3,
+                    "program": "interfaces.ets"
+                  },
+                  "end": {
+                    "line": 18,
+                    "column": 12,
+                    "program": "interfaces.ets"
+                  }
+                }
+              }
+            ],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 18,
+                "column": 3,
+                "program": "interfaces.ets"
+              },
+              "end": {
+                "line": 18,
+                "column": 12,
+                "program": "interfaces.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 13,
+            "program": "interfaces.ets"
+          },
+          "end": {
+            "line": 19,
+            "column": 2,
+            "program": "interfaces.ets"
+          }
+        }
+      },
+      "id": {
+        "type": "Identifier",
+        "name": "I",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 11,
+            "program": "interfaces.ets"
+          },
+          "end": {
+            "line": 16,
+            "column": 12,
+            "program": "interfaces.ets"
+          }
+        }
+      },
+      "extends": [],
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 1,
+          "program": "interfaces.ets"
+        },
+        "end": {
+          "line": 21,
+          "column": 10,
+          "program": "interfaces.ets"
+        }
+      }
+    },
+    {
+      "type": "TSInterfaceDeclaration",
+      "body": {
+        "type": "TSInterfaceBody",
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "nop",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 22,
+                  "column": 11,
+                  "program": "interfaces.ets"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 14,
+                  "program": "interfaces.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "private",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "nop",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 22,
+                      "column": 11,
+                      "program": "interfaces.ets"
+                    },
+                    "end": {
+                      "line": 22,
+                      "column": 14,
+                      "program": "interfaces.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 22,
+                      "column": 18,
+                      "program": "interfaces.ets"
+                    },
+                    "end": {
+                      "line": 22,
+                      "column": 22,
+                      "program": "interfaces.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "object": {
+                            "type": "Identifier",
+                            "name": "I0",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 22,
+                                "column": 25,
+                                "program": "interfaces.ets"
+                              },
+                              "end": {
+                                "line": 22,
+                                "column": 27,
+                                "program": "interfaces.ets"
+                              }
+                            }
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "nopnop",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 22,
+                                "column": 28,
+                                "program": "interfaces.ets"
+                              },
+                              "end": {
+                                "line": 22,
+                                "column": 34,
+                                "program": "interfaces.ets"
+                              }
+                            }
+                          },
+                          "computed": false,
+                          "optional": false,
+                          "loc": {
+                            "start": {
+                              "line": 22,
+                              "column": 25,
+                              "program": "interfaces.ets"
+                            },
+                            "end": {
+                              "line": 22,
+                              "column": 34,
+                              "program": "interfaces.ets"
+                            }
+                          }
+                        },
+                        "arguments": [],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 22,
+                            "column": 25,
+                            "program": "interfaces.ets"
+                          },
+                          "end": {
+                            "line": 22,
+                            "column": 36,
+                            "program": "interfaces.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 22,
+                          "column": 25,
+                          "program": "interfaces.ets"
+                        },
+                        "end": {
+                          "line": 22,
+                          "column": 37,
+                          "program": "interfaces.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 22,
+                      "column": 23,
+                      "program": "interfaces.ets"
+                    },
+                    "end": {
+                      "line": 22,
+                      "column": 39,
+                      "program": "interfaces.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 22,
+                    "column": 14,
+                    "program": "interfaces.ets"
+                  },
+                  "end": {
+                    "line": 22,
+                    "column": 39,
+                    "program": "interfaces.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 22,
+                  "column": 14,
+                  "program": "interfaces.ets"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 39,
+                  "program": "interfaces.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 22,
+                "column": 11,
+                "program": "interfaces.ets"
+              },
+              "end": {
+                "line": 22,
+                "column": 39,
+                "program": "interfaces.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "nopnop",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 23,
+                  "column": 3,
+                  "program": "interfaces.ets"
+                },
+                "end": {
+                  "line": 23,
+                  "column": 9,
+                  "program": "interfaces.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "nopnop",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 23,
+                      "column": 3,
+                      "program": "interfaces.ets"
+                    },
+                    "end": {
+                      "line": 23,
+                      "column": 9,
+                      "program": "interfaces.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 23,
+                      "column": 13,
+                      "program": "interfaces.ets"
+                    },
+                    "end": {
+                      "line": 23,
+                      "column": 17,
+                      "program": "interfaces.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 23,
+                      "column": 18,
+                      "program": "interfaces.ets"
+                    },
+                    "end": {
+                      "line": 23,
+                      "column": 20,
+                      "program": "interfaces.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 23,
+                    "column": 9,
+                    "program": "interfaces.ets"
+                  },
+                  "end": {
+                    "line": 23,
+                    "column": 20,
+                    "program": "interfaces.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 23,
+                  "column": 9,
+                  "program": "interfaces.ets"
+                },
+                "end": {
+                  "line": 23,
+                  "column": 20,
+                  "program": "interfaces.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 23,
+                "column": 3,
+                "program": "interfaces.ets"
+              },
+              "end": {
+                "line": 23,
+                "column": 20,
+                "program": "interfaces.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "nopnopnop",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 24,
+                  "column": 3,
+                  "program": "interfaces.ets"
+                },
+                "end": {
+                  "line": 24,
+                  "column": 12,
+                  "program": "interfaces.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "nopnopnop",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 24,
+                      "column": 3,
+                      "program": "interfaces.ets"
+                    },
+                    "end": {
+                      "line": 24,
+                      "column": 12,
+                      "program": "interfaces.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 24,
+                      "column": 16,
+                      "program": "interfaces.ets"
+                    },
+                    "end": {
+                      "line": 24,
+                      "column": 20,
+                      "program": "interfaces.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 24,
+                      "column": 21,
+                      "program": "interfaces.ets"
+                    },
+                    "end": {
+                      "line": 24,
+                      "column": 23,
+                      "program": "interfaces.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 24,
+                    "column": 12,
+                    "program": "interfaces.ets"
+                  },
+                  "end": {
+                    "line": 24,
+                    "column": 23,
+                    "program": "interfaces.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 24,
+                  "column": 12,
+                  "program": "interfaces.ets"
+                },
+                "end": {
+                  "line": 24,
+                  "column": 23,
+                  "program": "interfaces.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 24,
+                "column": 3,
+                "program": "interfaces.ets"
+              },
+              "end": {
+                "line": 24,
+                "column": 23,
+                "program": "interfaces.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 21,
+            "column": 14,
+            "program": "interfaces.ets"
+          },
+          "end": {
+            "line": 25,
+            "column": 2,
+            "program": "interfaces.ets"
+          }
+        }
+      },
+      "id": {
+        "type": "Identifier",
+        "name": "I0",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 21,
+            "column": 11,
+            "program": "interfaces.ets"
+          },
+          "end": {
+            "line": 21,
+            "column": 13,
+            "program": "interfaces.ets"
+          }
+        }
+      },
+      "extends": [],
+      "loc": {
+        "start": {
+          "line": 21,
+          "column": 1,
+          "program": "interfaces.ets"
+        },
+        "end": {
+          "line": 27,
+          "column": 10,
+          "program": "interfaces.ets"
+        }
+      }
+    },
+    {
+      "type": "TSInterfaceDeclaration",
+      "body": {
+        "type": "TSInterfaceBody",
+        "body": [],
+        "loc": {
+          "start": {
+            "line": 27,
+            "column": 28,
+            "program": "interfaces.ets"
+          },
+          "end": {
+            "line": 28,
+            "column": 2,
+            "program": "interfaces.ets"
+          }
+        }
+      },
+      "id": {
+        "type": "Identifier",
+        "name": "I1",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 27,
+            "column": 11,
+            "program": "interfaces.ets"
+          },
+          "end": {
+            "line": 27,
+            "column": 13,
+            "program": "interfaces.ets"
+          }
+        }
+      },
+      "extends": [
+        {
+          "type": "TSInterfaceHeritage",
+          "expression": {
+            "type": "ETSTypeReference",
+            "part": {
+              "type": "ETSTypeReferencePart",
+              "name": {
+                "type": "Identifier",
+                "name": "I",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 27,
+                    "column": 22,
+                    "program": "interfaces.ets"
+                  },
+                  "end": {
+                    "line": 27,
+                    "column": 23,
+                    "program": "interfaces.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 27,
+                  "column": 22,
+                  "program": "interfaces.ets"
+                },
+                "end": {
+                  "line": 27,
+                  "column": 24,
+                  "program": "interfaces.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 27,
+                "column": 22,
+                "program": "interfaces.ets"
+              },
+              "end": {
+                "line": 27,
+                "column": 24,
+                "program": "interfaces.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 27,
+              "column": 22,
+              "program": "interfaces.ets"
+            },
+            "end": {
+              "line": 27,
+              "column": 24,
+              "program": "interfaces.ets"
+            }
+          }
+        },
+        {
+          "type": "TSInterfaceHeritage",
+          "expression": {
+            "type": "ETSTypeReference",
+            "part": {
+              "type": "ETSTypeReferencePart",
+              "name": {
+                "type": "Identifier",
+                "name": "I0",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 27,
+                    "column": 25,
+                    "program": "interfaces.ets"
+                  },
+                  "end": {
+                    "line": 27,
+                    "column": 27,
+                    "program": "interfaces.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 27,
+                  "column": 25,
+                  "program": "interfaces.ets"
+                },
+                "end": {
+                  "line": 27,
+                  "column": 29,
+                  "program": "interfaces.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 27,
+                "column": 25,
+                "program": "interfaces.ets"
+              },
+              "end": {
+                "line": 27,
+                "column": 29,
+                "program": "interfaces.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 27,
+              "column": 25,
+              "program": "interfaces.ets"
+            },
+            "end": {
+              "line": 27,
+              "column": 29,
+              "program": "interfaces.ets"
+            }
+          }
+        }
+      ],
+      "loc": {
+        "start": {
+          "line": 27,
+          "column": 1,
+          "program": "interfaces.ets"
+        },
+        "end": {
+          "line": 31,
+          "column": 1,
+          "program": "interfaces.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "interfaces.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "interfaces.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "interfaces.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "interfaces.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "interfaces.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "interfaces.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "interfaces.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "interfaces.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "interfaces.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "interfaces.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "interfaces.ets"
+    },
+    "end": {
+      "line": 31,
+      "column": 1,
+      "program": "interfaces.ets"
+    }
+  }
+}
+TypeError: 'nopnop' is an instance property of 'I0' [interfaces.ets:22:28]

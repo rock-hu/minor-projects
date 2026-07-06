@@ -1,0 +1,488 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "TSInterfaceDeclaration",
+      "body": {
+        "type": "TSInterfaceBody",
+        "body": [
+          {
+            "type": "TSPropertySignature",
+            "computed": false,
+            "optional": false,
+            "readonly": false,
+            "key": {
+              "type": "Identifier",
+              "name": "a",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 5,
+                  "program": "test_this_type.ts"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 6,
+                  "program": "test_this_type.ts"
+                }
+              }
+            },
+            "typeAnnotation": {
+              "type": "TSUnionType",
+              "types": [
+                {
+                  "type": "TSThisType",
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 8,
+                      "program": "test_this_type.ts"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 12,
+                      "program": "test_this_type.ts"
+                    }
+                  }
+                },
+                {
+                  "type": "TSNumberKeyword",
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 15,
+                      "program": "test_this_type.ts"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 21,
+                      "program": "test_this_type.ts"
+                    }
+                  }
+                }
+              ],
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 8,
+                  "program": "test_this_type.ts"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 21,
+                  "program": "test_this_type.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 18,
+                "column": 5,
+                "program": "test_this_type.ts"
+              },
+              "end": {
+                "line": 18,
+                "column": 22,
+                "program": "test_this_type.ts"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 16,
+            "program": "test_this_type.ts"
+          },
+          "end": {
+            "line": 19,
+            "column": 2,
+            "program": "test_this_type.ts"
+          }
+        }
+      },
+      "id": {
+        "type": "Identifier",
+        "name": "alma",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 11,
+            "program": "test_this_type.ts"
+          },
+          "end": {
+            "line": 17,
+            "column": 15,
+            "program": "test_this_type.ts"
+          }
+        }
+      },
+      "extends": [],
+      "loc": {
+        "start": {
+          "line": 17,
+          "column": 1,
+          "program": "test_this_type.ts"
+        },
+        "end": {
+          "line": 19,
+          "column": 2,
+          "program": "test_this_type.ts"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "A",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 21,
+              "column": 7,
+              "program": "test_this_type.ts"
+            },
+            "end": {
+              "line": 21,
+              "column": 8,
+              "program": "test_this_type.ts"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "constructor": {
+          "type": "MethodDefinition",
+          "key": {
+            "type": "Identifier",
+            "name": "constructor",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 21,
+                "column": 10,
+                "program": "test_this_type.ts"
+              },
+              "end": {
+                "line": 21,
+                "column": 10,
+                "program": "test_this_type.ts"
+              }
+            }
+          },
+          "kind": "constructor",
+          "static": false,
+          "optional": false,
+          "computed": false,
+          "value": {
+            "type": "FunctionExpression",
+            "function": {
+              "type": "ScriptFunction",
+              "id": null,
+              "generator": false,
+              "async": false,
+              "expression": false,
+              "params": [],
+              "body": {
+                "type": "BlockStatement",
+                "statements": [],
+                "loc": {
+                  "start": {
+                    "line": 21,
+                    "column": 10,
+                    "program": "test_this_type.ts"
+                  },
+                  "end": {
+                    "line": 21,
+                    "column": 10,
+                    "program": "test_this_type.ts"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 21,
+                  "column": 10,
+                  "program": "test_this_type.ts"
+                },
+                "end": {
+                  "line": 21,
+                  "column": 10,
+                  "program": "test_this_type.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 21,
+                "column": 10,
+                "program": "test_this_type.ts"
+              },
+              "end": {
+                "line": 21,
+                "column": 10,
+                "program": "test_this_type.ts"
+              }
+            }
+          },
+          "overloads": [],
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": null
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": null
+            }
+          }
+        },
+        "body": [
+          {
+            "type": "ClassProperty",
+            "key": {
+              "type": "Identifier",
+              "name": "b",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 22,
+                  "column": 5,
+                  "program": "test_this_type.ts"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 6,
+                  "program": "test_this_type.ts"
+                }
+              }
+            },
+            "static": false,
+            "readonly": false,
+            "declare": false,
+            "optional": false,
+            "computed": false,
+            "typeAnnotation": {
+              "type": "TSFunctionType",
+              "params": [
+                {
+                  "type": "Identifier",
+                  "name": "a",
+                  "typeAnnotation": {
+                    "type": "TSNumberKeyword",
+                    "loc": {
+                      "start": {
+                        "line": 22,
+                        "column": 12,
+                        "program": "test_this_type.ts"
+                      },
+                      "end": {
+                        "line": 22,
+                        "column": 18,
+                        "program": "test_this_type.ts"
+                      }
+                    }
+                  },
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 22,
+                      "column": 9,
+                      "program": "test_this_type.ts"
+                    },
+                    "end": {
+                      "line": 22,
+                      "column": 10,
+                      "program": "test_this_type.ts"
+                    }
+                  }
+                },
+                {
+                  "type": "Identifier",
+                  "name": "b",
+                  "typeAnnotation": {
+                    "type": "TSTupleType",
+                    "elementTypes": [
+                      {
+                        "type": "TSUnionType",
+                        "types": [
+                          {
+                            "type": "TSStringKeyword",
+                            "loc": {
+                              "start": {
+                                "line": 22,
+                                "column": 24,
+                                "program": "test_this_type.ts"
+                              },
+                              "end": {
+                                "line": 22,
+                                "column": 30,
+                                "program": "test_this_type.ts"
+                              }
+                            }
+                          },
+                          {
+                            "type": "TSNumberKeyword",
+                            "loc": {
+                              "start": {
+                                "line": 22,
+                                "column": 33,
+                                "program": "test_this_type.ts"
+                              },
+                              "end": {
+                                "line": 22,
+                                "column": 39,
+                                "program": "test_this_type.ts"
+                              }
+                            }
+                          }
+                        ],
+                        "loc": {
+                          "start": {
+                            "line": 22,
+                            "column": 24,
+                            "program": "test_this_type.ts"
+                          },
+                          "end": {
+                            "line": 22,
+                            "column": 40,
+                            "program": "test_this_type.ts"
+                          }
+                        }
+                      },
+                      {
+                        "type": "TSTypeLiteral",
+                        "members": [],
+                        "loc": {
+                          "start": {
+                            "line": 22,
+                            "column": 41,
+                            "program": "test_this_type.ts"
+                          },
+                          "end": {
+                            "line": 22,
+                            "column": 44,
+                            "program": "test_this_type.ts"
+                          }
+                        }
+                      }
+                    ],
+                    "loc": {
+                      "start": {
+                        "line": 22,
+                        "column": 23,
+                        "program": "test_this_type.ts"
+                      },
+                      "end": {
+                        "line": 22,
+                        "column": 44,
+                        "program": "test_this_type.ts"
+                      }
+                    }
+                  },
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 22,
+                      "column": 20,
+                      "program": "test_this_type.ts"
+                    },
+                    "end": {
+                      "line": 22,
+                      "column": 21,
+                      "program": "test_this_type.ts"
+                    }
+                  }
+                }
+              ],
+              "returnType": {
+                "type": "TSThisType",
+                "loc": {
+                  "start": {
+                    "line": 22,
+                    "column": 49,
+                    "program": "test_this_type.ts"
+                  },
+                  "end": {
+                    "line": 22,
+                    "column": 53,
+                    "program": "test_this_type.ts"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 22,
+                  "column": 8,
+                  "program": "test_this_type.ts"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 53,
+                  "program": "test_this_type.ts"
+                }
+              }
+            },
+            "definite": false,
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 22,
+                "column": 5,
+                "program": "test_this_type.ts"
+              },
+              "end": {
+                "line": 22,
+                "column": 6,
+                "program": "test_this_type.ts"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 21,
+            "column": 9,
+            "program": "test_this_type.ts"
+          },
+          "end": {
+            "line": 23,
+            "column": 2,
+            "program": "test_this_type.ts"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 21,
+          "column": 1,
+          "program": "test_this_type.ts"
+        },
+        "end": {
+          "line": 23,
+          "column": 2,
+          "program": "test_this_type.ts"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "test_this_type.ts"
+    },
+    "end": {
+      "line": 23,
+      "column": 2,
+      "program": "test_this_type.ts"
+    }
+  }
+}

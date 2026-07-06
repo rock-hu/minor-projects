@@ -1,0 +1,455 @@
+# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//arkcompiler/ets_runtime/js_runtime_config.gni")
+import("//arkcompiler/ets_runtime/test/test_helper.gni")
+
+module_output_path = "ets_runtime/ets_runtime"
+
+metadata_file_path = "//arkcompiler/ets_runtime/ecmascript/js_type_metadata/"
+
+target_test_path = "/obj/arkcompiler/ets_runtime/ecmascript/dfx/hprof/tests"
+
+test_js_path = "//arkcompiler/ets_runtime/ecmascript/dfx/hprof/tests/js_files/"
+
+test_js_files = [
+  "heapdump",
+  "heapdump1",
+  "allocation",
+  "heap_snapshot",
+]
+
+foreach(file, test_js_files) {
+  es2abc_gen_abc("gen_${file}_abc") {
+    test_js = "${test_js_path}${file}.js"
+    test_abc = "$target_out_dir/abc_files/${file}.abc"
+
+    # Only targets in this file can depend on this.
+    extra_visibility = [ ":*" ]
+    src_js = rebase_path(test_js)
+    dst_file = rebase_path(test_abc)
+    extra_args = [ "--module" ]
+    extra_args += [ "--merge-abc" ]
+
+    in_puts = [ test_js ]
+    out_puts = [ test_abc ]
+  }
+}
+
+metadata_json_path = rebase_path(root_out_dir) + "$target_test_path/"
+
+action("gen_metadata_for_test") {
+  script = "$js_root/script/metadata_generate.py"
+
+  args = [
+    "--enum",
+    rebase_path("$metadata_file_path/type_enums.json"),
+    "--metadata",
+    rebase_path("$metadata_file_path"),
+    "--output",
+    rebase_path(metadata_json_path + "metadata.json"),
+    "--version",
+    "1.0.0",
+  ]
+
+  outputs = [ "$root_gen_dir/arkcompiler/ets_runtime/metadata_json_dummy.txt" ]
+}
+
+host_unittest_action("HeapDumpTest") {
+  module_out_path = module_output_path
+
+  sources = [
+    # test file
+    "../rawheap_translate/metadata_parse.cpp",
+    "../rawheap_translate/rawheap_translate.cpp",
+    "../rawheap_translate/serializer.cpp",
+    "../rawheap_translate/string_hashmap.cpp",
+    "../rawheap_translate/utils.cpp",
+    "heap_dump_test.cpp",
+  ]
+
+  configs = [ "../../../../:ecma_test_config" ]
+
+  deps = [
+    ":gen_metadata_for_test",
+    "../../../../:libark_jsruntime_test",
+  ]
+
+  foreach(file, test_js_files) {
+    deps += [ ":gen_${file}_abc" ]
+  }
+
+  if (is_ohos && is_standard_system) {
+    test_abc_dir = "/data/test/"
+    test_metadata_dir = "/system/lib64/module/arkcompiler/"
+  } else {
+    test_abc_dir = rebase_path(target_out_dir + "/abc_files/")
+    test_metadata_dir = rebase_path("$metadata_json_path")
+  }
+
+  test_js_dir = rebase_path(test_js_path)
+  defines = [
+    "HPROF_TEST_JS_FILES_DIR=\"${test_js_dir}\"",
+    "HPROF_TEST_ABC_FILES_DIR=\"${test_abc_dir}\"",
+    "HPROF_TEST_METADATA_JSON_DIR=\"${test_metadata_dir}\"",
+    "OHOS_UNIT_TEST",
+  ]
+
+  external_deps = [
+    "bounds_checking_function:libsec_static",
+    "cJSON:cjson_static",
+    "icu:shared_icui18n",
+    "icu:shared_icuuc",
+  ]
+
+  # hiviewdfx libraries
+  external_deps += hiviewdfx_ext_deps
+  deps += hiviewdfx_deps
+}
+
+host_unittest_action("HeapSnapShotTest") {
+  module_out_path = module_output_path
+
+  sources = [
+    # test file
+    "heap_snapshot_test.cpp",
+  ]
+
+  configs = [ "../../../../:ecma_test_config" ]
+
+  deps = [ "../../../../:libark_jsruntime_test" ]
+
+  foreach(file, test_js_files) {
+    deps += [ ":gen_${file}_abc" ]
+  }
+
+  if (is_ohos && is_standard_system) {
+    test_abc_dir = "/data/test/"
+  } else {
+    test_abc_dir = rebase_path(target_out_dir + "/abc_files/")
+  }
+
+  test_js_dir = rebase_path(test_js_path)
+  defines = [
+    "HPROF_TEST_JS_FILES_DIR=\"${test_js_dir}\"",
+    "HPROF_TEST_ABC_FILES_DIR=\"${test_abc_dir}\"",
+  ]
+
+  # hiviewdfx libraries
+  external_deps = hiviewdfx_ext_deps
+  external_deps += [
+    "icu:shared_icui18n",
+    "icu:shared_icuuc",
+  ]
+  deps += hiviewdfx_deps
+}
+
+host_unittest_action("HeapTrackerFirstTest") {
+  module_out_path = module_output_path
+
+  sources = [
+    # test file
+    "heap_tracker_first_test.cpp",
+  ]
+
+  configs = [ "../../../../:ecma_test_config" ]
+
+  deps = [ "../../../../:libark_jsruntime_test" ]
+
+  # hiviewdfx libraries
+  external_deps = hiviewdfx_ext_deps
+  external_deps += [
+    "icu:shared_icui18n",
+    "icu:shared_icuuc",
+  ]
+  deps += hiviewdfx_deps
+}
+
+host_unittest_action("HeapTrackerSecondTest") {
+  module_out_path = module_output_path
+
+  sources = [
+    # test file
+    "heap_tracker_second_test.cpp",
+  ]
+
+  configs = [ "../../../../:ecma_test_config" ]
+
+  deps = [ "../../../../:libark_jsruntime_test" ]
+
+  # hiviewdfx libraries
+  external_deps = hiviewdfx_ext_deps
+  external_deps += [
+    "icu:shared_icui18n",
+    "icu:shared_icuuc",
+  ]
+  deps += hiviewdfx_deps
+}
+
+host_unittest_action("HeapTrackerThirdTest") {
+  module_out_path = module_output_path
+
+  sources = [
+    # test file
+    "heap_tracker_third_test.cpp",
+  ]
+
+  configs = [ "../../../../:ecma_test_config" ]
+
+  deps = [ "../../../../:libark_jsruntime_test" ]
+
+  # hiviewdfx libraries
+  external_deps = hiviewdfx_ext_deps
+  external_deps += [
+    "icu:shared_icui18n",
+    "icu:shared_icuuc",
+  ]
+  deps += hiviewdfx_deps
+}
+
+host_unittest_action("HProfTest") {
+  module_out_path = module_output_path
+
+  sources = [
+    # test file
+    "hprof_test.cpp",
+  ]
+
+  configs = [ "//arkcompiler/ets_runtime:ecma_test_config" ]
+
+  deps = [ "$js_root:libark_jsruntime_test" ]
+
+  # hiviewdfx libraries
+  external_deps = hiviewdfx_ext_deps
+  external_deps += [
+    "icu:shared_icui18n",
+    "icu:shared_icuuc",
+  ]
+  external_deps += [ "zlib:libz" ]
+  deps += hiviewdfx_deps
+}
+
+host_unittest_action("HeapSamplingTest") {
+  module_out_path = module_output_path
+
+  sources = [
+    # test file
+    "heap_sampling_test.cpp",
+  ]
+
+  configs = [ "$js_root:ecma_test_config" ]
+
+  deps = [ "$js_root:libark_jsruntime_test" ]
+
+  # hiviewdfx libraries
+  external_deps = hiviewdfx_ext_deps
+  external_deps += [
+    "icu:shared_icui18n",
+    "icu:shared_icuuc",
+  ]
+  deps += hiviewdfx_deps
+}
+
+host_unittest_action("RawHeapTranslateTest") {
+  module_out_path = module_output_path
+
+  sources = [
+    # test file
+    "../rawheap_translate/metadata_parse.cpp",
+    "../rawheap_translate/utils.cpp",
+    "rawheap_translate_test.cpp",
+  ]
+
+  configs = [ "$js_root:ecma_test_config" ]
+
+  deps = [ "$js_root:libark_jsruntime_test" ]
+
+  cflags_cc = [ "-std=c++17" ]
+
+  external_deps = [
+    "bounds_checking_function:libsec_static",
+    "cJSON:cjson_static",
+    "icu:shared_icui18n",
+    "icu:shared_icuuc",
+  ]
+
+  # hiviewdfx libraries
+  external_deps += hiviewdfx_ext_deps
+  deps += hiviewdfx_deps
+}
+
+action("copy_metadata_for_test") {
+  script = "$js_root/script/metadata_copy_for_test.py"
+
+  target_path = rebase_path(root_out_dir) + "$target_test_path/metadata"
+
+  args = [
+    "--metadata",
+    rebase_path("$js_root/ecmascript/js_type_metadata"),
+    "--outputs",
+    rebase_path("$target_path"),
+  ]
+
+  outputs = [ "$root_gen_dir/arkcompiler/ets_runtime/metadata_copy_dummy.txt" ]
+}
+
+host_unittest_action("JSMetadataTest") {
+  module_out_path = module_output_path
+
+  sources = [ "js_metadata_test.cpp" ]
+
+  configs = [ "../../../../:ecma_test_config" ]
+
+  deps = [
+    ":copy_metadata_for_test",
+    "../../../../:libark_jsruntime_test",
+  ]
+
+  if (is_ohos && is_standard_system) {
+    metadata_file_path = "/data/test/"
+  }
+
+  metadata_file_path = rebase_path(metadata_file_path)
+  defines = [ "METADATA_SOURCE_FILE_DIR=\"${metadata_file_path}\"" ]
+
+  # hiviewdfx libraries
+  external_deps = hiviewdfx_ext_deps
+  external_deps += [
+    "icu:shared_icui18n",
+    "icu:shared_icuuc",
+  ]
+  external_deps += [ "cJSON:cjson_static" ]
+  deps += hiviewdfx_deps
+}
+
+host_unittest_action("LocalHandleLeakDetectTest") {
+  module_out_path = module_output_path
+
+  sources = []
+
+  if (enable_handle_leak_detect) {
+    sources += [
+      # test file
+      "local_handle_leak_detect_test.cpp",
+    ]
+  }
+
+  configs = [ "$js_root:ecma_test_config" ]
+
+  deps = [ "$js_root:libark_jsruntime_test" ]
+
+  external_deps = [
+    "icu:shared_icui18n",
+    "icu:shared_icuuc",
+  ]
+  external_deps += hiviewdfx_ext_deps
+
+  cflags_cc = [
+    "-Wno-gnu-anonymous-struct",
+    "-Wno-nested-anon-types",
+    "-Wno-variadic-macros",
+  ]
+}
+
+host_unittest_action("GlobalHandleLeakDetectTest") {
+  module_out_path = module_output_path
+
+  sources = [
+    # test file
+    "global_handle_leak_detect_test.cpp",
+  ]
+
+  configs = [ "$js_root:ecma_test_config" ]
+
+  deps = [ "$js_root:libark_jsruntime_test" ]
+
+  external_deps = [
+    "icu:shared_icui18n",
+    "icu:shared_icuuc",
+  ]
+  external_deps += hiviewdfx_ext_deps
+
+  cflags_cc = [
+    "-Wno-gnu-anonymous-struct",
+    "-Wno-nested-anon-types",
+    "-Wno-variadic-macros",
+  ]
+}
+
+group("unittest") {
+  testonly = true
+  deps = [
+    ":GlobalHandleLeakDetectTest",
+    ":HProfTest",
+    ":HeapDumpTest",
+    ":HeapSamplingTest",
+    ":HeapSnapShotTest",
+    ":HeapTrackerFirstTest",
+    ":HeapTrackerSecondTest",
+    ":HeapTrackerThirdTest",
+    ":JSMetadataTest",
+    ":RawHeapTranslateTest",
+  ]
+
+  # TODO: CMC-GC UT FIX LATER
+  if (ets_runtime_enable_cmc_gc) {
+    deps -= [
+      ":HProfTest",
+      ":HeapDumpTest",
+      ":HeapSnapShotTest",
+      ":HeapTrackerFirstTest",
+      ":HeapTrackerSecondTest",
+      ":HeapTrackerThirdTest",
+    ]
+  }
+}
+
+group("host_unittest") {
+  testonly = true
+  deps = [
+    ":GlobalHandleLeakDetectTestAction",
+    ":HProfTestAction",
+    ":HeapDumpTestAction",
+    ":HeapSamplingTestAction",
+    ":HeapSnapShotTestAction",
+    ":HeapTrackerFirstTestAction",
+    ":HeapTrackerSecondTestAction",
+    ":HeapTrackerThirdTestAction",
+    ":JSMetadataTestAction",
+    ":RawHeapTranslateTestAction",
+  ]
+  if (is_mac) {
+    deps -= [
+      ":GlobalHandleLeakDetectTestAction",
+      ":HProfTestAction",
+      ":HeapDumpTestAction",
+      ":HeapSamplingTestAction",
+      ":HeapSnapShotTestAction",
+      ":HeapTrackerFirstTestAction",
+      ":HeapTrackerSecondTestAction",
+      ":HeapTrackerThirdTestAction",
+      ":JSMetadataTestAction",
+      ":RawHeapTranslateTestAction",
+    ]
+  } else if (ets_runtime_enable_cmc_gc) {
+    # TODO: CMC-GC UT FIX LATER
+    deps -= [
+      ":HProfTestAction",
+      ":HeapDumpTestAction",
+      ":HeapSnapShotTestAction",
+      ":HeapTrackerFirstTestAction",
+      ":HeapTrackerSecondTestAction",
+      ":HeapTrackerThirdTestAction",
+    ]
+  }
+}

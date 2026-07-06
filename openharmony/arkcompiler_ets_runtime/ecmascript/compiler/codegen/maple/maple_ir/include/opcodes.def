@@ -1,0 +1,104 @@
+/*
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Stmt & Notmmpl
+  // storage access opcodes
+  OPCODE(dassign, DassignNode, (OPCODEISSTMT | OPCODENOTMMPL | OPCODEHASSSADEF), 8)
+  OPCODE(iassign, IassignNode, (OPCODEISSTMT | OPCODENOTMMPL | OPCODEHASSSADEF), 12)
+  // hierarchical control flow opcodes
+  OPCODE(block, BlockNode, (OPCODEISSTMT | OPCODENOTMMPL), 0)
+  OPCODE(if, IfStmtNode, (OPCODEISSTMT | OPCODENOTMMPL), 0)
+  OPCODE(switch, SwitchNode, (OPCODEISSTMT | OPCODENOTMMPL), 8)
+  // other opcodes
+  OPCODE(comment, CommentNode, (OPCODEISSTMT | OPCODENOTMMPL), 0)
+  OPCODE(eval, UnaryStmtNode, (OPCODEISSTMT | OPCODENOTMMPL), 8)
+// Expr & Notmmpl
+  // storage access opcodes
+  OPCODE(dread, AddrofNode, (OPCODENOTMMPL | OPCODEHASSSAUSE), 12)
+  OPCODE(iread, IreadNode, (OPCODENOTMMPL | OPCODEHASSSAUSE), 12)
+  // leaf opcodes
+  OPCODE(addrof, AddrofNode, OPCODENOTMMPL, 12)
+// Stmt
+  // storage access opcodes
+  OPCODE(regassign, RegassignNode, (OPCODEISSTMT | OPCODEHASSSADEF), 8)
+  // flat control flow opcodes
+  OPCODE(goto, GotoNode, OPCODEISSTMT, 8)
+  OPCODE(brfalse, CondGotoNode, OPCODEISSTMT, 8)
+  OPCODE(brtrue, CondGotoNode, OPCODEISSTMT, 8)
+  OPCODE(return, NaryStmtNode, (OPCODEISSTMT | OPCODEISVARSIZE | OPCODEHASSSAUSE), 0)
+  OPCODE(rangegoto, RangeGotoNode, OPCODEISSTMT, 8)
+  // call opcodes
+  OPCODE(call, CallNode, (OPCODEISSTMT | OPCODEISVARSIZE | OPCODEHASSSAUSE | OPCODEHASSSADEF | OPCODEISCALL), 8)
+  OPCODE(icall, IcallNode, (OPCODEISSTMT | OPCODEISVARSIZE | OPCODEHASSSAUSE | OPCODEHASSSADEF | OPCODEISCALL), 8)
+  OPCODE(intrinsiccall, IntrinsiccallNode, (OPCODEISSTMT | OPCODEISVARSIZE | OPCODEHASSSAUSE | OPCODEHASSSADEF | OPCODEISCALL), 8)
+  OPCODE(intrinsiccallwithtype, IntrinsiccallNode, (OPCODEISSTMT | OPCODEISVARSIZE | OPCODEHASSSAUSE | OPCODEHASSSADEF | OPCODEISCALL), 12)
+  OPCODE(callassigned, CallNode,  (OPCODEISSTMT | OPCODEISVARSIZE | OPCODEHASSSAUSE | OPCODEHASSSADEF | OPCODEISCALL | OPCODEISCALLASSIGNED), 0)
+  OPCODE(icallassigned, IcallNode, (OPCODEISSTMT | OPCODEISVARSIZE | OPCODEHASSSAUSE | OPCODEHASSSADEF | OPCODEISCALL | OPCODEISCALLASSIGNED), 0)
+  OPCODE(intrinsiccallassigned, IntrinsiccallNode, (OPCODEISSTMT | OPCODEISVARSIZE | OPCODEHASSSAUSE | OPCODEHASSSADEF | OPCODEISCALL | OPCODEISCALLASSIGNED), 0)
+  OPCODE(deoptcall, CallNode, (OPCODEISSTMT | OPCODEISVARSIZE | OPCODEHASSSAUSE | OPCODEHASSSADEF | OPCODEISCALL), 8)
+  OPCODE(tailicall, IcallNode, (OPCODEISSTMT | OPCODEISVARSIZE | OPCODEHASSSAUSE | OPCODEHASSSADEF | OPCODEISCALL), 8)
+
+  // other opcodes
+  OPCODE(label, LabelNode, OPCODEISSTMT, 8)
+// Expr
+  // storage access opcodes
+  OPCODE(regread, RegreadNode, OPCODEHASSSAUSE, 8)
+  // leaf opcodes
+  OPCODE(constval, ConstvalNode, 0, 8)
+  // type conversion expression opcodes
+  OPCODE(ceil, TypeCvtNode, OPCODEISTYPECVT, 8)
+  OPCODE(cvt, TypeCvtNode, OPCODEISTYPECVT, 8)
+  OPCODE(floor, TypeCvtNode, OPCODEISTYPECVT, 8)
+  OPCODE(retype, RetypeNode, OPCODEISTYPECVT, 8)
+  OPCODE(trunc, TypeCvtNode, OPCODEISTYPECVT, 8)
+  // unary expression opcodes
+  OPCODE(abs, UnaryNode, 0, 0)
+  OPCODE(bnot, UnaryNode, 0, 0)
+  OPCODE(lnot, UnaryNode, 0, 0)
+  OPCODE(neg, UnaryNode, 0, 0)
+  OPCODE(sqrt, UnaryNode, 0, 0)
+  OPCODE(sext, ExtractbitsNode, 0, 8)
+  OPCODE(zext, ExtractbitsNode, 0, 8)
+
+  // binary expression opcodes
+  OPCODE(add, BinaryNode, 0, 0)
+  OPCODE(sub, BinaryNode, 0, 0)
+  OPCODE(mul, BinaryNode, 0, 0)
+  OPCODE(div, BinaryNode, OPCODEMAYTHROWEXCEPTION, 0)
+  OPCODE(rem, BinaryNode, OPCODEMAYTHROWEXCEPTION, 0)
+  OPCODE(ashr, BinaryNode, 0, 0)
+  OPCODE(lshr, BinaryNode, 0, 0)
+  OPCODE(shl, BinaryNode, 0, 0)
+  OPCODE(max, BinaryNode, 0, 0)
+  OPCODE(min, BinaryNode, 0, 0)
+  OPCODE(band, BinaryNode, 0, 0)
+  OPCODE(bior, BinaryNode, 0, 0)
+  OPCODE(bxor, BinaryNode, 0, 0)
+  OPCODE(eq, CompareNode, OPCODEISCOMPARE, 8)
+  OPCODE(ge, CompareNode, OPCODEISCOMPARE, 8)
+  OPCODE(gt, CompareNode, OPCODEISCOMPARE, 8)
+  OPCODE(le, CompareNode, OPCODEISCOMPARE, 8)
+  OPCODE(lt, CompareNode, OPCODEISCOMPARE, 8)
+  OPCODE(ne, CompareNode, OPCODEISCOMPARE, 8)
+  OPCODE(cmp, CompareNode, OPCODEISCOMPARE, 8)
+  OPCODE(cand, BinaryNode, OPCODENOTMMPL, 0)
+  OPCODE(cior, BinaryNode, OPCODENOTMMPL, 0)
+  // N-ary expression opcodes
+  OPCODE(intrinsicop, IntrinsicopNode, OPCODEISVARSIZE, 8)
+  // Other expression opcodes
+  OPCODE(extractbits, ExtractbitsNode, 0, 8)
+  // leaf node
+  OPCODE(icallproto, IcallNode, (OPCODEISSTMT | OPCODEISVARSIZE | OPCODEHASSSAUSE | OPCODEHASSSADEF | OPCODEISCALL), 8)
+  OPCODE(icallprotoassigned, IcallNode, (OPCODEISSTMT | OPCODEISVARSIZE | OPCODEHASSSAUSE | OPCODEHASSSADEF | OPCODEISCALL | OPCODEISCALLASSIGNED), 8)

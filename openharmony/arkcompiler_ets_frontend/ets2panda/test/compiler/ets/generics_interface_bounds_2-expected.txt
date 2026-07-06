@@ -1,0 +1,584 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "TSInterfaceDeclaration",
+      "body": {
+        "type": "TSInterfaceBody",
+        "body": [],
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 16,
+            "program": "generics_interface_bounds_2.ets"
+          },
+          "end": {
+            "line": 16,
+            "column": 18,
+            "program": "generics_interface_bounds_2.ets"
+          }
+        }
+      },
+      "id": {
+        "type": "Identifier",
+        "name": "Func",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 11,
+            "program": "generics_interface_bounds_2.ets"
+          },
+          "end": {
+            "line": 16,
+            "column": 15,
+            "program": "generics_interface_bounds_2.ets"
+          }
+        }
+      },
+      "extends": [],
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 1,
+          "program": "generics_interface_bounds_2.ets"
+        },
+        "end": {
+          "line": 17,
+          "column": 10,
+          "program": "generics_interface_bounds_2.ets"
+        }
+      }
+    },
+    {
+      "type": "TSInterfaceDeclaration",
+      "body": {
+        "type": "TSInterfaceBody",
+        "body": [],
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 45,
+            "program": "generics_interface_bounds_2.ets"
+          },
+          "end": {
+            "line": 17,
+            "column": 47,
+            "program": "generics_interface_bounds_2.ets"
+          }
+        }
+      },
+      "id": {
+        "type": "Identifier",
+        "name": "G",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 11,
+            "program": "generics_interface_bounds_2.ets"
+          },
+          "end": {
+            "line": 17,
+            "column": 12,
+            "program": "generics_interface_bounds_2.ets"
+          }
+        }
+      },
+      "extends": [],
+      "typeParameters": {
+        "type": "TSTypeParameterDeclaration",
+        "params": [
+          {
+            "type": "TSTypeParameter",
+            "name": {
+              "type": "Identifier",
+              "name": "T",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 13,
+                  "program": "generics_interface_bounds_2.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 14,
+                  "program": "generics_interface_bounds_2.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 13,
+                "program": "generics_interface_bounds_2.ets"
+              },
+              "end": {
+                "line": 17,
+                "column": 15,
+                "program": "generics_interface_bounds_2.ets"
+              }
+            }
+          },
+          {
+            "type": "TSTypeParameter",
+            "name": {
+              "type": "Identifier",
+              "name": "U",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 16,
+                  "program": "generics_interface_bounds_2.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 17,
+                  "program": "generics_interface_bounds_2.ets"
+                }
+              }
+            },
+            "constraint": {
+              "type": "ETSTypeReference",
+              "part": {
+                "type": "ETSTypeReferencePart",
+                "name": {
+                  "type": "Identifier",
+                  "name": "V",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 26,
+                      "program": "generics_interface_bounds_2.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 27,
+                      "program": "generics_interface_bounds_2.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 26,
+                    "program": "generics_interface_bounds_2.ets"
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 28,
+                    "program": "generics_interface_bounds_2.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 26,
+                  "program": "generics_interface_bounds_2.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 28,
+                  "program": "generics_interface_bounds_2.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 16,
+                "program": "generics_interface_bounds_2.ets"
+              },
+              "end": {
+                "line": 17,
+                "column": 28,
+                "program": "generics_interface_bounds_2.ets"
+              }
+            }
+          },
+          {
+            "type": "TSTypeParameter",
+            "name": {
+              "type": "Identifier",
+              "name": "V",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 29,
+                  "program": "generics_interface_bounds_2.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 30,
+                  "program": "generics_interface_bounds_2.ets"
+                }
+              }
+            },
+            "constraint": {
+              "type": "ETSTypeReference",
+              "part": {
+                "type": "ETSTypeReferencePart",
+                "name": {
+                  "type": "Identifier",
+                  "name": "Func",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 39,
+                      "program": "generics_interface_bounds_2.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 43,
+                      "program": "generics_interface_bounds_2.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 39,
+                    "program": "generics_interface_bounds_2.ets"
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 44,
+                    "program": "generics_interface_bounds_2.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 39,
+                  "program": "generics_interface_bounds_2.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 44,
+                  "program": "generics_interface_bounds_2.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 29,
+                "program": "generics_interface_bounds_2.ets"
+              },
+              "end": {
+                "line": 17,
+                "column": 44,
+                "program": "generics_interface_bounds_2.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 12,
+            "program": "generics_interface_bounds_2.ets"
+          },
+          "end": {
+            "line": 17,
+            "column": 44,
+            "program": "generics_interface_bounds_2.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 17,
+          "column": 1,
+          "program": "generics_interface_bounds_2.ets"
+        },
+        "end": {
+          "line": 18,
+          "column": 1,
+          "program": "generics_interface_bounds_2.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "generics_interface_bounds_2.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "generics_interface_bounds_2.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "generics_interface_bounds_2.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "generics_interface_bounds_2.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "generics_interface_bounds_2.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "generics_interface_bounds_2.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "generics_interface_bounds_2.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "generics_interface_bounds_2.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "generics_interface_bounds_2.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "generics_interface_bounds_2.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "generics_interface_bounds_2.ets"
+    },
+    "end": {
+      "line": 18,
+      "column": 1,
+      "program": "generics_interface_bounds_2.ets"
+    }
+  }
+}
