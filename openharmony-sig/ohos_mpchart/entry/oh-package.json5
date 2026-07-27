@@ -1,0 +1,11 @@
+{
+  "license": "Apache License 2.0",
+  "devDependencies": {},
+  "name": "entry",
+  "description": "example description",
+  "repository": "",
+  "version": "4.0.0-rc.0",
+  "dependencies": {
+    "@ohos/mpchart": "file:../library"
+  }
+}
