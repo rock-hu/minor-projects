@@ -1,8 +1,0 @@
-{
-  "src": [
-    "pages/MainPage",
-    "pages/BaseAddress",
-    "pages/TimeOut",
-    "pages/TransferRange"
-  ]
-}
