@@ -1,0 +1,32 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "InterstitialAdsDemo"
+    },
+    {
+      "name": "interstitial_ads_demo_title",
+      "value": "InterstitialAdsDemo"
+    },
+    {
+      "name": "request_interstitial_video_ad_btn",
+      "value": "Request interstitial video ad"
+    },
+    {
+      "name": "request_interstitial_image_ad_btn",
+      "value": "Request interstitial image ad"
+    },
+    {
+      "name": "app_tracking_permission_reason",
+      "value": "The app obtains this information to recommend content that you may be interested in."
+    }
+  ]
+}

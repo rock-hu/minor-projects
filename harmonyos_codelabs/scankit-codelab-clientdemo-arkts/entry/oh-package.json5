@@ -1,0 +1,8 @@
+{
+  "name": "entry",
+  "description": "example description",
+  "version": "1.0.0",
+  "dependencies": {
+    "@ohos/hamock": "1.0.0"
+  }
+}

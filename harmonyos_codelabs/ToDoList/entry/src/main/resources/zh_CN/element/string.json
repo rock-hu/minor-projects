@@ -1,0 +1,40 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "模块描述"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "待办列表"
+    },
+    {
+      "name": "page_title",
+      "value": "待办"
+    },
+    {
+      "name": "todo_list_one",
+      "value": "早起晨练"
+    },
+    {
+      "name": "todo_list_two",
+      "value": "准备早餐"
+    },
+    {
+      "name": "todo_list_three",
+      "value": "阅读名著"
+    },
+    {
+      "name": "todo_list_four",
+      "value": "学习ArkTS"
+    },
+    {
+      "name": "todo_list_five",
+      "value": "看剧放松"
+    }
+  ]
+}

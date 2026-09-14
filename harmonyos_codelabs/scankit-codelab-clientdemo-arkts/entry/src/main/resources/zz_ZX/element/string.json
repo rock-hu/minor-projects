@@ -1,0 +1,176 @@
+{
+    "string":[
+        {
+            "name":"Scan_settings",
+            "value":"[TS_854304]_Go to Settings"
+        },
+        {
+            "name":"EntryAbility_desc",
+            "value":"[TS_1018796]_description"
+        },
+        {
+            "name":"barcode_color",
+            "value":"[TS_1018809]_Color:"
+        },
+        {
+            "name":"promise_no_parameter",
+            "value":"[TS_1018807]_Promise no parameter"
+        },
+        {
+            "name":"Scan_barcode",
+            "value":"[TS_854303]_Scan QR code or barcode"
+        },
+        {
+            "name":"promise_parameter",
+            "value":"[TS_1018799]_Promise has parameter"
+        },
+        {
+            "name":"barcode_width",
+            "value":"[TS_1018828]_Barcode width:"
+        },
+        {
+            "name":"barcode_margin",
+            "value":"[TS_1018800]_Margin:"
+        },
+        {
+            "name":"Scan_diaLog_got_it",
+            "value":"[TS_855871]_OK"
+        },
+        {
+            "name":"barcode_content",
+            "value":"[TS_1018825]_Barcode Content:"
+        },
+        {
+            "name":"Scan_access_tips",
+            "value":"[TS_1018816]_Grant the Camera permission in Settings > Apps > testclient > Permissions to enable the Camera permission."
+        },
+        {
+            "name":"barcode_type",
+            "value":"[TS_1018797]_Barcode type:"
+        },
+        {
+            "name":"bitmap_view_decode",
+            "value":"[TS_1018820]_Recognize barcode in image"
+        },
+        {
+            "name":"title_result",
+            "value":"[TS_1018830]_Result"
+        },
+        {
+            "name":"Scan_got_it",
+            "value":"[TS_854302]_Cancel"
+        },
+        {
+            "name":"bitmap_api_decode",
+            "value":"[TS_1018798]_Saved image"
+        },
+        {
+            "name":"customized_view_decode",
+            "value":"[TS_1018814]_Scan code on custom UI"
+        },
+        {
+            "name":"Scan_light_to_off",
+            "value":"[TS_854306]_Turn off light"
+        },
+        {
+            "name":"Scan_barcode_tips",
+            "value":"[TS_854298]_Align the QR code/barcode below"
+        },
+        {
+            "name":"demo_detail",
+            "value":"[TS_1018823]_Collaborate hardware and software at the system level to help you quickly build capabilities that can recognize and generate barcodes for all kinds of scenarios."
+        },
+        {
+            "name":"barcode_error_level",
+            "value":"[TS_1018804]_Error correction level:"
+        },
+        {
+            "name":"code_format",
+            "value":"[TS_1018806]_Barcode type"
+        },
+        {
+            "name":"generate_QR_code",
+            "value":"[TS_1018829]_Generate barcode image"
+        },
+        {
+            "name":"code_react",
+            "value":"[TS_1018826]_Barcode position information"
+        },
+        {
+            "name":"decode_zoom_enter",
+            "value":"[TS_1018817]_Enter a zoom ratio."
+        },
+        {
+            "name":"demo_title",
+            "value":"[TS_1018810]_HarmonyOS Scan Kit Demo"
+        },
+        {
+            "name":"result_content",
+            "value":"[TS_1018831]_Barcode value"
+        },
+        {
+            "name":"callback_no_parameter",
+            "value":"[TS_1018808]_callback no parameter"
+        },
+        {
+            "name":"EntryAbility_label",
+            "value":"[TS_1018805]_Scan Kit CodeLab"
+        },
+        {
+            "name":"generate_barcode",
+            "value":"[TS_1018818]_Generate code"
+        },
+        {
+            "name":"decode_zoom_current",
+            "value":"[TS_1018802]_Zoom Ratio; Current: "
+        },
+        {
+            "name":"Scan_diaLog_not_found",
+            "value":"[TS_855872]_No QR code or barcode detected."
+        },
+        {
+            "name":"barcode_height",
+            "value":"[TS_1018801]_Barcode height:"
+        },
+        {
+            "name":"Scan_access_not_enabled",
+            "value":"[TS_1018811]_Camera, Access Not Enabled"
+        },
+        {
+            "name":"access_message",
+            "value":"[TS_1018819]_Welcome to the scan-to-access service"
+        },
+        {
+            "name":"default_view_decode",
+            "value":"[TS_1018827]_Scan code on default UI"
+        },
+        {
+            "name":"callback_parameter",
+            "value":"[TS_1018813]_callback has parameter"
+        },
+        {
+            "name":"trip_barcode_tip",
+            "value":"[TS_1018824]_A ride code is generated from a byte array. Enter a byte array in hexadecimal character string format."
+        },
+        {
+            "name":"Scan_light_to_on",
+            "value":"[TS_854300]_Turn on light"
+        },
+        {
+            "name":"generate_trip_barcode",
+            "value":"[TS_1018815]_Generate ride code"
+        },
+        {
+            "name":"module_desc",
+            "value":"[TS_1018812]_module description"
+        },
+        {
+            "name":"permission_reason_camera",
+            "value":"[TS_1018822]_Used for scanning barcodes"
+        },
+        {
+            "name":"demo_subject",
+            "value":"[TS_1018803]_Scan Kit"
+        }
+    ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "default",
+  "version": "1.0.0",
+  "description": "Please describe the basic information.",
+  "main": "",
+  "author": "",
+  "license": "",
+  "dependencies": {
+    "learning": "file:../../features/learning",
+    "quickstart": "file:../../features/quickstart",
+    "map": "file:../../features/map",
+    "utils": "file:../../commons/utils",
+    "uicomponents": "file:../../commons/uicomponents"
+  }
+}

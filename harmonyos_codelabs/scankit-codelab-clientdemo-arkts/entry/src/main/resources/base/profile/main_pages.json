@@ -1,0 +1,12 @@
+{
+  "src": [
+    "pages/Index",
+    "pages/BarcodePage",
+    "pages/CustomPage",
+    "pages/CreateBarcode",
+    "pages/DetectBarcode",
+    "pages/ResultPage",
+    "pages/CustomResultPage",
+    "pages/ScanAccess"
+  ]
+}
