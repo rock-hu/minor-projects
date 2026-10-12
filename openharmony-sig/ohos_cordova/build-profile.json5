@@ -1,0 +1,53 @@
+{
+  "app": {
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "certpath": "/Users/ashuai/.ohos/config/default_ohos_cordova_ZucCcz3cQ96rKRSPxWT8K6kBh3NhOJbppzMD3fEP9Ro=.cer",
+          "storePassword": "0000001ACE2FCC58EE134A20954770BED3E042A630EE1EF556A66BCB3B48C145A9949C99514F6790AE08",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001A1F8C525FA0BD71FF73F6E60B46AD33EFE3DE060946BCCBC5EBAE550FC23E0FD40BDC091E1EEB",
+          "profile": "/Users/ashuai/.ohos/config/default_ohos_cordova_ZucCcz3cQ96rKRSPxWT8K6kBh3NhOJbppzMD3fEP9Ro=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "/Users/ashuai/.ohos/config/default_ohos_cordova_ZucCcz3cQ96rKRSPxWT8K6kBh3NhOJbppzMD3fEP9Ro=.p12"
+        }
+      }
+    ],
+    "products": [
+      {
+        "name": "default",
+        "signingConfig": "default",
+        "compatibleSdkVersion": "5.0.0(12)",
+        "runtimeOS": "HarmonyOS",
+      }
+    ],
+    "buildModeSet": [
+      {
+        "name": "debug",
+      },
+      {
+        "name": "release"
+      }
+    ]
+  },
+  "modules": [
+    {
+      "name": "entry",
+      "srcPath": "./entry",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "library",
+      "srcPath": "./library",
+    }
+  ]
+}
