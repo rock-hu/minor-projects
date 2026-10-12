@@ -1,0 +1,868 @@
+/*
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include <memory>
+
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
+
+#include "base/memory/ace_type.h"
+#include "core/common/manager_interface.h"
+#include "core/components_ng/property/property.h"
+
+#define private public
+#define protected public
+#include "test/mock/core/common/mock_container.h"
+#include "test/mock/core/common/mock_theme_manager.h"
+#include "test/mock/core/pipeline/mock_pipeline_context.h"
+
+#include "core/components/text_overlay/text_overlay_theme.h"
+#include "core/components/theme/shadow_theme.h"
+#include "core/components_ng/manager/select_overlay/select_overlay_manager.h"
+#include "core/components_ng/pattern/button/button_pattern.h"
+#include "core/components_ng/pattern/select_overlay/magnifier_controller.h"
+#include "core/components_ng/pattern/select_overlay/select_overlay_pattern.h"
+#include "core/components_ng/pattern/select_overlay/select_overlay_property.h"
+#include "core/components_ng/pattern/text/text_pattern.h"
+#include "core/components_ng/token_theme/token_theme_storage.h"
+
+using namespace testing;
+using namespace testing::ext;
+
+namespace OHOS::Ace::NG {
+namespace {} // namespace
+
+class MockPattern : public Pattern {
+    DECLARE_ACE_TYPE(MockPattern, Pattern);
+
+public:
+    MockPattern() = default;
+    void OnFrameNodeChanged(FrameNodeChangeInfoFlag flag) override
+    {
+        changeFlag_ = flag;
+    }
+    FrameNodeChangeInfoFlag changeFlag_;
+};
+
+class SelectOverlayPatternTestNg : public testing::Test {
+public:
+    static void SetUpTestCase();
+    static void TearDownTestCase();
+};
+
+void SelectOverlayPatternTestNg::SetUpTestCase()
+{
+    MockPipelineContext::SetUp();
+    // set SelectTheme to themeManager before using themeManager to get SelectTheme
+    auto themeManager = AceType::MakeRefPtr<MockThemeManager>();
+    MockPipelineContext::GetCurrent()->SetThemeManager(themeManager);
+}
+
+void SelectOverlayPatternTestNg::TearDownTestCase()
+{
+    MockPipelineContext::TearDown();
+    MockContainer::TearDown();
+}
+
+void ResetCallback()
+{
+    std::cout << "onResetSelection" << std::endl;
+}
+
+class MockUINode : public UINode {
+public:
+    MockUINode(const std::string& tag, int32_t nodeId, bool isRoot = false) : UINode(tag, nodeId) {}
+    ~MockUINode() {};
+
+    MOCK_CONST_METHOD0(IsAtomicNode, bool());
+};
+/**
+ * @tc.name: SelectOverlayPatternCheckHandleReverse001
+ * @tc.desc: test CheckHandleReverse
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, SelectOverlayPatternCheckHandleReverse001, TestSize.Level1)
+{
+    std::shared_ptr<SelectOverlayInfo> info = std::make_shared<SelectOverlayInfo>();
+    SelectOverlayMode mode = SelectOverlayMode::ALL;
+    SelectOverlayPattern selectOverlayPattern = SelectOverlayPattern(info, mode);
+    RectF rectF1 = RectF(40.0f, 60.0f, 240.0f, 360.0f);
+    RectF rectF2 = RectF(20.0f, 30.0f, 120.0f, 180.0f);
+    SelectHandleInfo first;
+    SelectHandleInfo second;
+    first.paintRect = rectF1;
+    second.paintRect = rectF2;
+    selectOverlayPattern.info_->firstHandle = first;
+    selectOverlayPattern.info_->secondHandle = second;
+    selectOverlayPattern.CheckHandleReverse();
+    EXPECT_TRUE(selectOverlayPattern.info_->handleReverse);
+}
+
+/**
+ * @tc.name: SelectOverlayPatternCheckHandleReverse002
+ * @tc.desc: test CheckHandleReverse
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, SelectOverlayPatternCheckHandleReverse002, TestSize.Level1)
+{
+    std::shared_ptr<SelectOverlayInfo> info = std::make_shared<SelectOverlayInfo>();
+    SelectOverlayMode mode = SelectOverlayMode::ALL;
+    SelectOverlayPattern selectOverlayPattern = SelectOverlayPattern(info, mode);
+    RectF rectF1 = RectF(40.0f, 60.0f, 240.0f, 360.0f);
+    RectF rectF2 = RectF(20.0f, 30.0f, 120.0f, 180.0f);
+    SelectHandleInfo first;
+    SelectHandleInfo second;
+    first.paintRect = rectF1;
+    second.paintRect = rectF2;
+    selectOverlayPattern.info_->firstHandle = first;
+    selectOverlayPattern.info_->secondHandle = second;
+    selectOverlayPattern.info_->handleReverse = true;
+    selectOverlayPattern.CheckHandleReverse();
+    EXPECT_TRUE(selectOverlayPattern.info_->handleReverse);
+}
+
+/**
+ * @tc.name: SelectOverlayPatternCheckHandleReverse003
+ * @tc.desc: test CheckHandleReverse
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, SelectOverlayPatternCheckHandleReverse003, TestSize.Level1)
+{
+    std::shared_ptr<SelectOverlayInfo> info = std::make_shared<SelectOverlayInfo>();
+    SelectOverlayMode mode = SelectOverlayMode::ALL;
+    SelectOverlayPattern selectOverlayPattern = SelectOverlayPattern(info, mode);
+    RectF rectF1 = RectF(20.0f, 60.0f, 240.0f, 360.0f);
+    RectF rectF2 = RectF(40.0f, 30.0f, 120.0f, 180.0f);
+    SelectHandleInfo first;
+    SelectHandleInfo second;
+    first.paintRect = rectF1;
+    second.paintRect = rectF2;
+    selectOverlayPattern.info_->firstHandle = first;
+    selectOverlayPattern.info_->secondHandle = second;
+    selectOverlayPattern.info_->handleReverse = true;
+    selectOverlayPattern.CheckHandleReverse();
+    EXPECT_FALSE(selectOverlayPattern.info_->handleReverse);
+}
+
+/**
+ * @tc.name: SelectOverlayPatternCheckHandleReverse004
+ * @tc.desc: test CheckHandleReverse
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, SelectOverlayPatternCheckHandleReverse004, TestSize.Level1)
+{
+    std::shared_ptr<SelectOverlayInfo> info = std::make_shared<SelectOverlayInfo>();
+    SelectOverlayMode mode = SelectOverlayMode::ALL;
+    SelectOverlayPattern selectOverlayPattern = SelectOverlayPattern(info, mode);
+    RectF rectF1 = RectF(20.0f, 60.0f, 240.0f, 360.0f);
+    RectF rectF2 = RectF(40.0f, 30.0f, 120.0f, 180.0f);
+    SelectHandleInfo first;
+    SelectHandleInfo second;
+    first.paintRect = rectF1;
+    second.paintRect = rectF2;
+    selectOverlayPattern.info_->firstHandle = first;
+    selectOverlayPattern.info_->secondHandle = second;
+    selectOverlayPattern.CheckHandleReverse();
+    EXPECT_FALSE(selectOverlayPattern.info_->handleReverse);
+}
+
+/**
+ * @tc.name: SelectOverlayPatternUpdateAncestorViewPort001
+ * @tc.desc: test UpdateAncestorViewPort
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, SelectOverlayPatternUpdateAncestorViewPort001, TestSize.Level1)
+{
+    std::shared_ptr<SelectOverlayInfo> info = std::make_shared<SelectOverlayInfo>();
+    SelectOverlayMode mode = SelectOverlayMode::ALL;
+    SelectOverlayPattern selectOverlayPattern = SelectOverlayPattern(info, mode);
+    RectF rectF1 = RectF(20.0f, 60.0f, 240.0f, 360.0f);
+    RectF rectF2 = RectF(40.0f, 30.0f, 120.0f, 180.0f);
+    std::optional<RectF> ancestorViewPort = rectF1;
+    selectOverlayPattern.info_->ancestorViewPort = rectF2;
+    selectOverlayPattern.UpdateAncestorViewPort(ancestorViewPort);
+    EXPECT_EQ(selectOverlayPattern.info_->ancestorViewPort, ancestorViewPort);
+}
+
+/**
+ * @tc.name: SelectOverlayPatternUpdateAncestorViewPort002
+ * @tc.desc: test UpdateAncestorViewPort
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, SelectOverlayPatternUpdateAncestorViewPort002, TestSize.Level1)
+{
+    std::shared_ptr<SelectOverlayInfo> info = std::make_shared<SelectOverlayInfo>();
+    SelectOverlayMode mode = SelectOverlayMode::ALL;
+    SelectOverlayPattern selectOverlayPattern = SelectOverlayPattern(info, mode);
+    RectF rectF = RectF(20.0f, 60.0f, 240.0f, 360.0f);
+    std::optional<RectF> ancestorViewPort = rectF;
+    selectOverlayPattern.info_->ancestorViewPort = rectF;
+    selectOverlayPattern.UpdateAncestorViewPort(ancestorViewPort);
+    EXPECT_EQ(selectOverlayPattern.info_->ancestorViewPort, ancestorViewPort);
+}
+
+/**
+ * @tc.name: SelectOverlayPatternGetHandlePaintRect001
+ * @tc.desc: test GetHandlePaintRect
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, SelectOverlayPatternGetHandlePaintRect001, TestSize.Level1)
+{
+    std::shared_ptr<SelectOverlayInfo> info = std::make_shared<SelectOverlayInfo>();
+    SelectOverlayMode mode = SelectOverlayMode::ALL;
+    SelectOverlayPattern selectOverlayPattern = SelectOverlayPattern(info, mode);
+    RectF rectF = RectF(20.0f, 60.0f, 240.0f, 360.0f);
+    SelectHandleInfo handleInfo;
+    handleInfo.paintRect = rectF;
+    handleInfo.isPaintHandleWithPoints = false;
+    SelectHandlePaintInfo handlePaintInfo;
+    handleInfo.paintInfo = handlePaintInfo;
+    RectF result = selectOverlayPattern.GetHandlePaintRect(handleInfo);
+    EXPECT_EQ(result.GetX(), 20);
+    EXPECT_EQ(result.GetY(), 60);
+}
+
+/**
+ * @tc.name: SelectOverlayPatternGetHandlePaintRect002
+ * @tc.desc: test GetHandlePaintRect
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, SelectOverlayPatternGetHandlePaintRect002, TestSize.Level1)
+{
+    std::shared_ptr<SelectOverlayInfo> info = std::make_shared<SelectOverlayInfo>();
+    SelectOverlayMode mode = SelectOverlayMode::ALL;
+    SelectOverlayPattern selectOverlayPattern = SelectOverlayPattern(info, mode);
+    RectF rectF = RectF(20.0f, 60.0f, 240.0f, 360.0f);
+    SelectHandleInfo handleInfo;
+    handleInfo.paintRect = rectF;
+    handleInfo.isPaintHandleWithPoints = true;
+    SelectHandlePaintInfo handlePaintInfo;
+    handleInfo.paintInfo = handlePaintInfo;
+    RectF result = selectOverlayPattern.GetHandlePaintRect(handleInfo);
+    EXPECT_EQ(result.GetX(), 20);
+    EXPECT_EQ(result.GetY(), 60);
+}
+
+/**
+ * @tc.name: SelectOverlayPatternGetHandlePaintRect003
+ * @tc.desc: test GetHandlePaintRect
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, SelectOverlayPatternGetHandlePaintRect003, TestSize.Level1)
+{
+    std::shared_ptr<SelectOverlayInfo> info = std::make_shared<SelectOverlayInfo>();
+    SelectOverlayMode mode = SelectOverlayMode::ALL;
+    SelectOverlayPattern selectOverlayPattern = SelectOverlayPattern(info, mode);
+    RectF rectF = RectF(20.0f, 60.0f, 240.0f, 360.0f);
+    selectOverlayPattern.info_->handleLevelMode = HandleLevelMode::EMBED;
+    SelectHandleInfo handleInfo;
+    handleInfo.paintRect = rectF;
+    handleInfo.isPaintHandleWithPoints = false;
+    SelectHandlePaintInfo handlePaintInfo;
+    handleInfo.paintInfo = handlePaintInfo;
+    RectF result = selectOverlayPattern.GetHandlePaintRect(handleInfo);
+    EXPECT_EQ(result.GetX(), 20);
+    EXPECT_EQ(result.GetY(), 60);
+}
+
+/**
+ * @tc.name: SelectOverlayManagerResetSelection001
+ * @tc.desc: test ResetSelection
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, SelectOverlayManagerResetSelection001, TestSize.Level1)
+{
+    auto pattern = AceType::MakeRefPtr<Pattern>();
+    auto rootNode = FrameNode::CreateFrameNode("tag", 2, pattern, false);
+    SelectOverlayManager selectOverlayManager = SelectOverlayManager(rootNode);
+    TouchEvent touchPoint;
+    touchPoint.type = TouchType::DOWN;
+    bool isMousePressAtSelectedNode = false;
+    auto selectOverlayItem = FrameNode::CreateFrameNode("xyz", 3, pattern, false);
+    selectOverlayItem.Reset();
+    selectOverlayManager.selectOverlayItem_ = selectOverlayItem;
+    SelectedByMouseInfo selectedByMouseInfo;
+    auto node = FrameNode::CreateFrameNode("qwe", 4, pattern, false);
+    selectedByMouseInfo.selectedNode = node;
+    selectedByMouseInfo.onResetSelection = ResetCallback;
+    selectOverlayManager.selectedByMouseInfo_ = selectedByMouseInfo;
+    selectOverlayManager.ResetSelection(touchPoint, isMousePressAtSelectedNode);
+    EXPECT_EQ(selectOverlayManager.selectedByMouseInfo_.selectedNode.Upgrade(), nullptr);
+    EXPECT_EQ(selectOverlayManager.selectedByMouseInfo_.onResetSelection, nullptr);
+}
+
+/**
+ * @tc.name: SelectOverlayManagerResetSelection002
+ * @tc.desc: test ResetSelection
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, SelectOverlayManagerResetSelection002, TestSize.Level1)
+{
+    auto pattern = AceType::MakeRefPtr<Pattern>();
+    auto rootNode = FrameNode::CreateFrameNode("tag", 2, pattern, false);
+    SelectOverlayManager selectOverlayManager = SelectOverlayManager(rootNode);
+    TouchEvent touchPoint;
+    touchPoint.type = TouchType::DOWN;
+    bool isMousePressAtSelectedNode = false;
+    auto selectOverlayItem = FrameNode::CreateFrameNode("xyz", 3, pattern, false);
+    selectOverlayItem.Reset();
+    selectOverlayManager.selectOverlayItem_ = selectOverlayItem;
+    SelectedByMouseInfo selectedByMouseInfo;
+    auto node = FrameNode::CreateFrameNode("qwe", 4, pattern, false);
+    selectedByMouseInfo.selectedNode = node;
+    selectOverlayManager.selectedByMouseInfo_ = selectedByMouseInfo;
+    selectOverlayManager.ResetSelection(touchPoint, isMousePressAtSelectedNode);
+    EXPECT_EQ(selectOverlayManager.selectedByMouseInfo_.selectedNode.Upgrade(), nullptr);
+    EXPECT_EQ(selectOverlayManager.selectedByMouseInfo_.onResetSelection, nullptr);
+}
+
+/**
+ * @tc.name: SelectOverlayManagerIsTouchInCallerArea001
+ * @tc.desc: test IsTouchInCallerArea
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, SelectOverlayManagerIsTouchInCallerArea001, TestSize.Level1)
+{
+    auto pattern = AceType::MakeRefPtr<Pattern>();
+    auto rootNode = FrameNode::CreateFrameNode("tag", 2, pattern, false);
+    SelectOverlayManager selectOverlayManager = SelectOverlayManager(rootNode);
+    SelectOverlayInfo selectOverlayInfo;
+    std::optional<NG::PointF> point;
+    PointF pointOne = PointT(20.0f, 30.0f);
+    point.emplace(pointOne);
+    selectOverlayManager.selectOverlayInfo_ = selectOverlayInfo;
+    selectOverlayManager.selectOverlayInfo_.checkIsTouchInHostArea = [](const OHOS::Ace::NG::PointF& point) -> bool {
+        return true;
+    };
+    std::vector<std::string> touchTestResults;
+    touchTestResults.emplace_back("0");
+    touchTestResults.clear();
+    selectOverlayManager.touchTestResults_ = touchTestResults;
+    bool result = selectOverlayManager.IsTouchInCallerArea(point);
+    EXPECT_TRUE(result);
+}
+
+/**
+ * @tc.name: SelectOverlayManagerIsTouchInCallerArea002
+ * @tc.desc: test IsTouchInCallerArea
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, SelectOverlayManagerIsTouchInCallerArea002, TestSize.Level1)
+{
+    auto pattern = AceType::MakeRefPtr<Pattern>();
+    auto rootNode = FrameNode::CreateFrameNode("tag", 2, pattern, false);
+    SelectOverlayManager selectOverlayManager = SelectOverlayManager(rootNode);
+    SelectOverlayInfo selectOverlayInfo;
+    std::optional<NG::PointF> point;
+    PointF pointOne = PointT(20.0f, 30.0f);
+    point.emplace(pointOne);
+    selectOverlayManager.selectOverlayInfo_ = selectOverlayInfo;
+    selectOverlayManager.selectOverlayInfo_.checkIsTouchInHostArea = [](const OHOS::Ace::NG::PointF& point) -> bool {
+        return false;
+    };
+    std::vector<std::string> touchTestResults;
+    touchTestResults.emplace_back("0");
+    touchTestResults.clear();
+    selectOverlayManager.touchTestResults_ = touchTestResults;
+    bool result = selectOverlayManager.IsTouchInCallerArea(point);
+    EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: SelectOverlayManagerNotifyOnScrollCallback001
+ * @tc.desc: test NotifyOnScrollCallback
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, SelectOverlayManagerNotifyOnScrollCallback001, TestSize.Level1)
+{
+    auto pattern = AceType::MakeRefPtr<Pattern>();
+    auto rootNode = FrameNode::CreateFrameNode("tag", 2, pattern, false);
+    SelectOverlayManager selectOverlayManager = SelectOverlayManager(rootNode);
+    std::map<int32_t, std::map<int32_t, ScrollableParentCallback>> parentScrollCallbacks;
+    parentScrollCallbacks[1] = {};
+    selectOverlayManager.parentScrollCallbacks_ = parentScrollCallbacks;
+    selectOverlayManager.NotifyOnScrollCallback(1, Axis::HORIZONTAL, 20.0f, 2);
+    EXPECT_EQ(selectOverlayManager.parentScrollCallbacks_.count(1), 0);
+}
+
+/**
+ * @tc.name: SelectOverlayInfoGetCallerNodeAncestorViewPort001
+ * @tc.desc: test GetCallerNodeAncestorViewPort
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, SelectOverlayInfoGetCallerNodeAncestorViewPort001, TestSize.Level1)
+{
+    SelectOverlayInfo info;
+    RectF viewPort(20.0f, 20.0f, 180.0f, 190.0f);
+    RectF rect(40.0f, 60.0f, 180.0f, 190.0f);
+    info.ancestorViewPort.emplace(rect);
+    info.GetCallerNodeAncestorViewPort(viewPort);
+    EXPECT_EQ(viewPort.GetX(), 40);
+}
+
+/**
+ * @tc.name: MagnifierController_FindWindowScene001
+ * @tc.desc: test FindWindowScene
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, MagnifierController_FindWindowScene001, TestSize.Level1)
+{
+    auto pattern = AceType::MakeRefPtr<Pattern>();
+    WeakPtr<Pattern> weakPattern(pattern);
+    MagnifierController controller(weakPattern);
+    auto targetNode = FrameNode::CreateFrameNode("tag", 2, pattern, false);
+    RefPtr<UINode> mockUINode = AceType::MakeRefPtr<MockUINode>("tag", 2, false);
+    auto node = AceType::MakeRefPtr<MockUINode>("six", 3, false);
+    targetNode->parent_ = node;
+    auto result = controller.FindWindowScene(targetNode);
+    EXPECT_EQ(result, nullptr);
+}
+
+/**
+ * @tc.name: MagnifierController_FindWindowScene002
+ * @tc.desc: test FindWindowScene
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, MagnifierController_FindWindowScene002, TestSize.Level1)
+{
+    auto pattern = AceType::MakeRefPtr<Pattern>();
+    WeakPtr<Pattern> weakPattern(pattern);
+    MagnifierController controller(weakPattern);
+    auto targetNode = FrameNode::CreateFrameNode("tag", 2, pattern, false);
+    WeakPtr<UINode> node = targetNode;
+    targetNode->parent_ = node;
+    targetNode->parent_.Upgrade()->tag_ = V2::WINDOW_SCENE_ETS_TAG;
+    auto result = controller.FindWindowScene(targetNode);
+    EXPECT_NE(result, nullptr);
+}
+
+/**
+ * @tc.name: MagnifierController_FindWindowScene003
+ * @tc.desc: test FindWindowScene
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, MagnifierController_FindWindowScene003, TestSize.Level1)
+{
+    auto pattern = AceType::MakeRefPtr<Pattern>();
+    WeakPtr<Pattern> weakPattern(pattern);
+    MagnifierController controller(weakPattern);
+    auto targetNode = FrameNode::CreateFrameNode("tag", 2, pattern, false);
+    auto result = controller.FindWindowScene(targetNode);
+    EXPECT_EQ(result, nullptr);
+}
+
+/**
+ * @tc.name: MagnifierController_FindWindowScene004
+ * @tc.desc: test FindWindowScene
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, MagnifierController_FindWindowScene004, TestSize.Level1)
+{
+    auto pattern = AceType::MakeRefPtr<Pattern>();
+    WeakPtr<Pattern> weakPattern(pattern);
+    MagnifierController controller(weakPattern);
+    auto targetNode = FrameNode::CreateFrameNode("tag", 2, pattern, false);
+    targetNode->tag_ = V2::WINDOW_SCENE_ETS_TAG;
+    auto result = controller.FindWindowScene(targetNode);
+    EXPECT_EQ(result, nullptr);
+}
+
+/**
+ * @tc.name: TextMenuController.disableSystemServiceMenuItems
+ * @tc.desc: test disableSystemServiceMenuItems
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, DisableSystemServiceMenuItems, TestSize.Level1)
+{
+    auto themeManager = AceType::MakeRefPtr<MockThemeManager>();
+    MockPipelineContext::GetCurrent()->SetThemeManager(themeManager);
+    EXPECT_CALL(*themeManager, GetTheme(_)).WillRepeatedly(Return(AceType::MakeRefPtr<TextOverlayTheme>()));
+    SelectOverlayInfo overlayInfo;
+    SelectMenuInfo menuInfo;
+    menuInfo.showCopy = false;
+    menuInfo.showPaste = false;
+    menuInfo.showCopyAll = false;
+    menuInfo.showCut = false;
+    menuInfo.showAIWrite = true;
+    menuInfo.showTranslate = true;
+    menuInfo.showSearch = true;
+    menuInfo.showCameraInput = true;
+    menuInfo.showShare = true;
+    overlayInfo.menuInfo = menuInfo;
+    std::shared_ptr<SelectOverlayInfo> shareInfo = std::make_shared<SelectOverlayInfo>(overlayInfo);
+    auto selectOverlayNode = AceType::DynamicCast<SelectOverlayNode>(
+        SelectOverlayNode::CreateSelectOverlayNode(shareInfo, SelectOverlayMode::MENU_ONLY));
+    ASSERT_NE(selectOverlayNode, nullptr);
+    EXPECT_EQ(selectOverlayNode->selectMenuInner_->GetChildren().size(), 5);
+
+    AceApplicationInfo::GetInstance().AddTextMenuDisableFlag(NG::DISABLE_ALL_FLAG);
+    selectOverlayNode = AceType::DynamicCast<SelectOverlayNode>(
+        SelectOverlayNode::CreateSelectOverlayNode(shareInfo, SelectOverlayMode::MENU_ONLY));
+    ASSERT_NE(selectOverlayNode, nullptr);
+    EXPECT_EQ(selectOverlayNode->selectMenuInner_->GetChildren().size(), 0);
+
+    AceApplicationInfo::GetInstance().SetTextMenuDisableFlags(~NG::DISABLE_ALL_FLAG);
+    selectOverlayNode = AceType::DynamicCast<SelectOverlayNode>(
+        SelectOverlayNode::CreateSelectOverlayNode(shareInfo, SelectOverlayMode::MENU_ONLY));
+    ASSERT_NE(selectOverlayNode, nullptr);
+    EXPECT_EQ(selectOverlayNode->selectMenuInner_->GetChildren().size(), 5);
+}
+
+/**
+ * @tc.name: TextMenuController.DisableMenuItems
+ * @tc.desc: test DisableMenuItems
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, DisableMenuItems, TestSize.Level1)
+{
+    auto themeManager = AceType::MakeRefPtr<MockThemeManager>();
+    MockPipelineContext::GetCurrent()->SetThemeManager(themeManager);
+    EXPECT_CALL(*themeManager, GetTheme(_)).WillRepeatedly(Return(AceType::MakeRefPtr<TextOverlayTheme>()));
+    SelectOverlayInfo overlayInfo;
+    SelectMenuInfo menuInfo;
+    menuInfo.showCopy = false;
+    menuInfo.showPaste = false;
+    menuInfo.showCopyAll = false;
+    menuInfo.showCut = false;
+    menuInfo.showAIWrite = true;
+    menuInfo.showTranslate = true;
+    menuInfo.showSearch = true;
+    menuInfo.showCameraInput = true;
+    menuInfo.showShare = true;
+    menuInfo.aiMenuOptionType = TextDataDetectType::ADDRESS;
+    overlayInfo.menuInfo = menuInfo;
+    std::shared_ptr<SelectOverlayInfo> shareInfo = std::make_shared<SelectOverlayInfo>(overlayInfo);
+    auto selectOverlayNode = AceType::DynamicCast<SelectOverlayNode>(
+        SelectOverlayNode::CreateSelectOverlayNode(shareInfo, SelectOverlayMode::MENU_ONLY));
+    ASSERT_NE(selectOverlayNode, nullptr);
+    EXPECT_EQ(selectOverlayNode->selectMenuInner_->GetTotalChildCount(), 6);
+
+    AceApplicationInfo::GetInstance().AddTextMenuDisableFlag(NG::DISABLE_AI_WRITER_FLAG|NG::DISABLE_TRANSLATE_FLAG);
+    selectOverlayNode = AceType::DynamicCast<SelectOverlayNode>(
+        SelectOverlayNode::CreateSelectOverlayNode(shareInfo, SelectOverlayMode::MENU_ONLY));
+    ASSERT_NE(selectOverlayNode, nullptr);
+    EXPECT_EQ(selectOverlayNode->selectMenuInner_->GetTotalChildCount(), 4);
+
+    AceApplicationInfo::GetInstance().AddTextMenuDisableFlag(
+        DISABLE_TRANSLATE_FLAG | DISABLE_SEARCH_FLAG | DISABLE_SHARE_FLAG | DISABLE_CAMERA_INPUT_FLAG |
+        DISABLE_AI_WRITER_FLAG | DISABLE_COLLABORATION_SERVICE_FLAG | DISABLE_AI_MENU_ADDRESS_FLAG);
+    selectOverlayNode = AceType::DynamicCast<SelectOverlayNode>(
+            SelectOverlayNode::CreateSelectOverlayNode(shareInfo, SelectOverlayMode::MENU_ONLY));
+    ASSERT_NE(selectOverlayNode, nullptr);
+    EXPECT_EQ(selectOverlayNode->selectMenuInner_->GetTotalChildCount(), 0);
+
+    AceApplicationInfo::GetInstance().SetTextMenuDisableFlags(NG::DISABLE_ALL_FLAG);
+    selectOverlayNode = AceType::DynamicCast<SelectOverlayNode>(
+        SelectOverlayNode::CreateSelectOverlayNode(shareInfo, SelectOverlayMode::MENU_ONLY));
+    ASSERT_NE(selectOverlayNode, nullptr);
+    EXPECT_EQ(selectOverlayNode->selectMenuInner_->GetTotalChildCount(), 6);
+}
+
+/**
+ * @tc.name: TextMenuController.disableSystemServiceMenuItems
+ * @tc.desc: test disableSystemServiceMenuItems of askCelia
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, DisableSystemServiceMenuItems002, TestSize.Level1)
+{
+    auto themeManager = AceType::MakeRefPtr<MockThemeManager>();
+    MockPipelineContext::GetCurrent()->SetThemeManager(themeManager);
+    EXPECT_CALL(*themeManager, GetTheme(_)).WillRepeatedly(Return(AceType::MakeRefPtr<TextOverlayTheme>()));
+    SelectOverlayInfo overlayInfo;
+    SelectMenuInfo menuInfo;
+    menuInfo.showCopy = false;
+    menuInfo.showPaste = false;
+    menuInfo.showCopyAll = false;
+    menuInfo.showCut = false;
+    menuInfo.showAIWrite = true;
+    menuInfo.showTranslate = true;
+    menuInfo.showSearch = true;
+    menuInfo.showCameraInput = true;
+    menuInfo.showShare = true;
+    menuInfo.isAskCeliaEnabled = true;
+    overlayInfo.menuInfo = menuInfo;
+    std::shared_ptr<SelectOverlayInfo> shareInfo = std::make_shared<SelectOverlayInfo>(overlayInfo);
+
+    AceApplicationInfo::GetInstance().AddTextMenuDisableFlag(NG::DISABLE_ALL_FLAG);
+    auto selectOverlayNode = AceType::DynamicCast<SelectOverlayNode>(
+        SelectOverlayNode::CreateSelectOverlayNode(shareInfo, SelectOverlayMode::MENU_ONLY));
+    ASSERT_NE(selectOverlayNode, nullptr);
+    EXPECT_EQ(selectOverlayNode->selectMenuInner_->GetChildren().size(), 0);
+}
+
+/**
+ * @tc.name: FrameNode::ProcessFrameNodeChangeFlag
+ * @tc.desc: test ProcessFrameNodeChangeFlag
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, ProcessFrameNodeChangeFlag, TestSize.Level1)
+{
+    auto pattern = AceType::MakeRefPtr<MockPattern>();
+    auto mockNode = FrameNode::CreateFrameNode("Mock", 1, pattern, false);
+
+    auto parentPattern1 = AceType::MakeRefPtr<MockPattern>();
+    auto parentNode1 = FrameNode::CreateFrameNode("Mock", 2, pattern, false);
+    parentNode1->AddFrameNodeChangeInfoFlag(FRAME_NODE_CHANGE_END_SCROLL);
+    mockNode->MountToParent(parentNode1);
+
+    auto parentPattern2 = AceType::MakeRefPtr<MockPattern>();
+    auto parentNode2 = FrameNode::CreateFrameNode("Mock", 3, pattern, false);
+    parentNode2->AddFrameNodeChangeInfoFlag(FRAME_NODE_CHANGE_GEOMETRY_CHANGE);
+    parentNode1->MountToParent(parentNode2);
+
+    auto parentPattern3 = AceType::MakeRefPtr<MockPattern>();
+    auto parentNode3 = FrameNode::CreateFrameNode("Mock", 4, pattern, false);
+    parentNode3->AddFrameNodeChangeInfoFlag(FRAME_NODE_CHANGE_START_ANIMATION);
+    parentNode2->MountToParent(parentNode3);
+
+    mockNode->ProcessFrameNodeChangeFlag();
+    EXPECT_EQ(pattern->changeFlag_,
+        FRAME_NODE_CHANGE_END_SCROLL | FRAME_NODE_CHANGE_GEOMETRY_CHANGE | FRAME_NODE_CHANGE_START_ANIMATION);
+}
+
+/**
+ * @tc.name: SelectMenuAndInnerInitProperty_ColorMode_EdgeCases
+ * @tc.desc: Test SelectMenuAndInnerInitProperty color mode edge cases
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, SelectMenuAndInnerInitProperty_ColorMode_EdgeCases, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. Set up test environment
+     */
+    auto themeManager = AceType::MakeRefPtr<MockThemeManager>();
+    ASSERT_NE(themeManager, nullptr);
+    auto textOverlayTheme = AceType::MakeRefPtr<TextOverlayTheme>();
+    ASSERT_NE(textOverlayTheme, nullptr);
+
+    MockPipelineContext::GetCurrent()->SetThemeManager(themeManager);
+    EXPECT_CALL(*themeManager, GetTheme(_)).WillRepeatedly(Return(textOverlayTheme));
+
+    SelectOverlayInfo selectInfo;
+    auto infoPtr = std::make_shared<SelectOverlayInfo>(selectInfo);
+    auto selectOverlayNode =
+        AceType::DynamicCast<SelectOverlayNode>(SelectOverlayNode::CreateSelectOverlayNode(infoPtr));
+    ASSERT_NE(selectOverlayNode, nullptr);
+
+    /**
+     * @tc.steps: step2. Test with invalid color mode values
+     * @tc.expected: Should handle gracefully and use default conversion
+     */
+
+    // Test with out-of-range color mode (simulate potential invalid value)
+    MockContainer::SetMockColorMode(ColorMode::COLOR_MODE_UNDEFINED);
+    auto text = FrameNode::GetOrCreateFrameNode(
+        "test", ElementRegister::GetInstance()->MakeUniqueId(), []() { return AceType::MakeRefPtr<TextPattern>(); });
+    auto theme = AceType::MakeRefPtr<TokenTheme>(1);
+    theme->SetColorMode(ColorMode::LIGHT);
+    TokenThemeStorage::GetInstance()->CacheSet(theme);
+    TokenThemeStorage::GetInstance()->StoreThemeScope(100, 1);
+    text->themeScopeId_ = 100;
+
+    selectOverlayNode->SelectMenuAndInnerInitProperty(text);
+
+    auto selectMenu = selectOverlayNode->selectMenu_;
+    ASSERT_NE(selectMenu, nullptr);
+    auto renderContext = selectMenu->GetRenderContext();
+    ASSERT_NE(renderContext, nullptr);
+    const auto& groupProperty = renderContext->GetBackground();
+    ASSERT_NE(groupProperty, nullptr);
+    BlurStyleOption actualStyleOption = groupProperty->propBlurStyleOption.value_or(BlurStyleOption());
+    // Should default to some valid SystemColorMode
+    EXPECT_TRUE(actualStyleOption.colorMode == ThemeColorMode::LIGHT);
+}
+
+/**
+ * @tc.name: SelectOverlayNodeUpdateSelectMenuBg001
+ * @tc.desc: Test UpdateSelectMenuBg with normal process
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, SelectOverlayNodeUpdateSelectMenuBg001, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. Set up test environment
+     */
+    auto themeManager = AceType::MakeRefPtr<MockThemeManager>();
+    ASSERT_NE(themeManager, nullptr);
+    auto textOverlayTheme = AceType::MakeRefPtr<TextOverlayTheme>();
+    ASSERT_NE(textOverlayTheme, nullptr);
+    MockPipelineContext::GetCurrent()->SetThemeManager(themeManager);
+    EXPECT_CALL(*themeManager, GetTheme(_)).WillRepeatedly(Return(textOverlayTheme));
+
+    SelectOverlayInfo selectInfo;
+    auto infoPtr = std::make_shared<SelectOverlayInfo>(selectInfo);
+    auto selectOverlayNode =
+        AceType::DynamicCast<SelectOverlayNode>(SelectOverlayNode::CreateSelectOverlayNode(infoPtr));
+    ASSERT_NE(selectOverlayNode, nullptr);
+
+    // Create a mock caller with specific color mode
+    MockContainer::SetMockColorMode(ColorMode::COLOR_MODE_UNDEFINED);
+    auto text = FrameNode::GetOrCreateFrameNode(
+        "test", ElementRegister::GetInstance()->MakeUniqueId(), []() { return AceType::MakeRefPtr<TextPattern>(); });
+    auto theme = AceType::MakeRefPtr<TokenTheme>(1);
+    theme->SetColorMode(ColorMode::DARK);
+    TokenThemeStorage::GetInstance()->CacheSet(theme);
+    TokenThemeStorage::GetInstance()->StoreThemeScope(100, 1);
+    text->themeScopeId_ = 100;
+
+    /**
+     * @tc.steps: step2. Call UpdateSelectMenuBg with valid caller
+     * @tc.expected: Should update render context with correct properties
+     */
+    selectOverlayNode->UpdateSelectMenuBg(text);
+
+    /**
+     * @tc.steps: step3. Verify the render context properties
+     */
+    auto selectMenu = selectOverlayNode->selectMenu_;
+    ASSERT_NE(selectMenu, nullptr);
+    auto renderContext = selectMenu->GetRenderContext();
+    ASSERT_NE(renderContext, nullptr);
+
+    // Verify background color
+    EXPECT_EQ(renderContext->GetBackgroundColor(), Color::TRANSPARENT);
+
+    // Verify blur style option
+    const auto& groupProperty = renderContext->GetBackground();
+    ASSERT_NE(groupProperty, nullptr);
+    BlurStyleOption actualStyleOption = groupProperty->propBlurStyleOption.value_or(BlurStyleOption());
+    EXPECT_EQ(actualStyleOption.blurStyle, BlurStyle::COMPONENT_ULTRA_THICK);
+    EXPECT_EQ(actualStyleOption.colorMode, ThemeColorMode::DARK); // Should convert from ColorMode::DARK
+}
+
+/**
+ * @tc.name: SelectOverlayNodeBuildMoreOrBackSymbol001
+ * @tc.desc: Test BuildMoreOrBackSymbol symbol effect options configuration
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, SelectOverlayNodeBuildMoreOrBackSymbol001, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. Set up test environment
+     */
+    auto themeManager = AceType::MakeRefPtr<MockThemeManager>();
+    ASSERT_NE(themeManager, nullptr);
+    MockPipelineContext::GetCurrent()->SetThemeManager(themeManager);
+
+    auto textOverlayTheme = AceType::MakeRefPtr<TextOverlayTheme>();
+    ASSERT_NE(textOverlayTheme, nullptr);
+    EXPECT_CALL(*themeManager, GetTheme(_, _)).WillRepeatedly(Return(textOverlayTheme));
+
+    SelectOverlayInfo selectInfo;
+    auto infoPtr = std::make_shared<SelectOverlayInfo>(selectInfo);
+    auto selectOverlayNode =
+        AceType::DynamicCast<SelectOverlayNode>(SelectOverlayNode::CreateSelectOverlayNode(infoPtr));
+    ASSERT_NE(selectOverlayNode, nullptr);
+
+    /**
+     * @tc.steps: step2. Call BuildMoreOrBackSymbol
+     */
+    auto symbol = selectOverlayNode->BuildMoreOrBackSymbol();
+    ASSERT_NE(symbol, nullptr);
+
+    /**
+     * @tc.steps: step3. Verify SymbolEffectOptions are correctly configured
+     */
+    auto layoutProperty = symbol->GetLayoutProperty<TextLayoutProperty>();
+    ASSERT_NE(layoutProperty, nullptr);
+
+    auto symbolEffectOptions = layoutProperty->GetSymbolEffectOptions();
+    ASSERT_TRUE(symbolEffectOptions.has_value());
+
+    // Verify specific effect options
+    EXPECT_EQ(symbolEffectOptions.value().GetEffectType(), SymbolEffectType::REPLACE);
+    EXPECT_EQ(symbolEffectOptions.value().GetScopeType(), Ace::ScopeType::WHOLE);
+    EXPECT_FALSE(symbolEffectOptions.value().GetIsTxtActive());
+
+    EXPECT_EQ(layoutProperty->GetFontWeight().value_or(FontWeight::NORMAL), FontWeight::MEDIUM);
+}
+
+/**
+ * @tc.name: SelectOverlayNodeCreatExtensionMenuColor001
+ * @tc.desc: Test CreatExtensionMenu color mode conversion and SetMenuOptionColor call with LIGHT mode
+ * @tc.type: FUNC
+ */
+HWTEST_F(SelectOverlayPatternTestNg, SelectOverlayNodeCreatExtensionMenuColor001, TestSize.Level1)
+{
+    /**
+     * @tc.steps: step1. Set up test environment with LIGHT color mode
+     */
+    auto themeManager = AceType::MakeRefPtr<MockThemeManager>();
+    ASSERT_NE(themeManager, nullptr);
+    MockPipelineContext::GetCurrent()->SetThemeManager(themeManager);
+    auto textOverlayTheme = AceType::MakeRefPtr<TextOverlayTheme>();
+    ASSERT_NE(textOverlayTheme, nullptr);
+    EXPECT_CALL(*themeManager, GetTheme(_)).WillRepeatedly(Return(textOverlayTheme));
+    EXPECT_CALL(*themeManager, GetTheme(_, _)).WillRepeatedly(Return(textOverlayTheme));
+
+    SelectOverlayInfo selectInfo;
+    auto infoPtr = std::make_shared<SelectOverlayInfo>(selectInfo);
+    auto selectOverlayNode =
+        AceType::DynamicCast<SelectOverlayNode>(SelectOverlayNode::CreateSelectOverlayNode(infoPtr));
+    ASSERT_NE(selectOverlayNode, nullptr);
+
+    selectOverlayNode->backButton_ = FrameNode::GetOrCreateFrameNode("SelectMoreOrBackButton",
+        ElementRegister::GetInstance()->MakeUniqueId(), []() { return AceType::MakeRefPtr<ButtonPattern>(); });
+
+    // @tc.steps: step2. Create caller with DARK color mode
+    auto caller = FrameNode::GetOrCreateFrameNode(
+        "test", ElementRegister::GetInstance()->MakeUniqueId(), []() { return AceType::MakeRefPtr<TextPattern>(); });
+    MockContainer::SetMockColorMode(ColorMode::COLOR_MODE_UNDEFINED);
+    auto theme = AceType::MakeRefPtr<TokenTheme>(1);
+    theme->SetColorMode(ColorMode::DARK);
+    TokenThemeStorage::GetInstance()->CacheSet(theme);
+    TokenThemeStorage::GetInstance()->StoreThemeScope(100, 1);
+    caller->themeScopeId_ = 100;
+
+    std::vector<MenuOptionsParam> menuOptionItems;
+    MenuOptionsParam menuItem1;
+    menuItem1.content = "item1";
+    menuItem1.id = "item1";
+    menuOptionItems.emplace_back(menuItem1);
+    MenuOptionsParam menuItem2;
+    menuItem2.content = "item2";
+    menuItem2.id = "item2";
+    menuOptionItems.emplace_back(menuItem2);
+    infoPtr->callerFrameNode = caller;
+
+    /**
+     * @tc.steps: step3. Call CreatExtensionMenu
+     */
+    std::vector<OptionParam> params;
+    selectOverlayNode->AddCreateMenuExtensionMenuParams(menuOptionItems, infoPtr, 0, params);
+    EXPECT_EQ(params.size(), 2);
+    auto call = infoPtr->callerFrameNode.Upgrade();
+    auto selectTheme = AceType::MakeRefPtr<SelectTheme>();
+    ASSERT_NE(selectTheme, nullptr);
+    EXPECT_CALL(*themeManager, GetTheme(_)).WillRepeatedly(Return(selectTheme));
+    selectOverlayNode->CreatExtensionMenu(std::move(params), call);
+
+    /**
+     * @tc.steps: step4. Verify styleOption color mode conversion
+     */
+    ASSERT_NE(selectOverlayNode->extensionMenu_, nullptr);
+    auto extensionMenu = selectOverlayNode->extensionMenu_;
+
+    auto menuPattern = extensionMenu->GetPattern<MenuPattern>();
+    CHECK_NULL_VOID(menuPattern);
+    auto options = menuPattern->GetOptions();
+    EXPECT_EQ(options.size(), 2);
+    for (size_t i = 0; i < options.size(); ++i) {
+        auto pattern = options[i]->GetPattern<MenuItemPattern>();
+        CHECK_NULL_VOID(pattern);
+        EXPECT_TRUE(pattern->fontColor_.has_value());
+    }
+}
+} // namespace OHOS::Ace::NG

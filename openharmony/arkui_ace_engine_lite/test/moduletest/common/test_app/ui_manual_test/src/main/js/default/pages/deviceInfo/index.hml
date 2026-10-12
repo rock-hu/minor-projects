@@ -1,0 +1,80 @@
+<!--
+Copyright (c) 2021 Huawei Device Co., Ltd.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<div id="containerDiv"
+     class="container">
+  <text id="text0"
+        class="title">
+    device api
+  </text>
+  <text id="text1"
+        class="title"
+        onclick="clickAction">
+    点击获取信息
+  </text>
+  <text id="text2"
+        class="title">
+    {{brand}}
+  </text>
+  <text id="text3"
+        class="title">
+    {{manufacturer}}
+  </text>
+  <text id="text4"
+        class="title">
+    {{model}}
+  </text>
+  <text id="text5"
+        class="title">
+    {{product}}
+  </text>
+  <text id="text6"
+        class="title">
+    {{language}}
+  </text>
+  <text id="text7"
+        class="title">
+    {{region}}
+  </text>
+  <text id="text8"
+        class="title">
+    {{windowWidth}}
+  </text>
+  <text id="text9"
+        class="title">
+    {{windowHeight}}
+  </text>
+  <text id="text10"
+        class="title">
+    {{screenDensity}}
+  </text>
+  <text id="text11"
+        class="title">
+    {{screenShape}}
+  </text>
+  <text id="text12"
+        class="title">
+    {{apiVersion}}
+  </text>
+  <text id="text13"
+        class="title">
+    {{deviceType}}
+  </text>
+  <text id="text14"
+        class="title"
+        onclick="backMain">
+    退出
+  </text>
+</div>

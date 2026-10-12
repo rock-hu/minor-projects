@@ -1,0 +1,82 @@
+# Copyright (c) 2022-2025 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/test.gni")
+import("//foundation/arkui/ui_appearance/ui_appearance.gni")
+
+ohos_unittest("ui_appearance_test") {
+  module_out_path = "ui_appearance/ui_appearance"
+
+  include_dirs = [
+    "${ui_appearance_services_path}/include/",
+    "${ui_appearance_services_utils_path}/include/",
+  ]
+
+  sources = [
+    "${ui_appearance_services_path}/src/background_app_color_switch_settings.cpp",
+    "${ui_appearance_services_path}/src/dark_mode_manager.cpp",
+    "${ui_appearance_services_path}/src/dark_mode_temp_state_manager.cpp",
+    "${ui_appearance_services_path}/src/screen_switch_operator_manager.cpp",
+    "${ui_appearance_services_path}/src/smart_gesture_manager.cpp",
+    "${ui_appearance_services_path}/src/ui_appearance_ability.cpp",
+    "${ui_appearance_services_utils_path}/src/alarm_timer.cpp",
+    "${ui_appearance_services_utils_path}/src/alarm_timer_manager.cpp",
+    "${ui_appearance_services_utils_path}/src/json_utils.cpp",
+    "${ui_appearance_services_utils_path}/src/parameter_wrap.cpp",
+    "${ui_appearance_services_utils_path}/src/setting_data_manager.cpp",
+    "${ui_appearance_services_utils_path}/src/setting_data_observer.cpp",
+    "../mock/mock_accesstoken_kit.cpp",
+    "../mock/mock_app_mgr_proxy.cpp",
+    "../mock/mock_parameter.cpp",
+    "ui_appearance_test.cpp",
+  ]
+
+  configs = []
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+
+  deps = [ "${ui_appearance_services_path}:ui_appearance_ability_stub" ]
+  external_deps = [
+    "ability_base:configuration",
+    "ability_runtime:app_manager",
+    "ability_runtime:dataobs_manager",
+    "ability_runtime:wantagent_innerkits",
+    "access_token:libaccesstoken_sdk",
+    "c_utils:utils",
+    "common_event_service:cesfwk_core",
+    "common_event_service:cesfwk_innerkits",
+    "config_policy:configpolicy_util",
+    "data_share:datashare_consumer",
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "ipc:ipc_single",
+    "os_account:os_account_innerkits",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+    "time_service:time_client",
+    "window_manager:session_manager_lite",
+  ]
+}
+
+group("unittest") {
+  testonly = true
+  deps = [
+    ":ui_appearance_test",
+    "dark_mode_manager_test:dark_mode_manager_test",
+    "setting_data_manager_test:setting_data_manager_test",
+    "setting_data_observer_test:setting_data_observer_test",
+    "smart_gesture_manager_test:smart_gesture_manager_test",
+  ]
+}

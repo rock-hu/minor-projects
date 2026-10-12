@@ -1,0 +1,74 @@
+{
+  "name": "@ohos/ui_lite",
+  "description": "Graphic ui components",
+  "version": "3.1",
+  "license": "Apache License 2.0",
+  "pubiishAs": "code-segment",
+  "segment": {
+    "destPath": "foundation/arkui/ui_lite"
+  },
+  "dirs": {},
+  "scripts": {},
+  "component": {
+    "name": "ui_lite",
+    "subsystem": "arkui",
+    "features": [
+      "ui_lite_enable_video_component_config",
+      "ui_lite_enable_graphic_font_config",
+      "ui_lite_enable_smarthomehost_config"
+    ],
+    "adapted_system_type": [ "mini","small","standard" ],
+    "rom": "900KB",
+    "ram": "~90KB",
+    "deps": {
+      "components": [
+        "graphic_utils_lite",
+        "surface_lite",
+        "window_manager_lite",
+        "media_lite",
+        "libjpeg-turbo",
+        "icu",
+        "cJSON",
+        "freetype",
+        "bounds_checking_function",
+        "libpng",
+        "qrcodegen"
+      ]
+    },
+    "build": {
+      "sub_component": [
+        "//foundation/arkui/ui_lite/test/unittest:arkui_ui_lite_test",
+        "//foundation/arkui/ui_lite/ext/updater:libupdater_layout",
+        "//foundation/arkui/ui_lite/ext/home_host:libhome_host_layout"
+      ],
+      "inner_kits": [
+        {
+          "name": "//foundation/arkui/ui_lite/ext/updater:libupdater_layout",
+          "header": {
+            "header_files": [],
+            "header_base": [
+              "//foundation/arkui/ui_lite/frameworks",
+              "//foundation/arkui/ui_lite/interfaces/kits",
+              "//foundation/arkui/ui_lite/interfaces/innerkits"
+            ]
+          }
+        },
+        {
+          "name":"//foundation/arkui/ui_lite/ext/ide:ui_ide"
+        },
+        {
+          "name": "//foundation/arkui/ui_lite/ext/home_host:libhome_host_layout",
+          "header": {
+            "header_files": [],
+            "header_base": [
+              "//foundation/arkui/ui_lite/frameworks",
+              "//foundation/arkui/ui_lite/interfaces/kits",
+              "//foundation/arkui/ui_lite/interfaces/innerkits"
+            ]
+          }
+        }
+      ],
+      "test": []
+    }
+  }
+}
