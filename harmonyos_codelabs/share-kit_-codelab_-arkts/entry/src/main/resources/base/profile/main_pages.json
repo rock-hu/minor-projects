@@ -1,0 +1,9 @@
+{
+  "src": [
+    "pages/Index",
+    "pages/ShareUIPage",
+    "pages/ShareExtDialog",
+    "pages/SubShareUIPage",
+    "pages/SubShareExtDialog"
+  ]
+}

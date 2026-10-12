@@ -1,0 +1,10 @@
+{
+  "module": {
+    "name": "constantscommon",
+    "type": "har",
+    "deviceTypes": [
+      "phone",
+      "tablet"
+    ]
+  }
+}

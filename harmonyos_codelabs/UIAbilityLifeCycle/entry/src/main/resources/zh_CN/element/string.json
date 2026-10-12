@@ -1,0 +1,24 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "模块描述"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "描述"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "UIAbility生命周期"
+    },
+    {
+      "name": "home_title",
+      "value": "生命周期"
+    },
+    {
+      "name": "home_log",
+      "value": "日志"
+    }
+  ]
+}
