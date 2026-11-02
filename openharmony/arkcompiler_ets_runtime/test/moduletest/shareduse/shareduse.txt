@@ -1,3 +1,0 @@
-shareduse.ts;shareduse;esm;shareduse.ts;xxsharedusexx
-func.ts;func;esm;func.ts;xxfuncxx
-string.ts;string;esm;string.ts;xxstringxx

@@ -1,8 +1,0 @@
-{
-    "name": "JS_GLOBAL_OBJECT",
-    "offsets": [],
-    "end_offset": 0,
-    "parents": [
-        "JS_OBJECT"
-    ]
-}
