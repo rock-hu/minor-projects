@@ -1,0 +1,80 @@
+# Copyright (c) 2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+12
+7.3
+0,0
+1,1
+2,undefined
+3,undefined
+4,undefined
+5,5
+6,6
+array[5]5
+0,0
+1,1
+2,undefined
+3,undefined
+4,undefined
+5,undefined
+6,6
+undefined
+5
+1
+spray
+4
+Find Test case 1:
+Log: [{"value":1,"index":0,"array":[1,2,3,4]},{"value":2,"index":1,"array":[1,2,3,4]},{"value":3,"index":2,"array":[1,2,3,4]}] Result: 3
+---
+Find Test case 2:
+Log: [{"value":1,"index":0,"array":[1,2,3,4]},{"value":2,"index":1,"array":[1,2,3,4]},{"value":3,"index":2,"array":[1,2,3,4]},{"value":4,"index":3,"array":[1,2,3,4]}] Result: undefined
+---
+Find Test case 3:
+Log: [] Result: undefined
+---
+Find Test case 4:
+Log: [{"value":false,"index":0,"array":[false,0,""]}] Result: false
+---
+Find Test case 5:
+Log: [{"value":1,"index":0,"array":[1,2,3,4]},{"value":2,"index":1,"array":[1,2,3,4]},{"value":3,"index":2,"array":[1,2,3,4]}] Result: 3
+---
+Find Test case 6:
+Log: [{"value":null,"index":0,"array":[null,1,2]},{"value":1,"index":1,"array":[null,1,2]}] Result: 1
+---
+Find Test case 7:
+Log: [{"value":1,"index":0,"array":[1,2,3]},{"value":2,"index":1,"array":[1,2,3]},{"value":3,"index":2,"array":[1,2,3,4]}] Result: 3
+---
+Find Test case 8:
+Log: [{"value":null,"index":0,"array":[null,1,2]},{"value":1,"index":1,"array":[null,1,2]}] Result: 1
+---
+Find Test case 9:
+Log: [{"value":1,"index":0,"array":[1,2,3]},{"value":2,"index":1,"array":[1,2,3]},{"value":3,"index":2,"array":[1,2,3]}] Result: undefined
+---
+Find Test case 10:
+Log: [{"value":1,"index":0,"array":[1,2,3]}] Result: 1
+---
+Find Test case 11:
+Log: [{"value":1,"index":0,"array":[1,2,3,4]},{"value":2,"index":1,"array":[1,2,3,4]},{"value":3,"index":2,"array":[1,2,3,4]}] Result: 3
+---
+Find Test case 12:
+Log: [{"value":{"id":1},"index":0,"array":[{"id":1},{"id":2}]},{"value":{"id":2},"index":1,"array":[{"id":1},{"id":2}]}] Result: {"id":2}
+---
+Find Test case 13:
+Log: [{"value":{"x":2},"index":0,"array":[{"x":2},{"x":2}]}] Result: {"x":2}
+---
+Find Test case 14:
+Log: [] Result: undefined
+---
+Find Test case 15:
+Log: [{"value":1,"index":0,"array":[1,2,3]},{"value":2,"index":1,"array":[1,2,3]},{"value":3,"index":2,"array":[1,4,3]}] Result: undefined
+---

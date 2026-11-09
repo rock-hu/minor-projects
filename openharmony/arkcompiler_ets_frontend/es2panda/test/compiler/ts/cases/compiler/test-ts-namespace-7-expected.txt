@@ -1,3 +1,0 @@
-test-ts-namespace-7 flag1
-test-ts-namespace-7 flag2
-test-ts-namespace-7 flag3

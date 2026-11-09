@@ -1,1 +1,0 @@
-SyntaxError: Primary expression expected [test-if-2.js:17:4]

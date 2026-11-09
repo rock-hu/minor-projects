@@ -1,0 +1,64 @@
+{
+  "name": "HCLASS",
+  "offsets": [
+    {
+      "name": "BitField",
+      "offset": 0,
+      "size": 4
+    },
+    {
+      "name": "BitField1",
+      "offset": 4,
+      "size": 4
+    },
+    {
+      "name": "Proto",
+      "offset": 8,
+      "size": 8
+    },
+    {
+      "name": "Layout",
+      "offset": 16,
+      "size": 8
+    },
+    {
+      "name": "Transitions",
+      "offset": 24,
+      "size": 8
+    },
+    {
+      "name": "Parent",
+      "offset": 32,
+      "size": 8
+    },
+    {
+      "name": "ProtoChangeMarker",
+      "offset": 40,
+      "size": 8
+    },
+    {
+      "name": "ProtoChangeDetails",
+      "offset": 48,
+      "size": 8
+    },
+    {
+      "name": "EnumCache",
+      "offset": 56,
+      "size": 8
+    },
+    {
+      "name": "DependentInfos",
+      "offset": 64,
+      "size": 8
+    },
+    {
+      "name": "ProfilerType",
+      "offset": 72,
+      "size": 8
+    }
+  ],
+  "end_offset": 80,
+  "parents": [
+    "TAGGED_OBJECT"
+  ]
+}

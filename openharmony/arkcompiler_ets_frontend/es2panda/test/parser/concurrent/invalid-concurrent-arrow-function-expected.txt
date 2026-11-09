@@ -1,2 +1,0 @@
-SyntaxError: Concurrent function should only be function declaration [invalid-concurrent-arrow-function.js:18:4]
-The size of programs is expected to be 1, but is 0

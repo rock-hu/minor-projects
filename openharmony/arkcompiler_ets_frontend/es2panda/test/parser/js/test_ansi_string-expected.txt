@@ -1,1 +1,0 @@
-SyntaxError: Unterminated RegExp [test_ansi_string.js:16:33]

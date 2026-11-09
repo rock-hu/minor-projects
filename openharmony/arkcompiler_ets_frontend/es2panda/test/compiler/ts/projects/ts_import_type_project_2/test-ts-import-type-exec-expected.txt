@@ -1,3 +1,0 @@
-interface
-24
-HelloWorld!

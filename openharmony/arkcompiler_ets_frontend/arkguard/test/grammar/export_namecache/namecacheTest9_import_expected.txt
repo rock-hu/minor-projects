@@ -1,4 +1,0 @@
-import type { s1 } from "./namecacheTest9_export";
-import { type t1 } from "./namecacheTest9_export";
-function test(v1: s1, w1: t1): void { }
-;

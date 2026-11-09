@@ -1,6 +1,0 @@
-{
-  "IdentifierCache": {
-    "#TestCases": "m"
-  },
-  "MemberMethodCache": {}
-}

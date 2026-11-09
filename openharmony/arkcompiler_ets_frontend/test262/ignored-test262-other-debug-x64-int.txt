@@ -1,2 +1,0 @@
-# Known failures list for test262-other - debug-x64-int
-

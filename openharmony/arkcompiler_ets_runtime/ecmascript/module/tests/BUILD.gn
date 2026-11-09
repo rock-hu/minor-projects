@@ -1,0 +1,184 @@
+# Copyright (c) 2022-2025 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//arkcompiler/ets_runtime/js_runtime_config.gni")
+import("//arkcompiler/ets_runtime/test/test_helper.gni")
+
+test_js_path = "//arkcompiler/ets_runtime/ecmascript/module/tests/module_test/"
+
+test_js_files = [
+  "module_test_module_test_module",
+  "module_test_module_test_module_base",
+  "module_test_module_test_A",
+  "module_test_module_test_B",
+  "module_test_module_test_C",
+  "module_unexecute",
+  "module_unexecute_A",
+  "module_unexecute_B",
+  "module_unexecute_C",
+]
+
+foreach(file, test_js_files) {
+  es2abc_gen_abc("gen_${file}_abc") {
+    test_js = "${test_js_path}${file}.js"
+    test_abc = "$target_out_dir/${file}.abc"
+
+    # Only targets in this file can depend on this.
+    extra_visibility = [ ":*" ]
+    src_js = rebase_path(test_js)
+    dst_file = rebase_path(test_abc)
+    extra_args = []
+    if (file == "module_test_module_test_A") {
+      extra_args += [ "--commonjs" ]
+    } else if (file == "module_unexecute_C") {
+      extra_args += [ "--commonjs" ]
+      extra_args += [ "--merge-abc" ]
+    } else {
+      extra_args += [ "--module" ]
+      extra_args += [ "--merge-abc" ]
+    }
+    in_puts = [ test_js ]
+    out_puts = [ test_abc ]
+  }
+}
+
+test_multi_files = [
+  "deregister_test/entry.js",
+  "deregister_test/A.js",
+  "deregister_test/B.js",
+]
+
+_test_js_file_name_ = [
+  "deregister_test"
+]
+
+foreach(filename, _test_js_file_name_) {
+  merge_file = "$target_out_dir/${filename}.txt"
+  merge_file_prefix = "//arkcompiler/ets_runtime/ecmascript/module/tests/${filename}/"
+  _merge_file_raw_ = "//arkcompiler/ets_runtime/ecmascript/module/tests/${filename}/${filename}.txt"
+
+  action("gen_${filename}_merge_file") {
+    script = "//arkcompiler/ets_runtime/test/quickfix/generate_merge_file.py"
+    args = [
+      "--input",
+      rebase_path(_merge_file_raw_),
+      "--output",
+      rebase_path(merge_file),
+      "--prefix",
+      rebase_path(merge_file_prefix),
+    ]
+
+    inputs = [ _merge_file_raw_ ]
+    outputs = [ merge_file ]
+  }
+
+  abc_path = "$target_out_dir/${filename}.abc"
+
+  es2abc_gen_abc("gen_${filename}_abc") {
+    extra_visibility = [ ":*" ]  # Only targets in this file can depend on this.
+    extra_dependencies = [ ":gen_${filename}_merge_file" ]
+    src_js = "@" + rebase_path(merge_file)
+    dst_file = rebase_path(abc_path)
+    extra_args = [
+      "--module",
+      "--merge-abc",
+    ]
+
+    in_puts = test_multi_files
+    out_puts = [ abc_path ]
+  }
+}
+
+module_output_path = "ets_runtime"
+
+host_unittest_action("ModuleTest") {
+  module_out_path = module_output_path
+
+  sources = [
+    # test file
+    "ecma_module_test.cpp",
+    "static_module_loader_test.cpp"
+  ]
+
+  if (!defined(run_with_qemu)) {
+    run_with_qemu = false
+  }
+
+  if (!run_with_qemu) {
+    sources += [ "module_snapshot_test.cpp" ]
+  }
+
+  configs = [
+    "//arkcompiler/ets_runtime:ecma_test_config",
+  ]
+
+  if (ark_standalone_build || is_arkui_x) {
+    configs += [
+      "$ark_root/assembler:arkassembler_public_config",
+      "$ark_root/libpandafile:arkfile_public_config",
+    ]
+  }
+
+  deps = [
+    "$js_root:libark_jsruntime_test",
+  ]
+
+  foreach(file, test_js_files) {
+    deps += [ ":gen_${file}_abc" ]
+  }
+
+  deps += [
+  ":gen_deregister_test_abc",
+  ]
+
+  if (is_ohos && is_standard_system) {
+    test_abc_dir = "/data/test"
+  } else {
+    test_abc_dir = rebase_path(target_out_dir)
+  }
+  defines = [ "MODULE_ABC_PATH=\"${test_abc_dir}/\"" ]
+
+  # hiviewdfx libraries
+  external_deps = hiviewdfx_ext_deps
+  deps += hiviewdfx_deps
+  external_deps += [
+    "icu:shared_icui18n",
+    "icu:shared_icuuc",
+    "zlib:libz",
+    "runtime_core:libarkassembler_static",
+  ]
+  if (!ark_standalone_build && !is_arkui_x) {
+    external_deps += [ 
+      "runtime_core:arkassembler_public_headers",
+      "runtime_core:arkfile_public_headers",
+    ]
+  }
+}
+
+group("unittest") {
+  testonly = true
+
+  # deps file
+  deps = [ ":ModuleTest" ]
+}
+
+group("host_unittest") {
+  testonly = true
+
+  # deps file
+  deps = [ ":ModuleTestAction" ]
+
+  if (is_mac) {
+    deps -= [ ":ModuleTestAction" ]
+  }
+}

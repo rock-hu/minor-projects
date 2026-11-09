@@ -1,3 +1,0 @@
-test-ts-namespace-13 flag2
-test-ts-namespace-13 flag3
-test-ts-namespace-13 flag2

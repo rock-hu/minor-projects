@@ -1,1 +1,0 @@
-# Know failure list for ut - release - x64 -frontend

@@ -1,2 +1,0 @@
-flag1
-flag2
