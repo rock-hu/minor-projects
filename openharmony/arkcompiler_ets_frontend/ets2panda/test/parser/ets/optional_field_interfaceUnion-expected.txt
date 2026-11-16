@@ -1,0 +1,1968 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "TSInterfaceDeclaration",
+      "body": {
+        "type": "TSInterfaceBody",
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "field",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "get",
+            "accessibility": "public",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "field",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSUnionType",
+                  "types": [
+                    {
+                      "type": "ETSUnionType",
+                      "types": [
+                        {
+                          "type": "ETSTypeReference",
+                          "part": {
+                            "type": "ETSTypeReferencePart",
+                            "name": {
+                              "type": "Identifier",
+                              "name": "Object",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 18,
+                                  "column": 13,
+                                  "program": "optional_field_interfaceUnion.ets"
+                                },
+                                "end": {
+                                  "line": 18,
+                                  "column": 19,
+                                  "program": "optional_field_interfaceUnion.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 18,
+                                "column": 13,
+                                "program": "optional_field_interfaceUnion.ets"
+                              },
+                              "end": {
+                                "line": 18,
+                                "column": 21,
+                                "program": "optional_field_interfaceUnion.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 18,
+                              "column": 13,
+                              "program": "optional_field_interfaceUnion.ets"
+                            },
+                            "end": {
+                              "line": 18,
+                              "column": 21,
+                              "program": "optional_field_interfaceUnion.ets"
+                            }
+                          }
+                        },
+                        {
+                          "type": "ETSTypeReference",
+                          "part": {
+                            "type": "ETSTypeReferencePart",
+                            "name": {
+                              "type": "Identifier",
+                              "name": "String",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 18,
+                                  "column": 22,
+                                  "program": "optional_field_interfaceUnion.ets"
+                                },
+                                "end": {
+                                  "line": 18,
+                                  "column": 28,
+                                  "program": "optional_field_interfaceUnion.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 18,
+                                "column": 22,
+                                "program": "optional_field_interfaceUnion.ets"
+                              },
+                              "end": {
+                                "line": 18,
+                                "column": 30,
+                                "program": "optional_field_interfaceUnion.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 18,
+                              "column": 22,
+                              "program": "optional_field_interfaceUnion.ets"
+                            },
+                            "end": {
+                              "line": 18,
+                              "column": 30,
+                              "program": "optional_field_interfaceUnion.ets"
+                            }
+                          }
+                        },
+                        {
+                          "type": "ETSTypeReference",
+                          "part": {
+                            "type": "ETSTypeReferencePart",
+                            "name": {
+                              "type": "Identifier",
+                              "name": "Number",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 18,
+                                  "column": 31,
+                                  "program": "optional_field_interfaceUnion.ets"
+                                },
+                                "end": {
+                                  "line": 18,
+                                  "column": 37,
+                                  "program": "optional_field_interfaceUnion.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 18,
+                                "column": 31,
+                                "program": "optional_field_interfaceUnion.ets"
+                              },
+                              "end": {
+                                "line": 18,
+                                "column": 38,
+                                "program": "optional_field_interfaceUnion.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 18,
+                              "column": 31,
+                              "program": "optional_field_interfaceUnion.ets"
+                            },
+                            "end": {
+                              "line": 18,
+                              "column": 38,
+                              "program": "optional_field_interfaceUnion.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "loc": {
+                        "start": {
+                          "line": 18,
+                          "column": 13,
+                          "program": "optional_field_interfaceUnion.ets"
+                        },
+                        "end": {
+                          "line": 18,
+                          "column": 38,
+                          "program": "optional_field_interfaceUnion.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ETSUndefinedType",
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 1,
+                          "program": null
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 1,
+                          "program": null
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 18,
+                    "column": 4,
+                    "program": "optional_field_interfaceUnion.ets"
+                  },
+                  "end": {
+                    "line": 18,
+                    "column": 38,
+                    "program": "optional_field_interfaceUnion.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 4,
+                  "program": "optional_field_interfaceUnion.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 38,
+                  "program": "optional_field_interfaceUnion.ets"
+                }
+              }
+            },
+            "overloads": [
+              {
+                "type": "MethodDefinition",
+                "key": {
+                  "type": "Identifier",
+                  "name": "field",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "kind": "set",
+                "accessibility": "public",
+                "static": false,
+                "optional": false,
+                "computed": false,
+                "value": {
+                  "type": "FunctionExpression",
+                  "function": {
+                    "type": "ScriptFunction",
+                    "id": {
+                      "type": "Identifier",
+                      "name": "field",
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 1,
+                          "program": null
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 1,
+                          "program": null
+                        }
+                      }
+                    },
+                    "generator": false,
+                    "async": false,
+                    "expression": false,
+                    "params": [
+                      {
+                        "type": "ETSParameterExpression",
+                        "name": {
+                          "type": "Identifier",
+                          "name": "field",
+                          "typeAnnotation": {
+                            "type": "ETSUnionType",
+                            "types": [
+                              {
+                                "type": "ETSUnionType",
+                                "types": [
+                                  {
+                                    "type": "ETSTypeReference",
+                                    "part": {
+                                      "type": "ETSTypeReferencePart",
+                                      "name": {
+                                        "type": "Identifier",
+                                        "name": "Object",
+                                        "decorators": [],
+                                        "loc": {
+                                          "start": {
+                                            "line": 18,
+                                            "column": 13,
+                                            "program": "optional_field_interfaceUnion.ets"
+                                          },
+                                          "end": {
+                                            "line": 18,
+                                            "column": 19,
+                                            "program": "optional_field_interfaceUnion.ets"
+                                          }
+                                        }
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 18,
+                                          "column": 13,
+                                          "program": "optional_field_interfaceUnion.ets"
+                                        },
+                                        "end": {
+                                          "line": 18,
+                                          "column": 21,
+                                          "program": "optional_field_interfaceUnion.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 18,
+                                        "column": 13,
+                                        "program": "optional_field_interfaceUnion.ets"
+                                      },
+                                      "end": {
+                                        "line": 18,
+                                        "column": 21,
+                                        "program": "optional_field_interfaceUnion.ets"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "type": "ETSTypeReference",
+                                    "part": {
+                                      "type": "ETSTypeReferencePart",
+                                      "name": {
+                                        "type": "Identifier",
+                                        "name": "String",
+                                        "decorators": [],
+                                        "loc": {
+                                          "start": {
+                                            "line": 18,
+                                            "column": 22,
+                                            "program": "optional_field_interfaceUnion.ets"
+                                          },
+                                          "end": {
+                                            "line": 18,
+                                            "column": 28,
+                                            "program": "optional_field_interfaceUnion.ets"
+                                          }
+                                        }
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 18,
+                                          "column": 22,
+                                          "program": "optional_field_interfaceUnion.ets"
+                                        },
+                                        "end": {
+                                          "line": 18,
+                                          "column": 30,
+                                          "program": "optional_field_interfaceUnion.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 18,
+                                        "column": 22,
+                                        "program": "optional_field_interfaceUnion.ets"
+                                      },
+                                      "end": {
+                                        "line": 18,
+                                        "column": 30,
+                                        "program": "optional_field_interfaceUnion.ets"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "type": "ETSTypeReference",
+                                    "part": {
+                                      "type": "ETSTypeReferencePart",
+                                      "name": {
+                                        "type": "Identifier",
+                                        "name": "Number",
+                                        "decorators": [],
+                                        "loc": {
+                                          "start": {
+                                            "line": 18,
+                                            "column": 31,
+                                            "program": "optional_field_interfaceUnion.ets"
+                                          },
+                                          "end": {
+                                            "line": 18,
+                                            "column": 37,
+                                            "program": "optional_field_interfaceUnion.ets"
+                                          }
+                                        }
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 18,
+                                          "column": 31,
+                                          "program": "optional_field_interfaceUnion.ets"
+                                        },
+                                        "end": {
+                                          "line": 18,
+                                          "column": 38,
+                                          "program": "optional_field_interfaceUnion.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 18,
+                                        "column": 31,
+                                        "program": "optional_field_interfaceUnion.ets"
+                                      },
+                                      "end": {
+                                        "line": 18,
+                                        "column": 38,
+                                        "program": "optional_field_interfaceUnion.ets"
+                                      }
+                                    }
+                                  }
+                                ],
+                                "loc": {
+                                  "start": {
+                                    "line": 18,
+                                    "column": 13,
+                                    "program": "optional_field_interfaceUnion.ets"
+                                  },
+                                  "end": {
+                                    "line": 18,
+                                    "column": 38,
+                                    "program": "optional_field_interfaceUnion.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "ETSUndefinedType",
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 1,
+                                    "program": null
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 1,
+                                    "program": null
+                                  }
+                                }
+                              }
+                            ],
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 1,
+                                "program": null
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 1,
+                                "program": null
+                              }
+                            }
+                          },
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 18,
+                              "column": 4,
+                              "program": "optional_field_interfaceUnion.ets"
+                            },
+                            "end": {
+                              "line": 18,
+                              "column": 9,
+                              "program": "optional_field_interfaceUnion.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 18,
+                            "column": 4,
+                            "program": "optional_field_interfaceUnion.ets"
+                          },
+                          "end": {
+                            "line": 18,
+                            "column": 9,
+                            "program": "optional_field_interfaceUnion.ets"
+                          }
+                        }
+                      }
+                    ],
+                    "loc": {
+                      "start": {
+                        "line": 18,
+                        "column": 4,
+                        "program": "optional_field_interfaceUnion.ets"
+                      },
+                      "end": {
+                        "line": 18,
+                        "column": 38,
+                        "program": "optional_field_interfaceUnion.ets"
+                      }
+                    }
+                  },
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 4,
+                      "program": "optional_field_interfaceUnion.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 38,
+                      "program": "optional_field_interfaceUnion.ets"
+                    }
+                  }
+                },
+                "overloads": [],
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 18,
+                    "column": 4,
+                    "program": "optional_field_interfaceUnion.ets"
+                  },
+                  "end": {
+                    "line": 18,
+                    "column": 38,
+                    "program": "optional_field_interfaceUnion.ets"
+                  }
+                }
+              }
+            ],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 18,
+                "column": 4,
+                "program": "optional_field_interfaceUnion.ets"
+              },
+              "end": {
+                "line": 18,
+                "column": 38,
+                "program": "optional_field_interfaceUnion.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 1,
+            "program": "optional_field_interfaceUnion.ets"
+          },
+          "end": {
+            "line": 19,
+            "column": 2,
+            "program": "optional_field_interfaceUnion.ets"
+          }
+        }
+      },
+      "id": {
+        "type": "Identifier",
+        "name": "I",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 11,
+            "program": "optional_field_interfaceUnion.ets"
+          },
+          "end": {
+            "line": 16,
+            "column": 12,
+            "program": "optional_field_interfaceUnion.ets"
+          }
+        }
+      },
+      "extends": [],
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 1,
+          "program": "optional_field_interfaceUnion.ets"
+        },
+        "end": {
+          "line": 21,
+          "column": 6,
+          "program": "optional_field_interfaceUnion.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "C",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 21,
+              "column": 7,
+              "program": "optional_field_interfaceUnion.ets"
+            },
+            "end": {
+              "line": 21,
+              "column": 8,
+              "program": "optional_field_interfaceUnion.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [
+          {
+            "type": "TSClassImplements",
+            "expression": {
+              "type": "ETSTypeReference",
+              "part": {
+                "type": "ETSTypeReferencePart",
+                "name": {
+                  "type": "Identifier",
+                  "name": "I",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 21,
+                      "column": 20,
+                      "program": "optional_field_interfaceUnion.ets"
+                    },
+                    "end": {
+                      "line": 21,
+                      "column": 21,
+                      "program": "optional_field_interfaceUnion.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 21,
+                    "column": 20,
+                    "program": "optional_field_interfaceUnion.ets"
+                  },
+                  "end": {
+                    "line": 22,
+                    "column": 2,
+                    "program": "optional_field_interfaceUnion.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 21,
+                  "column": 20,
+                  "program": "optional_field_interfaceUnion.ets"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 2,
+                  "program": "optional_field_interfaceUnion.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 21,
+                "column": 20,
+                "program": "optional_field_interfaceUnion.ets"
+              },
+              "end": {
+                "line": 22,
+                "column": 2,
+                "program": "optional_field_interfaceUnion.ets"
+              }
+            }
+          }
+        ],
+        "body": [
+          {
+            "type": "ClassProperty",
+            "key": {
+              "type": "Identifier",
+              "name": "field_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 23,
+                  "column": 4,
+                  "program": "optional_field_interfaceUnion.ets"
+                },
+                "end": {
+                  "line": 23,
+                  "column": 10,
+                  "program": "optional_field_interfaceUnion.ets"
+                }
+              }
+            },
+            "accessibility": "public",
+            "static": false,
+            "readonly": false,
+            "declare": false,
+            "optional": true,
+            "computed": false,
+            "typeAnnotation": {
+              "type": "ETSUnionType",
+              "types": [
+                {
+                  "type": "ETSTypeReference",
+                  "part": {
+                    "type": "ETSTypeReferencePart",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "Object",
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 23,
+                          "column": 14,
+                          "program": "optional_field_interfaceUnion.ets"
+                        },
+                        "end": {
+                          "line": 23,
+                          "column": 20,
+                          "program": "optional_field_interfaceUnion.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 23,
+                        "column": 14,
+                        "program": "optional_field_interfaceUnion.ets"
+                      },
+                      "end": {
+                        "line": 23,
+                        "column": 22,
+                        "program": "optional_field_interfaceUnion.ets"
+                      }
+                    }
+                  },
+                  "loc": {
+                    "start": {
+                      "line": 23,
+                      "column": 14,
+                      "program": "optional_field_interfaceUnion.ets"
+                    },
+                    "end": {
+                      "line": 23,
+                      "column": 22,
+                      "program": "optional_field_interfaceUnion.ets"
+                    }
+                  }
+                },
+                {
+                  "type": "ETSTypeReference",
+                  "part": {
+                    "type": "ETSTypeReferencePart",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "String",
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 23,
+                          "column": 23,
+                          "program": "optional_field_interfaceUnion.ets"
+                        },
+                        "end": {
+                          "line": 23,
+                          "column": 29,
+                          "program": "optional_field_interfaceUnion.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 23,
+                        "column": 23,
+                        "program": "optional_field_interfaceUnion.ets"
+                      },
+                      "end": {
+                        "line": 23,
+                        "column": 30,
+                        "program": "optional_field_interfaceUnion.ets"
+                      }
+                    }
+                  },
+                  "loc": {
+                    "start": {
+                      "line": 23,
+                      "column": 23,
+                      "program": "optional_field_interfaceUnion.ets"
+                    },
+                    "end": {
+                      "line": 23,
+                      "column": 30,
+                      "program": "optional_field_interfaceUnion.ets"
+                    }
+                  }
+                },
+                {
+                  "type": "ETSUndefinedType",
+                  "loc": {
+                    "start": {
+                      "line": 23,
+                      "column": 14,
+                      "program": "optional_field_interfaceUnion.ets"
+                    },
+                    "end": {
+                      "line": 23,
+                      "column": 30,
+                      "program": "optional_field_interfaceUnion.ets"
+                    }
+                  }
+                }
+              ],
+              "loc": {
+                "start": {
+                  "line": 23,
+                  "column": 14,
+                  "program": "optional_field_interfaceUnion.ets"
+                },
+                "end": {
+                  "line": 23,
+                  "column": 30,
+                  "program": "optional_field_interfaceUnion.ets"
+                }
+              }
+            },
+            "definite": false,
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 23,
+                "column": 4,
+                "program": "optional_field_interfaceUnion.ets"
+              },
+              "end": {
+                "line": 23,
+                "column": 30,
+                "program": "optional_field_interfaceUnion.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "field",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 25,
+                  "column": 8,
+                  "program": "optional_field_interfaceUnion.ets"
+                },
+                "end": {
+                  "line": 25,
+                  "column": 13,
+                  "program": "optional_field_interfaceUnion.ets"
+                }
+              }
+            },
+            "kind": "get",
+            "accessibility": "public",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "field",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 25,
+                      "column": 8,
+                      "program": "optional_field_interfaceUnion.ets"
+                    },
+                    "end": {
+                      "line": 25,
+                      "column": 13,
+                      "program": "optional_field_interfaceUnion.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSUnionType",
+                  "types": [
+                    {
+                      "type": "ETSTypeReference",
+                      "part": {
+                        "type": "ETSTypeReferencePart",
+                        "name": {
+                          "type": "Identifier",
+                          "name": "Object",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 25,
+                              "column": 18,
+                              "program": "optional_field_interfaceUnion.ets"
+                            },
+                            "end": {
+                              "line": 25,
+                              "column": 24,
+                              "program": "optional_field_interfaceUnion.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 25,
+                            "column": 18,
+                            "program": "optional_field_interfaceUnion.ets"
+                          },
+                          "end": {
+                            "line": 25,
+                            "column": 26,
+                            "program": "optional_field_interfaceUnion.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 25,
+                          "column": 18,
+                          "program": "optional_field_interfaceUnion.ets"
+                        },
+                        "end": {
+                          "line": 25,
+                          "column": 26,
+                          "program": "optional_field_interfaceUnion.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ETSTypeReference",
+                      "part": {
+                        "type": "ETSTypeReferencePart",
+                        "name": {
+                          "type": "Identifier",
+                          "name": "String",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 25,
+                              "column": 27,
+                              "program": "optional_field_interfaceUnion.ets"
+                            },
+                            "end": {
+                              "line": 25,
+                              "column": 33,
+                              "program": "optional_field_interfaceUnion.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 25,
+                            "column": 27,
+                            "program": "optional_field_interfaceUnion.ets"
+                          },
+                          "end": {
+                            "line": 25,
+                            "column": 35,
+                            "program": "optional_field_interfaceUnion.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 25,
+                          "column": 27,
+                          "program": "optional_field_interfaceUnion.ets"
+                        },
+                        "end": {
+                          "line": 25,
+                          "column": 35,
+                          "program": "optional_field_interfaceUnion.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ETSUndefinedType",
+                      "loc": {
+                        "start": {
+                          "line": 25,
+                          "column": 36,
+                          "program": "optional_field_interfaceUnion.ets"
+                        },
+                        "end": {
+                          "line": 25,
+                          "column": 45,
+                          "program": "optional_field_interfaceUnion.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 25,
+                      "column": 18,
+                      "program": "optional_field_interfaceUnion.ets"
+                    },
+                    "end": {
+                      "line": 25,
+                      "column": 45,
+                      "program": "optional_field_interfaceUnion.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "ReturnStatement",
+                      "argument": {
+                        "type": "MemberExpression",
+                        "object": {
+                          "type": "ThisExpression",
+                          "loc": {
+                            "start": {
+                              "line": 26,
+                              "column": 14,
+                              "program": "optional_field_interfaceUnion.ets"
+                            },
+                            "end": {
+                              "line": 26,
+                              "column": 18,
+                              "program": "optional_field_interfaceUnion.ets"
+                            }
+                          }
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "name": "field_",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 26,
+                              "column": 19,
+                              "program": "optional_field_interfaceUnion.ets"
+                            },
+                            "end": {
+                              "line": 26,
+                              "column": 25,
+                              "program": "optional_field_interfaceUnion.ets"
+                            }
+                          }
+                        },
+                        "computed": false,
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 26,
+                            "column": 14,
+                            "program": "optional_field_interfaceUnion.ets"
+                          },
+                          "end": {
+                            "line": 26,
+                            "column": 25,
+                            "program": "optional_field_interfaceUnion.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 26,
+                          "column": 7,
+                          "program": "optional_field_interfaceUnion.ets"
+                        },
+                        "end": {
+                          "line": 26,
+                          "column": 26,
+                          "program": "optional_field_interfaceUnion.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 25,
+                      "column": 46,
+                      "program": "optional_field_interfaceUnion.ets"
+                    },
+                    "end": {
+                      "line": 27,
+                      "column": 5,
+                      "program": "optional_field_interfaceUnion.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 25,
+                    "column": 13,
+                    "program": "optional_field_interfaceUnion.ets"
+                  },
+                  "end": {
+                    "line": 27,
+                    "column": 5,
+                    "program": "optional_field_interfaceUnion.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 25,
+                  "column": 13,
+                  "program": "optional_field_interfaceUnion.ets"
+                },
+                "end": {
+                  "line": 27,
+                  "column": 5,
+                  "program": "optional_field_interfaceUnion.ets"
+                }
+              }
+            },
+            "overloads": [
+              {
+                "type": "MethodDefinition",
+                "key": {
+                  "type": "Identifier",
+                  "name": "field",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 29,
+                      "column": 8,
+                      "program": "optional_field_interfaceUnion.ets"
+                    },
+                    "end": {
+                      "line": 29,
+                      "column": 13,
+                      "program": "optional_field_interfaceUnion.ets"
+                    }
+                  }
+                },
+                "kind": "set",
+                "accessibility": "public",
+                "static": false,
+                "optional": false,
+                "computed": false,
+                "value": {
+                  "type": "FunctionExpression",
+                  "function": {
+                    "type": "ScriptFunction",
+                    "id": {
+                      "type": "Identifier",
+                      "name": "field",
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 29,
+                          "column": 8,
+                          "program": "optional_field_interfaceUnion.ets"
+                        },
+                        "end": {
+                          "line": 29,
+                          "column": 13,
+                          "program": "optional_field_interfaceUnion.ets"
+                        }
+                      }
+                    },
+                    "generator": false,
+                    "async": false,
+                    "expression": false,
+                    "params": [
+                      {
+                        "type": "ETSParameterExpression",
+                        "name": {
+                          "type": "Identifier",
+                          "name": "o",
+                          "typeAnnotation": {
+                            "type": "ETSUnionType",
+                            "types": [
+                              {
+                                "type": "ETSTypeReference",
+                                "part": {
+                                  "type": "ETSTypeReferencePart",
+                                  "name": {
+                                    "type": "Identifier",
+                                    "name": "Object",
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 29,
+                                        "column": 18,
+                                        "program": "optional_field_interfaceUnion.ets"
+                                      },
+                                      "end": {
+                                        "line": 29,
+                                        "column": 24,
+                                        "program": "optional_field_interfaceUnion.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 29,
+                                      "column": 18,
+                                      "program": "optional_field_interfaceUnion.ets"
+                                    },
+                                    "end": {
+                                      "line": 29,
+                                      "column": 26,
+                                      "program": "optional_field_interfaceUnion.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 29,
+                                    "column": 18,
+                                    "program": "optional_field_interfaceUnion.ets"
+                                  },
+                                  "end": {
+                                    "line": 29,
+                                    "column": 26,
+                                    "program": "optional_field_interfaceUnion.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "ETSTypeReference",
+                                "part": {
+                                  "type": "ETSTypeReferencePart",
+                                  "name": {
+                                    "type": "Identifier",
+                                    "name": "String",
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 29,
+                                        "column": 27,
+                                        "program": "optional_field_interfaceUnion.ets"
+                                      },
+                                      "end": {
+                                        "line": 29,
+                                        "column": 33,
+                                        "program": "optional_field_interfaceUnion.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 29,
+                                      "column": 27,
+                                      "program": "optional_field_interfaceUnion.ets"
+                                    },
+                                    "end": {
+                                      "line": 29,
+                                      "column": 35,
+                                      "program": "optional_field_interfaceUnion.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 29,
+                                    "column": 27,
+                                    "program": "optional_field_interfaceUnion.ets"
+                                  },
+                                  "end": {
+                                    "line": 29,
+                                    "column": 35,
+                                    "program": "optional_field_interfaceUnion.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "ETSUndefinedType",
+                                "loc": {
+                                  "start": {
+                                    "line": 29,
+                                    "column": 36,
+                                    "program": "optional_field_interfaceUnion.ets"
+                                  },
+                                  "end": {
+                                    "line": 29,
+                                    "column": 45,
+                                    "program": "optional_field_interfaceUnion.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "loc": {
+                              "start": {
+                                "line": 29,
+                                "column": 18,
+                                "program": "optional_field_interfaceUnion.ets"
+                              },
+                              "end": {
+                                "line": 29,
+                                "column": 45,
+                                "program": "optional_field_interfaceUnion.ets"
+                              }
+                            }
+                          },
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 29,
+                              "column": 14,
+                              "program": "optional_field_interfaceUnion.ets"
+                            },
+                            "end": {
+                              "line": 29,
+                              "column": 45,
+                              "program": "optional_field_interfaceUnion.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 29,
+                            "column": 14,
+                            "program": "optional_field_interfaceUnion.ets"
+                          },
+                          "end": {
+                            "line": 29,
+                            "column": 45,
+                            "program": "optional_field_interfaceUnion.ets"
+                          }
+                        }
+                      }
+                    ],
+                    "body": {
+                      "type": "BlockStatement",
+                      "statements": [
+                        {
+                          "type": "ExpressionStatement",
+                          "expression": {
+                            "type": "AssignmentExpression",
+                            "operator": "=",
+                            "left": {
+                              "type": "MemberExpression",
+                              "object": {
+                                "type": "ThisExpression",
+                                "loc": {
+                                  "start": {
+                                    "line": 30,
+                                    "column": 7,
+                                    "program": "optional_field_interfaceUnion.ets"
+                                  },
+                                  "end": {
+                                    "line": 30,
+                                    "column": 11,
+                                    "program": "optional_field_interfaceUnion.ets"
+                                  }
+                                }
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "field_",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 30,
+                                    "column": 12,
+                                    "program": "optional_field_interfaceUnion.ets"
+                                  },
+                                  "end": {
+                                    "line": 30,
+                                    "column": 18,
+                                    "program": "optional_field_interfaceUnion.ets"
+                                  }
+                                }
+                              },
+                              "computed": false,
+                              "optional": false,
+                              "loc": {
+                                "start": {
+                                  "line": 30,
+                                  "column": 7,
+                                  "program": "optional_field_interfaceUnion.ets"
+                                },
+                                "end": {
+                                  "line": 30,
+                                  "column": 18,
+                                  "program": "optional_field_interfaceUnion.ets"
+                                }
+                              }
+                            },
+                            "right": {
+                              "type": "Identifier",
+                              "name": "o",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 30,
+                                  "column": 21,
+                                  "program": "optional_field_interfaceUnion.ets"
+                                },
+                                "end": {
+                                  "line": 30,
+                                  "column": 22,
+                                  "program": "optional_field_interfaceUnion.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 30,
+                                "column": 7,
+                                "program": "optional_field_interfaceUnion.ets"
+                              },
+                              "end": {
+                                "line": 30,
+                                "column": 22,
+                                "program": "optional_field_interfaceUnion.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 30,
+                              "column": 7,
+                              "program": "optional_field_interfaceUnion.ets"
+                            },
+                            "end": {
+                              "line": 30,
+                              "column": 23,
+                              "program": "optional_field_interfaceUnion.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "loc": {
+                        "start": {
+                          "line": 29,
+                          "column": 47,
+                          "program": "optional_field_interfaceUnion.ets"
+                        },
+                        "end": {
+                          "line": 31,
+                          "column": 5,
+                          "program": "optional_field_interfaceUnion.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 29,
+                        "column": 13,
+                        "program": "optional_field_interfaceUnion.ets"
+                      },
+                      "end": {
+                        "line": 31,
+                        "column": 5,
+                        "program": "optional_field_interfaceUnion.ets"
+                      }
+                    }
+                  },
+                  "loc": {
+                    "start": {
+                      "line": 29,
+                      "column": 13,
+                      "program": "optional_field_interfaceUnion.ets"
+                    },
+                    "end": {
+                      "line": 31,
+                      "column": 5,
+                      "program": "optional_field_interfaceUnion.ets"
+                    }
+                  }
+                },
+                "overloads": [],
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 29,
+                    "column": 4,
+                    "program": "optional_field_interfaceUnion.ets"
+                  },
+                  "end": {
+                    "line": 31,
+                    "column": 5,
+                    "program": "optional_field_interfaceUnion.ets"
+                  }
+                }
+              }
+            ],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 25,
+                "column": 4,
+                "program": "optional_field_interfaceUnion.ets"
+              },
+              "end": {
+                "line": 27,
+                "column": 5,
+                "program": "optional_field_interfaceUnion.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 22,
+                  "column": 2,
+                  "program": "optional_field_interfaceUnion.ets"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 2,
+                  "program": "optional_field_interfaceUnion.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 22,
+                      "column": 2,
+                      "program": "optional_field_interfaceUnion.ets"
+                    },
+                    "end": {
+                      "line": 22,
+                      "column": 2,
+                      "program": "optional_field_interfaceUnion.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 22,
+                      "column": 2,
+                      "program": "optional_field_interfaceUnion.ets"
+                    },
+                    "end": {
+                      "line": 22,
+                      "column": 2,
+                      "program": "optional_field_interfaceUnion.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 22,
+                    "column": 2,
+                    "program": "optional_field_interfaceUnion.ets"
+                  },
+                  "end": {
+                    "line": 22,
+                    "column": 2,
+                    "program": "optional_field_interfaceUnion.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 22,
+                  "column": 2,
+                  "program": "optional_field_interfaceUnion.ets"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 2,
+                  "program": "optional_field_interfaceUnion.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 22,
+            "column": 1,
+            "program": "optional_field_interfaceUnion.ets"
+          },
+          "end": {
+            "line": 33,
+            "column": 1,
+            "program": "optional_field_interfaceUnion.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 21,
+          "column": 1,
+          "program": "optional_field_interfaceUnion.ets"
+        },
+        "end": {
+          "line": 33,
+          "column": 1,
+          "program": "optional_field_interfaceUnion.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "optional_field_interfaceUnion.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "optional_field_interfaceUnion.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "optional_field_interfaceUnion.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "optional_field_interfaceUnion.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "optional_field_interfaceUnion.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "optional_field_interfaceUnion.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "optional_field_interfaceUnion.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "optional_field_interfaceUnion.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "optional_field_interfaceUnion.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "optional_field_interfaceUnion.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "optional_field_interfaceUnion.ets"
+    },
+    "end": {
+      "line": 33,
+      "column": 1,
+      "program": "optional_field_interfaceUnion.ets"
+    }
+  }
+}

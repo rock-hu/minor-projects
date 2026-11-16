@@ -1,0 +1,4245 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "C",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 16,
+              "column": 7,
+              "program": "lambda_unresolved_ref_1.ets"
+            },
+            "end": {
+              "line": 16,
+              "column": 8,
+              "program": "lambda_unresolved_ref_1.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "foo",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 12,
+                  "program": "lambda_unresolved_ref_1.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 15,
+                  "program": "lambda_unresolved_ref_1.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "foo",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 12,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 15,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "fn",
+                      "typeAnnotation": {
+                        "type": "ETSFunctionType",
+                        "params": [],
+                        "returnType": {
+                          "type": "ETSPrimitiveType",
+                          "loc": {
+                            "start": {
+                              "line": 17,
+                              "column": 26,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 17,
+                              "column": 30,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 17,
+                            "column": 20,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 17,
+                            "column": 30,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 17,
+                          "column": 16,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        },
+                        "end": {
+                          "line": 17,
+                          "column": 30,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 17,
+                        "column": 16,
+                        "program": "lambda_unresolved_ref_1.ets"
+                      },
+                      "end": {
+                        "line": 17,
+                        "column": 30,
+                        "program": "lambda_unresolved_ref_1.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 33,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 37,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "bar",
+                            "typeAnnotation": {
+                              "type": "ETSFunctionType",
+                              "params": [],
+                              "returnType": {
+                                "type": "ETSPrimitiveType",
+                                "loc": {
+                                  "start": {
+                                    "line": 18,
+                                    "column": 25,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 18,
+                                    "column": 29,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 18,
+                                  "column": 19,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 18,
+                                  "column": 29,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 18,
+                                "column": 14,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 18,
+                                "column": 17,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "ArrowFunctionExpression",
+                            "function": {
+                              "type": "ScriptFunction",
+                              "id": null,
+                              "generator": false,
+                              "async": false,
+                              "expression": false,
+                              "params": [],
+                              "returnType": {
+                                "type": "ETSPrimitiveType",
+                                "loc": {
+                                  "start": {
+                                    "line": 18,
+                                    "column": 36,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 18,
+                                    "column": 40,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              "body": {
+                                "type": "BlockStatement",
+                                "statements": [
+                                  {
+                                    "type": "ExpressionStatement",
+                                    "expression": {
+                                      "type": "CallExpression",
+                                      "callee": {
+                                        "type": "Identifier",
+                                        "name": "fn",
+                                        "decorators": [],
+                                        "loc": {
+                                          "start": {
+                                            "line": 18,
+                                            "column": 46,
+                                            "program": "lambda_unresolved_ref_1.ets"
+                                          },
+                                          "end": {
+                                            "line": 18,
+                                            "column": 48,
+                                            "program": "lambda_unresolved_ref_1.ets"
+                                          }
+                                        }
+                                      },
+                                      "arguments": [],
+                                      "optional": false,
+                                      "loc": {
+                                        "start": {
+                                          "line": 18,
+                                          "column": 46,
+                                          "program": "lambda_unresolved_ref_1.ets"
+                                        },
+                                        "end": {
+                                          "line": 18,
+                                          "column": 50,
+                                          "program": "lambda_unresolved_ref_1.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 18,
+                                        "column": 46,
+                                        "program": "lambda_unresolved_ref_1.ets"
+                                      },
+                                      "end": {
+                                        "line": 18,
+                                        "column": 50,
+                                        "program": "lambda_unresolved_ref_1.ets"
+                                      }
+                                    }
+                                  }
+                                ],
+                                "loc": {
+                                  "start": {
+                                    "line": 18,
+                                    "column": 44,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 18,
+                                    "column": 53,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 18,
+                                  "column": 32,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 18,
+                                  "column": 53,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 18,
+                                "column": 32,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 18,
+                                "column": 53,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 18,
+                              "column": 14,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 18,
+                              "column": 53,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 18,
+                          "column": 10,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        },
+                        "end": {
+                          "line": 18,
+                          "column": 53,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ForUpdateStatement",
+                      "init": {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                          {
+                            "type": "VariableDeclarator",
+                            "id": {
+                              "type": "Identifier",
+                              "name": "j",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 19,
+                                  "column": 19,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 19,
+                                  "column": 20,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "init": {
+                              "type": "NumberLiteral",
+                              "value": 0,
+                              "loc": {
+                                "start": {
+                                  "line": 19,
+                                  "column": 23,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 19,
+                                  "column": 24,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 19,
+                                "column": 19,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 19,
+                                "column": 24,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "kind": "let",
+                        "loc": {
+                          "start": {
+                            "line": 19,
+                            "column": 15,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 19,
+                            "column": 24,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "test": {
+                        "type": "BinaryExpression",
+                        "operator": "<",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "j",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 19,
+                              "column": 26,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 19,
+                              "column": 27,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "NumberLiteral",
+                          "value": 1,
+                          "loc": {
+                            "start": {
+                              "line": 19,
+                              "column": 30,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 19,
+                              "column": 31,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 19,
+                            "column": 26,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 19,
+                            "column": 31,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "update": {
+                        "type": "UpdateExpression",
+                        "operator": "++",
+                        "prefix": true,
+                        "argument": {
+                          "type": "Identifier",
+                          "name": "j",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 19,
+                              "column": 35,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 19,
+                              "column": 36,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 19,
+                            "column": 33,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 19,
+                            "column": 36,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "body": {
+                        "type": "BlockStatement",
+                        "statements": [],
+                        "loc": {
+                          "start": {
+                            "line": 19,
+                            "column": 38,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 19,
+                            "column": 40,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 19,
+                          "column": 10,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        },
+                        "end": {
+                          "line": 19,
+                          "column": 40,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 38,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 6,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 15,
+                    "program": "lambda_unresolved_ref_1.ets"
+                  },
+                  "end": {
+                    "line": 20,
+                    "column": 6,
+                    "program": "lambda_unresolved_ref_1.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 15,
+                  "program": "lambda_unresolved_ref_1.ets"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 6,
+                  "program": "lambda_unresolved_ref_1.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 5,
+                "program": "lambda_unresolved_ref_1.ets"
+              },
+              "end": {
+                "line": 20,
+                "column": 6,
+                "program": "lambda_unresolved_ref_1.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "lambda_unresolved_ref_1.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "lambda_unresolved_ref_1.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 10,
+                    "program": "lambda_unresolved_ref_1.ets"
+                  },
+                  "end": {
+                    "line": 16,
+                    "column": 10,
+                    "program": "lambda_unresolved_ref_1.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "lambda_unresolved_ref_1.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "lambda_unresolved_ref_1.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 9,
+            "program": "lambda_unresolved_ref_1.ets"
+          },
+          "end": {
+            "line": 23,
+            "column": 9,
+            "program": "lambda_unresolved_ref_1.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 1,
+          "program": "lambda_unresolved_ref_1.ets"
+        },
+        "end": {
+          "line": 23,
+          "column": 9,
+          "program": "lambda_unresolved_ref_1.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "lambda_unresolved_ref_1.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "lambda_unresolved_ref_1.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "lambda_unresolved_ref_1.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "lambda_unresolved_ref_1.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "foo",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 23,
+                  "column": 10,
+                  "program": "lambda_unresolved_ref_1.ets"
+                },
+                "end": {
+                  "line": 23,
+                  "column": 13,
+                  "program": "lambda_unresolved_ref_1.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "foo",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 23,
+                      "column": 10,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    },
+                    "end": {
+                      "line": 23,
+                      "column": 13,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "arr",
+                      "typeAnnotation": {
+                        "type": "ETSTypeReference",
+                        "part": {
+                          "type": "ETSTypeReferencePart",
+                          "name": {
+                            "type": "Identifier",
+                            "name": "Array",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 1,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 3,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          },
+                          "typeParams": {
+                            "type": "TSTypeParameterInstantiation",
+                            "params": [
+                              {
+                                "type": "ETSTypeReference",
+                                "part": {
+                                  "type": "ETSTypeReferencePart",
+                                  "name": {
+                                    "type": "Identifier",
+                                    "name": "Object",
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 1,
+                                        "column": 3,
+                                        "program": "lambda_unresolved_ref_1.ets"
+                                      },
+                                      "end": {
+                                        "line": 1,
+                                        "column": 3,
+                                        "program": "lambda_unresolved_ref_1.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 1,
+                                      "column": 3,
+                                      "program": "lambda_unresolved_ref_1.ets"
+                                    },
+                                    "end": {
+                                      "line": 1,
+                                      "column": 3,
+                                      "program": "lambda_unresolved_ref_1.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 3,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 3,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 3,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 3,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 1,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 3,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 23,
+                            "column": 25,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 23,
+                            "column": 27,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 23,
+                          "column": 14,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        },
+                        "end": {
+                          "line": 23,
+                          "column": 27,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 23,
+                        "column": 14,
+                        "program": "lambda_unresolved_ref_1.ets"
+                      },
+                      "end": {
+                        "line": 23,
+                        "column": 27,
+                        "program": "lambda_unresolved_ref_1.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 23,
+                      "column": 30,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    },
+                    "end": {
+                      "line": 23,
+                      "column": 34,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "copy",
+                            "typeAnnotation": {
+                              "type": "ETSFunctionType",
+                              "params": [],
+                              "returnType": {
+                                "type": "ETSPrimitiveType",
+                                "loc": {
+                                  "start": {
+                                    "line": 24,
+                                    "column": 20,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 24,
+                                    "column": 24,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 24,
+                                  "column": 14,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 24,
+                                  "column": 24,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 24,
+                                "column": 8,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 24,
+                                "column": 12,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "ArrowFunctionExpression",
+                            "function": {
+                              "type": "ScriptFunction",
+                              "id": null,
+                              "generator": false,
+                              "async": false,
+                              "expression": false,
+                              "params": [],
+                              "returnType": {
+                                "type": "ETSPrimitiveType",
+                                "loc": {
+                                  "start": {
+                                    "line": 24,
+                                    "column": 31,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 24,
+                                    "column": 35,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              "body": {
+                                "type": "BlockStatement",
+                                "statements": [
+                                  {
+                                    "type": "VariableDeclaration",
+                                    "declarations": [
+                                      {
+                                        "type": "VariableDeclarator",
+                                        "id": {
+                                          "type": "Identifier",
+                                          "name": "c",
+                                          "decorators": [],
+                                          "loc": {
+                                            "start": {
+                                              "line": 25,
+                                              "column": 7,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            },
+                                            "end": {
+                                              "line": 25,
+                                              "column": 8,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            }
+                                          }
+                                        },
+                                        "init": {
+                                          "type": "MemberExpression",
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "arr",
+                                            "decorators": [],
+                                            "loc": {
+                                              "start": {
+                                                "line": 25,
+                                                "column": 11,
+                                                "program": "lambda_unresolved_ref_1.ets"
+                                              },
+                                              "end": {
+                                                "line": 25,
+                                                "column": 14,
+                                                "program": "lambda_unresolved_ref_1.ets"
+                                              }
+                                            }
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "length",
+                                            "decorators": [],
+                                            "loc": {
+                                              "start": {
+                                                "line": 25,
+                                                "column": 15,
+                                                "program": "lambda_unresolved_ref_1.ets"
+                                              },
+                                              "end": {
+                                                "line": 25,
+                                                "column": 21,
+                                                "program": "lambda_unresolved_ref_1.ets"
+                                              }
+                                            }
+                                          },
+                                          "computed": false,
+                                          "optional": false,
+                                          "loc": {
+                                            "start": {
+                                              "line": 25,
+                                              "column": 11,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            },
+                                            "end": {
+                                              "line": 25,
+                                              "column": 21,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            }
+                                          }
+                                        },
+                                        "loc": {
+                                          "start": {
+                                            "line": 25,
+                                            "column": 7,
+                                            "program": "lambda_unresolved_ref_1.ets"
+                                          },
+                                          "end": {
+                                            "line": 25,
+                                            "column": 21,
+                                            "program": "lambda_unresolved_ref_1.ets"
+                                          }
+                                        }
+                                      }
+                                    ],
+                                    "kind": "let",
+                                    "loc": {
+                                      "start": {
+                                        "line": 25,
+                                        "column": 3,
+                                        "program": "lambda_unresolved_ref_1.ets"
+                                      },
+                                      "end": {
+                                        "line": 25,
+                                        "column": 21,
+                                        "program": "lambda_unresolved_ref_1.ets"
+                                      }
+                                    }
+                                  }
+                                ],
+                                "loc": {
+                                  "start": {
+                                    "line": 24,
+                                    "column": 39,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 26,
+                                    "column": 3,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 24,
+                                  "column": 27,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 26,
+                                  "column": 3,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 24,
+                                "column": 27,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 26,
+                                "column": 3,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 24,
+                              "column": 8,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 26,
+                              "column": 3,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "const",
+                      "loc": {
+                        "start": {
+                          "line": 24,
+                          "column": 2,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        },
+                        "end": {
+                          "line": 26,
+                          "column": 3,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ForUpdateStatement",
+                      "init": {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                          {
+                            "type": "VariableDeclarator",
+                            "id": {
+                              "type": "Identifier",
+                              "name": "s",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 27,
+                                  "column": 11,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 27,
+                                  "column": 12,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "init": {
+                              "type": "NumberLiteral",
+                              "value": 1,
+                              "loc": {
+                                "start": {
+                                  "line": 27,
+                                  "column": 15,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 27,
+                                  "column": 16,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 27,
+                                "column": 11,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 27,
+                                "column": 16,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "kind": "let",
+                        "loc": {
+                          "start": {
+                            "line": 27,
+                            "column": 7,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 27,
+                            "column": 16,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "test": {
+                        "type": "BinaryExpression",
+                        "operator": "<",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "s",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 27,
+                              "column": 18,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 27,
+                              "column": 19,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "NumberLiteral",
+                          "value": 10,
+                          "loc": {
+                            "start": {
+                              "line": 27,
+                              "column": 22,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 27,
+                              "column": 24,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 27,
+                            "column": 18,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 27,
+                            "column": 24,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "update": {
+                        "type": "UpdateExpression",
+                        "operator": "++",
+                        "prefix": false,
+                        "argument": {
+                          "type": "Identifier",
+                          "name": "s",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 27,
+                              "column": 26,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 27,
+                              "column": 27,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 27,
+                            "column": 26,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 27,
+                            "column": 29,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "body": {
+                        "type": "BlockStatement",
+                        "statements": [],
+                        "loc": {
+                          "start": {
+                            "line": 27,
+                            "column": 31,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 27,
+                            "column": 33,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 27,
+                          "column": 2,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        },
+                        "end": {
+                          "line": 27,
+                          "column": 33,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 23,
+                      "column": 35,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    },
+                    "end": {
+                      "line": 28,
+                      "column": 2,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 23,
+                    "column": 10,
+                    "program": "lambda_unresolved_ref_1.ets"
+                  },
+                  "end": {
+                    "line": 28,
+                    "column": 2,
+                    "program": "lambda_unresolved_ref_1.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 23,
+                  "column": 10,
+                  "program": "lambda_unresolved_ref_1.ets"
+                },
+                "end": {
+                  "line": 28,
+                  "column": 2,
+                  "program": "lambda_unresolved_ref_1.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 23,
+                "column": 1,
+                "program": "lambda_unresolved_ref_1.ets"
+              },
+              "end": {
+                "line": 28,
+                "column": 2,
+                "program": "lambda_unresolved_ref_1.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "foo2",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 30,
+                  "column": 10,
+                  "program": "lambda_unresolved_ref_1.ets"
+                },
+                "end": {
+                  "line": 30,
+                  "column": 14,
+                  "program": "lambda_unresolved_ref_1.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "foo2",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 30,
+                      "column": 10,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    },
+                    "end": {
+                      "line": 30,
+                      "column": 14,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "arr",
+                      "typeAnnotation": {
+                        "type": "ETSTypeReference",
+                        "part": {
+                          "type": "ETSTypeReferencePart",
+                          "name": {
+                            "type": "Identifier",
+                            "name": "Array",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 1,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 3,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          },
+                          "typeParams": {
+                            "type": "TSTypeParameterInstantiation",
+                            "params": [
+                              {
+                                "type": "ETSTypeReference",
+                                "part": {
+                                  "type": "ETSTypeReferencePart",
+                                  "name": {
+                                    "type": "Identifier",
+                                    "name": "Object",
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 1,
+                                        "column": 3,
+                                        "program": "lambda_unresolved_ref_1.ets"
+                                      },
+                                      "end": {
+                                        "line": 1,
+                                        "column": 3,
+                                        "program": "lambda_unresolved_ref_1.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 1,
+                                      "column": 3,
+                                      "program": "lambda_unresolved_ref_1.ets"
+                                    },
+                                    "end": {
+                                      "line": 1,
+                                      "column": 3,
+                                      "program": "lambda_unresolved_ref_1.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 3,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 3,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 3,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 3,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 1,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 3,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 30,
+                            "column": 26,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 30,
+                            "column": 28,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 30,
+                          "column": 15,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        },
+                        "end": {
+                          "line": 30,
+                          "column": 28,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 30,
+                        "column": 15,
+                        "program": "lambda_unresolved_ref_1.ets"
+                      },
+                      "end": {
+                        "line": 30,
+                        "column": 28,
+                        "program": "lambda_unresolved_ref_1.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 30,
+                      "column": 31,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    },
+                    "end": {
+                      "line": 30,
+                      "column": 35,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "copy",
+                            "typeAnnotation": {
+                              "type": "ETSFunctionType",
+                              "params": [],
+                              "returnType": {
+                                "type": "ETSPrimitiveType",
+                                "loc": {
+                                  "start": {
+                                    "line": 31,
+                                    "column": 20,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 31,
+                                    "column": 24,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 31,
+                                  "column": 14,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 31,
+                                  "column": 24,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 31,
+                                "column": 8,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 31,
+                                "column": 12,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "ArrowFunctionExpression",
+                            "function": {
+                              "type": "ScriptFunction",
+                              "id": null,
+                              "generator": false,
+                              "async": false,
+                              "expression": false,
+                              "params": [],
+                              "returnType": {
+                                "type": "ETSPrimitiveType",
+                                "loc": {
+                                  "start": {
+                                    "line": 31,
+                                    "column": 31,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 31,
+                                    "column": 35,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              "body": {
+                                "type": "BlockStatement",
+                                "statements": [
+                                  {
+                                    "type": "VariableDeclaration",
+                                    "declarations": [
+                                      {
+                                        "type": "VariableDeclarator",
+                                        "id": {
+                                          "type": "Identifier",
+                                          "name": "c",
+                                          "decorators": [],
+                                          "loc": {
+                                            "start": {
+                                              "line": 32,
+                                              "column": 7,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            },
+                                            "end": {
+                                              "line": 32,
+                                              "column": 8,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            }
+                                          }
+                                        },
+                                        "init": {
+                                          "type": "MemberExpression",
+                                          "object": {
+                                            "type": "Identifier",
+                                            "name": "arr",
+                                            "decorators": [],
+                                            "loc": {
+                                              "start": {
+                                                "line": 32,
+                                                "column": 11,
+                                                "program": "lambda_unresolved_ref_1.ets"
+                                              },
+                                              "end": {
+                                                "line": 32,
+                                                "column": 14,
+                                                "program": "lambda_unresolved_ref_1.ets"
+                                              }
+                                            }
+                                          },
+                                          "property": {
+                                            "type": "Identifier",
+                                            "name": "length",
+                                            "decorators": [],
+                                            "loc": {
+                                              "start": {
+                                                "line": 32,
+                                                "column": 15,
+                                                "program": "lambda_unresolved_ref_1.ets"
+                                              },
+                                              "end": {
+                                                "line": 32,
+                                                "column": 21,
+                                                "program": "lambda_unresolved_ref_1.ets"
+                                              }
+                                            }
+                                          },
+                                          "computed": false,
+                                          "optional": false,
+                                          "loc": {
+                                            "start": {
+                                              "line": 32,
+                                              "column": 11,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            },
+                                            "end": {
+                                              "line": 32,
+                                              "column": 21,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            }
+                                          }
+                                        },
+                                        "loc": {
+                                          "start": {
+                                            "line": 32,
+                                            "column": 7,
+                                            "program": "lambda_unresolved_ref_1.ets"
+                                          },
+                                          "end": {
+                                            "line": 32,
+                                            "column": 21,
+                                            "program": "lambda_unresolved_ref_1.ets"
+                                          }
+                                        }
+                                      }
+                                    ],
+                                    "kind": "let",
+                                    "loc": {
+                                      "start": {
+                                        "line": 32,
+                                        "column": 3,
+                                        "program": "lambda_unresolved_ref_1.ets"
+                                      },
+                                      "end": {
+                                        "line": 32,
+                                        "column": 21,
+                                        "program": "lambda_unresolved_ref_1.ets"
+                                      }
+                                    }
+                                  }
+                                ],
+                                "loc": {
+                                  "start": {
+                                    "line": 31,
+                                    "column": 39,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 33,
+                                    "column": 3,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 31,
+                                  "column": 27,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 33,
+                                  "column": 3,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 31,
+                                "column": 27,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 33,
+                                "column": 3,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 31,
+                              "column": 8,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 33,
+                              "column": 3,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "const",
+                      "loc": {
+                        "start": {
+                          "line": 31,
+                          "column": 2,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        },
+                        "end": {
+                          "line": 33,
+                          "column": 3,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "s",
+                            "typeAnnotation": {
+                              "type": "ETSPrimitiveType",
+                              "loc": {
+                                "start": {
+                                  "line": 34,
+                                  "column": 9,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 34,
+                                  "column": 12,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 34,
+                                "column": 6,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 34,
+                                "column": 7,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          },
+                          "init": null,
+                          "loc": {
+                            "start": {
+                              "line": 34,
+                              "column": 6,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 34,
+                              "column": 7,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 34,
+                          "column": 2,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        },
+                        "end": {
+                          "line": 34,
+                          "column": 7,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ForUpdateStatement",
+                      "init": {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                          {
+                            "type": "VariableDeclarator",
+                            "id": {
+                              "type": "Identifier",
+                              "name": "s",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 35,
+                                  "column": 11,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 35,
+                                  "column": 12,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "init": {
+                              "type": "NumberLiteral",
+                              "value": 1,
+                              "loc": {
+                                "start": {
+                                  "line": 35,
+                                  "column": 15,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 35,
+                                  "column": 16,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 35,
+                                "column": 11,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 35,
+                                "column": 16,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "kind": "let",
+                        "loc": {
+                          "start": {
+                            "line": 35,
+                            "column": 7,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 35,
+                            "column": 16,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "test": {
+                        "type": "BinaryExpression",
+                        "operator": "<",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "s",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 35,
+                              "column": 18,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 35,
+                              "column": 19,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "NumberLiteral",
+                          "value": 10,
+                          "loc": {
+                            "start": {
+                              "line": 35,
+                              "column": 22,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 35,
+                              "column": 24,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 35,
+                            "column": 18,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 35,
+                            "column": 24,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "update": {
+                        "type": "UpdateExpression",
+                        "operator": "++",
+                        "prefix": false,
+                        "argument": {
+                          "type": "Identifier",
+                          "name": "s",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 35,
+                              "column": 26,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 35,
+                              "column": 27,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 35,
+                            "column": 26,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 35,
+                            "column": 29,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "body": {
+                        "type": "BlockStatement",
+                        "statements": [],
+                        "loc": {
+                          "start": {
+                            "line": 35,
+                            "column": 31,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 35,
+                            "column": 33,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 35,
+                          "column": 2,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        },
+                        "end": {
+                          "line": 35,
+                          "column": 33,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 30,
+                      "column": 36,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    },
+                    "end": {
+                      "line": 36,
+                      "column": 2,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 30,
+                    "column": 10,
+                    "program": "lambda_unresolved_ref_1.ets"
+                  },
+                  "end": {
+                    "line": 36,
+                    "column": 2,
+                    "program": "lambda_unresolved_ref_1.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 30,
+                  "column": 10,
+                  "program": "lambda_unresolved_ref_1.ets"
+                },
+                "end": {
+                  "line": 36,
+                  "column": 2,
+                  "program": "lambda_unresolved_ref_1.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 30,
+                "column": 1,
+                "program": "lambda_unresolved_ref_1.ets"
+              },
+              "end": {
+                "line": 36,
+                "column": 2,
+                "program": "lambda_unresolved_ref_1.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "bar",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 39,
+                  "column": 10,
+                  "program": "lambda_unresolved_ref_1.ets"
+                },
+                "end": {
+                  "line": 39,
+                  "column": 13,
+                  "program": "lambda_unresolved_ref_1.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "bar",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 39,
+                      "column": 10,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    },
+                    "end": {
+                      "line": 39,
+                      "column": 13,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 39,
+                      "column": 17,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    },
+                    "end": {
+                      "line": 39,
+                      "column": 21,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "arr",
+                            "typeAnnotation": {
+                              "type": "ETSTypeReference",
+                              "part": {
+                                "type": "ETSTypeReferencePart",
+                                "name": {
+                                  "type": "Identifier",
+                                  "name": "Array",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 1,
+                                      "column": 1,
+                                      "program": "lambda_unresolved_ref_1.ets"
+                                    },
+                                    "end": {
+                                      "line": 1,
+                                      "column": 3,
+                                      "program": "lambda_unresolved_ref_1.ets"
+                                    }
+                                  }
+                                },
+                                "typeParams": {
+                                  "type": "TSTypeParameterInstantiation",
+                                  "params": [
+                                    {
+                                      "type": "ETSPrimitiveType",
+                                      "loc": {
+                                        "start": {
+                                          "line": 1,
+                                          "column": 3,
+                                          "program": "lambda_unresolved_ref_1.ets"
+                                        },
+                                        "end": {
+                                          "line": 1,
+                                          "column": 3,
+                                          "program": "lambda_unresolved_ref_1.ets"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "loc": {
+                                    "start": {
+                                      "line": 1,
+                                      "column": 3,
+                                      "program": "lambda_unresolved_ref_1.ets"
+                                    },
+                                    "end": {
+                                      "line": 1,
+                                      "column": 3,
+                                      "program": "lambda_unresolved_ref_1.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 1,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 3,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 40,
+                                  "column": 16,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 40,
+                                  "column": 18,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 40,
+                                "column": 6,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 40,
+                                "column": 9,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "ArrayExpression",
+                            "elements": [
+                              {
+                                "type": "NumberLiteral",
+                                "value": 1,
+                                "loc": {
+                                  "start": {
+                                    "line": 40,
+                                    "column": 22,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 40,
+                                    "column": 23,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "NumberLiteral",
+                                "value": 2,
+                                "loc": {
+                                  "start": {
+                                    "line": 40,
+                                    "column": 24,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 40,
+                                    "column": 25,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "NumberLiteral",
+                                "value": 3,
+                                "loc": {
+                                  "start": {
+                                    "line": 40,
+                                    "column": 26,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 40,
+                                    "column": 27,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "NumberLiteral",
+                                "value": 4,
+                                "loc": {
+                                  "start": {
+                                    "line": 40,
+                                    "column": 28,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 40,
+                                    "column": 29,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "loc": {
+                              "start": {
+                                "line": 40,
+                                "column": 21,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 40,
+                                "column": 30,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 40,
+                              "column": 6,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 40,
+                              "column": 30,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 40,
+                          "column": 2,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        },
+                        "end": {
+                          "line": 40,
+                          "column": 30,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "fn",
+                            "typeAnnotation": {
+                              "type": "ETSFunctionType",
+                              "params": [
+                                {
+                                  "type": "ETSParameterExpression",
+                                  "name": {
+                                    "type": "Identifier",
+                                    "name": "v",
+                                    "typeAnnotation": {
+                                      "type": "ETSPrimitiveType",
+                                      "loc": {
+                                        "start": {
+                                          "line": 41,
+                                          "column": 17,
+                                          "program": "lambda_unresolved_ref_1.ets"
+                                        },
+                                        "end": {
+                                          "line": 41,
+                                          "column": 22,
+                                          "program": "lambda_unresolved_ref_1.ets"
+                                        }
+                                      }
+                                    },
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 41,
+                                        "column": 14,
+                                        "program": "lambda_unresolved_ref_1.ets"
+                                      },
+                                      "end": {
+                                        "line": 41,
+                                        "column": 22,
+                                        "program": "lambda_unresolved_ref_1.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 41,
+                                      "column": 14,
+                                      "program": "lambda_unresolved_ref_1.ets"
+                                    },
+                                    "end": {
+                                      "line": 41,
+                                      "column": 22,
+                                      "program": "lambda_unresolved_ref_1.ets"
+                                    }
+                                  }
+                                }
+                              ],
+                              "returnType": {
+                                "type": "ETSPrimitiveType",
+                                "loc": {
+                                  "start": {
+                                    "line": 41,
+                                    "column": 27,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 41,
+                                    "column": 31,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 41,
+                                  "column": 13,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 41,
+                                  "column": 31,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 41,
+                                "column": 9,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 41,
+                                "column": 11,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "ArrowFunctionExpression",
+                            "function": {
+                              "type": "ScriptFunction",
+                              "id": null,
+                              "generator": false,
+                              "async": false,
+                              "expression": false,
+                              "params": [
+                                {
+                                  "type": "ETSParameterExpression",
+                                  "name": {
+                                    "type": "Identifier",
+                                    "name": "v",
+                                    "typeAnnotation": {
+                                      "type": "ETSPrimitiveType",
+                                      "loc": {
+                                        "start": {
+                                          "line": 41,
+                                          "column": 38,
+                                          "program": "lambda_unresolved_ref_1.ets"
+                                        },
+                                        "end": {
+                                          "line": 41,
+                                          "column": 43,
+                                          "program": "lambda_unresolved_ref_1.ets"
+                                        }
+                                      }
+                                    },
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 41,
+                                        "column": 35,
+                                        "program": "lambda_unresolved_ref_1.ets"
+                                      },
+                                      "end": {
+                                        "line": 41,
+                                        "column": 43,
+                                        "program": "lambda_unresolved_ref_1.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 41,
+                                      "column": 35,
+                                      "program": "lambda_unresolved_ref_1.ets"
+                                    },
+                                    "end": {
+                                      "line": 41,
+                                      "column": 43,
+                                      "program": "lambda_unresolved_ref_1.ets"
+                                    }
+                                  }
+                                }
+                              ],
+                              "returnType": {
+                                "type": "ETSPrimitiveType",
+                                "loc": {
+                                  "start": {
+                                    "line": 41,
+                                    "column": 46,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 41,
+                                    "column": 50,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              "body": {
+                                "type": "BlockStatement",
+                                "statements": [
+                                  {
+                                    "type": "ExpressionStatement",
+                                    "expression": {
+                                      "type": "AssignmentExpression",
+                                      "operator": "=",
+                                      "left": {
+                                        "type": "MemberExpression",
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "arr",
+                                          "decorators": [],
+                                          "loc": {
+                                            "start": {
+                                              "line": 42,
+                                              "column": 9,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            },
+                                            "end": {
+                                              "line": 42,
+                                              "column": 12,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            }
+                                          }
+                                        },
+                                        "property": {
+                                          "type": "NumberLiteral",
+                                          "value": 0,
+                                          "loc": {
+                                            "start": {
+                                              "line": 42,
+                                              "column": 13,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            },
+                                            "end": {
+                                              "line": 42,
+                                              "column": 14,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            }
+                                          }
+                                        },
+                                        "computed": true,
+                                        "optional": false,
+                                        "loc": {
+                                          "start": {
+                                            "line": 42,
+                                            "column": 9,
+                                            "program": "lambda_unresolved_ref_1.ets"
+                                          },
+                                          "end": {
+                                            "line": 42,
+                                            "column": 15,
+                                            "program": "lambda_unresolved_ref_1.ets"
+                                          }
+                                        }
+                                      },
+                                      "right": {
+                                        "type": "TSAsExpression",
+                                        "expression": {
+                                          "type": "BinaryExpression",
+                                          "operator": "+",
+                                          "left": {
+                                            "type": "Identifier",
+                                            "name": "v",
+                                            "decorators": [],
+                                            "loc": {
+                                              "start": {
+                                                "line": 42,
+                                                "column": 19,
+                                                "program": "lambda_unresolved_ref_1.ets"
+                                              },
+                                              "end": {
+                                                "line": 42,
+                                                "column": 20,
+                                                "program": "lambda_unresolved_ref_1.ets"
+                                              }
+                                            }
+                                          },
+                                          "right": {
+                                            "type": "NumberLiteral",
+                                            "value": 1,
+                                            "loc": {
+                                              "start": {
+                                                "line": 42,
+                                                "column": 23,
+                                                "program": "lambda_unresolved_ref_1.ets"
+                                              },
+                                              "end": {
+                                                "line": 42,
+                                                "column": 24,
+                                                "program": "lambda_unresolved_ref_1.ets"
+                                              }
+                                            }
+                                          },
+                                          "loc": {
+                                            "start": {
+                                              "line": 42,
+                                              "column": 18,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            },
+                                            "end": {
+                                              "line": 42,
+                                              "column": 25,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            }
+                                          }
+                                        },
+                                        "typeAnnotation": {
+                                          "type": "ETSPrimitiveType",
+                                          "loc": {
+                                            "start": {
+                                              "line": 42,
+                                              "column": 29,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            },
+                                            "end": {
+                                              "line": 42,
+                                              "column": 34,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            }
+                                          }
+                                        },
+                                        "loc": {
+                                          "start": {
+                                            "line": 42,
+                                            "column": 18,
+                                            "program": "lambda_unresolved_ref_1.ets"
+                                          },
+                                          "end": {
+                                            "line": 42,
+                                            "column": 25,
+                                            "program": "lambda_unresolved_ref_1.ets"
+                                          }
+                                        }
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 42,
+                                          "column": 9,
+                                          "program": "lambda_unresolved_ref_1.ets"
+                                        },
+                                        "end": {
+                                          "line": 42,
+                                          "column": 25,
+                                          "program": "lambda_unresolved_ref_1.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 42,
+                                        "column": 9,
+                                        "program": "lambda_unresolved_ref_1.ets"
+                                      },
+                                      "end": {
+                                        "line": 42,
+                                        "column": 35,
+                                        "program": "lambda_unresolved_ref_1.ets"
+                                      }
+                                    }
+                                  }
+                                ],
+                                "loc": {
+                                  "start": {
+                                    "line": 41,
+                                    "column": 54,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 43,
+                                    "column": 6,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 41,
+                                  "column": 34,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 43,
+                                  "column": 6,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 41,
+                                "column": 34,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 43,
+                                "column": 6,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 41,
+                              "column": 9,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 43,
+                              "column": 6,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 41,
+                          "column": 5,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        },
+                        "end": {
+                          "line": 43,
+                          "column": 6,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ForUpdateStatement",
+                      "init": {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                          {
+                            "type": "VariableDeclarator",
+                            "id": {
+                              "type": "Identifier",
+                              "name": "arr",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 44,
+                                  "column": 14,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 44,
+                                  "column": 17,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "init": {
+                              "type": "NumberLiteral",
+                              "value": 0,
+                              "loc": {
+                                "start": {
+                                  "line": 44,
+                                  "column": 20,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 44,
+                                  "column": 21,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 44,
+                                "column": 14,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 44,
+                                "column": 21,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "kind": "let",
+                        "loc": {
+                          "start": {
+                            "line": 44,
+                            "column": 10,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 44,
+                            "column": 21,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "test": {
+                        "type": "BinaryExpression",
+                        "operator": "<",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "arr",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 44,
+                              "column": 23,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 44,
+                              "column": 26,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "NumberLiteral",
+                          "value": 4,
+                          "loc": {
+                            "start": {
+                              "line": 44,
+                              "column": 29,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 44,
+                              "column": 30,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 44,
+                            "column": 23,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 44,
+                            "column": 30,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "update": {
+                        "type": "UpdateExpression",
+                        "operator": "++",
+                        "prefix": true,
+                        "argument": {
+                          "type": "Identifier",
+                          "name": "arr",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 44,
+                              "column": 34,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 44,
+                              "column": 37,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 44,
+                            "column": 32,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 44,
+                            "column": 37,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "body": {
+                        "type": "BlockStatement",
+                        "statements": [],
+                        "loc": {
+                          "start": {
+                            "line": 44,
+                            "column": 39,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 44,
+                            "column": 42,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 44,
+                          "column": 5,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        },
+                        "end": {
+                          "line": 44,
+                          "column": 42,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "AssignmentExpression",
+                        "operator": "=",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "arr",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 45,
+                              "column": 5,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 45,
+                              "column": 8,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "ArrayExpression",
+                          "elements": [
+                            {
+                              "type": "NumberLiteral",
+                              "value": 3,
+                              "loc": {
+                                "start": {
+                                  "line": 45,
+                                  "column": 12,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 45,
+                                  "column": 13,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            }
+                          ],
+                          "loc": {
+                            "start": {
+                              "line": 45,
+                              "column": 11,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 45,
+                              "column": 14,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 45,
+                            "column": 5,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 45,
+                            "column": 14,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 45,
+                          "column": 5,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        },
+                        "end": {
+                          "line": 45,
+                          "column": 15,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 39,
+                      "column": 22,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    },
+                    "end": {
+                      "line": 46,
+                      "column": 2,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 39,
+                    "column": 10,
+                    "program": "lambda_unresolved_ref_1.ets"
+                  },
+                  "end": {
+                    "line": 46,
+                    "column": 2,
+                    "program": "lambda_unresolved_ref_1.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 39,
+                  "column": 10,
+                  "program": "lambda_unresolved_ref_1.ets"
+                },
+                "end": {
+                  "line": 46,
+                  "column": 2,
+                  "program": "lambda_unresolved_ref_1.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 39,
+                "column": 1,
+                "program": "lambda_unresolved_ref_1.ets"
+              },
+              "end": {
+                "line": 46,
+                "column": 2,
+                "program": "lambda_unresolved_ref_1.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 50,
+                  "column": 10,
+                  "program": "lambda_unresolved_ref_1.ets"
+                },
+                "end": {
+                  "line": 50,
+                  "column": 14,
+                  "program": "lambda_unresolved_ref_1.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 50,
+                      "column": 10,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    },
+                    "end": {
+                      "line": 50,
+                      "column": 14,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "arr",
+                            "typeAnnotation": {
+                              "type": "ETSTypeReference",
+                              "part": {
+                                "type": "ETSTypeReferencePart",
+                                "name": {
+                                  "type": "Identifier",
+                                  "name": "Array",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 1,
+                                      "column": 1,
+                                      "program": "lambda_unresolved_ref_1.ets"
+                                    },
+                                    "end": {
+                                      "line": 1,
+                                      "column": 3,
+                                      "program": "lambda_unresolved_ref_1.ets"
+                                    }
+                                  }
+                                },
+                                "typeParams": {
+                                  "type": "TSTypeParameterInstantiation",
+                                  "params": [
+                                    {
+                                      "type": "ETSPrimitiveType",
+                                      "loc": {
+                                        "start": {
+                                          "line": 1,
+                                          "column": 3,
+                                          "program": "lambda_unresolved_ref_1.ets"
+                                        },
+                                        "end": {
+                                          "line": 1,
+                                          "column": 3,
+                                          "program": "lambda_unresolved_ref_1.ets"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "loc": {
+                                    "start": {
+                                      "line": 1,
+                                      "column": 3,
+                                      "program": "lambda_unresolved_ref_1.ets"
+                                    },
+                                    "end": {
+                                      "line": 1,
+                                      "column": 3,
+                                      "program": "lambda_unresolved_ref_1.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 1,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 3,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 51,
+                                  "column": 19,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 51,
+                                  "column": 21,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 51,
+                                "column": 9,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 51,
+                                "column": 12,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "ArrayExpression",
+                            "elements": [
+                              {
+                                "type": "NumberLiteral",
+                                "value": 1,
+                                "loc": {
+                                  "start": {
+                                    "line": 51,
+                                    "column": 25,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 51,
+                                    "column": 26,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "NumberLiteral",
+                                "value": 2,
+                                "loc": {
+                                  "start": {
+                                    "line": 51,
+                                    "column": 27,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 51,
+                                    "column": 28,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "NumberLiteral",
+                                "value": 3,
+                                "loc": {
+                                  "start": {
+                                    "line": 51,
+                                    "column": 29,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 51,
+                                    "column": 30,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "NumberLiteral",
+                                "value": 4,
+                                "loc": {
+                                  "start": {
+                                    "line": 51,
+                                    "column": 31,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 51,
+                                    "column": 32,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "loc": {
+                              "start": {
+                                "line": 51,
+                                "column": 24,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 51,
+                                "column": 33,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 51,
+                              "column": 9,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 51,
+                              "column": 33,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 51,
+                          "column": 5,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        },
+                        "end": {
+                          "line": 51,
+                          "column": 33,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "fn",
+                            "typeAnnotation": {
+                              "type": "ETSFunctionType",
+                              "params": [
+                                {
+                                  "type": "ETSParameterExpression",
+                                  "name": {
+                                    "type": "Identifier",
+                                    "name": "v",
+                                    "typeAnnotation": {
+                                      "type": "ETSPrimitiveType",
+                                      "loc": {
+                                        "start": {
+                                          "line": 52,
+                                          "column": 17,
+                                          "program": "lambda_unresolved_ref_1.ets"
+                                        },
+                                        "end": {
+                                          "line": 52,
+                                          "column": 22,
+                                          "program": "lambda_unresolved_ref_1.ets"
+                                        }
+                                      }
+                                    },
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 52,
+                                        "column": 14,
+                                        "program": "lambda_unresolved_ref_1.ets"
+                                      },
+                                      "end": {
+                                        "line": 52,
+                                        "column": 22,
+                                        "program": "lambda_unresolved_ref_1.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 52,
+                                      "column": 14,
+                                      "program": "lambda_unresolved_ref_1.ets"
+                                    },
+                                    "end": {
+                                      "line": 52,
+                                      "column": 22,
+                                      "program": "lambda_unresolved_ref_1.ets"
+                                    }
+                                  }
+                                }
+                              ],
+                              "returnType": {
+                                "type": "ETSPrimitiveType",
+                                "loc": {
+                                  "start": {
+                                    "line": 52,
+                                    "column": 27,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 52,
+                                    "column": 31,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 52,
+                                  "column": 13,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 52,
+                                  "column": 31,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 52,
+                                "column": 9,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 52,
+                                "column": 11,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "ArrowFunctionExpression",
+                            "function": {
+                              "type": "ScriptFunction",
+                              "id": null,
+                              "generator": false,
+                              "async": false,
+                              "expression": false,
+                              "params": [
+                                {
+                                  "type": "ETSParameterExpression",
+                                  "name": {
+                                    "type": "Identifier",
+                                    "name": "v",
+                                    "typeAnnotation": {
+                                      "type": "ETSPrimitiveType",
+                                      "loc": {
+                                        "start": {
+                                          "line": 52,
+                                          "column": 38,
+                                          "program": "lambda_unresolved_ref_1.ets"
+                                        },
+                                        "end": {
+                                          "line": 52,
+                                          "column": 43,
+                                          "program": "lambda_unresolved_ref_1.ets"
+                                        }
+                                      }
+                                    },
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 52,
+                                        "column": 35,
+                                        "program": "lambda_unresolved_ref_1.ets"
+                                      },
+                                      "end": {
+                                        "line": 52,
+                                        "column": 43,
+                                        "program": "lambda_unresolved_ref_1.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 52,
+                                      "column": 35,
+                                      "program": "lambda_unresolved_ref_1.ets"
+                                    },
+                                    "end": {
+                                      "line": 52,
+                                      "column": 43,
+                                      "program": "lambda_unresolved_ref_1.ets"
+                                    }
+                                  }
+                                }
+                              ],
+                              "returnType": {
+                                "type": "ETSPrimitiveType",
+                                "loc": {
+                                  "start": {
+                                    "line": 52,
+                                    "column": 46,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 52,
+                                    "column": 50,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              "body": {
+                                "type": "BlockStatement",
+                                "statements": [
+                                  {
+                                    "type": "ExpressionStatement",
+                                    "expression": {
+                                      "type": "AssignmentExpression",
+                                      "operator": "=",
+                                      "left": {
+                                        "type": "MemberExpression",
+                                        "object": {
+                                          "type": "Identifier",
+                                          "name": "arr",
+                                          "decorators": [],
+                                          "loc": {
+                                            "start": {
+                                              "line": 53,
+                                              "column": 9,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            },
+                                            "end": {
+                                              "line": 53,
+                                              "column": 12,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            }
+                                          }
+                                        },
+                                        "property": {
+                                          "type": "NumberLiteral",
+                                          "value": 0,
+                                          "loc": {
+                                            "start": {
+                                              "line": 53,
+                                              "column": 13,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            },
+                                            "end": {
+                                              "line": 53,
+                                              "column": 14,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            }
+                                          }
+                                        },
+                                        "computed": true,
+                                        "optional": false,
+                                        "loc": {
+                                          "start": {
+                                            "line": 53,
+                                            "column": 9,
+                                            "program": "lambda_unresolved_ref_1.ets"
+                                          },
+                                          "end": {
+                                            "line": 53,
+                                            "column": 15,
+                                            "program": "lambda_unresolved_ref_1.ets"
+                                          }
+                                        }
+                                      },
+                                      "right": {
+                                        "type": "TSAsExpression",
+                                        "expression": {
+                                          "type": "BinaryExpression",
+                                          "operator": "+",
+                                          "left": {
+                                            "type": "Identifier",
+                                            "name": "v",
+                                            "decorators": [],
+                                            "loc": {
+                                              "start": {
+                                                "line": 53,
+                                                "column": 19,
+                                                "program": "lambda_unresolved_ref_1.ets"
+                                              },
+                                              "end": {
+                                                "line": 53,
+                                                "column": 20,
+                                                "program": "lambda_unresolved_ref_1.ets"
+                                              }
+                                            }
+                                          },
+                                          "right": {
+                                            "type": "NumberLiteral",
+                                            "value": 1,
+                                            "loc": {
+                                              "start": {
+                                                "line": 53,
+                                                "column": 23,
+                                                "program": "lambda_unresolved_ref_1.ets"
+                                              },
+                                              "end": {
+                                                "line": 53,
+                                                "column": 24,
+                                                "program": "lambda_unresolved_ref_1.ets"
+                                              }
+                                            }
+                                          },
+                                          "loc": {
+                                            "start": {
+                                              "line": 53,
+                                              "column": 18,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            },
+                                            "end": {
+                                              "line": 53,
+                                              "column": 25,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            }
+                                          }
+                                        },
+                                        "typeAnnotation": {
+                                          "type": "ETSPrimitiveType",
+                                          "loc": {
+                                            "start": {
+                                              "line": 53,
+                                              "column": 29,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            },
+                                            "end": {
+                                              "line": 53,
+                                              "column": 34,
+                                              "program": "lambda_unresolved_ref_1.ets"
+                                            }
+                                          }
+                                        },
+                                        "loc": {
+                                          "start": {
+                                            "line": 53,
+                                            "column": 18,
+                                            "program": "lambda_unresolved_ref_1.ets"
+                                          },
+                                          "end": {
+                                            "line": 53,
+                                            "column": 25,
+                                            "program": "lambda_unresolved_ref_1.ets"
+                                          }
+                                        }
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 53,
+                                          "column": 9,
+                                          "program": "lambda_unresolved_ref_1.ets"
+                                        },
+                                        "end": {
+                                          "line": 53,
+                                          "column": 25,
+                                          "program": "lambda_unresolved_ref_1.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 53,
+                                        "column": 9,
+                                        "program": "lambda_unresolved_ref_1.ets"
+                                      },
+                                      "end": {
+                                        "line": 53,
+                                        "column": 35,
+                                        "program": "lambda_unresolved_ref_1.ets"
+                                      }
+                                    }
+                                  }
+                                ],
+                                "loc": {
+                                  "start": {
+                                    "line": 52,
+                                    "column": 54,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  },
+                                  "end": {
+                                    "line": 54,
+                                    "column": 6,
+                                    "program": "lambda_unresolved_ref_1.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 52,
+                                  "column": 34,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 54,
+                                  "column": 6,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 52,
+                                "column": 34,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 54,
+                                "column": 6,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 52,
+                              "column": 9,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 54,
+                              "column": 6,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 52,
+                          "column": 5,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        },
+                        "end": {
+                          "line": 54,
+                          "column": 6,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ForUpdateStatement",
+                      "init": {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                          {
+                            "type": "VariableDeclarator",
+                            "id": {
+                              "type": "Identifier",
+                              "name": "i",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 55,
+                                  "column": 14,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 55,
+                                  "column": 15,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "init": {
+                              "type": "NumberLiteral",
+                              "value": 0,
+                              "loc": {
+                                "start": {
+                                  "line": 55,
+                                  "column": 18,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                },
+                                "end": {
+                                  "line": 55,
+                                  "column": 19,
+                                  "program": "lambda_unresolved_ref_1.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 55,
+                                "column": 14,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              },
+                              "end": {
+                                "line": 55,
+                                "column": 19,
+                                "program": "lambda_unresolved_ref_1.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "kind": "let",
+                        "loc": {
+                          "start": {
+                            "line": 55,
+                            "column": 10,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 55,
+                            "column": 19,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "test": {
+                        "type": "BinaryExpression",
+                        "operator": "<",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "i",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 55,
+                              "column": 21,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 55,
+                              "column": 22,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "NumberLiteral",
+                          "value": 4,
+                          "loc": {
+                            "start": {
+                              "line": 55,
+                              "column": 25,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 55,
+                              "column": 26,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 55,
+                            "column": 21,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 55,
+                            "column": 26,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "update": {
+                        "type": "UpdateExpression",
+                        "operator": "++",
+                        "prefix": true,
+                        "argument": {
+                          "type": "Identifier",
+                          "name": "i",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 55,
+                              "column": 30,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            },
+                            "end": {
+                              "line": 55,
+                              "column": 31,
+                              "program": "lambda_unresolved_ref_1.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 55,
+                            "column": 28,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 55,
+                            "column": 31,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "body": {
+                        "type": "BlockStatement",
+                        "statements": [],
+                        "loc": {
+                          "start": {
+                            "line": 55,
+                            "column": 33,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          },
+                          "end": {
+                            "line": 55,
+                            "column": 36,
+                            "program": "lambda_unresolved_ref_1.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 55,
+                          "column": 5,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        },
+                        "end": {
+                          "line": 55,
+                          "column": 36,
+                          "program": "lambda_unresolved_ref_1.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 50,
+                      "column": 17,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    },
+                    "end": {
+                      "line": 56,
+                      "column": 2,
+                      "program": "lambda_unresolved_ref_1.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 50,
+                    "column": 10,
+                    "program": "lambda_unresolved_ref_1.ets"
+                  },
+                  "end": {
+                    "line": 56,
+                    "column": 2,
+                    "program": "lambda_unresolved_ref_1.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 50,
+                  "column": 10,
+                  "program": "lambda_unresolved_ref_1.ets"
+                },
+                "end": {
+                  "line": 56,
+                  "column": 2,
+                  "program": "lambda_unresolved_ref_1.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 50,
+                "column": 1,
+                "program": "lambda_unresolved_ref_1.ets"
+              },
+              "end": {
+                "line": 56,
+                "column": 2,
+                "program": "lambda_unresolved_ref_1.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "lambda_unresolved_ref_1.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "lambda_unresolved_ref_1.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "lambda_unresolved_ref_1.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "lambda_unresolved_ref_1.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "lambda_unresolved_ref_1.ets"
+    },
+    "end": {
+      "line": 57,
+      "column": 1,
+      "program": "lambda_unresolved_ref_1.ets"
+    }
+  }
+}

@@ -1,0 +1,858 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ImportDeclaration",
+      "source": {
+        "type": "StringLiteral",
+        "value": "import_tests/packages/aliasWithoutAlias/import1",
+        "loc": {
+          "start": {
+            "line": 18,
+            "column": 22,
+            "program": "import_alias_and_without_alias_2.ets"
+          },
+          "end": {
+            "line": 18,
+            "column": 71,
+            "program": "import_alias_and_without_alias_2.ets"
+          }
+        }
+      },
+      "specifiers": [
+        {
+          "type": "ImportNamespaceSpecifier",
+          "local": {
+            "type": "Identifier",
+            "name": "all",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 18,
+                "column": 13,
+                "program": "import_alias_and_without_alias_2.ets"
+              },
+              "end": {
+                "line": 18,
+                "column": 16,
+                "program": "import_alias_and_without_alias_2.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 18,
+              "column": 8,
+              "program": "import_alias_and_without_alias_2.ets"
+            },
+            "end": {
+              "line": 18,
+              "column": 16,
+              "program": "import_alias_and_without_alias_2.ets"
+            }
+          }
+        }
+      ],
+      "loc": {
+        "start": {
+          "line": 18,
+          "column": 1,
+          "program": "import_alias_and_without_alias_2.ets"
+        },
+        "end": {
+          "line": 18,
+          "column": 71,
+          "program": "import_alias_and_without_alias_2.ets"
+        }
+      }
+    },
+    {
+      "type": "ImportDeclaration",
+      "source": {
+        "type": "StringLiteral",
+        "value": "import_tests/packages/aliasWithoutAlias/import1",
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 31,
+            "program": "import_alias_and_without_alias_2.ets"
+          },
+          "end": {
+            "line": 16,
+            "column": 80,
+            "program": "import_alias_and_without_alias_2.ets"
+          }
+        }
+      },
+      "specifiers": [
+        {
+          "type": "ImportSpecifier",
+          "local": {
+            "type": "Identifier",
+            "name": "test1foo",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 16,
+                "program": "import_alias_and_without_alias_2.ets"
+              },
+              "end": {
+                "line": 16,
+                "column": 24,
+                "program": "import_alias_and_without_alias_2.ets"
+              }
+            }
+          },
+          "imported": {
+            "type": "Identifier",
+            "name": "foo",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 9,
+                "program": "import_alias_and_without_alias_2.ets"
+              },
+              "end": {
+                "line": 16,
+                "column": 12,
+                "program": "import_alias_and_without_alias_2.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 16,
+              "column": 9,
+              "program": "import_alias_and_without_alias_2.ets"
+            },
+            "end": {
+              "line": 16,
+              "column": 24,
+              "program": "import_alias_and_without_alias_2.ets"
+            }
+          }
+        }
+      ],
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 1,
+          "program": "import_alias_and_without_alias_2.ets"
+        },
+        "end": {
+          "line": 16,
+          "column": 80,
+          "program": "import_alias_and_without_alias_2.ets"
+        }
+      }
+    },
+    {
+      "type": "ImportDeclaration",
+      "source": {
+        "type": "StringLiteral",
+        "value": "import_tests/packages/aliasWithoutAlias/import2",
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 19,
+            "program": "import_alias_and_without_alias_2.ets"
+          },
+          "end": {
+            "line": 17,
+            "column": 68,
+            "program": "import_alias_and_without_alias_2.ets"
+          }
+        }
+      },
+      "specifiers": [
+        {
+          "type": "ImportSpecifier",
+          "local": {
+            "type": "Identifier",
+            "name": "foo",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 9,
+                "program": "import_alias_and_without_alias_2.ets"
+              },
+              "end": {
+                "line": 17,
+                "column": 12,
+                "program": "import_alias_and_without_alias_2.ets"
+              }
+            }
+          },
+          "imported": {
+            "type": "Identifier",
+            "name": "foo",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 9,
+                "program": "import_alias_and_without_alias_2.ets"
+              },
+              "end": {
+                "line": 17,
+                "column": 12,
+                "program": "import_alias_and_without_alias_2.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 17,
+              "column": 9,
+              "program": "import_alias_and_without_alias_2.ets"
+            },
+            "end": {
+              "line": 17,
+              "column": 12,
+              "program": "import_alias_and_without_alias_2.ets"
+            }
+          }
+        }
+      ],
+      "loc": {
+        "start": {
+          "line": 17,
+          "column": 1,
+          "program": "import_alias_and_without_alias_2.ets"
+        },
+        "end": {
+          "line": 17,
+          "column": 68,
+          "program": "import_alias_and_without_alias_2.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "import_alias_and_without_alias_2.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "import_alias_and_without_alias_2.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "import_alias_and_without_alias_2.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "import_alias_and_without_alias_2.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 10,
+                  "program": "import_alias_and_without_alias_2.ets"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 14,
+                  "program": "import_alias_and_without_alias_2.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 10,
+                      "program": "import_alias_and_without_alias_2.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 14,
+                      "program": "import_alias_and_without_alias_2.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 17,
+                      "program": "import_alias_and_without_alias_2.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 21,
+                      "program": "import_alias_and_without_alias_2.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "assertEQ",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 21,
+                              "column": 5,
+                              "program": "import_alias_and_without_alias_2.ets"
+                            },
+                            "end": {
+                              "line": 21,
+                              "column": 13,
+                              "program": "import_alias_and_without_alias_2.ets"
+                            }
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "NumberLiteral",
+                            "value": 100,
+                            "loc": {
+                              "start": {
+                                "line": 21,
+                                "column": 14,
+                                "program": "import_alias_and_without_alias_2.ets"
+                              },
+                              "end": {
+                                "line": 21,
+                                "column": 17,
+                                "program": "import_alias_and_without_alias_2.ets"
+                              }
+                            }
+                          },
+                          {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "Identifier",
+                              "name": "test1foo",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 21,
+                                  "column": 19,
+                                  "program": "import_alias_and_without_alias_2.ets"
+                                },
+                                "end": {
+                                  "line": 21,
+                                  "column": 27,
+                                  "program": "import_alias_and_without_alias_2.ets"
+                                }
+                              }
+                            },
+                            "arguments": [],
+                            "optional": false,
+                            "loc": {
+                              "start": {
+                                "line": 21,
+                                "column": 19,
+                                "program": "import_alias_and_without_alias_2.ets"
+                              },
+                              "end": {
+                                "line": 21,
+                                "column": 29,
+                                "program": "import_alias_and_without_alias_2.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 21,
+                            "column": 5,
+                            "program": "import_alias_and_without_alias_2.ets"
+                          },
+                          "end": {
+                            "line": 21,
+                            "column": 30,
+                            "program": "import_alias_and_without_alias_2.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 21,
+                          "column": 5,
+                          "program": "import_alias_and_without_alias_2.ets"
+                        },
+                        "end": {
+                          "line": 21,
+                          "column": 31,
+                          "program": "import_alias_and_without_alias_2.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "assertEQ",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 22,
+                              "column": 5,
+                              "program": "import_alias_and_without_alias_2.ets"
+                            },
+                            "end": {
+                              "line": 22,
+                              "column": 13,
+                              "program": "import_alias_and_without_alias_2.ets"
+                            }
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "NumberLiteral",
+                            "value": 200,
+                            "loc": {
+                              "start": {
+                                "line": 22,
+                                "column": 14,
+                                "program": "import_alias_and_without_alias_2.ets"
+                              },
+                              "end": {
+                                "line": 22,
+                                "column": 17,
+                                "program": "import_alias_and_without_alias_2.ets"
+                              }
+                            }
+                          },
+                          {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "MemberExpression",
+                              "object": {
+                                "type": "Identifier",
+                                "name": "all",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 22,
+                                    "column": 19,
+                                    "program": "import_alias_and_without_alias_2.ets"
+                                  },
+                                  "end": {
+                                    "line": 22,
+                                    "column": 22,
+                                    "program": "import_alias_and_without_alias_2.ets"
+                                  }
+                                }
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "bar",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 22,
+                                    "column": 23,
+                                    "program": "import_alias_and_without_alias_2.ets"
+                                  },
+                                  "end": {
+                                    "line": 22,
+                                    "column": 26,
+                                    "program": "import_alias_and_without_alias_2.ets"
+                                  }
+                                }
+                              },
+                              "computed": false,
+                              "optional": false,
+                              "loc": {
+                                "start": {
+                                  "line": 22,
+                                  "column": 19,
+                                  "program": "import_alias_and_without_alias_2.ets"
+                                },
+                                "end": {
+                                  "line": 22,
+                                  "column": 26,
+                                  "program": "import_alias_and_without_alias_2.ets"
+                                }
+                              }
+                            },
+                            "arguments": [],
+                            "optional": false,
+                            "loc": {
+                              "start": {
+                                "line": 22,
+                                "column": 19,
+                                "program": "import_alias_and_without_alias_2.ets"
+                              },
+                              "end": {
+                                "line": 22,
+                                "column": 28,
+                                "program": "import_alias_and_without_alias_2.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 22,
+                            "column": 5,
+                            "program": "import_alias_and_without_alias_2.ets"
+                          },
+                          "end": {
+                            "line": 22,
+                            "column": 29,
+                            "program": "import_alias_and_without_alias_2.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 22,
+                          "column": 5,
+                          "program": "import_alias_and_without_alias_2.ets"
+                        },
+                        "end": {
+                          "line": 22,
+                          "column": 30,
+                          "program": "import_alias_and_without_alias_2.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "assertEQ",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 23,
+                              "column": 5,
+                              "program": "import_alias_and_without_alias_2.ets"
+                            },
+                            "end": {
+                              "line": 23,
+                              "column": 13,
+                              "program": "import_alias_and_without_alias_2.ets"
+                            }
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "NumberLiteral",
+                            "value": 300,
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 14,
+                                "program": "import_alias_and_without_alias_2.ets"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 17,
+                                "program": "import_alias_and_without_alias_2.ets"
+                              }
+                            }
+                          },
+                          {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "Identifier",
+                              "name": "foo",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 23,
+                                  "column": 19,
+                                  "program": "import_alias_and_without_alias_2.ets"
+                                },
+                                "end": {
+                                  "line": 23,
+                                  "column": 22,
+                                  "program": "import_alias_and_without_alias_2.ets"
+                                }
+                              }
+                            },
+                            "arguments": [],
+                            "optional": false,
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 19,
+                                "program": "import_alias_and_without_alias_2.ets"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 24,
+                                "program": "import_alias_and_without_alias_2.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 23,
+                            "column": 5,
+                            "program": "import_alias_and_without_alias_2.ets"
+                          },
+                          "end": {
+                            "line": 23,
+                            "column": 25,
+                            "program": "import_alias_and_without_alias_2.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 23,
+                          "column": 5,
+                          "program": "import_alias_and_without_alias_2.ets"
+                        },
+                        "end": {
+                          "line": 23,
+                          "column": 26,
+                          "program": "import_alias_and_without_alias_2.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 21,
+                      "program": "import_alias_and_without_alias_2.ets"
+                    },
+                    "end": {
+                      "line": 24,
+                      "column": 2,
+                      "program": "import_alias_and_without_alias_2.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 20,
+                    "column": 10,
+                    "program": "import_alias_and_without_alias_2.ets"
+                  },
+                  "end": {
+                    "line": 24,
+                    "column": 2,
+                    "program": "import_alias_and_without_alias_2.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 10,
+                  "program": "import_alias_and_without_alias_2.ets"
+                },
+                "end": {
+                  "line": 24,
+                  "column": 2,
+                  "program": "import_alias_and_without_alias_2.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 20,
+                "column": 1,
+                "program": "import_alias_and_without_alias_2.ets"
+              },
+              "end": {
+                "line": 24,
+                "column": 2,
+                "program": "import_alias_and_without_alias_2.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "import_alias_and_without_alias_2.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "import_alias_and_without_alias_2.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "import_alias_and_without_alias_2.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "import_alias_and_without_alias_2.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "import_alias_and_without_alias_2.ets"
+    },
+    "end": {
+      "line": 25,
+      "column": 1,
+      "program": "import_alias_and_without_alias_2.ets"
+    }
+  }
+}

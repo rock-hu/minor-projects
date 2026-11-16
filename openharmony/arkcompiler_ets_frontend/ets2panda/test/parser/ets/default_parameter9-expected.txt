@@ -1,0 +1,953 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "default_parameter9.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "default_parameter9.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "default_parameter9.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "default_parameter9.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "default_parameter9.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "default_parameter9.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "copyWithin",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 17,
+                  "program": "default_parameter9.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 27,
+                  "program": "default_parameter9.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "copyWithin",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 17,
+                      "program": "default_parameter9.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 27,
+                      "program": "default_parameter9.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "self",
+                      "typeAnnotation": {
+                        "type": "ETSTypeReference",
+                        "part": {
+                          "type": "ETSTypeReferencePart",
+                          "name": {
+                            "type": "Identifier",
+                            "name": "Array",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 1,
+                                "program": "default_parameter9.ets"
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 3,
+                                "program": "default_parameter9.ets"
+                              }
+                            }
+                          },
+                          "typeParams": {
+                            "type": "TSTypeParameterInstantiation",
+                            "params": [
+                              {
+                                "type": "ETSTypeReference",
+                                "part": {
+                                  "type": "ETSTypeReferencePart",
+                                  "name": {
+                                    "type": "Identifier",
+                                    "name": "T",
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 1,
+                                        "column": 3,
+                                        "program": "default_parameter9.ets"
+                                      },
+                                      "end": {
+                                        "line": 1,
+                                        "column": 3,
+                                        "program": "default_parameter9.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 1,
+                                      "column": 3,
+                                      "program": "default_parameter9.ets"
+                                    },
+                                    "end": {
+                                      "line": 1,
+                                      "column": 3,
+                                      "program": "default_parameter9.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 3,
+                                    "program": "default_parameter9.ets"
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 3,
+                                    "program": "default_parameter9.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 3,
+                                "program": "default_parameter9.ets"
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 3,
+                                "program": "default_parameter9.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 1,
+                              "program": "default_parameter9.ets"
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 3,
+                              "program": "default_parameter9.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 16,
+                            "column": 38,
+                            "program": "default_parameter9.ets"
+                          },
+                          "end": {
+                            "line": 16,
+                            "column": 40,
+                            "program": "default_parameter9.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 16,
+                          "column": 31,
+                          "program": "default_parameter9.ets"
+                        },
+                        "end": {
+                          "line": 16,
+                          "column": 40,
+                          "program": "default_parameter9.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 16,
+                        "column": 31,
+                        "program": "default_parameter9.ets"
+                      },
+                      "end": {
+                        "line": 16,
+                        "column": 40,
+                        "program": "default_parameter9.ets"
+                      }
+                    }
+                  },
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "end",
+                      "typeAnnotation": {
+                        "type": "ETSTypeReference",
+                        "part": {
+                          "type": "ETSTypeReferencePart",
+                          "name": {
+                            "type": "Identifier",
+                            "name": "Number",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 16,
+                                "column": 48,
+                                "program": "default_parameter9.ets"
+                              },
+                              "end": {
+                                "line": 16,
+                                "column": 54,
+                                "program": "default_parameter9.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 16,
+                              "column": 48,
+                              "program": "default_parameter9.ets"
+                            },
+                            "end": {
+                              "line": 16,
+                              "column": 55,
+                              "program": "default_parameter9.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 16,
+                            "column": 48,
+                            "program": "default_parameter9.ets"
+                          },
+                          "end": {
+                            "line": 16,
+                            "column": 55,
+                            "program": "default_parameter9.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 16,
+                          "column": 42,
+                          "program": "default_parameter9.ets"
+                        },
+                        "end": {
+                          "line": 16,
+                          "column": 55,
+                          "program": "default_parameter9.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 16,
+                        "column": 42,
+                        "program": "default_parameter9.ets"
+                      },
+                      "end": {
+                        "line": 16,
+                        "column": 55,
+                        "program": "default_parameter9.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSTypeReference",
+                  "part": {
+                    "type": "ETSTypeReferencePart",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "Array",
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 1,
+                          "program": "default_parameter9.ets"
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 3,
+                          "program": "default_parameter9.ets"
+                        }
+                      }
+                    },
+                    "typeParams": {
+                      "type": "TSTypeParameterInstantiation",
+                      "params": [
+                        {
+                          "type": "ETSTypeReference",
+                          "part": {
+                            "type": "ETSTypeReferencePart",
+                            "name": {
+                              "type": "Identifier",
+                              "name": "T",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 3,
+                                  "program": "default_parameter9.ets"
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 3,
+                                  "program": "default_parameter9.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 3,
+                                "program": "default_parameter9.ets"
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 3,
+                                "program": "default_parameter9.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 3,
+                              "program": "default_parameter9.ets"
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 3,
+                              "program": "default_parameter9.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 3,
+                          "program": "default_parameter9.ets"
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 3,
+                          "program": "default_parameter9.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 1,
+                        "program": "default_parameter9.ets"
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 3,
+                        "program": "default_parameter9.ets"
+                      }
+                    }
+                  },
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 58,
+                      "program": "default_parameter9.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 60,
+                      "program": "default_parameter9.ets"
+                    }
+                  }
+                },
+                "typeParameters": {
+                  "type": "TSTypeParameterDeclaration",
+                  "params": [
+                    {
+                      "type": "TSTypeParameter",
+                      "name": {
+                        "type": "Identifier",
+                        "name": "T",
+                        "decorators": [],
+                        "loc": {
+                          "start": {
+                            "line": 16,
+                            "column": 28,
+                            "program": "default_parameter9.ets"
+                          },
+                          "end": {
+                            "line": 16,
+                            "column": 29,
+                            "program": "default_parameter9.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 16,
+                          "column": 28,
+                          "program": "default_parameter9.ets"
+                        },
+                        "end": {
+                          "line": 16,
+                          "column": 30,
+                          "program": "default_parameter9.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 27,
+                      "program": "default_parameter9.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 30,
+                      "program": "default_parameter9.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "ReturnStatement",
+                      "argument": {
+                        "type": "Identifier",
+                        "name": "self",
+                        "decorators": [],
+                        "loc": {
+                          "start": {
+                            "line": 17,
+                            "column": 12,
+                            "program": "default_parameter9.ets"
+                          },
+                          "end": {
+                            "line": 17,
+                            "column": 16,
+                            "program": "default_parameter9.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 17,
+                          "column": 5,
+                          "program": "default_parameter9.ets"
+                        },
+                        "end": {
+                          "line": 17,
+                          "column": 17,
+                          "program": "default_parameter9.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 61,
+                      "program": "default_parameter9.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 2,
+                      "program": "default_parameter9.ets"
+                    }
+                  }
+                },
+                "annotations": [
+                  {
+                    "expr_": {
+                      "type": "ETSTypeReference",
+                      "part": {
+                        "type": "ETSTypeReferencePart",
+                        "name": {
+                          "type": "TSQualifiedName",
+                          "left": {
+                            "type": "Identifier",
+                            "name": "functions",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 16,
+                                "column": 17,
+                                "program": "default_parameter9.ets"
+                              },
+                              "end": {
+                                "line": 18,
+                                "column": 2,
+                                "program": "default_parameter9.ets"
+                              }
+                            }
+                          },
+                          "right": {
+                            "type": "Identifier",
+                            "name": "OptionalParametersAnnotation",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 16,
+                                "column": 17,
+                                "program": "default_parameter9.ets"
+                              },
+                              "end": {
+                                "line": 18,
+                                "column": 2,
+                                "program": "default_parameter9.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 16,
+                              "column": 17,
+                              "program": "default_parameter9.ets"
+                            },
+                            "end": {
+                              "line": 18,
+                              "column": 2,
+                              "program": "default_parameter9.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 16,
+                            "column": 17,
+                            "program": "default_parameter9.ets"
+                          },
+                          "end": {
+                            "line": 18,
+                            "column": 2,
+                            "program": "default_parameter9.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 16,
+                          "column": 17,
+                          "program": "default_parameter9.ets"
+                        },
+                        "end": {
+                          "line": 18,
+                          "column": 2,
+                          "program": "default_parameter9.ets"
+                        }
+                      }
+                    },
+                    "properties": [
+                      {
+                        "type": "ClassProperty",
+                        "key": {
+                          "type": "Identifier",
+                          "name": "minArgCount",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 16,
+                              "column": 17,
+                              "program": "default_parameter9.ets"
+                            },
+                            "end": {
+                              "line": 18,
+                              "column": 2,
+                              "program": "default_parameter9.ets"
+                            }
+                          }
+                        },
+                        "value": {
+                          "type": "NumberLiteral",
+                          "value": 1,
+                          "loc": {
+                            "start": {
+                              "line": 16,
+                              "column": 17,
+                              "program": "default_parameter9.ets"
+                            },
+                            "end": {
+                              "line": 18,
+                              "column": 2,
+                              "program": "default_parameter9.ets"
+                            }
+                          }
+                        },
+                        "static": false,
+                        "readonly": false,
+                        "declare": false,
+                        "optional": false,
+                        "computed": false,
+                        "definite": false,
+                        "decorators": [],
+                        "loc": {
+                          "start": {
+                            "line": 16,
+                            "column": 17,
+                            "program": "default_parameter9.ets"
+                          },
+                          "end": {
+                            "line": 18,
+                            "column": 2,
+                            "program": "default_parameter9.ets"
+                          }
+                        }
+                      }
+                    ],
+                    "loc": {
+                      "start": {
+                        "line": 16,
+                        "column": 17,
+                        "program": "default_parameter9.ets"
+                      },
+                      "end": {
+                        "line": 18,
+                        "column": 2,
+                        "program": "default_parameter9.ets"
+                      }
+                    }
+                  }
+                ],
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 17,
+                    "program": "default_parameter9.ets"
+                  },
+                  "end": {
+                    "line": 18,
+                    "column": 2,
+                    "program": "default_parameter9.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 17,
+                  "program": "default_parameter9.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 2,
+                  "program": "default_parameter9.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 8,
+                "program": "default_parameter9.ets"
+              },
+              "end": {
+                "line": 18,
+                "column": 2,
+                "program": "default_parameter9.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "default_parameter9.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "default_parameter9.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "default_parameter9.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "default_parameter9.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "default_parameter9.ets"
+    },
+    "end": {
+      "line": 19,
+      "column": 1,
+      "program": "default_parameter9.ets"
+    }
+  }
+}

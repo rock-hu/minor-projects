@@ -1,0 +1,2210 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "A",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 29,
+              "column": 7,
+              "program": "lambdaFunction1.ets"
+            },
+            "end": {
+              "line": 29,
+              "column": 8,
+              "program": "lambdaFunction1.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "bar",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 30,
+                  "column": 5,
+                  "program": "lambdaFunction1.ets"
+                },
+                "end": {
+                  "line": 30,
+                  "column": 8,
+                  "program": "lambdaFunction1.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "bar",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 30,
+                      "column": 5,
+                      "program": "lambdaFunction1.ets"
+                    },
+                    "end": {
+                      "line": 30,
+                      "column": 8,
+                      "program": "lambdaFunction1.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 30,
+                      "column": 12,
+                      "program": "lambdaFunction1.ets"
+                    },
+                    "end": {
+                      "line": 30,
+                      "column": 15,
+                      "program": "lambdaFunction1.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "ReturnStatement",
+                      "argument": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "foo",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 31,
+                              "column": 16,
+                              "program": "lambdaFunction1.ets"
+                            },
+                            "end": {
+                              "line": 31,
+                              "column": 19,
+                              "program": "lambdaFunction1.ets"
+                            }
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "MemberExpression",
+                            "object": {
+                              "type": "ThisExpression",
+                              "loc": {
+                                "start": {
+                                  "line": 31,
+                                  "column": 20,
+                                  "program": "lambdaFunction1.ets"
+                                },
+                                "end": {
+                                  "line": 31,
+                                  "column": 24,
+                                  "program": "lambdaFunction1.ets"
+                                }
+                              }
+                            },
+                            "property": {
+                              "type": "Identifier",
+                              "name": "a",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 31,
+                                  "column": 25,
+                                  "program": "lambdaFunction1.ets"
+                                },
+                                "end": {
+                                  "line": 31,
+                                  "column": 26,
+                                  "program": "lambdaFunction1.ets"
+                                }
+                              }
+                            },
+                            "computed": false,
+                            "optional": false,
+                            "loc": {
+                              "start": {
+                                "line": 31,
+                                "column": 20,
+                                "program": "lambdaFunction1.ets"
+                              },
+                              "end": {
+                                "line": 31,
+                                "column": 26,
+                                "program": "lambdaFunction1.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 31,
+                            "column": 16,
+                            "program": "lambdaFunction1.ets"
+                          },
+                          "end": {
+                            "line": 31,
+                            "column": 27,
+                            "program": "lambdaFunction1.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 31,
+                          "column": 9,
+                          "program": "lambdaFunction1.ets"
+                        },
+                        "end": {
+                          "line": 31,
+                          "column": 28,
+                          "program": "lambdaFunction1.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 30,
+                      "column": 16,
+                      "program": "lambdaFunction1.ets"
+                    },
+                    "end": {
+                      "line": 32,
+                      "column": 6,
+                      "program": "lambdaFunction1.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 30,
+                    "column": 8,
+                    "program": "lambdaFunction1.ets"
+                  },
+                  "end": {
+                    "line": 32,
+                    "column": 6,
+                    "program": "lambdaFunction1.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 30,
+                  "column": 8,
+                  "program": "lambdaFunction1.ets"
+                },
+                "end": {
+                  "line": 32,
+                  "column": 6,
+                  "program": "lambdaFunction1.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 30,
+                "column": 5,
+                "program": "lambdaFunction1.ets"
+              },
+              "end": {
+                "line": 32,
+                "column": 6,
+                "program": "lambdaFunction1.ets"
+              }
+            }
+          },
+          {
+            "type": "ClassProperty",
+            "key": {
+              "type": "Identifier",
+              "name": "a",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 34,
+                  "column": 5,
+                  "program": "lambdaFunction1.ets"
+                },
+                "end": {
+                  "line": 34,
+                  "column": 6,
+                  "program": "lambdaFunction1.ets"
+                }
+              }
+            },
+            "value": {
+              "type": "ArrowFunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": null,
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "a",
+                      "typeAnnotation": {
+                        "type": "ETSPrimitiveType",
+                        "loc": {
+                          "start": {
+                            "line": 34,
+                            "column": 38,
+                            "program": "lambdaFunction1.ets"
+                          },
+                          "end": {
+                            "line": 34,
+                            "column": 41,
+                            "program": "lambdaFunction1.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 34,
+                          "column": 35,
+                          "program": "lambdaFunction1.ets"
+                        },
+                        "end": {
+                          "line": 34,
+                          "column": 41,
+                          "program": "lambdaFunction1.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 34,
+                        "column": 35,
+                        "program": "lambdaFunction1.ets"
+                      },
+                      "end": {
+                        "line": 34,
+                        "column": 41,
+                        "program": "lambdaFunction1.ets"
+                      }
+                    }
+                  },
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "b",
+                      "typeAnnotation": {
+                        "type": "ETSPrimitiveType",
+                        "loc": {
+                          "start": {
+                            "line": 34,
+                            "column": 46,
+                            "program": "lambdaFunction1.ets"
+                          },
+                          "end": {
+                            "line": 34,
+                            "column": 49,
+                            "program": "lambdaFunction1.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 34,
+                          "column": 43,
+                          "program": "lambdaFunction1.ets"
+                        },
+                        "end": {
+                          "line": 34,
+                          "column": 49,
+                          "program": "lambdaFunction1.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 34,
+                        "column": 43,
+                        "program": "lambdaFunction1.ets"
+                      },
+                      "end": {
+                        "line": 34,
+                        "column": 49,
+                        "program": "lambdaFunction1.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 34,
+                      "column": 52,
+                      "program": "lambdaFunction1.ets"
+                    },
+                    "end": {
+                      "line": 34,
+                      "column": 55,
+                      "program": "lambdaFunction1.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "ReturnStatement",
+                      "argument": {
+                        "type": "BinaryExpression",
+                        "operator": "+",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "a",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 35,
+                              "column": 16,
+                              "program": "lambdaFunction1.ets"
+                            },
+                            "end": {
+                              "line": 35,
+                              "column": 17,
+                              "program": "lambdaFunction1.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "Identifier",
+                          "name": "b",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 35,
+                              "column": 20,
+                              "program": "lambdaFunction1.ets"
+                            },
+                            "end": {
+                              "line": 35,
+                              "column": 21,
+                              "program": "lambdaFunction1.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 35,
+                            "column": 16,
+                            "program": "lambdaFunction1.ets"
+                          },
+                          "end": {
+                            "line": 35,
+                            "column": 21,
+                            "program": "lambdaFunction1.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 35,
+                          "column": 9,
+                          "program": "lambdaFunction1.ets"
+                        },
+                        "end": {
+                          "line": 35,
+                          "column": 22,
+                          "program": "lambdaFunction1.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 34,
+                      "column": 59,
+                      "program": "lambdaFunction1.ets"
+                    },
+                    "end": {
+                      "line": 36,
+                      "column": 6,
+                      "program": "lambdaFunction1.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 34,
+                    "column": 34,
+                    "program": "lambdaFunction1.ets"
+                  },
+                  "end": {
+                    "line": 36,
+                    "column": 6,
+                    "program": "lambdaFunction1.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 34,
+                  "column": 34,
+                  "program": "lambdaFunction1.ets"
+                },
+                "end": {
+                  "line": 36,
+                  "column": 6,
+                  "program": "lambdaFunction1.ets"
+                }
+              }
+            },
+            "accessibility": "public",
+            "static": false,
+            "readonly": false,
+            "declare": false,
+            "optional": false,
+            "computed": false,
+            "typeAnnotation": {
+              "type": "ETSFunctionType",
+              "params": [
+                {
+                  "type": "ETSParameterExpression",
+                  "name": {
+                    "type": "Identifier",
+                    "name": "a",
+                    "typeAnnotation": {
+                      "type": "ETSPrimitiveType",
+                      "loc": {
+                        "start": {
+                          "line": 34,
+                          "column": 12,
+                          "program": "lambdaFunction1.ets"
+                        },
+                        "end": {
+                          "line": 34,
+                          "column": 15,
+                          "program": "lambdaFunction1.ets"
+                        }
+                      }
+                    },
+                    "decorators": [],
+                    "loc": {
+                      "start": {
+                        "line": 34,
+                        "column": 9,
+                        "program": "lambdaFunction1.ets"
+                      },
+                      "end": {
+                        "line": 34,
+                        "column": 15,
+                        "program": "lambdaFunction1.ets"
+                      }
+                    }
+                  },
+                  "loc": {
+                    "start": {
+                      "line": 34,
+                      "column": 9,
+                      "program": "lambdaFunction1.ets"
+                    },
+                    "end": {
+                      "line": 34,
+                      "column": 15,
+                      "program": "lambdaFunction1.ets"
+                    }
+                  }
+                },
+                {
+                  "type": "ETSParameterExpression",
+                  "name": {
+                    "type": "Identifier",
+                    "name": "b",
+                    "typeAnnotation": {
+                      "type": "ETSPrimitiveType",
+                      "loc": {
+                        "start": {
+                          "line": 34,
+                          "column": 20,
+                          "program": "lambdaFunction1.ets"
+                        },
+                        "end": {
+                          "line": 34,
+                          "column": 23,
+                          "program": "lambdaFunction1.ets"
+                        }
+                      }
+                    },
+                    "decorators": [],
+                    "loc": {
+                      "start": {
+                        "line": 34,
+                        "column": 17,
+                        "program": "lambdaFunction1.ets"
+                      },
+                      "end": {
+                        "line": 34,
+                        "column": 23,
+                        "program": "lambdaFunction1.ets"
+                      }
+                    }
+                  },
+                  "loc": {
+                    "start": {
+                      "line": 34,
+                      "column": 17,
+                      "program": "lambdaFunction1.ets"
+                    },
+                    "end": {
+                      "line": 34,
+                      "column": 23,
+                      "program": "lambdaFunction1.ets"
+                    }
+                  }
+                }
+              ],
+              "returnType": {
+                "type": "ETSPrimitiveType",
+                "loc": {
+                  "start": {
+                    "line": 34,
+                    "column": 28,
+                    "program": "lambdaFunction1.ets"
+                  },
+                  "end": {
+                    "line": 34,
+                    "column": 31,
+                    "program": "lambdaFunction1.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 34,
+                  "column": 8,
+                  "program": "lambdaFunction1.ets"
+                },
+                "end": {
+                  "line": 34,
+                  "column": 31,
+                  "program": "lambdaFunction1.ets"
+                }
+              }
+            },
+            "definite": false,
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 34,
+                "column": 5,
+                "program": "lambdaFunction1.ets"
+              },
+              "end": {
+                "line": 36,
+                "column": 6,
+                "program": "lambdaFunction1.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 29,
+                  "column": 10,
+                  "program": "lambdaFunction1.ets"
+                },
+                "end": {
+                  "line": 29,
+                  "column": 10,
+                  "program": "lambdaFunction1.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 29,
+                      "column": 10,
+                      "program": "lambdaFunction1.ets"
+                    },
+                    "end": {
+                      "line": 29,
+                      "column": 10,
+                      "program": "lambdaFunction1.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 29,
+                      "column": 10,
+                      "program": "lambdaFunction1.ets"
+                    },
+                    "end": {
+                      "line": 29,
+                      "column": 10,
+                      "program": "lambdaFunction1.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 29,
+                    "column": 10,
+                    "program": "lambdaFunction1.ets"
+                  },
+                  "end": {
+                    "line": 29,
+                    "column": 10,
+                    "program": "lambdaFunction1.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 29,
+                  "column": 10,
+                  "program": "lambdaFunction1.ets"
+                },
+                "end": {
+                  "line": 29,
+                  "column": 10,
+                  "program": "lambdaFunction1.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 29,
+            "column": 9,
+            "program": "lambdaFunction1.ets"
+          },
+          "end": {
+            "line": 39,
+            "column": 9,
+            "program": "lambdaFunction1.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 29,
+          "column": 1,
+          "program": "lambdaFunction1.ets"
+        },
+        "end": {
+          "line": 39,
+          "column": 9,
+          "program": "lambdaFunction1.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "lambdaFunction1.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "lambdaFunction1.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "AssignmentExpression",
+                        "operator": "=",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "a",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 16,
+                              "column": 5,
+                              "program": "lambdaFunction1.ets"
+                            },
+                            "end": {
+                              "line": 16,
+                              "column": 6,
+                              "program": "lambdaFunction1.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "NumberLiteral",
+                          "value": 1,
+                          "loc": {
+                            "start": {
+                              "line": 16,
+                              "column": 14,
+                              "program": "lambdaFunction1.ets"
+                            },
+                            "end": {
+                              "line": 16,
+                              "column": 15,
+                              "program": "lambdaFunction1.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 16,
+                            "column": 5,
+                            "program": "lambdaFunction1.ets"
+                          },
+                          "end": {
+                            "line": 16,
+                            "column": 15,
+                            "program": "lambdaFunction1.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 16,
+                          "column": 5,
+                          "program": "lambdaFunction1.ets"
+                        },
+                        "end": {
+                          "line": 16,
+                          "column": 15,
+                          "program": "lambdaFunction1.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "AssignmentExpression",
+                        "operator": "=",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "lambda1",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 18,
+                              "column": 5,
+                              "program": "lambdaFunction1.ets"
+                            },
+                            "end": {
+                              "line": 18,
+                              "column": 12,
+                              "program": "lambdaFunction1.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "ArrowFunctionExpression",
+                          "function": {
+                            "type": "ScriptFunction",
+                            "id": null,
+                            "generator": false,
+                            "async": false,
+                            "expression": false,
+                            "params": [],
+                            "returnType": {
+                              "type": "ETSPrimitiveType",
+                              "loc": {
+                                "start": {
+                                  "line": 18,
+                                  "column": 30,
+                                  "program": "lambdaFunction1.ets"
+                                },
+                                "end": {
+                                  "line": 18,
+                                  "column": 33,
+                                  "program": "lambdaFunction1.ets"
+                                }
+                              }
+                            },
+                            "body": {
+                              "type": "BlockStatement",
+                              "statements": [
+                                {
+                                  "type": "ExpressionStatement",
+                                  "expression": {
+                                    "type": "UpdateExpression",
+                                    "operator": "++",
+                                    "prefix": false,
+                                    "argument": {
+                                      "type": "Identifier",
+                                      "name": "a",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 19,
+                                          "column": 5,
+                                          "program": "lambdaFunction1.ets"
+                                        },
+                                        "end": {
+                                          "line": 19,
+                                          "column": 6,
+                                          "program": "lambdaFunction1.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 19,
+                                        "column": 5,
+                                        "program": "lambdaFunction1.ets"
+                                      },
+                                      "end": {
+                                        "line": 19,
+                                        "column": 8,
+                                        "program": "lambdaFunction1.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 19,
+                                      "column": 5,
+                                      "program": "lambdaFunction1.ets"
+                                    },
+                                    "end": {
+                                      "line": 19,
+                                      "column": 9,
+                                      "program": "lambdaFunction1.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ReturnStatement",
+                                  "argument": {
+                                    "type": "Identifier",
+                                    "name": "a",
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 20,
+                                        "column": 12,
+                                        "program": "lambdaFunction1.ets"
+                                      },
+                                      "end": {
+                                        "line": 20,
+                                        "column": 13,
+                                        "program": "lambdaFunction1.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 5,
+                                      "program": "lambdaFunction1.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 14,
+                                      "program": "lambdaFunction1.ets"
+                                    }
+                                  }
+                                }
+                              ],
+                              "loc": {
+                                "start": {
+                                  "line": 18,
+                                  "column": 37,
+                                  "program": "lambdaFunction1.ets"
+                                },
+                                "end": {
+                                  "line": 21,
+                                  "column": 2,
+                                  "program": "lambdaFunction1.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 18,
+                                "column": 26,
+                                "program": "lambdaFunction1.ets"
+                              },
+                              "end": {
+                                "line": 21,
+                                "column": 2,
+                                "program": "lambdaFunction1.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 18,
+                              "column": 26,
+                              "program": "lambdaFunction1.ets"
+                            },
+                            "end": {
+                              "line": 21,
+                              "column": 2,
+                              "program": "lambdaFunction1.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 18,
+                            "column": 5,
+                            "program": "lambdaFunction1.ets"
+                          },
+                          "end": {
+                            "line": 21,
+                            "column": 2,
+                            "program": "lambdaFunction1.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 18,
+                          "column": 5,
+                          "program": "lambdaFunction1.ets"
+                        },
+                        "end": {
+                          "line": 21,
+                          "column": 2,
+                          "program": "lambdaFunction1.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "lambdaFunction1.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "lambdaFunction1.ets"
+              }
+            }
+          },
+          {
+            "type": "ClassProperty",
+            "key": {
+              "type": "Identifier",
+              "name": "a",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 5,
+                  "program": "lambdaFunction1.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 6,
+                  "program": "lambdaFunction1.ets"
+                }
+              }
+            },
+            "accessibility": "public",
+            "static": true,
+            "readonly": false,
+            "declare": false,
+            "optional": false,
+            "computed": false,
+            "typeAnnotation": {
+              "type": "ETSPrimitiveType",
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 8,
+                  "program": "lambdaFunction1.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 11,
+                  "program": "lambdaFunction1.ets"
+                }
+              }
+            },
+            "definite": false,
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 5,
+                "program": "lambdaFunction1.ets"
+              },
+              "end": {
+                "line": 16,
+                "column": 15,
+                "program": "lambdaFunction1.ets"
+              }
+            }
+          },
+          {
+            "type": "ClassProperty",
+            "key": {
+              "type": "Identifier",
+              "name": "lambda1",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 5,
+                  "program": "lambdaFunction1.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 12,
+                  "program": "lambdaFunction1.ets"
+                }
+              }
+            },
+            "accessibility": "public",
+            "static": true,
+            "readonly": false,
+            "declare": false,
+            "optional": false,
+            "computed": false,
+            "typeAnnotation": {
+              "type": "ETSFunctionType",
+              "params": [],
+              "returnType": {
+                "type": "ETSPrimitiveType",
+                "loc": {
+                  "start": {
+                    "line": 18,
+                    "column": 20,
+                    "program": "lambdaFunction1.ets"
+                  },
+                  "end": {
+                    "line": 18,
+                    "column": 23,
+                    "program": "lambdaFunction1.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 14,
+                  "program": "lambdaFunction1.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 23,
+                  "program": "lambdaFunction1.ets"
+                }
+              }
+            },
+            "definite": false,
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 18,
+                "column": 5,
+                "program": "lambdaFunction1.ets"
+              },
+              "end": {
+                "line": 21,
+                "column": 2,
+                "program": "lambdaFunction1.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "foo",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 23,
+                  "column": 10,
+                  "program": "lambdaFunction1.ets"
+                },
+                "end": {
+                  "line": 23,
+                  "column": 13,
+                  "program": "lambdaFunction1.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "foo",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 23,
+                      "column": 10,
+                      "program": "lambdaFunction1.ets"
+                    },
+                    "end": {
+                      "line": 23,
+                      "column": 13,
+                      "program": "lambdaFunction1.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "a",
+                      "typeAnnotation": {
+                        "type": "ETSFunctionType",
+                        "params": [
+                          {
+                            "type": "ETSParameterExpression",
+                            "name": {
+                              "type": "Identifier",
+                              "name": "a",
+                              "typeAnnotation": {
+                                "type": "ETSPrimitiveType",
+                                "loc": {
+                                  "start": {
+                                    "line": 23,
+                                    "column": 21,
+                                    "program": "lambdaFunction1.ets"
+                                  },
+                                  "end": {
+                                    "line": 23,
+                                    "column": 24,
+                                    "program": "lambdaFunction1.ets"
+                                  }
+                                }
+                              },
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 23,
+                                  "column": 18,
+                                  "program": "lambdaFunction1.ets"
+                                },
+                                "end": {
+                                  "line": 23,
+                                  "column": 24,
+                                  "program": "lambdaFunction1.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 18,
+                                "program": "lambdaFunction1.ets"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 24,
+                                "program": "lambdaFunction1.ets"
+                              }
+                            }
+                          },
+                          {
+                            "type": "ETSParameterExpression",
+                            "name": {
+                              "type": "Identifier",
+                              "name": "b",
+                              "typeAnnotation": {
+                                "type": "ETSPrimitiveType",
+                                "loc": {
+                                  "start": {
+                                    "line": 23,
+                                    "column": 29,
+                                    "program": "lambdaFunction1.ets"
+                                  },
+                                  "end": {
+                                    "line": 23,
+                                    "column": 32,
+                                    "program": "lambdaFunction1.ets"
+                                  }
+                                }
+                              },
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 23,
+                                  "column": 26,
+                                  "program": "lambdaFunction1.ets"
+                                },
+                                "end": {
+                                  "line": 23,
+                                  "column": 32,
+                                  "program": "lambdaFunction1.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 26,
+                                "program": "lambdaFunction1.ets"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 32,
+                                "program": "lambdaFunction1.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "returnType": {
+                          "type": "ETSPrimitiveType",
+                          "loc": {
+                            "start": {
+                              "line": 23,
+                              "column": 37,
+                              "program": "lambdaFunction1.ets"
+                            },
+                            "end": {
+                              "line": 23,
+                              "column": 40,
+                              "program": "lambdaFunction1.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 23,
+                            "column": 17,
+                            "program": "lambdaFunction1.ets"
+                          },
+                          "end": {
+                            "line": 23,
+                            "column": 40,
+                            "program": "lambdaFunction1.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 23,
+                          "column": 14,
+                          "program": "lambdaFunction1.ets"
+                        },
+                        "end": {
+                          "line": 23,
+                          "column": 40,
+                          "program": "lambdaFunction1.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 23,
+                        "column": 14,
+                        "program": "lambdaFunction1.ets"
+                      },
+                      "end": {
+                        "line": 23,
+                        "column": 40,
+                        "program": "lambdaFunction1.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 23,
+                      "column": 43,
+                      "program": "lambdaFunction1.ets"
+                    },
+                    "end": {
+                      "line": 23,
+                      "column": 46,
+                      "program": "lambdaFunction1.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "value",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 24,
+                                "column": 9,
+                                "program": "lambdaFunction1.ets"
+                              },
+                              "end": {
+                                "line": 24,
+                                "column": 14,
+                                "program": "lambdaFunction1.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "Identifier",
+                              "name": "a",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 24,
+                                  "column": 17,
+                                  "program": "lambdaFunction1.ets"
+                                },
+                                "end": {
+                                  "line": 24,
+                                  "column": 18,
+                                  "program": "lambdaFunction1.ets"
+                                }
+                              }
+                            },
+                            "arguments": [
+                              {
+                                "type": "NumberLiteral",
+                                "value": 1,
+                                "loc": {
+                                  "start": {
+                                    "line": 24,
+                                    "column": 19,
+                                    "program": "lambdaFunction1.ets"
+                                  },
+                                  "end": {
+                                    "line": 24,
+                                    "column": 20,
+                                    "program": "lambdaFunction1.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "NumberLiteral",
+                                "value": 2,
+                                "loc": {
+                                  "start": {
+                                    "line": 24,
+                                    "column": 22,
+                                    "program": "lambdaFunction1.ets"
+                                  },
+                                  "end": {
+                                    "line": 24,
+                                    "column": 23,
+                                    "program": "lambdaFunction1.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "optional": false,
+                            "loc": {
+                              "start": {
+                                "line": 24,
+                                "column": 17,
+                                "program": "lambdaFunction1.ets"
+                              },
+                              "end": {
+                                "line": 24,
+                                "column": 24,
+                                "program": "lambdaFunction1.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 24,
+                              "column": 9,
+                              "program": "lambdaFunction1.ets"
+                            },
+                            "end": {
+                              "line": 24,
+                              "column": 24,
+                              "program": "lambdaFunction1.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 24,
+                          "column": 5,
+                          "program": "lambdaFunction1.ets"
+                        },
+                        "end": {
+                          "line": 24,
+                          "column": 25,
+                          "program": "lambdaFunction1.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "UpdateExpression",
+                        "operator": "++",
+                        "prefix": false,
+                        "argument": {
+                          "type": "Identifier",
+                          "name": "value",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 25,
+                              "column": 5,
+                              "program": "lambdaFunction1.ets"
+                            },
+                            "end": {
+                              "line": 25,
+                              "column": 10,
+                              "program": "lambdaFunction1.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 25,
+                            "column": 5,
+                            "program": "lambdaFunction1.ets"
+                          },
+                          "end": {
+                            "line": 25,
+                            "column": 12,
+                            "program": "lambdaFunction1.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 25,
+                          "column": 5,
+                          "program": "lambdaFunction1.ets"
+                        },
+                        "end": {
+                          "line": 25,
+                          "column": 13,
+                          "program": "lambdaFunction1.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ReturnStatement",
+                      "argument": {
+                        "type": "Identifier",
+                        "name": "value",
+                        "decorators": [],
+                        "loc": {
+                          "start": {
+                            "line": 26,
+                            "column": 12,
+                            "program": "lambdaFunction1.ets"
+                          },
+                          "end": {
+                            "line": 26,
+                            "column": 17,
+                            "program": "lambdaFunction1.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 26,
+                          "column": 5,
+                          "program": "lambdaFunction1.ets"
+                        },
+                        "end": {
+                          "line": 26,
+                          "column": 18,
+                          "program": "lambdaFunction1.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 23,
+                      "column": 47,
+                      "program": "lambdaFunction1.ets"
+                    },
+                    "end": {
+                      "line": 27,
+                      "column": 2,
+                      "program": "lambdaFunction1.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 23,
+                    "column": 10,
+                    "program": "lambdaFunction1.ets"
+                  },
+                  "end": {
+                    "line": 27,
+                    "column": 2,
+                    "program": "lambdaFunction1.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 23,
+                  "column": 10,
+                  "program": "lambdaFunction1.ets"
+                },
+                "end": {
+                  "line": 27,
+                  "column": 2,
+                  "program": "lambdaFunction1.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 23,
+                "column": 1,
+                "program": "lambdaFunction1.ets"
+              },
+              "end": {
+                "line": 27,
+                "column": 2,
+                "program": "lambdaFunction1.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 39,
+                  "column": 10,
+                  "program": "lambdaFunction1.ets"
+                },
+                "end": {
+                  "line": 39,
+                  "column": 14,
+                  "program": "lambdaFunction1.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 39,
+                      "column": 10,
+                      "program": "lambdaFunction1.ets"
+                    },
+                    "end": {
+                      "line": 39,
+                      "column": 14,
+                      "program": "lambdaFunction1.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 39,
+                      "column": 18,
+                      "program": "lambdaFunction1.ets"
+                    },
+                    "end": {
+                      "line": 39,
+                      "column": 22,
+                      "program": "lambdaFunction1.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "a",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 40,
+                                "column": 9,
+                                "program": "lambdaFunction1.ets"
+                              },
+                              "end": {
+                                "line": 40,
+                                "column": 10,
+                                "program": "lambdaFunction1.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "ETSNewClassInstanceExpression",
+                            "typeReference": {
+                              "type": "ETSTypeReference",
+                              "part": {
+                                "type": "ETSTypeReferencePart",
+                                "name": {
+                                  "type": "Identifier",
+                                  "name": "A",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 40,
+                                      "column": 17,
+                                      "program": "lambdaFunction1.ets"
+                                    },
+                                    "end": {
+                                      "line": 40,
+                                      "column": 18,
+                                      "program": "lambdaFunction1.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 40,
+                                    "column": 17,
+                                    "program": "lambdaFunction1.ets"
+                                  },
+                                  "end": {
+                                    "line": 40,
+                                    "column": 19,
+                                    "program": "lambdaFunction1.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 40,
+                                  "column": 17,
+                                  "program": "lambdaFunction1.ets"
+                                },
+                                "end": {
+                                  "line": 40,
+                                  "column": 19,
+                                  "program": "lambdaFunction1.ets"
+                                }
+                              }
+                            },
+                            "arguments": [],
+                            "loc": {
+                              "start": {
+                                "line": 40,
+                                "column": 13,
+                                "program": "lambdaFunction1.ets"
+                              },
+                              "end": {
+                                "line": 40,
+                                "column": 21,
+                                "program": "lambdaFunction1.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 40,
+                              "column": 9,
+                              "program": "lambdaFunction1.ets"
+                            },
+                            "end": {
+                              "line": 40,
+                              "column": 21,
+                              "program": "lambdaFunction1.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 40,
+                          "column": 5,
+                          "program": "lambdaFunction1.ets"
+                        },
+                        "end": {
+                          "line": 40,
+                          "column": 21,
+                          "program": "lambdaFunction1.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "value",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 41,
+                                "column": 9,
+                                "program": "lambdaFunction1.ets"
+                              },
+                              "end": {
+                                "line": 41,
+                                "column": 14,
+                                "program": "lambdaFunction1.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "MemberExpression",
+                              "object": {
+                                "type": "Identifier",
+                                "name": "a",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 41,
+                                    "column": 17,
+                                    "program": "lambdaFunction1.ets"
+                                  },
+                                  "end": {
+                                    "line": 41,
+                                    "column": 18,
+                                    "program": "lambdaFunction1.ets"
+                                  }
+                                }
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "bar",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 41,
+                                    "column": 19,
+                                    "program": "lambdaFunction1.ets"
+                                  },
+                                  "end": {
+                                    "line": 41,
+                                    "column": 22,
+                                    "program": "lambdaFunction1.ets"
+                                  }
+                                }
+                              },
+                              "computed": false,
+                              "optional": false,
+                              "loc": {
+                                "start": {
+                                  "line": 41,
+                                  "column": 17,
+                                  "program": "lambdaFunction1.ets"
+                                },
+                                "end": {
+                                  "line": 41,
+                                  "column": 22,
+                                  "program": "lambdaFunction1.ets"
+                                }
+                              }
+                            },
+                            "arguments": [],
+                            "optional": false,
+                            "loc": {
+                              "start": {
+                                "line": 41,
+                                "column": 17,
+                                "program": "lambdaFunction1.ets"
+                              },
+                              "end": {
+                                "line": 41,
+                                "column": 24,
+                                "program": "lambdaFunction1.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 41,
+                              "column": 9,
+                              "program": "lambdaFunction1.ets"
+                            },
+                            "end": {
+                              "line": 41,
+                              "column": 24,
+                              "program": "lambdaFunction1.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 41,
+                          "column": 5,
+                          "program": "lambdaFunction1.ets"
+                        },
+                        "end": {
+                          "line": 41,
+                          "column": 25,
+                          "program": "lambdaFunction1.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "UpdateExpression",
+                        "operator": "++",
+                        "prefix": false,
+                        "argument": {
+                          "type": "Identifier",
+                          "name": "value",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 42,
+                              "column": 5,
+                              "program": "lambdaFunction1.ets"
+                            },
+                            "end": {
+                              "line": 42,
+                              "column": 10,
+                              "program": "lambdaFunction1.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 42,
+                            "column": 5,
+                            "program": "lambdaFunction1.ets"
+                          },
+                          "end": {
+                            "line": 42,
+                            "column": 12,
+                            "program": "lambdaFunction1.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 42,
+                          "column": 5,
+                          "program": "lambdaFunction1.ets"
+                        },
+                        "end": {
+                          "line": 42,
+                          "column": 13,
+                          "program": "lambdaFunction1.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 39,
+                      "column": 23,
+                      "program": "lambdaFunction1.ets"
+                    },
+                    "end": {
+                      "line": 43,
+                      "column": 2,
+                      "program": "lambdaFunction1.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 39,
+                    "column": 10,
+                    "program": "lambdaFunction1.ets"
+                  },
+                  "end": {
+                    "line": 43,
+                    "column": 2,
+                    "program": "lambdaFunction1.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 39,
+                  "column": 10,
+                  "program": "lambdaFunction1.ets"
+                },
+                "end": {
+                  "line": 43,
+                  "column": 2,
+                  "program": "lambdaFunction1.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 39,
+                "column": 1,
+                "program": "lambdaFunction1.ets"
+              },
+              "end": {
+                "line": 43,
+                "column": 2,
+                "program": "lambdaFunction1.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "lambdaFunction1.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "lambdaFunction1.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "lambdaFunction1.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "lambdaFunction1.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "lambdaFunction1.ets"
+    },
+    "end": {
+      "line": 44,
+      "column": 1,
+      "program": "lambdaFunction1.ets"
+    }
+  }
+}

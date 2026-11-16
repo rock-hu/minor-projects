@@ -1,0 +1,1745 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "B",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 16,
+              "column": 7,
+              "program": "requiredType_9.ets"
+            },
+            "end": {
+              "line": 16,
+              "column": 8,
+              "program": "requiredType_9.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "ClassProperty",
+            "key": {
+              "type": "Identifier",
+              "name": "b_fld",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 5,
+                  "program": "requiredType_9.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 10,
+                  "program": "requiredType_9.ets"
+                }
+              }
+            },
+            "accessibility": "public",
+            "static": false,
+            "readonly": false,
+            "declare": false,
+            "optional": false,
+            "computed": false,
+            "typeAnnotation": {
+              "type": "ETSTypeReference",
+              "part": {
+                "type": "ETSTypeReferencePart",
+                "name": {
+                  "type": "Identifier",
+                  "name": "number",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 12,
+                      "program": "requiredType_9.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 18,
+                      "program": "requiredType_9.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 12,
+                    "program": "requiredType_9.ets"
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 19,
+                    "program": "requiredType_9.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 12,
+                  "program": "requiredType_9.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 19,
+                  "program": "requiredType_9.ets"
+                }
+              }
+            },
+            "definite": false,
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 5,
+                "program": "requiredType_9.ets"
+              },
+              "end": {
+                "line": 17,
+                "column": 19,
+                "program": "requiredType_9.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "requiredType_9.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "requiredType_9.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "requiredType_9.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "requiredType_9.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "requiredType_9.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "requiredType_9.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 10,
+                    "program": "requiredType_9.ets"
+                  },
+                  "end": {
+                    "line": 16,
+                    "column": 10,
+                    "program": "requiredType_9.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "requiredType_9.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "requiredType_9.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 9,
+            "program": "requiredType_9.ets"
+          },
+          "end": {
+            "line": 20,
+            "column": 6,
+            "program": "requiredType_9.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 1,
+          "program": "requiredType_9.ets"
+        },
+        "end": {
+          "line": 20,
+          "column": 6,
+          "program": "requiredType_9.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "A",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 20,
+              "column": 7,
+              "program": "requiredType_9.ets"
+            },
+            "end": {
+              "line": 20,
+              "column": 8,
+              "program": "requiredType_9.ets"
+            }
+          }
+        },
+        "typeParameters": {
+          "type": "TSTypeParameterDeclaration",
+          "params": [
+            {
+              "type": "TSTypeParameter",
+              "name": {
+                "type": "Identifier",
+                "name": "T",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 20,
+                    "column": 9,
+                    "program": "requiredType_9.ets"
+                  },
+                  "end": {
+                    "line": 20,
+                    "column": 10,
+                    "program": "requiredType_9.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 9,
+                  "program": "requiredType_9.ets"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 11,
+                  "program": "requiredType_9.ets"
+                }
+              }
+            }
+          ],
+          "loc": {
+            "start": {
+              "line": 20,
+              "column": 8,
+              "program": "requiredType_9.ets"
+            },
+            "end": {
+              "line": 20,
+              "column": 11,
+              "program": "requiredType_9.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "ClassProperty",
+            "key": {
+              "type": "Identifier",
+              "name": "fld",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 21,
+                  "column": 5,
+                  "program": "requiredType_9.ets"
+                },
+                "end": {
+                  "line": 21,
+                  "column": 8,
+                  "program": "requiredType_9.ets"
+                }
+              }
+            },
+            "accessibility": "public",
+            "static": false,
+            "readonly": false,
+            "declare": false,
+            "optional": false,
+            "computed": false,
+            "typeAnnotation": {
+              "type": "ETSUnionType",
+              "types": [
+                {
+                  "type": "ETSTypeReference",
+                  "part": {
+                    "type": "ETSTypeReferencePart",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "T",
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 21,
+                          "column": 10,
+                          "program": "requiredType_9.ets"
+                        },
+                        "end": {
+                          "line": 21,
+                          "column": 11,
+                          "program": "requiredType_9.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 21,
+                        "column": 10,
+                        "program": "requiredType_9.ets"
+                      },
+                      "end": {
+                        "line": 21,
+                        "column": 13,
+                        "program": "requiredType_9.ets"
+                      }
+                    }
+                  },
+                  "loc": {
+                    "start": {
+                      "line": 21,
+                      "column": 10,
+                      "program": "requiredType_9.ets"
+                    },
+                    "end": {
+                      "line": 21,
+                      "column": 13,
+                      "program": "requiredType_9.ets"
+                    }
+                  }
+                },
+                {
+                  "type": "ETSUndefinedType",
+                  "loc": {
+                    "start": {
+                      "line": 21,
+                      "column": 14,
+                      "program": "requiredType_9.ets"
+                    },
+                    "end": {
+                      "line": 21,
+                      "column": 23,
+                      "program": "requiredType_9.ets"
+                    }
+                  }
+                }
+              ],
+              "loc": {
+                "start": {
+                  "line": 21,
+                  "column": 10,
+                  "program": "requiredType_9.ets"
+                },
+                "end": {
+                  "line": 21,
+                  "column": 23,
+                  "program": "requiredType_9.ets"
+                }
+              }
+            },
+            "definite": false,
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 21,
+                "column": 5,
+                "program": "requiredType_9.ets"
+              },
+              "end": {
+                "line": 21,
+                "column": 23,
+                "program": "requiredType_9.ets"
+              }
+            }
+          },
+          {
+            "type": "ClassProperty",
+            "key": {
+              "type": "Identifier",
+              "name": "fld2",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 22,
+                  "column": 5,
+                  "program": "requiredType_9.ets"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 9,
+                  "program": "requiredType_9.ets"
+                }
+              }
+            },
+            "accessibility": "public",
+            "static": false,
+            "readonly": false,
+            "declare": false,
+            "optional": false,
+            "computed": false,
+            "typeAnnotation": {
+              "type": "ETSTypeReference",
+              "part": {
+                "type": "ETSTypeReferencePart",
+                "name": {
+                  "type": "Identifier",
+                  "name": "Required",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 22,
+                      "column": 11,
+                      "program": "requiredType_9.ets"
+                    },
+                    "end": {
+                      "line": 22,
+                      "column": 19,
+                      "program": "requiredType_9.ets"
+                    }
+                  }
+                },
+                "typeParams": {
+                  "type": "TSTypeParameterInstantiation",
+                  "params": [
+                    {
+                      "type": "ETSTypeReference",
+                      "part": {
+                        "type": "ETSTypeReferencePart",
+                        "name": {
+                          "type": "Identifier",
+                          "name": "T",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 22,
+                              "column": 20,
+                              "program": "requiredType_9.ets"
+                            },
+                            "end": {
+                              "line": 22,
+                              "column": 21,
+                              "program": "requiredType_9.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 22,
+                            "column": 20,
+                            "program": "requiredType_9.ets"
+                          },
+                          "end": {
+                            "line": 22,
+                            "column": 22,
+                            "program": "requiredType_9.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 22,
+                          "column": 20,
+                          "program": "requiredType_9.ets"
+                        },
+                        "end": {
+                          "line": 22,
+                          "column": 22,
+                          "program": "requiredType_9.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 22,
+                      "column": 19,
+                      "program": "requiredType_9.ets"
+                    },
+                    "end": {
+                      "line": 22,
+                      "column": 22,
+                      "program": "requiredType_9.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 22,
+                    "column": 11,
+                    "program": "requiredType_9.ets"
+                  },
+                  "end": {
+                    "line": 22,
+                    "column": 23,
+                    "program": "requiredType_9.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 22,
+                  "column": 11,
+                  "program": "requiredType_9.ets"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 23,
+                  "program": "requiredType_9.ets"
+                }
+              }
+            },
+            "definite": false,
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 22,
+                "column": 5,
+                "program": "requiredType_9.ets"
+              },
+              "end": {
+                "line": 22,
+                "column": 23,
+                "program": "requiredType_9.ets"
+              }
+            }
+          },
+          {
+            "type": "ClassProperty",
+            "key": {
+              "type": "Identifier",
+              "name": "fld3",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 23,
+                  "column": 5,
+                  "program": "requiredType_9.ets"
+                },
+                "end": {
+                  "line": 23,
+                  "column": 9,
+                  "program": "requiredType_9.ets"
+                }
+              }
+            },
+            "accessibility": "public",
+            "static": false,
+            "readonly": false,
+            "declare": false,
+            "optional": false,
+            "computed": false,
+            "typeAnnotation": {
+              "type": "ETSTypeReference",
+              "part": {
+                "type": "ETSTypeReferencePart",
+                "name": {
+                  "type": "Identifier",
+                  "name": "Required",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 23,
+                      "column": 11,
+                      "program": "requiredType_9.ets"
+                    },
+                    "end": {
+                      "line": 23,
+                      "column": 19,
+                      "program": "requiredType_9.ets"
+                    }
+                  }
+                },
+                "typeParams": {
+                  "type": "TSTypeParameterInstantiation",
+                  "params": [
+                    {
+                      "type": "ETSUnionType",
+                      "types": [
+                        {
+                          "type": "ETSTypeReference",
+                          "part": {
+                            "type": "ETSTypeReferencePart",
+                            "name": {
+                              "type": "Identifier",
+                              "name": "T",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 23,
+                                  "column": 20,
+                                  "program": "requiredType_9.ets"
+                                },
+                                "end": {
+                                  "line": 23,
+                                  "column": 21,
+                                  "program": "requiredType_9.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 20,
+                                "program": "requiredType_9.ets"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 22,
+                                "program": "requiredType_9.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 23,
+                              "column": 20,
+                              "program": "requiredType_9.ets"
+                            },
+                            "end": {
+                              "line": 23,
+                              "column": 22,
+                              "program": "requiredType_9.ets"
+                            }
+                          }
+                        },
+                        {
+                          "type": "ETSUndefinedType",
+                          "loc": {
+                            "start": {
+                              "line": 23,
+                              "column": 22,
+                              "program": "requiredType_9.ets"
+                            },
+                            "end": {
+                              "line": 23,
+                              "column": 31,
+                              "program": "requiredType_9.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "loc": {
+                        "start": {
+                          "line": 23,
+                          "column": 20,
+                          "program": "requiredType_9.ets"
+                        },
+                        "end": {
+                          "line": 23,
+                          "column": 31,
+                          "program": "requiredType_9.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 23,
+                      "column": 19,
+                      "program": "requiredType_9.ets"
+                    },
+                    "end": {
+                      "line": 23,
+                      "column": 32,
+                      "program": "requiredType_9.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 23,
+                    "column": 11,
+                    "program": "requiredType_9.ets"
+                  },
+                  "end": {
+                    "line": 24,
+                    "column": 2,
+                    "program": "requiredType_9.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 23,
+                  "column": 11,
+                  "program": "requiredType_9.ets"
+                },
+                "end": {
+                  "line": 24,
+                  "column": 2,
+                  "program": "requiredType_9.ets"
+                }
+              }
+            },
+            "definite": false,
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 23,
+                "column": 5,
+                "program": "requiredType_9.ets"
+              },
+              "end": {
+                "line": 24,
+                "column": 2,
+                "program": "requiredType_9.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 13,
+                  "program": "requiredType_9.ets"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 13,
+                  "program": "requiredType_9.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 13,
+                      "program": "requiredType_9.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 13,
+                      "program": "requiredType_9.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 13,
+                      "program": "requiredType_9.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 13,
+                      "program": "requiredType_9.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 20,
+                    "column": 13,
+                    "program": "requiredType_9.ets"
+                  },
+                  "end": {
+                    "line": 20,
+                    "column": 13,
+                    "program": "requiredType_9.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 13,
+                  "program": "requiredType_9.ets"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 13,
+                  "program": "requiredType_9.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 20,
+            "column": 12,
+            "program": "requiredType_9.ets"
+          },
+          "end": {
+            "line": 26,
+            "column": 9,
+            "program": "requiredType_9.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 20,
+          "column": 1,
+          "program": "requiredType_9.ets"
+        },
+        "end": {
+          "line": 26,
+          "column": 9,
+          "program": "requiredType_9.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "requiredType_9.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "requiredType_9.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "requiredType_9.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "requiredType_9.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 26,
+                  "column": 10,
+                  "program": "requiredType_9.ets"
+                },
+                "end": {
+                  "line": 26,
+                  "column": 14,
+                  "program": "requiredType_9.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 26,
+                      "column": 10,
+                      "program": "requiredType_9.ets"
+                    },
+                    "end": {
+                      "line": 26,
+                      "column": 14,
+                      "program": "requiredType_9.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 26,
+                      "column": 18,
+                      "program": "requiredType_9.ets"
+                    },
+                    "end": {
+                      "line": 26,
+                      "column": 22,
+                      "program": "requiredType_9.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "req_a",
+                            "typeAnnotation": {
+                              "type": "ETSTypeReference",
+                              "part": {
+                                "type": "ETSTypeReferencePart",
+                                "name": {
+                                  "type": "Identifier",
+                                  "name": "Required",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 27,
+                                      "column": 16,
+                                      "program": "requiredType_9.ets"
+                                    },
+                                    "end": {
+                                      "line": 27,
+                                      "column": 24,
+                                      "program": "requiredType_9.ets"
+                                    }
+                                  }
+                                },
+                                "typeParams": {
+                                  "type": "TSTypeParameterInstantiation",
+                                  "params": [
+                                    {
+                                      "type": "ETSTypeReference",
+                                      "part": {
+                                        "type": "ETSTypeReferencePart",
+                                        "name": {
+                                          "type": "Identifier",
+                                          "name": "A",
+                                          "decorators": [],
+                                          "loc": {
+                                            "start": {
+                                              "line": 27,
+                                              "column": 25,
+                                              "program": "requiredType_9.ets"
+                                            },
+                                            "end": {
+                                              "line": 27,
+                                              "column": 26,
+                                              "program": "requiredType_9.ets"
+                                            }
+                                          }
+                                        },
+                                        "typeParams": {
+                                          "type": "TSTypeParameterInstantiation",
+                                          "params": [
+                                            {
+                                              "type": "ETSTypeReference",
+                                              "part": {
+                                                "type": "ETSTypeReferencePart",
+                                                "name": {
+                                                  "type": "Identifier",
+                                                  "name": "B",
+                                                  "decorators": [],
+                                                  "loc": {
+                                                    "start": {
+                                                      "line": 27,
+                                                      "column": 27,
+                                                      "program": "requiredType_9.ets"
+                                                    },
+                                                    "end": {
+                                                      "line": 27,
+                                                      "column": 28,
+                                                      "program": "requiredType_9.ets"
+                                                    }
+                                                  }
+                                                },
+                                                "loc": {
+                                                  "start": {
+                                                    "line": 27,
+                                                    "column": 27,
+                                                    "program": "requiredType_9.ets"
+                                                  },
+                                                  "end": {
+                                                    "line": 27,
+                                                    "column": 30,
+                                                    "program": "requiredType_9.ets"
+                                                  }
+                                                }
+                                              },
+                                              "loc": {
+                                                "start": {
+                                                  "line": 27,
+                                                  "column": 27,
+                                                  "program": "requiredType_9.ets"
+                                                },
+                                                "end": {
+                                                  "line": 27,
+                                                  "column": 30,
+                                                  "program": "requiredType_9.ets"
+                                                }
+                                              }
+                                            }
+                                          ],
+                                          "loc": {
+                                            "start": {
+                                              "line": 27,
+                                              "column": 26,
+                                              "program": "requiredType_9.ets"
+                                            },
+                                            "end": {
+                                              "line": 27,
+                                              "column": 30,
+                                              "program": "requiredType_9.ets"
+                                            }
+                                          }
+                                        },
+                                        "loc": {
+                                          "start": {
+                                            "line": 27,
+                                            "column": 25,
+                                            "program": "requiredType_9.ets"
+                                          },
+                                          "end": {
+                                            "line": 27,
+                                            "column": 30,
+                                            "program": "requiredType_9.ets"
+                                          }
+                                        }
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 27,
+                                          "column": 25,
+                                          "program": "requiredType_9.ets"
+                                        },
+                                        "end": {
+                                          "line": 27,
+                                          "column": 30,
+                                          "program": "requiredType_9.ets"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "loc": {
+                                    "start": {
+                                      "line": 27,
+                                      "column": 24,
+                                      "program": "requiredType_9.ets"
+                                    },
+                                    "end": {
+                                      "line": 27,
+                                      "column": 30,
+                                      "program": "requiredType_9.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 27,
+                                    "column": 16,
+                                    "program": "requiredType_9.ets"
+                                  },
+                                  "end": {
+                                    "line": 27,
+                                    "column": 32,
+                                    "program": "requiredType_9.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 27,
+                                  "column": 16,
+                                  "program": "requiredType_9.ets"
+                                },
+                                "end": {
+                                  "line": 27,
+                                  "column": 32,
+                                  "program": "requiredType_9.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 27,
+                                "column": 9,
+                                "program": "requiredType_9.ets"
+                              },
+                              "end": {
+                                "line": 27,
+                                "column": 14,
+                                "program": "requiredType_9.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "ObjectExpression",
+                            "properties": [
+                              {
+                                "type": "Property",
+                                "method": false,
+                                "shorthand": false,
+                                "computed": false,
+                                "key": {
+                                  "type": "Identifier",
+                                  "name": "fld",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 27,
+                                      "column": 34,
+                                      "program": "requiredType_9.ets"
+                                    },
+                                    "end": {
+                                      "line": 27,
+                                      "column": 37,
+                                      "program": "requiredType_9.ets"
+                                    }
+                                  }
+                                },
+                                "value": {
+                                  "type": "ETSNewClassInstanceExpression",
+                                  "typeReference": {
+                                    "type": "ETSTypeReference",
+                                    "part": {
+                                      "type": "ETSTypeReferencePart",
+                                      "name": {
+                                        "type": "Identifier",
+                                        "name": "B",
+                                        "decorators": [],
+                                        "loc": {
+                                          "start": {
+                                            "line": 27,
+                                            "column": 43,
+                                            "program": "requiredType_9.ets"
+                                          },
+                                          "end": {
+                                            "line": 27,
+                                            "column": 44,
+                                            "program": "requiredType_9.ets"
+                                          }
+                                        }
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 27,
+                                          "column": 43,
+                                          "program": "requiredType_9.ets"
+                                        },
+                                        "end": {
+                                          "line": 27,
+                                          "column": 45,
+                                          "program": "requiredType_9.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 27,
+                                        "column": 43,
+                                        "program": "requiredType_9.ets"
+                                      },
+                                      "end": {
+                                        "line": 27,
+                                        "column": 45,
+                                        "program": "requiredType_9.ets"
+                                      }
+                                    }
+                                  },
+                                  "arguments": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 27,
+                                      "column": 39,
+                                      "program": "requiredType_9.ets"
+                                    },
+                                    "end": {
+                                      "line": 27,
+                                      "column": 47,
+                                      "program": "requiredType_9.ets"
+                                    }
+                                  }
+                                },
+                                "kind": "init",
+                                "loc": {
+                                  "start": {
+                                    "line": 27,
+                                    "column": 34,
+                                    "program": "requiredType_9.ets"
+                                  },
+                                  "end": {
+                                    "line": 27,
+                                    "column": 47,
+                                    "program": "requiredType_9.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "Property",
+                                "method": false,
+                                "shorthand": false,
+                                "computed": false,
+                                "key": {
+                                  "type": "Identifier",
+                                  "name": "fld2",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 27,
+                                      "column": 48,
+                                      "program": "requiredType_9.ets"
+                                    },
+                                    "end": {
+                                      "line": 27,
+                                      "column": 52,
+                                      "program": "requiredType_9.ets"
+                                    }
+                                  }
+                                },
+                                "value": {
+                                  "type": "ObjectExpression",
+                                  "properties": [
+                                    {
+                                      "type": "Property",
+                                      "method": false,
+                                      "shorthand": false,
+                                      "computed": false,
+                                      "key": {
+                                        "type": "Identifier",
+                                        "name": "b_fld",
+                                        "decorators": [],
+                                        "loc": {
+                                          "start": {
+                                            "line": 27,
+                                            "column": 55,
+                                            "program": "requiredType_9.ets"
+                                          },
+                                          "end": {
+                                            "line": 27,
+                                            "column": 60,
+                                            "program": "requiredType_9.ets"
+                                          }
+                                        }
+                                      },
+                                      "value": {
+                                        "type": "NumberLiteral",
+                                        "value": 4,
+                                        "loc": {
+                                          "start": {
+                                            "line": 27,
+                                            "column": 62,
+                                            "program": "requiredType_9.ets"
+                                          },
+                                          "end": {
+                                            "line": 27,
+                                            "column": 63,
+                                            "program": "requiredType_9.ets"
+                                          }
+                                        }
+                                      },
+                                      "kind": "init",
+                                      "loc": {
+                                        "start": {
+                                          "line": 27,
+                                          "column": 55,
+                                          "program": "requiredType_9.ets"
+                                        },
+                                        "end": {
+                                          "line": 27,
+                                          "column": 63,
+                                          "program": "requiredType_9.ets"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "loc": {
+                                    "start": {
+                                      "line": 27,
+                                      "column": 54,
+                                      "program": "requiredType_9.ets"
+                                    },
+                                    "end": {
+                                      "line": 27,
+                                      "column": 64,
+                                      "program": "requiredType_9.ets"
+                                    }
+                                  }
+                                },
+                                "kind": "init",
+                                "loc": {
+                                  "start": {
+                                    "line": 27,
+                                    "column": 48,
+                                    "program": "requiredType_9.ets"
+                                  },
+                                  "end": {
+                                    "line": 27,
+                                    "column": 64,
+                                    "program": "requiredType_9.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "Property",
+                                "method": false,
+                                "shorthand": false,
+                                "computed": false,
+                                "key": {
+                                  "type": "Identifier",
+                                  "name": "fld3",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 27,
+                                      "column": 66,
+                                      "program": "requiredType_9.ets"
+                                    },
+                                    "end": {
+                                      "line": 27,
+                                      "column": 70,
+                                      "program": "requiredType_9.ets"
+                                    }
+                                  }
+                                },
+                                "value": {
+                                  "type": "ObjectExpression",
+                                  "properties": [
+                                    {
+                                      "type": "Property",
+                                      "method": false,
+                                      "shorthand": false,
+                                      "computed": false,
+                                      "key": {
+                                        "type": "Identifier",
+                                        "name": "b_fld",
+                                        "decorators": [],
+                                        "loc": {
+                                          "start": {
+                                            "line": 27,
+                                            "column": 73,
+                                            "program": "requiredType_9.ets"
+                                          },
+                                          "end": {
+                                            "line": 27,
+                                            "column": 78,
+                                            "program": "requiredType_9.ets"
+                                          }
+                                        }
+                                      },
+                                      "value": {
+                                        "type": "NumberLiteral",
+                                        "value": 9,
+                                        "loc": {
+                                          "start": {
+                                            "line": 27,
+                                            "column": 80,
+                                            "program": "requiredType_9.ets"
+                                          },
+                                          "end": {
+                                            "line": 27,
+                                            "column": 81,
+                                            "program": "requiredType_9.ets"
+                                          }
+                                        }
+                                      },
+                                      "kind": "init",
+                                      "loc": {
+                                        "start": {
+                                          "line": 27,
+                                          "column": 73,
+                                          "program": "requiredType_9.ets"
+                                        },
+                                        "end": {
+                                          "line": 27,
+                                          "column": 81,
+                                          "program": "requiredType_9.ets"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "loc": {
+                                    "start": {
+                                      "line": 27,
+                                      "column": 72,
+                                      "program": "requiredType_9.ets"
+                                    },
+                                    "end": {
+                                      "line": 27,
+                                      "column": 82,
+                                      "program": "requiredType_9.ets"
+                                    }
+                                  }
+                                },
+                                "kind": "init",
+                                "loc": {
+                                  "start": {
+                                    "line": 27,
+                                    "column": 66,
+                                    "program": "requiredType_9.ets"
+                                  },
+                                  "end": {
+                                    "line": 27,
+                                    "column": 82,
+                                    "program": "requiredType_9.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "loc": {
+                              "start": {
+                                "line": 27,
+                                "column": 33,
+                                "program": "requiredType_9.ets"
+                              },
+                              "end": {
+                                "line": 27,
+                                "column": 83,
+                                "program": "requiredType_9.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 27,
+                              "column": 9,
+                              "program": "requiredType_9.ets"
+                            },
+                            "end": {
+                              "line": 27,
+                              "column": 83,
+                              "program": "requiredType_9.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 27,
+                          "column": 5,
+                          "program": "requiredType_9.ets"
+                        },
+                        "end": {
+                          "line": 27,
+                          "column": 84,
+                          "program": "requiredType_9.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 26,
+                      "column": 23,
+                      "program": "requiredType_9.ets"
+                    },
+                    "end": {
+                      "line": 28,
+                      "column": 2,
+                      "program": "requiredType_9.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 26,
+                    "column": 10,
+                    "program": "requiredType_9.ets"
+                  },
+                  "end": {
+                    "line": 28,
+                    "column": 2,
+                    "program": "requiredType_9.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 26,
+                  "column": 10,
+                  "program": "requiredType_9.ets"
+                },
+                "end": {
+                  "line": 28,
+                  "column": 2,
+                  "program": "requiredType_9.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 26,
+                "column": 1,
+                "program": "requiredType_9.ets"
+              },
+              "end": {
+                "line": 28,
+                "column": 2,
+                "program": "requiredType_9.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "requiredType_9.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "requiredType_9.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "requiredType_9.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "requiredType_9.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "requiredType_9.ets"
+    },
+    "end": {
+      "line": 29,
+      "column": 1,
+      "program": "requiredType_9.ets"
+    }
+  }
+}

@@ -1,0 +1,467 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "variable",
+            "typeAnnotation": {
+              "type": "TSUnknownKeyword",
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 15,
+                  "program": "assignment_unknown.ts"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 22,
+                  "program": "assignment_unknown.ts"
+                }
+              }
+            },
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 5,
+                "program": "assignment_unknown.ts"
+              },
+              "end": {
+                "line": 17,
+                "column": 13,
+                "program": "assignment_unknown.ts"
+              }
+            }
+          },
+          "init": null,
+          "loc": {
+            "start": {
+              "line": 17,
+              "column": 5,
+              "program": "assignment_unknown.ts"
+            },
+            "end": {
+              "line": 17,
+              "column": 13,
+              "program": "assignment_unknown.ts"
+            }
+          }
+        }
+      ],
+      "kind": "let",
+      "loc": {
+        "start": {
+          "line": 17,
+          "column": 1,
+          "program": "assignment_unknown.ts"
+        },
+        "end": {
+          "line": 17,
+          "column": 23,
+          "program": "assignment_unknown.ts"
+        }
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "AssignmentExpression",
+        "operator": "=",
+        "left": {
+          "type": "Identifier",
+          "name": "variable",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 19,
+              "column": 1,
+              "program": "assignment_unknown.ts"
+            },
+            "end": {
+              "line": 19,
+              "column": 9,
+              "program": "assignment_unknown.ts"
+            }
+          }
+        },
+        "right": {
+          "type": "NullLiteral",
+          "value": null,
+          "loc": {
+            "start": {
+              "line": 19,
+              "column": 12,
+              "program": "assignment_unknown.ts"
+            },
+            "end": {
+              "line": 19,
+              "column": 16,
+              "program": "assignment_unknown.ts"
+            }
+          }
+        },
+        "loc": {
+          "start": {
+            "line": 19,
+            "column": 1,
+            "program": "assignment_unknown.ts"
+          },
+          "end": {
+            "line": 19,
+            "column": 16,
+            "program": "assignment_unknown.ts"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 19,
+          "column": 1,
+          "program": "assignment_unknown.ts"
+        },
+        "end": {
+          "line": 19,
+          "column": 17,
+          "program": "assignment_unknown.ts"
+        }
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "AssignmentExpression",
+        "operator": "=",
+        "left": {
+          "type": "Identifier",
+          "name": "variable",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 20,
+              "column": 1,
+              "program": "assignment_unknown.ts"
+            },
+            "end": {
+              "line": 20,
+              "column": 9,
+              "program": "assignment_unknown.ts"
+            }
+          }
+        },
+        "right": {
+          "type": "BooleanLiteral",
+          "value": true,
+          "loc": {
+            "start": {
+              "line": 20,
+              "column": 12,
+              "program": "assignment_unknown.ts"
+            },
+            "end": {
+              "line": 20,
+              "column": 16,
+              "program": "assignment_unknown.ts"
+            }
+          }
+        },
+        "loc": {
+          "start": {
+            "line": 20,
+            "column": 1,
+            "program": "assignment_unknown.ts"
+          },
+          "end": {
+            "line": 20,
+            "column": 16,
+            "program": "assignment_unknown.ts"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 20,
+          "column": 1,
+          "program": "assignment_unknown.ts"
+        },
+        "end": {
+          "line": 20,
+          "column": 17,
+          "program": "assignment_unknown.ts"
+        }
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "AssignmentExpression",
+        "operator": "=",
+        "left": {
+          "type": "Identifier",
+          "name": "variable",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 21,
+              "column": 1,
+              "program": "assignment_unknown.ts"
+            },
+            "end": {
+              "line": 21,
+              "column": 9,
+              "program": "assignment_unknown.ts"
+            }
+          }
+        },
+        "right": {
+          "type": "NumberLiteral",
+          "value": 12,
+          "loc": {
+            "start": {
+              "line": 21,
+              "column": 12,
+              "program": "assignment_unknown.ts"
+            },
+            "end": {
+              "line": 21,
+              "column": 14,
+              "program": "assignment_unknown.ts"
+            }
+          }
+        },
+        "loc": {
+          "start": {
+            "line": 21,
+            "column": 1,
+            "program": "assignment_unknown.ts"
+          },
+          "end": {
+            "line": 21,
+            "column": 14,
+            "program": "assignment_unknown.ts"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 21,
+          "column": 1,
+          "program": "assignment_unknown.ts"
+        },
+        "end": {
+          "line": 21,
+          "column": 15,
+          "program": "assignment_unknown.ts"
+        }
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "AssignmentExpression",
+        "operator": "=",
+        "left": {
+          "type": "Identifier",
+          "name": "variable",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 22,
+              "column": 1,
+              "program": "assignment_unknown.ts"
+            },
+            "end": {
+              "line": 22,
+              "column": 9,
+              "program": "assignment_unknown.ts"
+            }
+          }
+        },
+        "right": {
+          "type": "StringLiteral",
+          "value": "Hello World",
+          "loc": {
+            "start": {
+              "line": 22,
+              "column": 12,
+              "program": "assignment_unknown.ts"
+            },
+            "end": {
+              "line": 22,
+              "column": 25,
+              "program": "assignment_unknown.ts"
+            }
+          }
+        },
+        "loc": {
+          "start": {
+            "line": 22,
+            "column": 1,
+            "program": "assignment_unknown.ts"
+          },
+          "end": {
+            "line": 22,
+            "column": 25,
+            "program": "assignment_unknown.ts"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 22,
+          "column": 1,
+          "program": "assignment_unknown.ts"
+        },
+        "end": {
+          "line": 22,
+          "column": 26,
+          "program": "assignment_unknown.ts"
+        }
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "AssignmentExpression",
+        "operator": "=",
+        "left": {
+          "type": "Identifier",
+          "name": "variable",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 23,
+              "column": 1,
+              "program": "assignment_unknown.ts"
+            },
+            "end": {
+              "line": 23,
+              "column": 9,
+              "program": "assignment_unknown.ts"
+            }
+          }
+        },
+        "right": {
+          "type": "ArrayExpression",
+          "elements": [],
+          "loc": {
+            "start": {
+              "line": 23,
+              "column": 12,
+              "program": "assignment_unknown.ts"
+            },
+            "end": {
+              "line": 23,
+              "column": 14,
+              "program": "assignment_unknown.ts"
+            }
+          }
+        },
+        "loc": {
+          "start": {
+            "line": 23,
+            "column": 1,
+            "program": "assignment_unknown.ts"
+          },
+          "end": {
+            "line": 23,
+            "column": 14,
+            "program": "assignment_unknown.ts"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 23,
+          "column": 1,
+          "program": "assignment_unknown.ts"
+        },
+        "end": {
+          "line": 23,
+          "column": 15,
+          "program": "assignment_unknown.ts"
+        }
+      }
+    },
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "AssignmentExpression",
+        "operator": "=",
+        "left": {
+          "type": "Identifier",
+          "name": "variable",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 24,
+              "column": 1,
+              "program": "assignment_unknown.ts"
+            },
+            "end": {
+              "line": 24,
+              "column": 9,
+              "program": "assignment_unknown.ts"
+            }
+          }
+        },
+        "right": {
+          "type": "ObjectExpression",
+          "properties": [],
+          "loc": {
+            "start": {
+              "line": 24,
+              "column": 12,
+              "program": "assignment_unknown.ts"
+            },
+            "end": {
+              "line": 24,
+              "column": 14,
+              "program": "assignment_unknown.ts"
+            }
+          }
+        },
+        "loc": {
+          "start": {
+            "line": 24,
+            "column": 1,
+            "program": "assignment_unknown.ts"
+          },
+          "end": {
+            "line": 24,
+            "column": 14,
+            "program": "assignment_unknown.ts"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 24,
+          "column": 1,
+          "program": "assignment_unknown.ts"
+        },
+        "end": {
+          "line": 24,
+          "column": 15,
+          "program": "assignment_unknown.ts"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "assignment_unknown.ts"
+    },
+    "end": {
+      "line": 25,
+      "column": 1,
+      "program": "assignment_unknown.ts"
+    }
+  }
+}

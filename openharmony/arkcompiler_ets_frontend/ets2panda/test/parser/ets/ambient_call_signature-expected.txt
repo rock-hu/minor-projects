@@ -1,0 +1,719 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "A",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 16,
+              "column": 15,
+              "program": "ambient_call_signature.ets"
+            },
+            "end": {
+              "line": 16,
+              "column": 16,
+              "program": "ambient_call_signature.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "$_invoke",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 5,
+                  "program": "ambient_call_signature.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 6,
+                  "program": "ambient_call_signature.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "$_invoke",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 5,
+                      "program": "ambient_call_signature.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 6,
+                      "program": "ambient_call_signature.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "a",
+                      "typeAnnotation": {
+                        "type": "ETSTypeReference",
+                        "part": {
+                          "type": "ETSTypeReferencePart",
+                          "name": {
+                            "type": "Identifier",
+                            "name": "number",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 17,
+                                "column": 8,
+                                "program": "ambient_call_signature.ets"
+                              },
+                              "end": {
+                                "line": 17,
+                                "column": 14,
+                                "program": "ambient_call_signature.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 17,
+                              "column": 8,
+                              "program": "ambient_call_signature.ets"
+                            },
+                            "end": {
+                              "line": 17,
+                              "column": 15,
+                              "program": "ambient_call_signature.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 17,
+                            "column": 8,
+                            "program": "ambient_call_signature.ets"
+                          },
+                          "end": {
+                            "line": 17,
+                            "column": 15,
+                            "program": "ambient_call_signature.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 17,
+                          "column": 6,
+                          "program": "ambient_call_signature.ets"
+                        },
+                        "end": {
+                          "line": 17,
+                          "column": 15,
+                          "program": "ambient_call_signature.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 17,
+                        "column": 6,
+                        "program": "ambient_call_signature.ets"
+                      },
+                      "end": {
+                        "line": 17,
+                        "column": 15,
+                        "program": "ambient_call_signature.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSTypeReference",
+                  "part": {
+                    "type": "ETSTypeReferencePart",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "number",
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 17,
+                          "column": 16,
+                          "program": "ambient_call_signature.ets"
+                        },
+                        "end": {
+                          "line": 17,
+                          "column": 22,
+                          "program": "ambient_call_signature.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 17,
+                        "column": 16,
+                        "program": "ambient_call_signature.ets"
+                      },
+                      "end": {
+                        "line": 18,
+                        "column": 2,
+                        "program": "ambient_call_signature.ets"
+                      }
+                    }
+                  },
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 16,
+                      "program": "ambient_call_signature.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 2,
+                      "program": "ambient_call_signature.ets"
+                    }
+                  }
+                },
+                "declare": true,
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 5,
+                    "program": "ambient_call_signature.ets"
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 5,
+                    "program": "ambient_call_signature.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 5,
+                  "program": "ambient_call_signature.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 5,
+                  "program": "ambient_call_signature.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 5,
+                "program": "ambient_call_signature.ets"
+              },
+              "end": {
+                "line": 17,
+                "column": 5,
+                "program": "ambient_call_signature.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 17,
+                  "program": "ambient_call_signature.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 17,
+                  "program": "ambient_call_signature.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 17,
+                      "program": "ambient_call_signature.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 17,
+                      "program": "ambient_call_signature.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 17,
+                      "program": "ambient_call_signature.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 17,
+                      "program": "ambient_call_signature.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 17,
+                    "program": "ambient_call_signature.ets"
+                  },
+                  "end": {
+                    "line": 16,
+                    "column": 17,
+                    "program": "ambient_call_signature.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 17,
+                  "program": "ambient_call_signature.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 17,
+                  "program": "ambient_call_signature.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 16,
+            "program": "ambient_call_signature.ets"
+          },
+          "end": {
+            "line": 20,
+            "column": 9,
+            "program": "ambient_call_signature.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 9,
+          "program": "ambient_call_signature.ets"
+        },
+        "end": {
+          "line": 20,
+          "column": 9,
+          "program": "ambient_call_signature.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "ambient_call_signature.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "ambient_call_signature.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "ambient_call_signature.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "ambient_call_signature.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 10,
+                  "program": "ambient_call_signature.ets"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 14,
+                  "program": "ambient_call_signature.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 10,
+                      "program": "ambient_call_signature.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 14,
+                      "program": "ambient_call_signature.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "A",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 21,
+                              "column": 5,
+                              "program": "ambient_call_signature.ets"
+                            },
+                            "end": {
+                              "line": 21,
+                              "column": 6,
+                              "program": "ambient_call_signature.ets"
+                            }
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "NumberLiteral",
+                            "value": 2,
+                            "loc": {
+                              "start": {
+                                "line": 21,
+                                "column": 7,
+                                "program": "ambient_call_signature.ets"
+                              },
+                              "end": {
+                                "line": 21,
+                                "column": 8,
+                                "program": "ambient_call_signature.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 21,
+                            "column": 5,
+                            "program": "ambient_call_signature.ets"
+                          },
+                          "end": {
+                            "line": 21,
+                            "column": 9,
+                            "program": "ambient_call_signature.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 21,
+                          "column": 5,
+                          "program": "ambient_call_signature.ets"
+                        },
+                        "end": {
+                          "line": 21,
+                          "column": 9,
+                          "program": "ambient_call_signature.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 17,
+                      "program": "ambient_call_signature.ets"
+                    },
+                    "end": {
+                      "line": 22,
+                      "column": 2,
+                      "program": "ambient_call_signature.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 20,
+                    "column": 10,
+                    "program": "ambient_call_signature.ets"
+                  },
+                  "end": {
+                    "line": 22,
+                    "column": 2,
+                    "program": "ambient_call_signature.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 10,
+                  "program": "ambient_call_signature.ets"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 2,
+                  "program": "ambient_call_signature.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 20,
+                "column": 1,
+                "program": "ambient_call_signature.ets"
+              },
+              "end": {
+                "line": 22,
+                "column": 2,
+                "program": "ambient_call_signature.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "ambient_call_signature.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "ambient_call_signature.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "ambient_call_signature.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "ambient_call_signature.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "ambient_call_signature.ets"
+    },
+    "end": {
+      "line": 23,
+      "column": 1,
+      "program": "ambient_call_signature.ets"
+    }
+  }
+}

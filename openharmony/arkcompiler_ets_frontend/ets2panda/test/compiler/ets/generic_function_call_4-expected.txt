@@ -1,0 +1,2602 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "A",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 16,
+              "column": 7,
+              "program": "generic_function_call_4.ets"
+            },
+            "end": {
+              "line": 16,
+              "column": 8,
+              "program": "generic_function_call_4.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "generic_function_call_4.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "generic_function_call_4.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "generic_function_call_4.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "generic_function_call_4.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "generic_function_call_4.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "generic_function_call_4.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 10,
+                    "program": "generic_function_call_4.ets"
+                  },
+                  "end": {
+                    "line": 16,
+                    "column": 10,
+                    "program": "generic_function_call_4.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "generic_function_call_4.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "generic_function_call_4.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 9,
+            "program": "generic_function_call_4.ets"
+          },
+          "end": {
+            "line": 17,
+            "column": 6,
+            "program": "generic_function_call_4.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 1,
+          "program": "generic_function_call_4.ets"
+        },
+        "end": {
+          "line": 17,
+          "column": 6,
+          "program": "generic_function_call_4.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "B",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 17,
+              "column": 7,
+              "program": "generic_function_call_4.ets"
+            },
+            "end": {
+              "line": 17,
+              "column": 8,
+              "program": "generic_function_call_4.ets"
+            }
+          }
+        },
+        "typeParameters": {
+          "type": "TSTypeParameterDeclaration",
+          "params": [
+            {
+              "type": "TSTypeParameter",
+              "name": {
+                "type": "Identifier",
+                "name": "T",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 9,
+                    "program": "generic_function_call_4.ets"
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 10,
+                    "program": "generic_function_call_4.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 9,
+                  "program": "generic_function_call_4.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 11,
+                  "program": "generic_function_call_4.ets"
+                }
+              }
+            }
+          ],
+          "loc": {
+            "start": {
+              "line": 17,
+              "column": 8,
+              "program": "generic_function_call_4.ets"
+            },
+            "end": {
+              "line": 17,
+              "column": 11,
+              "program": "generic_function_call_4.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 13,
+                  "program": "generic_function_call_4.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 13,
+                  "program": "generic_function_call_4.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 13,
+                      "program": "generic_function_call_4.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 13,
+                      "program": "generic_function_call_4.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 17,
+                      "column": 13,
+                      "program": "generic_function_call_4.ets"
+                    },
+                    "end": {
+                      "line": 17,
+                      "column": 13,
+                      "program": "generic_function_call_4.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 17,
+                    "column": 13,
+                    "program": "generic_function_call_4.ets"
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 13,
+                    "program": "generic_function_call_4.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 17,
+                  "column": 13,
+                  "program": "generic_function_call_4.ets"
+                },
+                "end": {
+                  "line": 17,
+                  "column": 13,
+                  "program": "generic_function_call_4.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 12,
+            "program": "generic_function_call_4.ets"
+          },
+          "end": {
+            "line": 19,
+            "column": 9,
+            "program": "generic_function_call_4.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 17,
+          "column": 1,
+          "program": "generic_function_call_4.ets"
+        },
+        "end": {
+          "line": 19,
+          "column": 9,
+          "program": "generic_function_call_4.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "generic_function_call_4.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "generic_function_call_4.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "generic_function_call_4.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "generic_function_call_4.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "test2",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 10,
+                  "program": "generic_function_call_4.ets"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 15,
+                  "program": "generic_function_call_4.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "test2",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 19,
+                      "column": 10,
+                      "program": "generic_function_call_4.ets"
+                    },
+                    "end": {
+                      "line": 19,
+                      "column": 15,
+                      "program": "generic_function_call_4.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSTypeReference",
+                  "part": {
+                    "type": "ETSTypeReferencePart",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "B",
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 19,
+                          "column": 22,
+                          "program": "generic_function_call_4.ets"
+                        },
+                        "end": {
+                          "line": 19,
+                          "column": 23,
+                          "program": "generic_function_call_4.ets"
+                        }
+                      }
+                    },
+                    "typeParams": {
+                      "type": "TSTypeParameterInstantiation",
+                      "params": [
+                        {
+                          "type": "ETSTypeReference",
+                          "part": {
+                            "type": "ETSTypeReferencePart",
+                            "name": {
+                              "type": "Identifier",
+                              "name": "T",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 19,
+                                  "column": 24,
+                                  "program": "generic_function_call_4.ets"
+                                },
+                                "end": {
+                                  "line": 19,
+                                  "column": 25,
+                                  "program": "generic_function_call_4.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 19,
+                                "column": 24,
+                                "program": "generic_function_call_4.ets"
+                              },
+                              "end": {
+                                "line": 19,
+                                "column": 26,
+                                "program": "generic_function_call_4.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 19,
+                              "column": 24,
+                              "program": "generic_function_call_4.ets"
+                            },
+                            "end": {
+                              "line": 19,
+                              "column": 26,
+                              "program": "generic_function_call_4.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "loc": {
+                        "start": {
+                          "line": 19,
+                          "column": 23,
+                          "program": "generic_function_call_4.ets"
+                        },
+                        "end": {
+                          "line": 19,
+                          "column": 26,
+                          "program": "generic_function_call_4.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 19,
+                        "column": 22,
+                        "program": "generic_function_call_4.ets"
+                      },
+                      "end": {
+                        "line": 19,
+                        "column": 28,
+                        "program": "generic_function_call_4.ets"
+                      }
+                    }
+                  },
+                  "loc": {
+                    "start": {
+                      "line": 19,
+                      "column": 22,
+                      "program": "generic_function_call_4.ets"
+                    },
+                    "end": {
+                      "line": 19,
+                      "column": 28,
+                      "program": "generic_function_call_4.ets"
+                    }
+                  }
+                },
+                "typeParameters": {
+                  "type": "TSTypeParameterDeclaration",
+                  "params": [
+                    {
+                      "type": "TSTypeParameter",
+                      "name": {
+                        "type": "Identifier",
+                        "name": "T",
+                        "decorators": [],
+                        "loc": {
+                          "start": {
+                            "line": 19,
+                            "column": 16,
+                            "program": "generic_function_call_4.ets"
+                          },
+                          "end": {
+                            "line": 19,
+                            "column": 17,
+                            "program": "generic_function_call_4.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 19,
+                          "column": 16,
+                          "program": "generic_function_call_4.ets"
+                        },
+                        "end": {
+                          "line": 19,
+                          "column": 18,
+                          "program": "generic_function_call_4.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 19,
+                      "column": 15,
+                      "program": "generic_function_call_4.ets"
+                    },
+                    "end": {
+                      "line": 19,
+                      "column": 18,
+                      "program": "generic_function_call_4.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "tmp",
+                            "typeAnnotation": {
+                              "type": "ETSTypeReference",
+                              "part": {
+                                "type": "ETSTypeReferencePart",
+                                "name": {
+                                  "type": "Identifier",
+                                  "name": "B",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 12,
+                                      "program": "generic_function_call_4.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 13,
+                                      "program": "generic_function_call_4.ets"
+                                    }
+                                  }
+                                },
+                                "typeParams": {
+                                  "type": "TSTypeParameterInstantiation",
+                                  "params": [
+                                    {
+                                      "type": "ETSTypeReference",
+                                      "part": {
+                                        "type": "ETSTypeReferencePart",
+                                        "name": {
+                                          "type": "Identifier",
+                                          "name": "T",
+                                          "decorators": [],
+                                          "loc": {
+                                            "start": {
+                                              "line": 20,
+                                              "column": 14,
+                                              "program": "generic_function_call_4.ets"
+                                            },
+                                            "end": {
+                                              "line": 20,
+                                              "column": 15,
+                                              "program": "generic_function_call_4.ets"
+                                            }
+                                          }
+                                        },
+                                        "loc": {
+                                          "start": {
+                                            "line": 20,
+                                            "column": 14,
+                                            "program": "generic_function_call_4.ets"
+                                          },
+                                          "end": {
+                                            "line": 20,
+                                            "column": 16,
+                                            "program": "generic_function_call_4.ets"
+                                          }
+                                        }
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 20,
+                                          "column": 14,
+                                          "program": "generic_function_call_4.ets"
+                                        },
+                                        "end": {
+                                          "line": 20,
+                                          "column": 16,
+                                          "program": "generic_function_call_4.ets"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 13,
+                                      "program": "generic_function_call_4.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 16,
+                                      "program": "generic_function_call_4.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 20,
+                                    "column": 12,
+                                    "program": "generic_function_call_4.ets"
+                                  },
+                                  "end": {
+                                    "line": 20,
+                                    "column": 18,
+                                    "program": "generic_function_call_4.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 20,
+                                  "column": 12,
+                                  "program": "generic_function_call_4.ets"
+                                },
+                                "end": {
+                                  "line": 20,
+                                  "column": 18,
+                                  "program": "generic_function_call_4.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 20,
+                                "column": 7,
+                                "program": "generic_function_call_4.ets"
+                              },
+                              "end": {
+                                "line": 20,
+                                "column": 10,
+                                "program": "generic_function_call_4.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "ETSNewClassInstanceExpression",
+                            "typeReference": {
+                              "type": "ETSTypeReference",
+                              "part": {
+                                "type": "ETSTypeReferencePart",
+                                "name": {
+                                  "type": "Identifier",
+                                  "name": "B",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 23,
+                                      "program": "generic_function_call_4.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 24,
+                                      "program": "generic_function_call_4.ets"
+                                    }
+                                  }
+                                },
+                                "typeParams": {
+                                  "type": "TSTypeParameterInstantiation",
+                                  "params": [
+                                    {
+                                      "type": "ETSTypeReference",
+                                      "part": {
+                                        "type": "ETSTypeReferencePart",
+                                        "name": {
+                                          "type": "Identifier",
+                                          "name": "T",
+                                          "decorators": [],
+                                          "loc": {
+                                            "start": {
+                                              "line": 20,
+                                              "column": 25,
+                                              "program": "generic_function_call_4.ets"
+                                            },
+                                            "end": {
+                                              "line": 20,
+                                              "column": 26,
+                                              "program": "generic_function_call_4.ets"
+                                            }
+                                          }
+                                        },
+                                        "loc": {
+                                          "start": {
+                                            "line": 20,
+                                            "column": 25,
+                                            "program": "generic_function_call_4.ets"
+                                          },
+                                          "end": {
+                                            "line": 20,
+                                            "column": 27,
+                                            "program": "generic_function_call_4.ets"
+                                          }
+                                        }
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 20,
+                                          "column": 25,
+                                          "program": "generic_function_call_4.ets"
+                                        },
+                                        "end": {
+                                          "line": 20,
+                                          "column": 27,
+                                          "program": "generic_function_call_4.ets"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 24,
+                                      "program": "generic_function_call_4.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 27,
+                                      "program": "generic_function_call_4.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 20,
+                                    "column": 23,
+                                    "program": "generic_function_call_4.ets"
+                                  },
+                                  "end": {
+                                    "line": 20,
+                                    "column": 28,
+                                    "program": "generic_function_call_4.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 20,
+                                  "column": 23,
+                                  "program": "generic_function_call_4.ets"
+                                },
+                                "end": {
+                                  "line": 20,
+                                  "column": 28,
+                                  "program": "generic_function_call_4.ets"
+                                }
+                              }
+                            },
+                            "arguments": [],
+                            "loc": {
+                              "start": {
+                                "line": 20,
+                                "column": 19,
+                                "program": "generic_function_call_4.ets"
+                              },
+                              "end": {
+                                "line": 20,
+                                "column": 30,
+                                "program": "generic_function_call_4.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 20,
+                              "column": 7,
+                              "program": "generic_function_call_4.ets"
+                            },
+                            "end": {
+                              "line": 20,
+                              "column": 30,
+                              "program": "generic_function_call_4.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 20,
+                          "column": 3,
+                          "program": "generic_function_call_4.ets"
+                        },
+                        "end": {
+                          "line": 20,
+                          "column": 30,
+                          "program": "generic_function_call_4.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ReturnStatement",
+                      "argument": {
+                        "type": "Identifier",
+                        "name": "tmp",
+                        "decorators": [],
+                        "loc": {
+                          "start": {
+                            "line": 21,
+                            "column": 10,
+                            "program": "generic_function_call_4.ets"
+                          },
+                          "end": {
+                            "line": 21,
+                            "column": 13,
+                            "program": "generic_function_call_4.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 21,
+                          "column": 3,
+                          "program": "generic_function_call_4.ets"
+                        },
+                        "end": {
+                          "line": 21,
+                          "column": 14,
+                          "program": "generic_function_call_4.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 19,
+                      "column": 27,
+                      "program": "generic_function_call_4.ets"
+                    },
+                    "end": {
+                      "line": 22,
+                      "column": 2,
+                      "program": "generic_function_call_4.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 19,
+                    "column": 10,
+                    "program": "generic_function_call_4.ets"
+                  },
+                  "end": {
+                    "line": 22,
+                    "column": 2,
+                    "program": "generic_function_call_4.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 10,
+                  "program": "generic_function_call_4.ets"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 2,
+                  "program": "generic_function_call_4.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 19,
+                "column": 1,
+                "program": "generic_function_call_4.ets"
+              },
+              "end": {
+                "line": 22,
+                "column": 2,
+                "program": "generic_function_call_4.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "test3",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 24,
+                  "column": 10,
+                  "program": "generic_function_call_4.ets"
+                },
+                "end": {
+                  "line": 24,
+                  "column": 15,
+                  "program": "generic_function_call_4.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "test3",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 24,
+                      "column": 10,
+                      "program": "generic_function_call_4.ets"
+                    },
+                    "end": {
+                      "line": 24,
+                      "column": 15,
+                      "program": "generic_function_call_4.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSTypeReference",
+                  "part": {
+                    "type": "ETSTypeReferencePart",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "B",
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 24,
+                          "column": 22,
+                          "program": "generic_function_call_4.ets"
+                        },
+                        "end": {
+                          "line": 24,
+                          "column": 23,
+                          "program": "generic_function_call_4.ets"
+                        }
+                      }
+                    },
+                    "typeParams": {
+                      "type": "TSTypeParameterInstantiation",
+                      "params": [
+                        {
+                          "type": "ETSTypeReference",
+                          "part": {
+                            "type": "ETSTypeReferencePart",
+                            "name": {
+                              "type": "Identifier",
+                              "name": "B",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 24,
+                                  "column": 24,
+                                  "program": "generic_function_call_4.ets"
+                                },
+                                "end": {
+                                  "line": 24,
+                                  "column": 25,
+                                  "program": "generic_function_call_4.ets"
+                                }
+                              }
+                            },
+                            "typeParams": {
+                              "type": "TSTypeParameterInstantiation",
+                              "params": [
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "T",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 24,
+                                          "column": 26,
+                                          "program": "generic_function_call_4.ets"
+                                        },
+                                        "end": {
+                                          "line": 24,
+                                          "column": 27,
+                                          "program": "generic_function_call_4.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 24,
+                                        "column": 26,
+                                        "program": "generic_function_call_4.ets"
+                                      },
+                                      "end": {
+                                        "line": 24,
+                                        "column": 29,
+                                        "program": "generic_function_call_4.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 24,
+                                      "column": 26,
+                                      "program": "generic_function_call_4.ets"
+                                    },
+                                    "end": {
+                                      "line": 24,
+                                      "column": 29,
+                                      "program": "generic_function_call_4.ets"
+                                    }
+                                  }
+                                }
+                              ],
+                              "loc": {
+                                "start": {
+                                  "line": 24,
+                                  "column": 25,
+                                  "program": "generic_function_call_4.ets"
+                                },
+                                "end": {
+                                  "line": 24,
+                                  "column": 29,
+                                  "program": "generic_function_call_4.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 24,
+                                "column": 24,
+                                "program": "generic_function_call_4.ets"
+                              },
+                              "end": {
+                                "line": 24,
+                                "column": 29,
+                                "program": "generic_function_call_4.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 24,
+                              "column": 24,
+                              "program": "generic_function_call_4.ets"
+                            },
+                            "end": {
+                              "line": 24,
+                              "column": 29,
+                              "program": "generic_function_call_4.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "loc": {
+                        "start": {
+                          "line": 24,
+                          "column": 23,
+                          "program": "generic_function_call_4.ets"
+                        },
+                        "end": {
+                          "line": 24,
+                          "column": 29,
+                          "program": "generic_function_call_4.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 24,
+                        "column": 22,
+                        "program": "generic_function_call_4.ets"
+                      },
+                      "end": {
+                        "line": 24,
+                        "column": 31,
+                        "program": "generic_function_call_4.ets"
+                      }
+                    }
+                  },
+                  "loc": {
+                    "start": {
+                      "line": 24,
+                      "column": 22,
+                      "program": "generic_function_call_4.ets"
+                    },
+                    "end": {
+                      "line": 24,
+                      "column": 31,
+                      "program": "generic_function_call_4.ets"
+                    }
+                  }
+                },
+                "typeParameters": {
+                  "type": "TSTypeParameterDeclaration",
+                  "params": [
+                    {
+                      "type": "TSTypeParameter",
+                      "name": {
+                        "type": "Identifier",
+                        "name": "T",
+                        "decorators": [],
+                        "loc": {
+                          "start": {
+                            "line": 24,
+                            "column": 16,
+                            "program": "generic_function_call_4.ets"
+                          },
+                          "end": {
+                            "line": 24,
+                            "column": 17,
+                            "program": "generic_function_call_4.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 24,
+                          "column": 16,
+                          "program": "generic_function_call_4.ets"
+                        },
+                        "end": {
+                          "line": 24,
+                          "column": 18,
+                          "program": "generic_function_call_4.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 24,
+                      "column": 15,
+                      "program": "generic_function_call_4.ets"
+                    },
+                    "end": {
+                      "line": 24,
+                      "column": 18,
+                      "program": "generic_function_call_4.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "tmp",
+                            "typeAnnotation": {
+                              "type": "ETSTypeReference",
+                              "part": {
+                                "type": "ETSTypeReferencePart",
+                                "name": {
+                                  "type": "Identifier",
+                                  "name": "B",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 25,
+                                      "column": 12,
+                                      "program": "generic_function_call_4.ets"
+                                    },
+                                    "end": {
+                                      "line": 25,
+                                      "column": 13,
+                                      "program": "generic_function_call_4.ets"
+                                    }
+                                  }
+                                },
+                                "typeParams": {
+                                  "type": "TSTypeParameterInstantiation",
+                                  "params": [
+                                    {
+                                      "type": "ETSTypeReference",
+                                      "part": {
+                                        "type": "ETSTypeReferencePart",
+                                        "name": {
+                                          "type": "Identifier",
+                                          "name": "B",
+                                          "decorators": [],
+                                          "loc": {
+                                            "start": {
+                                              "line": 25,
+                                              "column": 14,
+                                              "program": "generic_function_call_4.ets"
+                                            },
+                                            "end": {
+                                              "line": 25,
+                                              "column": 15,
+                                              "program": "generic_function_call_4.ets"
+                                            }
+                                          }
+                                        },
+                                        "typeParams": {
+                                          "type": "TSTypeParameterInstantiation",
+                                          "params": [
+                                            {
+                                              "type": "ETSTypeReference",
+                                              "part": {
+                                                "type": "ETSTypeReferencePart",
+                                                "name": {
+                                                  "type": "Identifier",
+                                                  "name": "T",
+                                                  "decorators": [],
+                                                  "loc": {
+                                                    "start": {
+                                                      "line": 25,
+                                                      "column": 16,
+                                                      "program": "generic_function_call_4.ets"
+                                                    },
+                                                    "end": {
+                                                      "line": 25,
+                                                      "column": 17,
+                                                      "program": "generic_function_call_4.ets"
+                                                    }
+                                                  }
+                                                },
+                                                "loc": {
+                                                  "start": {
+                                                    "line": 25,
+                                                    "column": 16,
+                                                    "program": "generic_function_call_4.ets"
+                                                  },
+                                                  "end": {
+                                                    "line": 25,
+                                                    "column": 19,
+                                                    "program": "generic_function_call_4.ets"
+                                                  }
+                                                }
+                                              },
+                                              "loc": {
+                                                "start": {
+                                                  "line": 25,
+                                                  "column": 16,
+                                                  "program": "generic_function_call_4.ets"
+                                                },
+                                                "end": {
+                                                  "line": 25,
+                                                  "column": 19,
+                                                  "program": "generic_function_call_4.ets"
+                                                }
+                                              }
+                                            }
+                                          ],
+                                          "loc": {
+                                            "start": {
+                                              "line": 25,
+                                              "column": 15,
+                                              "program": "generic_function_call_4.ets"
+                                            },
+                                            "end": {
+                                              "line": 25,
+                                              "column": 19,
+                                              "program": "generic_function_call_4.ets"
+                                            }
+                                          }
+                                        },
+                                        "loc": {
+                                          "start": {
+                                            "line": 25,
+                                            "column": 14,
+                                            "program": "generic_function_call_4.ets"
+                                          },
+                                          "end": {
+                                            "line": 25,
+                                            "column": 19,
+                                            "program": "generic_function_call_4.ets"
+                                          }
+                                        }
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 25,
+                                          "column": 14,
+                                          "program": "generic_function_call_4.ets"
+                                        },
+                                        "end": {
+                                          "line": 25,
+                                          "column": 19,
+                                          "program": "generic_function_call_4.ets"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "loc": {
+                                    "start": {
+                                      "line": 25,
+                                      "column": 13,
+                                      "program": "generic_function_call_4.ets"
+                                    },
+                                    "end": {
+                                      "line": 25,
+                                      "column": 19,
+                                      "program": "generic_function_call_4.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 25,
+                                    "column": 12,
+                                    "program": "generic_function_call_4.ets"
+                                  },
+                                  "end": {
+                                    "line": 25,
+                                    "column": 21,
+                                    "program": "generic_function_call_4.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 25,
+                                  "column": 12,
+                                  "program": "generic_function_call_4.ets"
+                                },
+                                "end": {
+                                  "line": 25,
+                                  "column": 21,
+                                  "program": "generic_function_call_4.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 25,
+                                "column": 7,
+                                "program": "generic_function_call_4.ets"
+                              },
+                              "end": {
+                                "line": 25,
+                                "column": 10,
+                                "program": "generic_function_call_4.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "ETSNewClassInstanceExpression",
+                            "typeReference": {
+                              "type": "ETSTypeReference",
+                              "part": {
+                                "type": "ETSTypeReferencePart",
+                                "name": {
+                                  "type": "Identifier",
+                                  "name": "B",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 25,
+                                      "column": 26,
+                                      "program": "generic_function_call_4.ets"
+                                    },
+                                    "end": {
+                                      "line": 25,
+                                      "column": 27,
+                                      "program": "generic_function_call_4.ets"
+                                    }
+                                  }
+                                },
+                                "typeParams": {
+                                  "type": "TSTypeParameterInstantiation",
+                                  "params": [
+                                    {
+                                      "type": "ETSTypeReference",
+                                      "part": {
+                                        "type": "ETSTypeReferencePart",
+                                        "name": {
+                                          "type": "Identifier",
+                                          "name": "B",
+                                          "decorators": [],
+                                          "loc": {
+                                            "start": {
+                                              "line": 25,
+                                              "column": 28,
+                                              "program": "generic_function_call_4.ets"
+                                            },
+                                            "end": {
+                                              "line": 25,
+                                              "column": 29,
+                                              "program": "generic_function_call_4.ets"
+                                            }
+                                          }
+                                        },
+                                        "typeParams": {
+                                          "type": "TSTypeParameterInstantiation",
+                                          "params": [
+                                            {
+                                              "type": "ETSTypeReference",
+                                              "part": {
+                                                "type": "ETSTypeReferencePart",
+                                                "name": {
+                                                  "type": "Identifier",
+                                                  "name": "T",
+                                                  "decorators": [],
+                                                  "loc": {
+                                                    "start": {
+                                                      "line": 25,
+                                                      "column": 30,
+                                                      "program": "generic_function_call_4.ets"
+                                                    },
+                                                    "end": {
+                                                      "line": 25,
+                                                      "column": 31,
+                                                      "program": "generic_function_call_4.ets"
+                                                    }
+                                                  }
+                                                },
+                                                "loc": {
+                                                  "start": {
+                                                    "line": 25,
+                                                    "column": 30,
+                                                    "program": "generic_function_call_4.ets"
+                                                  },
+                                                  "end": {
+                                                    "line": 25,
+                                                    "column": 33,
+                                                    "program": "generic_function_call_4.ets"
+                                                  }
+                                                }
+                                              },
+                                              "loc": {
+                                                "start": {
+                                                  "line": 25,
+                                                  "column": 30,
+                                                  "program": "generic_function_call_4.ets"
+                                                },
+                                                "end": {
+                                                  "line": 25,
+                                                  "column": 33,
+                                                  "program": "generic_function_call_4.ets"
+                                                }
+                                              }
+                                            }
+                                          ],
+                                          "loc": {
+                                            "start": {
+                                              "line": 25,
+                                              "column": 29,
+                                              "program": "generic_function_call_4.ets"
+                                            },
+                                            "end": {
+                                              "line": 25,
+                                              "column": 33,
+                                              "program": "generic_function_call_4.ets"
+                                            }
+                                          }
+                                        },
+                                        "loc": {
+                                          "start": {
+                                            "line": 25,
+                                            "column": 28,
+                                            "program": "generic_function_call_4.ets"
+                                          },
+                                          "end": {
+                                            "line": 25,
+                                            "column": 33,
+                                            "program": "generic_function_call_4.ets"
+                                          }
+                                        }
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 25,
+                                          "column": 28,
+                                          "program": "generic_function_call_4.ets"
+                                        },
+                                        "end": {
+                                          "line": 25,
+                                          "column": 33,
+                                          "program": "generic_function_call_4.ets"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "loc": {
+                                    "start": {
+                                      "line": 25,
+                                      "column": 27,
+                                      "program": "generic_function_call_4.ets"
+                                    },
+                                    "end": {
+                                      "line": 25,
+                                      "column": 33,
+                                      "program": "generic_function_call_4.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 25,
+                                    "column": 26,
+                                    "program": "generic_function_call_4.ets"
+                                  },
+                                  "end": {
+                                    "line": 25,
+                                    "column": 34,
+                                    "program": "generic_function_call_4.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 25,
+                                  "column": 26,
+                                  "program": "generic_function_call_4.ets"
+                                },
+                                "end": {
+                                  "line": 25,
+                                  "column": 34,
+                                  "program": "generic_function_call_4.ets"
+                                }
+                              }
+                            },
+                            "arguments": [],
+                            "loc": {
+                              "start": {
+                                "line": 25,
+                                "column": 22,
+                                "program": "generic_function_call_4.ets"
+                              },
+                              "end": {
+                                "line": 25,
+                                "column": 36,
+                                "program": "generic_function_call_4.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 25,
+                              "column": 7,
+                              "program": "generic_function_call_4.ets"
+                            },
+                            "end": {
+                              "line": 25,
+                              "column": 36,
+                              "program": "generic_function_call_4.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 25,
+                          "column": 3,
+                          "program": "generic_function_call_4.ets"
+                        },
+                        "end": {
+                          "line": 25,
+                          "column": 36,
+                          "program": "generic_function_call_4.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ReturnStatement",
+                      "argument": {
+                        "type": "Identifier",
+                        "name": "tmp",
+                        "decorators": [],
+                        "loc": {
+                          "start": {
+                            "line": 26,
+                            "column": 10,
+                            "program": "generic_function_call_4.ets"
+                          },
+                          "end": {
+                            "line": 26,
+                            "column": 13,
+                            "program": "generic_function_call_4.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 26,
+                          "column": 3,
+                          "program": "generic_function_call_4.ets"
+                        },
+                        "end": {
+                          "line": 26,
+                          "column": 14,
+                          "program": "generic_function_call_4.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 24,
+                      "column": 30,
+                      "program": "generic_function_call_4.ets"
+                    },
+                    "end": {
+                      "line": 27,
+                      "column": 2,
+                      "program": "generic_function_call_4.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 24,
+                    "column": 10,
+                    "program": "generic_function_call_4.ets"
+                  },
+                  "end": {
+                    "line": 27,
+                    "column": 2,
+                    "program": "generic_function_call_4.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 24,
+                  "column": 10,
+                  "program": "generic_function_call_4.ets"
+                },
+                "end": {
+                  "line": 27,
+                  "column": 2,
+                  "program": "generic_function_call_4.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 24,
+                "column": 1,
+                "program": "generic_function_call_4.ets"
+              },
+              "end": {
+                "line": 27,
+                "column": 2,
+                "program": "generic_function_call_4.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 29,
+                  "column": 10,
+                  "program": "generic_function_call_4.ets"
+                },
+                "end": {
+                  "line": 29,
+                  "column": 14,
+                  "program": "generic_function_call_4.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 29,
+                      "column": 10,
+                      "program": "generic_function_call_4.ets"
+                    },
+                    "end": {
+                      "line": 29,
+                      "column": 14,
+                      "program": "generic_function_call_4.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 29,
+                      "column": 18,
+                      "program": "generic_function_call_4.ets"
+                    },
+                    "end": {
+                      "line": 29,
+                      "column": 22,
+                      "program": "generic_function_call_4.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "bClass",
+                            "typeAnnotation": {
+                              "type": "ETSTypeReference",
+                              "part": {
+                                "type": "ETSTypeReferencePart",
+                                "name": {
+                                  "type": "Identifier",
+                                  "name": "B",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 30,
+                                      "column": 15,
+                                      "program": "generic_function_call_4.ets"
+                                    },
+                                    "end": {
+                                      "line": 30,
+                                      "column": 16,
+                                      "program": "generic_function_call_4.ets"
+                                    }
+                                  }
+                                },
+                                "typeParams": {
+                                  "type": "TSTypeParameterInstantiation",
+                                  "params": [
+                                    {
+                                      "type": "ETSTypeReference",
+                                      "part": {
+                                        "type": "ETSTypeReferencePart",
+                                        "name": {
+                                          "type": "Identifier",
+                                          "name": "A",
+                                          "decorators": [],
+                                          "loc": {
+                                            "start": {
+                                              "line": 30,
+                                              "column": 17,
+                                              "program": "generic_function_call_4.ets"
+                                            },
+                                            "end": {
+                                              "line": 30,
+                                              "column": 18,
+                                              "program": "generic_function_call_4.ets"
+                                            }
+                                          }
+                                        },
+                                        "loc": {
+                                          "start": {
+                                            "line": 30,
+                                            "column": 17,
+                                            "program": "generic_function_call_4.ets"
+                                          },
+                                          "end": {
+                                            "line": 30,
+                                            "column": 19,
+                                            "program": "generic_function_call_4.ets"
+                                          }
+                                        }
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 30,
+                                          "column": 17,
+                                          "program": "generic_function_call_4.ets"
+                                        },
+                                        "end": {
+                                          "line": 30,
+                                          "column": 19,
+                                          "program": "generic_function_call_4.ets"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "loc": {
+                                    "start": {
+                                      "line": 30,
+                                      "column": 16,
+                                      "program": "generic_function_call_4.ets"
+                                    },
+                                    "end": {
+                                      "line": 30,
+                                      "column": 19,
+                                      "program": "generic_function_call_4.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 30,
+                                    "column": 15,
+                                    "program": "generic_function_call_4.ets"
+                                  },
+                                  "end": {
+                                    "line": 30,
+                                    "column": 21,
+                                    "program": "generic_function_call_4.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 30,
+                                  "column": 15,
+                                  "program": "generic_function_call_4.ets"
+                                },
+                                "end": {
+                                  "line": 30,
+                                  "column": 21,
+                                  "program": "generic_function_call_4.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 30,
+                                "column": 7,
+                                "program": "generic_function_call_4.ets"
+                              },
+                              "end": {
+                                "line": 30,
+                                "column": 13,
+                                "program": "generic_function_call_4.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "Identifier",
+                              "name": "test2",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 30,
+                                  "column": 22,
+                                  "program": "generic_function_call_4.ets"
+                                },
+                                "end": {
+                                  "line": 30,
+                                  "column": 27,
+                                  "program": "generic_function_call_4.ets"
+                                }
+                              }
+                            },
+                            "arguments": [],
+                            "optional": false,
+                            "typeParameters": {
+                              "type": "TSTypeParameterInstantiation",
+                              "params": [
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "A",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 30,
+                                          "column": 28,
+                                          "program": "generic_function_call_4.ets"
+                                        },
+                                        "end": {
+                                          "line": 30,
+                                          "column": 29,
+                                          "program": "generic_function_call_4.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 30,
+                                        "column": 28,
+                                        "program": "generic_function_call_4.ets"
+                                      },
+                                      "end": {
+                                        "line": 30,
+                                        "column": 30,
+                                        "program": "generic_function_call_4.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 30,
+                                      "column": 28,
+                                      "program": "generic_function_call_4.ets"
+                                    },
+                                    "end": {
+                                      "line": 30,
+                                      "column": 30,
+                                      "program": "generic_function_call_4.ets"
+                                    }
+                                  }
+                                }
+                              ],
+                              "loc": {
+                                "start": {
+                                  "line": 30,
+                                  "column": 27,
+                                  "program": "generic_function_call_4.ets"
+                                },
+                                "end": {
+                                  "line": 30,
+                                  "column": 30,
+                                  "program": "generic_function_call_4.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 30,
+                                "column": 22,
+                                "program": "generic_function_call_4.ets"
+                              },
+                              "end": {
+                                "line": 30,
+                                "column": 32,
+                                "program": "generic_function_call_4.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 30,
+                              "column": 7,
+                              "program": "generic_function_call_4.ets"
+                            },
+                            "end": {
+                              "line": 30,
+                              "column": 32,
+                              "program": "generic_function_call_4.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 30,
+                          "column": 3,
+                          "program": "generic_function_call_4.ets"
+                        },
+                        "end": {
+                          "line": 30,
+                          "column": 33,
+                          "program": "generic_function_call_4.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "bClass2",
+                            "typeAnnotation": {
+                              "type": "ETSTypeReference",
+                              "part": {
+                                "type": "ETSTypeReferencePart",
+                                "name": {
+                                  "type": "Identifier",
+                                  "name": "B",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 31,
+                                      "column": 16,
+                                      "program": "generic_function_call_4.ets"
+                                    },
+                                    "end": {
+                                      "line": 31,
+                                      "column": 17,
+                                      "program": "generic_function_call_4.ets"
+                                    }
+                                  }
+                                },
+                                "typeParams": {
+                                  "type": "TSTypeParameterInstantiation",
+                                  "params": [
+                                    {
+                                      "type": "ETSTypeReference",
+                                      "part": {
+                                        "type": "ETSTypeReferencePart",
+                                        "name": {
+                                          "type": "Identifier",
+                                          "name": "B",
+                                          "decorators": [],
+                                          "loc": {
+                                            "start": {
+                                              "line": 31,
+                                              "column": 18,
+                                              "program": "generic_function_call_4.ets"
+                                            },
+                                            "end": {
+                                              "line": 31,
+                                              "column": 19,
+                                              "program": "generic_function_call_4.ets"
+                                            }
+                                          }
+                                        },
+                                        "typeParams": {
+                                          "type": "TSTypeParameterInstantiation",
+                                          "params": [
+                                            {
+                                              "type": "ETSTypeReference",
+                                              "part": {
+                                                "type": "ETSTypeReferencePart",
+                                                "name": {
+                                                  "type": "Identifier",
+                                                  "name": "A",
+                                                  "decorators": [],
+                                                  "loc": {
+                                                    "start": {
+                                                      "line": 31,
+                                                      "column": 20,
+                                                      "program": "generic_function_call_4.ets"
+                                                    },
+                                                    "end": {
+                                                      "line": 31,
+                                                      "column": 21,
+                                                      "program": "generic_function_call_4.ets"
+                                                    }
+                                                  }
+                                                },
+                                                "loc": {
+                                                  "start": {
+                                                    "line": 31,
+                                                    "column": 20,
+                                                    "program": "generic_function_call_4.ets"
+                                                  },
+                                                  "end": {
+                                                    "line": 31,
+                                                    "column": 23,
+                                                    "program": "generic_function_call_4.ets"
+                                                  }
+                                                }
+                                              },
+                                              "loc": {
+                                                "start": {
+                                                  "line": 31,
+                                                  "column": 20,
+                                                  "program": "generic_function_call_4.ets"
+                                                },
+                                                "end": {
+                                                  "line": 31,
+                                                  "column": 23,
+                                                  "program": "generic_function_call_4.ets"
+                                                }
+                                              }
+                                            }
+                                          ],
+                                          "loc": {
+                                            "start": {
+                                              "line": 31,
+                                              "column": 19,
+                                              "program": "generic_function_call_4.ets"
+                                            },
+                                            "end": {
+                                              "line": 31,
+                                              "column": 23,
+                                              "program": "generic_function_call_4.ets"
+                                            }
+                                          }
+                                        },
+                                        "loc": {
+                                          "start": {
+                                            "line": 31,
+                                            "column": 18,
+                                            "program": "generic_function_call_4.ets"
+                                          },
+                                          "end": {
+                                            "line": 31,
+                                            "column": 23,
+                                            "program": "generic_function_call_4.ets"
+                                          }
+                                        }
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 31,
+                                          "column": 18,
+                                          "program": "generic_function_call_4.ets"
+                                        },
+                                        "end": {
+                                          "line": 31,
+                                          "column": 23,
+                                          "program": "generic_function_call_4.ets"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "loc": {
+                                    "start": {
+                                      "line": 31,
+                                      "column": 17,
+                                      "program": "generic_function_call_4.ets"
+                                    },
+                                    "end": {
+                                      "line": 31,
+                                      "column": 23,
+                                      "program": "generic_function_call_4.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 31,
+                                    "column": 16,
+                                    "program": "generic_function_call_4.ets"
+                                  },
+                                  "end": {
+                                    "line": 31,
+                                    "column": 25,
+                                    "program": "generic_function_call_4.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 31,
+                                  "column": 16,
+                                  "program": "generic_function_call_4.ets"
+                                },
+                                "end": {
+                                  "line": 31,
+                                  "column": 25,
+                                  "program": "generic_function_call_4.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 31,
+                                "column": 7,
+                                "program": "generic_function_call_4.ets"
+                              },
+                              "end": {
+                                "line": 31,
+                                "column": 14,
+                                "program": "generic_function_call_4.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "Identifier",
+                              "name": "test3",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 31,
+                                  "column": 26,
+                                  "program": "generic_function_call_4.ets"
+                                },
+                                "end": {
+                                  "line": 31,
+                                  "column": 31,
+                                  "program": "generic_function_call_4.ets"
+                                }
+                              }
+                            },
+                            "arguments": [],
+                            "optional": false,
+                            "typeParameters": {
+                              "type": "TSTypeParameterInstantiation",
+                              "params": [
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "A",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 31,
+                                          "column": 32,
+                                          "program": "generic_function_call_4.ets"
+                                        },
+                                        "end": {
+                                          "line": 31,
+                                          "column": 33,
+                                          "program": "generic_function_call_4.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 31,
+                                        "column": 32,
+                                        "program": "generic_function_call_4.ets"
+                                      },
+                                      "end": {
+                                        "line": 31,
+                                        "column": 34,
+                                        "program": "generic_function_call_4.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 31,
+                                      "column": 32,
+                                      "program": "generic_function_call_4.ets"
+                                    },
+                                    "end": {
+                                      "line": 31,
+                                      "column": 34,
+                                      "program": "generic_function_call_4.ets"
+                                    }
+                                  }
+                                }
+                              ],
+                              "loc": {
+                                "start": {
+                                  "line": 31,
+                                  "column": 31,
+                                  "program": "generic_function_call_4.ets"
+                                },
+                                "end": {
+                                  "line": 31,
+                                  "column": 34,
+                                  "program": "generic_function_call_4.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 31,
+                                "column": 26,
+                                "program": "generic_function_call_4.ets"
+                              },
+                              "end": {
+                                "line": 31,
+                                "column": 36,
+                                "program": "generic_function_call_4.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 31,
+                              "column": 7,
+                              "program": "generic_function_call_4.ets"
+                            },
+                            "end": {
+                              "line": 31,
+                              "column": 36,
+                              "program": "generic_function_call_4.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 31,
+                          "column": 3,
+                          "program": "generic_function_call_4.ets"
+                        },
+                        "end": {
+                          "line": 31,
+                          "column": 37,
+                          "program": "generic_function_call_4.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 29,
+                      "column": 23,
+                      "program": "generic_function_call_4.ets"
+                    },
+                    "end": {
+                      "line": 32,
+                      "column": 2,
+                      "program": "generic_function_call_4.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 29,
+                    "column": 10,
+                    "program": "generic_function_call_4.ets"
+                  },
+                  "end": {
+                    "line": 32,
+                    "column": 2,
+                    "program": "generic_function_call_4.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 29,
+                  "column": 10,
+                  "program": "generic_function_call_4.ets"
+                },
+                "end": {
+                  "line": 32,
+                  "column": 2,
+                  "program": "generic_function_call_4.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 29,
+                "column": 1,
+                "program": "generic_function_call_4.ets"
+              },
+              "end": {
+                "line": 32,
+                "column": 2,
+                "program": "generic_function_call_4.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "generic_function_call_4.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "generic_function_call_4.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "generic_function_call_4.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "generic_function_call_4.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "generic_function_call_4.ets"
+    },
+    "end": {
+      "line": 33,
+      "column": 1,
+      "program": "generic_function_call_4.ets"
+    }
+  }
+}

@@ -1,0 +1,1107 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ImportDeclaration",
+      "source": {
+        "type": "StringLiteral",
+        "value": "dynamic_import_tests/modules/module",
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 33,
+            "program": "dynamic_optional_decl.ets"
+          },
+          "end": {
+            "line": 16,
+            "column": 70,
+            "program": "dynamic_optional_decl.ets"
+          }
+        }
+      },
+      "specifiers": [
+        {
+          "type": "ImportSpecifier",
+          "local": {
+            "type": "Identifier",
+            "name": "optional_foo",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 10,
+                "program": "dynamic_optional_decl.ets"
+              },
+              "end": {
+                "line": 16,
+                "column": 22,
+                "program": "dynamic_optional_decl.ets"
+              }
+            }
+          },
+          "imported": {
+            "type": "Identifier",
+            "name": "optional_foo",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 10,
+                "program": "dynamic_optional_decl.ets"
+              },
+              "end": {
+                "line": 16,
+                "column": 22,
+                "program": "dynamic_optional_decl.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 16,
+              "column": 10,
+              "program": "dynamic_optional_decl.ets"
+            },
+            "end": {
+              "line": 16,
+              "column": 22,
+              "program": "dynamic_optional_decl.ets"
+            }
+          }
+        },
+        {
+          "type": "ImportSpecifier",
+          "local": {
+            "type": "Identifier",
+            "name": "A",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 24,
+                "program": "dynamic_optional_decl.ets"
+              },
+              "end": {
+                "line": 16,
+                "column": 25,
+                "program": "dynamic_optional_decl.ets"
+              }
+            }
+          },
+          "imported": {
+            "type": "Identifier",
+            "name": "A",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 24,
+                "program": "dynamic_optional_decl.ets"
+              },
+              "end": {
+                "line": 16,
+                "column": 25,
+                "program": "dynamic_optional_decl.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 16,
+              "column": 24,
+              "program": "dynamic_optional_decl.ets"
+            },
+            "end": {
+              "line": 16,
+              "column": 25,
+              "program": "dynamic_optional_decl.ets"
+            }
+          }
+        }
+      ],
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 1,
+          "program": "dynamic_optional_decl.ets"
+        },
+        "end": {
+          "line": 16,
+          "column": 70,
+          "program": "dynamic_optional_decl.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "dynamic_optional_decl.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "dynamic_optional_decl.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "dynamic_optional_decl.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "dynamic_optional_decl.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 10,
+                  "program": "dynamic_optional_decl.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 14,
+                  "program": "dynamic_optional_decl.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 10,
+                      "program": "dynamic_optional_decl.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 14,
+                      "program": "dynamic_optional_decl.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "optional_foo",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 19,
+                              "column": 5,
+                              "program": "dynamic_optional_decl.ets"
+                            },
+                            "end": {
+                              "line": 19,
+                              "column": 17,
+                              "program": "dynamic_optional_decl.ets"
+                            }
+                          }
+                        },
+                        "arguments": [],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 19,
+                            "column": 5,
+                            "program": "dynamic_optional_decl.ets"
+                          },
+                          "end": {
+                            "line": 19,
+                            "column": 19,
+                            "program": "dynamic_optional_decl.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 19,
+                          "column": 5,
+                          "program": "dynamic_optional_decl.ets"
+                        },
+                        "end": {
+                          "line": 19,
+                          "column": 20,
+                          "program": "dynamic_optional_decl.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "optional_foo",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 20,
+                              "column": 5,
+                              "program": "dynamic_optional_decl.ets"
+                            },
+                            "end": {
+                              "line": 20,
+                              "column": 17,
+                              "program": "dynamic_optional_decl.ets"
+                            }
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "UndefinedLiteral",
+                            "value": "undefined",
+                            "loc": {
+                              "start": {
+                                "line": 20,
+                                "column": 18,
+                                "program": "dynamic_optional_decl.ets"
+                              },
+                              "end": {
+                                "line": 20,
+                                "column": 27,
+                                "program": "dynamic_optional_decl.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 20,
+                            "column": 5,
+                            "program": "dynamic_optional_decl.ets"
+                          },
+                          "end": {
+                            "line": 20,
+                            "column": 28,
+                            "program": "dynamic_optional_decl.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 20,
+                          "column": 5,
+                          "program": "dynamic_optional_decl.ets"
+                        },
+                        "end": {
+                          "line": 20,
+                          "column": 29,
+                          "program": "dynamic_optional_decl.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "optional_foo",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 21,
+                              "column": 5,
+                              "program": "dynamic_optional_decl.ets"
+                            },
+                            "end": {
+                              "line": 21,
+                              "column": 17,
+                              "program": "dynamic_optional_decl.ets"
+                            }
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "TSAsExpression",
+                            "expression": {
+                              "type": "ETSNewClassInstanceExpression",
+                              "typeReference": {
+                                "type": "ETSTypeReference",
+                                "part": {
+                                  "type": "ETSTypeReferencePart",
+                                  "name": {
+                                    "type": "Identifier",
+                                    "name": "A",
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 21,
+                                        "column": 22,
+                                        "program": "dynamic_optional_decl.ets"
+                                      },
+                                      "end": {
+                                        "line": 21,
+                                        "column": 23,
+                                        "program": "dynamic_optional_decl.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 21,
+                                      "column": 22,
+                                      "program": "dynamic_optional_decl.ets"
+                                    },
+                                    "end": {
+                                      "line": 21,
+                                      "column": 24,
+                                      "program": "dynamic_optional_decl.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 21,
+                                    "column": 22,
+                                    "program": "dynamic_optional_decl.ets"
+                                  },
+                                  "end": {
+                                    "line": 21,
+                                    "column": 24,
+                                    "program": "dynamic_optional_decl.ets"
+                                  }
+                                }
+                              },
+                              "arguments": [
+                                {
+                                  "type": "NumberLiteral",
+                                  "value": 10,
+                                  "loc": {
+                                    "start": {
+                                      "line": 21,
+                                      "column": 24,
+                                      "program": "dynamic_optional_decl.ets"
+                                    },
+                                    "end": {
+                                      "line": 21,
+                                      "column": 28,
+                                      "program": "dynamic_optional_decl.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "StringLiteral",
+                                  "value": "abc",
+                                  "loc": {
+                                    "start": {
+                                      "line": 21,
+                                      "column": 30,
+                                      "program": "dynamic_optional_decl.ets"
+                                    },
+                                    "end": {
+                                      "line": 21,
+                                      "column": 35,
+                                      "program": "dynamic_optional_decl.ets"
+                                    }
+                                  }
+                                }
+                              ],
+                              "loc": {
+                                "start": {
+                                  "line": 21,
+                                  "column": 18,
+                                  "program": "dynamic_optional_decl.ets"
+                                },
+                                "end": {
+                                  "line": 21,
+                                  "column": 39,
+                                  "program": "dynamic_optional_decl.ets"
+                                }
+                              }
+                            },
+                            "typeAnnotation": {
+                              "type": "ETSUnionType",
+                              "types": [
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "A",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 21,
+                                          "column": 40,
+                                          "program": "dynamic_optional_decl.ets"
+                                        },
+                                        "end": {
+                                          "line": 21,
+                                          "column": 41,
+                                          "program": "dynamic_optional_decl.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 21,
+                                        "column": 40,
+                                        "program": "dynamic_optional_decl.ets"
+                                      },
+                                      "end": {
+                                        "line": 21,
+                                        "column": 42,
+                                        "program": "dynamic_optional_decl.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 21,
+                                      "column": 40,
+                                      "program": "dynamic_optional_decl.ets"
+                                    },
+                                    "end": {
+                                      "line": 21,
+                                      "column": 42,
+                                      "program": "dynamic_optional_decl.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSUndefinedType",
+                                  "loc": {
+                                    "start": {
+                                      "line": 21,
+                                      "column": 42,
+                                      "program": "dynamic_optional_decl.ets"
+                                    },
+                                    "end": {
+                                      "line": 21,
+                                      "column": 51,
+                                      "program": "dynamic_optional_decl.ets"
+                                    }
+                                  }
+                                }
+                              ],
+                              "loc": {
+                                "start": {
+                                  "line": 21,
+                                  "column": 40,
+                                  "program": "dynamic_optional_decl.ets"
+                                },
+                                "end": {
+                                  "line": 21,
+                                  "column": 51,
+                                  "program": "dynamic_optional_decl.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 21,
+                                "column": 18,
+                                "program": "dynamic_optional_decl.ets"
+                              },
+                              "end": {
+                                "line": 21,
+                                "column": 39,
+                                "program": "dynamic_optional_decl.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 21,
+                            "column": 5,
+                            "program": "dynamic_optional_decl.ets"
+                          },
+                          "end": {
+                            "line": 21,
+                            "column": 52,
+                            "program": "dynamic_optional_decl.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 21,
+                          "column": 5,
+                          "program": "dynamic_optional_decl.ets"
+                        },
+                        "end": {
+                          "line": 21,
+                          "column": 53,
+                          "program": "dynamic_optional_decl.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "object": {
+                            "type": "ETSNewClassInstanceExpression",
+                            "typeReference": {
+                              "type": "ETSTypeReference",
+                              "part": {
+                                "type": "ETSTypeReferencePart",
+                                "name": {
+                                  "type": "Identifier",
+                                  "name": "A",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 22,
+                                      "column": 10,
+                                      "program": "dynamic_optional_decl.ets"
+                                    },
+                                    "end": {
+                                      "line": 22,
+                                      "column": 11,
+                                      "program": "dynamic_optional_decl.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 22,
+                                    "column": 10,
+                                    "program": "dynamic_optional_decl.ets"
+                                  },
+                                  "end": {
+                                    "line": 22,
+                                    "column": 12,
+                                    "program": "dynamic_optional_decl.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 22,
+                                  "column": 10,
+                                  "program": "dynamic_optional_decl.ets"
+                                },
+                                "end": {
+                                  "line": 22,
+                                  "column": 12,
+                                  "program": "dynamic_optional_decl.ets"
+                                }
+                              }
+                            },
+                            "arguments": [
+                              {
+                                "type": "NumberLiteral",
+                                "value": 10,
+                                "loc": {
+                                  "start": {
+                                    "line": 22,
+                                    "column": 12,
+                                    "program": "dynamic_optional_decl.ets"
+                                  },
+                                  "end": {
+                                    "line": 22,
+                                    "column": 16,
+                                    "program": "dynamic_optional_decl.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "StringLiteral",
+                                "value": "abc",
+                                "loc": {
+                                  "start": {
+                                    "line": 22,
+                                    "column": 18,
+                                    "program": "dynamic_optional_decl.ets"
+                                  },
+                                  "end": {
+                                    "line": 22,
+                                    "column": 23,
+                                    "program": "dynamic_optional_decl.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "loc": {
+                              "start": {
+                                "line": 22,
+                                "column": 5,
+                                "program": "dynamic_optional_decl.ets"
+                              },
+                              "end": {
+                                "line": 22,
+                                "column": 25,
+                                "program": "dynamic_optional_decl.ets"
+                              }
+                            }
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "optional_foo",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 22,
+                                "column": 26,
+                                "program": "dynamic_optional_decl.ets"
+                              },
+                              "end": {
+                                "line": 22,
+                                "column": 38,
+                                "program": "dynamic_optional_decl.ets"
+                              }
+                            }
+                          },
+                          "computed": false,
+                          "optional": false,
+                          "loc": {
+                            "start": {
+                              "line": 22,
+                              "column": 5,
+                              "program": "dynamic_optional_decl.ets"
+                            },
+                            "end": {
+                              "line": 22,
+                              "column": 38,
+                              "program": "dynamic_optional_decl.ets"
+                            }
+                          }
+                        },
+                        "arguments": [],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 22,
+                            "column": 5,
+                            "program": "dynamic_optional_decl.ets"
+                          },
+                          "end": {
+                            "line": 22,
+                            "column": 40,
+                            "program": "dynamic_optional_decl.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 22,
+                          "column": 5,
+                          "program": "dynamic_optional_decl.ets"
+                        },
+                        "end": {
+                          "line": 22,
+                          "column": 41,
+                          "program": "dynamic_optional_decl.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "object": {
+                            "type": "ETSNewClassInstanceExpression",
+                            "typeReference": {
+                              "type": "ETSTypeReference",
+                              "part": {
+                                "type": "ETSTypeReferencePart",
+                                "name": {
+                                  "type": "Identifier",
+                                  "name": "A",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 23,
+                                      "column": 10,
+                                      "program": "dynamic_optional_decl.ets"
+                                    },
+                                    "end": {
+                                      "line": 23,
+                                      "column": 11,
+                                      "program": "dynamic_optional_decl.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 23,
+                                    "column": 10,
+                                    "program": "dynamic_optional_decl.ets"
+                                  },
+                                  "end": {
+                                    "line": 23,
+                                    "column": 12,
+                                    "program": "dynamic_optional_decl.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 23,
+                                  "column": 10,
+                                  "program": "dynamic_optional_decl.ets"
+                                },
+                                "end": {
+                                  "line": 23,
+                                  "column": 12,
+                                  "program": "dynamic_optional_decl.ets"
+                                }
+                              }
+                            },
+                            "arguments": [
+                              {
+                                "type": "NumberLiteral",
+                                "value": 10,
+                                "loc": {
+                                  "start": {
+                                    "line": 23,
+                                    "column": 12,
+                                    "program": "dynamic_optional_decl.ets"
+                                  },
+                                  "end": {
+                                    "line": 23,
+                                    "column": 16,
+                                    "program": "dynamic_optional_decl.ets"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "StringLiteral",
+                                "value": "abc",
+                                "loc": {
+                                  "start": {
+                                    "line": 23,
+                                    "column": 18,
+                                    "program": "dynamic_optional_decl.ets"
+                                  },
+                                  "end": {
+                                    "line": 23,
+                                    "column": 23,
+                                    "program": "dynamic_optional_decl.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 5,
+                                "program": "dynamic_optional_decl.ets"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 25,
+                                "program": "dynamic_optional_decl.ets"
+                              }
+                            }
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "optional_foo",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 26,
+                                "program": "dynamic_optional_decl.ets"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 38,
+                                "program": "dynamic_optional_decl.ets"
+                              }
+                            }
+                          },
+                          "computed": false,
+                          "optional": false,
+                          "loc": {
+                            "start": {
+                              "line": 23,
+                              "column": 5,
+                              "program": "dynamic_optional_decl.ets"
+                            },
+                            "end": {
+                              "line": 23,
+                              "column": 38,
+                              "program": "dynamic_optional_decl.ets"
+                            }
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "NumberLiteral",
+                            "value": 123,
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 39,
+                                "program": "dynamic_optional_decl.ets"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 43,
+                                "program": "dynamic_optional_decl.ets"
+                              }
+                            }
+                          }
+                        ],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 23,
+                            "column": 5,
+                            "program": "dynamic_optional_decl.ets"
+                          },
+                          "end": {
+                            "line": 23,
+                            "column": 44,
+                            "program": "dynamic_optional_decl.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 23,
+                          "column": 5,
+                          "program": "dynamic_optional_decl.ets"
+                        },
+                        "end": {
+                          "line": 23,
+                          "column": 45,
+                          "program": "dynamic_optional_decl.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 17,
+                      "program": "dynamic_optional_decl.ets"
+                    },
+                    "end": {
+                      "line": 24,
+                      "column": 2,
+                      "program": "dynamic_optional_decl.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 18,
+                    "column": 10,
+                    "program": "dynamic_optional_decl.ets"
+                  },
+                  "end": {
+                    "line": 24,
+                    "column": 2,
+                    "program": "dynamic_optional_decl.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 10,
+                  "program": "dynamic_optional_decl.ets"
+                },
+                "end": {
+                  "line": 24,
+                  "column": 2,
+                  "program": "dynamic_optional_decl.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 18,
+                "column": 1,
+                "program": "dynamic_optional_decl.ets"
+              },
+              "end": {
+                "line": 24,
+                "column": 2,
+                "program": "dynamic_optional_decl.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "dynamic_optional_decl.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "dynamic_optional_decl.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "dynamic_optional_decl.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "dynamic_optional_decl.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "dynamic_optional_decl.ets"
+    },
+    "end": {
+      "line": 25,
+      "column": 1,
+      "program": "dynamic_optional_decl.ets"
+    }
+  }
+}

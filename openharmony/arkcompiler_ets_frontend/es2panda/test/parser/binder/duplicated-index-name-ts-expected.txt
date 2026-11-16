@@ -1,0 +1,151 @@
+slotNum = 0x0
+.language ECMAScript
+.function any .#%#E(any a0, any a1, any a2, any a3) {
+label_1: 
+label_0: 
+	returnundefined
+label_2: 
+}
+
+slotNum = 0x7
+.language ECMAScript
+.function any .#%#E^1(any a0, any a1, any a2, any a3) {
+label_1: 
+label_0: 
+	lda.str e
+	sta v0
+	definefunc 0x0, .#%E^1*#, 0x0
+	callarg0 0x1
+	sta v1
+	stobjbyvalue 0x3, a3, v0
+	lda.str e
+	stobjbyvalue 0x5, a3, v1
+	returnundefined
+label_2: 
+}
+
+slotNum = 0x0
+.language ECMAScript
+.function any .#%E^1*#(any a0, any a1, any a2) {
+label_1: 
+label_0: 
+	ldai 0x2
+	return
+label_2: 
+}
+
+slotNum = 0x1
+.language ECMAScript
+.function any .#&#N^1(any a0, any a1, any a2, any a3) {
+label_1: 
+label_0: 
+	definefunc 0x0, .#&N^1*#namespaceFoo, 0x0
+	returnundefined
+label_2: 
+}
+
+slotNum = 0x0
+.language ECMAScript
+.function any .#&N^1*#namespaceFoo(any a0, any a1, any a2) {
+label_1: 
+label_0: 
+	returnundefined
+label_2: 
+}
+
+slotNum = 0x0
+.language ECMAScript
+.function any .#*#blockFoo(any a0, any a1, any a2) {
+label_1: 
+label_0: 
+	returnundefined
+label_2: 
+}
+
+slotNum = 0xd
+.language ECMAScript
+.function any .func_main_0(any a0, any a1, any a2) {
+label_10: 
+label_0: 
+	ldundefined
+	sta v0
+	ldundefined
+	sta v1
+	definefunc 0x0, .#*#blockFoo, 0x0
+	definefunc 0x1, .#&#N^1, 0x1
+	sta v2
+	lda v1
+	callruntime.istrue 0x2
+	jnez label_3
+label_2: 
+	createemptyobject
+	sta v1
+label_3: 
+	lda v2
+	callarg1 0x3, v1
+	definefunc 0x5, .#%#E, 0x1
+	sta v1
+	lda v0
+	callruntime.istrue 0x6
+	jnez label_12
+label_5: 
+	createemptyobject
+	sta v0
+	mov v2, v0
+	jmp label_6
+label_12: 
+	mov v2, v0
+label_6: 
+	lda v1
+	callarg1 0x7, v2
+	definefunc 0x9, .#%#E^1, 0x1
+	sta v1
+	lda v0
+	callruntime.istrue 0xa
+	jnez label_9
+label_8: 
+	createemptyobject
+	sta v0
+label_9: 
+	lda v1
+	callarg1 0xb, v0
+	returnundefined
+label_11: 
+}
+
+
+======> literal array buffer <======
+------------------------------------
+slot _0
+------------------------------------
+slot _1
+{
+  index: 0
+    tag: 2
+    val: 0
+},
+{
+  index: 1
+    tag: 2
+    val: 0
+},
+{
+  index: 2
+    tag: 2
+    val: 0
+},
+{
+  index: 3
+    tag: 2
+    val: 0
+},
+{
+  index: 4
+    tag: 2
+    val: 0
+},
+{
+  index: 5
+    tag: 2
+    val: 0
+},

@@ -1,0 +1,1524 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "TSInterfaceDeclaration",
+      "body": {
+        "type": "TSInterfaceBody",
+        "body": [],
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 23,
+            "program": "inheritance.ets"
+          },
+          "end": {
+            "line": 17,
+            "column": 2,
+            "program": "inheritance.ets"
+          }
+        }
+      },
+      "id": {
+        "type": "Identifier",
+        "name": "interface_a",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 16,
+            "column": 11,
+            "program": "inheritance.ets"
+          },
+          "end": {
+            "line": 16,
+            "column": 22,
+            "program": "inheritance.ets"
+          }
+        }
+      },
+      "extends": [],
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 1,
+          "program": "inheritance.ets"
+        },
+        "end": {
+          "line": 19,
+          "column": 10,
+          "program": "inheritance.ets"
+        }
+      }
+    },
+    {
+      "type": "TSInterfaceDeclaration",
+      "body": {
+        "type": "TSInterfaceBody",
+        "body": [],
+        "loc": {
+          "start": {
+            "line": 19,
+            "column": 23,
+            "program": "inheritance.ets"
+          },
+          "end": {
+            "line": 20,
+            "column": 2,
+            "program": "inheritance.ets"
+          }
+        }
+      },
+      "id": {
+        "type": "Identifier",
+        "name": "interface_b",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 19,
+            "column": 11,
+            "program": "inheritance.ets"
+          },
+          "end": {
+            "line": 19,
+            "column": 22,
+            "program": "inheritance.ets"
+          }
+        }
+      },
+      "extends": [],
+      "loc": {
+        "start": {
+          "line": 19,
+          "column": 1,
+          "program": "inheritance.ets"
+        },
+        "end": {
+          "line": 22,
+          "column": 6,
+          "program": "inheritance.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "base_class",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 22,
+              "column": 7,
+              "program": "inheritance.ets"
+            },
+            "end": {
+              "line": 22,
+              "column": 17,
+              "program": "inheritance.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 22,
+                  "column": 20,
+                  "program": "inheritance.ets"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 20,
+                  "program": "inheritance.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 22,
+                      "column": 20,
+                      "program": "inheritance.ets"
+                    },
+                    "end": {
+                      "line": 22,
+                      "column": 20,
+                      "program": "inheritance.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 22,
+                      "column": 20,
+                      "program": "inheritance.ets"
+                    },
+                    "end": {
+                      "line": 22,
+                      "column": 20,
+                      "program": "inheritance.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 22,
+                    "column": 20,
+                    "program": "inheritance.ets"
+                  },
+                  "end": {
+                    "line": 22,
+                    "column": 20,
+                    "program": "inheritance.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 22,
+                  "column": 20,
+                  "program": "inheritance.ets"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 20,
+                  "program": "inheritance.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 22,
+            "column": 19,
+            "program": "inheritance.ets"
+          },
+          "end": {
+            "line": 25,
+            "column": 6,
+            "program": "inheritance.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 22,
+          "column": 1,
+          "program": "inheritance.ets"
+        },
+        "end": {
+          "line": 25,
+          "column": 6,
+          "program": "inheritance.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "public_class",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 25,
+              "column": 7,
+              "program": "inheritance.ets"
+            },
+            "end": {
+              "line": 25,
+              "column": 19,
+              "program": "inheritance.ets"
+            }
+          }
+        },
+        "superClass": {
+          "type": "ETSTypeReference",
+          "part": {
+            "type": "ETSTypeReferencePart",
+            "name": {
+              "type": "Identifier",
+              "name": "base_class",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 25,
+                  "column": 28,
+                  "program": "inheritance.ets"
+                },
+                "end": {
+                  "line": 25,
+                  "column": 38,
+                  "program": "inheritance.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 25,
+                "column": 28,
+                "program": "inheritance.ets"
+              },
+              "end": {
+                "line": 25,
+                "column": 49,
+                "program": "inheritance.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 25,
+              "column": 28,
+              "program": "inheritance.ets"
+            },
+            "end": {
+              "line": 25,
+              "column": 49,
+              "program": "inheritance.ets"
+            }
+          }
+        },
+        "implements": [
+          {
+            "type": "TSClassImplements",
+            "expression": {
+              "type": "ETSTypeReference",
+              "part": {
+                "type": "ETSTypeReferencePart",
+                "name": {
+                  "type": "Identifier",
+                  "name": "interface_a",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 25,
+                      "column": 50,
+                      "program": "inheritance.ets"
+                    },
+                    "end": {
+                      "line": 25,
+                      "column": 61,
+                      "program": "inheritance.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 25,
+                    "column": 50,
+                    "program": "inheritance.ets"
+                  },
+                  "end": {
+                    "line": 25,
+                    "column": 62,
+                    "program": "inheritance.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 25,
+                  "column": 50,
+                  "program": "inheritance.ets"
+                },
+                "end": {
+                  "line": 25,
+                  "column": 62,
+                  "program": "inheritance.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 25,
+                "column": 50,
+                "program": "inheritance.ets"
+              },
+              "end": {
+                "line": 25,
+                "column": 62,
+                "program": "inheritance.ets"
+              }
+            }
+          },
+          {
+            "type": "TSClassImplements",
+            "expression": {
+              "type": "ETSTypeReference",
+              "part": {
+                "type": "ETSTypeReferencePart",
+                "name": {
+                  "type": "Identifier",
+                  "name": "interface_b",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 25,
+                      "column": 63,
+                      "program": "inheritance.ets"
+                    },
+                    "end": {
+                      "line": 25,
+                      "column": 74,
+                      "program": "inheritance.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 25,
+                    "column": 63,
+                    "program": "inheritance.ets"
+                  },
+                  "end": {
+                    "line": 25,
+                    "column": 77,
+                    "program": "inheritance.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 25,
+                  "column": 63,
+                  "program": "inheritance.ets"
+                },
+                "end": {
+                  "line": 25,
+                  "column": 77,
+                  "program": "inheritance.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 25,
+                "column": 63,
+                "program": "inheritance.ets"
+              },
+              "end": {
+                "line": 25,
+                "column": 77,
+                "program": "inheritance.ets"
+              }
+            }
+          }
+        ],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 25,
+                  "column": 77,
+                  "program": "inheritance.ets"
+                },
+                "end": {
+                  "line": 25,
+                  "column": 77,
+                  "program": "inheritance.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 25,
+                      "column": 77,
+                      "program": "inheritance.ets"
+                    },
+                    "end": {
+                      "line": 25,
+                      "column": 77,
+                      "program": "inheritance.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 25,
+                      "column": 77,
+                      "program": "inheritance.ets"
+                    },
+                    "end": {
+                      "line": 25,
+                      "column": 77,
+                      "program": "inheritance.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 25,
+                    "column": 77,
+                    "program": "inheritance.ets"
+                  },
+                  "end": {
+                    "line": 25,
+                    "column": 77,
+                    "program": "inheritance.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 25,
+                  "column": 77,
+                  "program": "inheritance.ets"
+                },
+                "end": {
+                  "line": 25,
+                  "column": 77,
+                  "program": "inheritance.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 25,
+            "column": 76,
+            "program": "inheritance.ets"
+          },
+          "end": {
+            "line": 28,
+            "column": 6,
+            "program": "inheritance.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 25,
+          "column": 1,
+          "program": "inheritance.ets"
+        },
+        "end": {
+          "line": 28,
+          "column": 6,
+          "program": "inheritance.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "final_class",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 28,
+              "column": 7,
+              "program": "inheritance.ets"
+            },
+            "end": {
+              "line": 28,
+              "column": 18,
+              "program": "inheritance.ets"
+            }
+          }
+        },
+        "superClass": {
+          "type": "ETSTypeReference",
+          "part": {
+            "type": "ETSTypeReferencePart",
+            "name": {
+              "type": "Identifier",
+              "name": "base_class",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 28,
+                  "column": 27,
+                  "program": "inheritance.ets"
+                },
+                "end": {
+                  "line": 28,
+                  "column": 37,
+                  "program": "inheritance.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 28,
+                "column": 27,
+                "program": "inheritance.ets"
+              },
+              "end": {
+                "line": 28,
+                "column": 40,
+                "program": "inheritance.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 28,
+              "column": 27,
+              "program": "inheritance.ets"
+            },
+            "end": {
+              "line": 28,
+              "column": 40,
+              "program": "inheritance.ets"
+            }
+          }
+        },
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 28,
+                  "column": 40,
+                  "program": "inheritance.ets"
+                },
+                "end": {
+                  "line": 28,
+                  "column": 40,
+                  "program": "inheritance.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 28,
+                      "column": 40,
+                      "program": "inheritance.ets"
+                    },
+                    "end": {
+                      "line": 28,
+                      "column": 40,
+                      "program": "inheritance.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 28,
+                      "column": 40,
+                      "program": "inheritance.ets"
+                    },
+                    "end": {
+                      "line": 28,
+                      "column": 40,
+                      "program": "inheritance.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 28,
+                    "column": 40,
+                    "program": "inheritance.ets"
+                  },
+                  "end": {
+                    "line": 28,
+                    "column": 40,
+                    "program": "inheritance.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 28,
+                  "column": 40,
+                  "program": "inheritance.ets"
+                },
+                "end": {
+                  "line": 28,
+                  "column": 40,
+                  "program": "inheritance.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 28,
+            "column": 39,
+            "program": "inheritance.ets"
+          },
+          "end": {
+            "line": 31,
+            "column": 9,
+            "program": "inheritance.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 28,
+          "column": 1,
+          "program": "inheritance.ets"
+        },
+        "end": {
+          "line": 31,
+          "column": 9,
+          "program": "inheritance.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "abstract_class",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 31,
+              "column": 16,
+              "program": "inheritance.ets"
+            },
+            "end": {
+              "line": 31,
+              "column": 30,
+              "program": "inheritance.ets"
+            }
+          }
+        },
+        "superClass": {
+          "type": "ETSTypeReference",
+          "part": {
+            "type": "ETSTypeReferencePart",
+            "name": {
+              "type": "Identifier",
+              "name": "base_class",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 31,
+                  "column": 39,
+                  "program": "inheritance.ets"
+                },
+                "end": {
+                  "line": 31,
+                  "column": 49,
+                  "program": "inheritance.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 31,
+                "column": 39,
+                "program": "inheritance.ets"
+              },
+              "end": {
+                "line": 31,
+                "column": 60,
+                "program": "inheritance.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 31,
+              "column": 39,
+              "program": "inheritance.ets"
+            },
+            "end": {
+              "line": 31,
+              "column": 60,
+              "program": "inheritance.ets"
+            }
+          }
+        },
+        "implements": [
+          {
+            "type": "TSClassImplements",
+            "expression": {
+              "type": "ETSTypeReference",
+              "part": {
+                "type": "ETSTypeReferencePart",
+                "name": {
+                  "type": "Identifier",
+                  "name": "interface_b",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 31,
+                      "column": 61,
+                      "program": "inheritance.ets"
+                    },
+                    "end": {
+                      "line": 31,
+                      "column": 72,
+                      "program": "inheritance.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 31,
+                    "column": 61,
+                    "program": "inheritance.ets"
+                  },
+                  "end": {
+                    "line": 31,
+                    "column": 75,
+                    "program": "inheritance.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 31,
+                  "column": 61,
+                  "program": "inheritance.ets"
+                },
+                "end": {
+                  "line": 31,
+                  "column": 75,
+                  "program": "inheritance.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 31,
+                "column": 61,
+                "program": "inheritance.ets"
+              },
+              "end": {
+                "line": 31,
+                "column": 75,
+                "program": "inheritance.ets"
+              }
+            }
+          }
+        ],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 31,
+                  "column": 75,
+                  "program": "inheritance.ets"
+                },
+                "end": {
+                  "line": 31,
+                  "column": 75,
+                  "program": "inheritance.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 31,
+                      "column": 75,
+                      "program": "inheritance.ets"
+                    },
+                    "end": {
+                      "line": 31,
+                      "column": 75,
+                      "program": "inheritance.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 31,
+                      "column": 75,
+                      "program": "inheritance.ets"
+                    },
+                    "end": {
+                      "line": 31,
+                      "column": 75,
+                      "program": "inheritance.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 31,
+                    "column": 75,
+                    "program": "inheritance.ets"
+                  },
+                  "end": {
+                    "line": 31,
+                    "column": 75,
+                    "program": "inheritance.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 31,
+                  "column": 75,
+                  "program": "inheritance.ets"
+                },
+                "end": {
+                  "line": 31,
+                  "column": 75,
+                  "program": "inheritance.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 31,
+            "column": 74,
+            "program": "inheritance.ets"
+          },
+          "end": {
+            "line": 34,
+            "column": 7,
+            "program": "inheritance.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 31,
+          "column": 10,
+          "program": "inheritance.ets"
+        },
+        "end": {
+          "line": 34,
+          "column": 7,
+          "program": "inheritance.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "inheritance",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 34,
+              "column": 14,
+              "program": "inheritance.ets"
+            },
+            "end": {
+              "line": 34,
+              "column": 25,
+              "program": "inheritance.ets"
+            }
+          }
+        },
+        "superClass": {
+          "type": "ETSTypeReference",
+          "part": {
+            "type": "ETSTypeReferencePart",
+            "name": {
+              "type": "Identifier",
+              "name": "base_class",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 34,
+                  "column": 34,
+                  "program": "inheritance.ets"
+                },
+                "end": {
+                  "line": 34,
+                  "column": 44,
+                  "program": "inheritance.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 34,
+                "column": 34,
+                "program": "inheritance.ets"
+              },
+              "end": {
+                "line": 34,
+                "column": 47,
+                "program": "inheritance.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 34,
+              "column": 34,
+              "program": "inheritance.ets"
+            },
+            "end": {
+              "line": 34,
+              "column": 47,
+              "program": "inheritance.ets"
+            }
+          }
+        },
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 34,
+                  "column": 47,
+                  "program": "inheritance.ets"
+                },
+                "end": {
+                  "line": 34,
+                  "column": 47,
+                  "program": "inheritance.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 34,
+                      "column": 47,
+                      "program": "inheritance.ets"
+                    },
+                    "end": {
+                      "line": 34,
+                      "column": 47,
+                      "program": "inheritance.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 34,
+                      "column": 47,
+                      "program": "inheritance.ets"
+                    },
+                    "end": {
+                      "line": 34,
+                      "column": 47,
+                      "program": "inheritance.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 34,
+                    "column": 47,
+                    "program": "inheritance.ets"
+                  },
+                  "end": {
+                    "line": 34,
+                    "column": 47,
+                    "program": "inheritance.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 34,
+                  "column": 47,
+                  "program": "inheritance.ets"
+                },
+                "end": {
+                  "line": 34,
+                  "column": 47,
+                  "program": "inheritance.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 34,
+            "column": 46,
+            "program": "inheritance.ets"
+          },
+          "end": {
+            "line": 36,
+            "column": 1,
+            "program": "inheritance.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 34,
+          "column": 8,
+          "program": "inheritance.ets"
+        },
+        "end": {
+          "line": 36,
+          "column": 1,
+          "program": "inheritance.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "inheritance.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "inheritance.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "inheritance.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "inheritance.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "inheritance.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "inheritance.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "inheritance.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "inheritance.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "inheritance.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "inheritance.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "inheritance.ets"
+    },
+    "end": {
+      "line": 36,
+      "column": 1,
+      "program": "inheritance.ets"
+    }
+  }
+}

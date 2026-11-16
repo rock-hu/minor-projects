@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "types": [ "node" ],
+
+    "module": "CommonJS",
+    "target": "ES6",
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "strictNullChecks": true,
+    "outDir": "build"
+  },
+
+  "include": ["src/**/*"]
+}
+

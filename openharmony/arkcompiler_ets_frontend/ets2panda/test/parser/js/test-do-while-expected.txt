@@ -1,0 +1,821 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "DoWhileStatement",
+      "body": {
+        "type": "ExpressionStatement",
+        "expression": {
+          "type": "AssignmentExpression",
+          "operator": "=",
+          "left": {
+            "type": "Identifier",
+            "name": "a",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 4,
+                "program": "test-do-while.js"
+              },
+              "end": {
+                "line": 17,
+                "column": 5,
+                "program": "test-do-while.js"
+              }
+            }
+          },
+          "right": {
+            "type": "NumberLiteral",
+            "value": 2,
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 8,
+                "program": "test-do-while.js"
+              },
+              "end": {
+                "line": 17,
+                "column": 9,
+                "program": "test-do-while.js"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 17,
+              "column": 4,
+              "program": "test-do-while.js"
+            },
+            "end": {
+              "line": 17,
+              "column": 9,
+              "program": "test-do-while.js"
+            }
+          }
+        },
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 4,
+            "program": "test-do-while.js"
+          },
+          "end": {
+            "line": 17,
+            "column": 9,
+            "program": "test-do-while.js"
+          }
+        }
+      },
+      "test": {
+        "type": "BinaryExpression",
+        "operator": ">",
+        "left": {
+          "type": "Identifier",
+          "name": "a",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 18,
+              "column": 8,
+              "program": "test-do-while.js"
+            },
+            "end": {
+              "line": 18,
+              "column": 9,
+              "program": "test-do-while.js"
+            }
+          }
+        },
+        "right": {
+          "type": "Identifier",
+          "name": "b",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 18,
+              "column": 12,
+              "program": "test-do-while.js"
+            },
+            "end": {
+              "line": 18,
+              "column": 13,
+              "program": "test-do-while.js"
+            }
+          }
+        },
+        "loc": {
+          "start": {
+            "line": 18,
+            "column": 8,
+            "program": "test-do-while.js"
+          },
+          "end": {
+            "line": 18,
+            "column": 13,
+            "program": "test-do-while.js"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 17,
+          "column": 1,
+          "program": "test-do-while.js"
+        },
+        "end": {
+          "line": 18,
+          "column": 14,
+          "program": "test-do-while.js"
+        }
+      }
+    },
+    {
+      "type": "DoWhileStatement",
+      "body": {
+        "type": "ExpressionStatement",
+        "expression": {
+          "type": "AssignmentExpression",
+          "operator": "=",
+          "left": {
+            "type": "Identifier",
+            "name": "a",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 20,
+                "column": 4,
+                "program": "test-do-while.js"
+              },
+              "end": {
+                "line": 20,
+                "column": 5,
+                "program": "test-do-while.js"
+              }
+            }
+          },
+          "right": {
+            "type": "NumberLiteral",
+            "value": 2,
+            "loc": {
+              "start": {
+                "line": 20,
+                "column": 8,
+                "program": "test-do-while.js"
+              },
+              "end": {
+                "line": 20,
+                "column": 9,
+                "program": "test-do-while.js"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 20,
+              "column": 4,
+              "program": "test-do-while.js"
+            },
+            "end": {
+              "line": 20,
+              "column": 9,
+              "program": "test-do-while.js"
+            }
+          }
+        },
+        "loc": {
+          "start": {
+            "line": 20,
+            "column": 4,
+            "program": "test-do-while.js"
+          },
+          "end": {
+            "line": 20,
+            "column": 10,
+            "program": "test-do-while.js"
+          }
+        }
+      },
+      "test": {
+        "type": "BinaryExpression",
+        "operator": ">",
+        "left": {
+          "type": "Identifier",
+          "name": "a",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 20,
+              "column": 18,
+              "program": "test-do-while.js"
+            },
+            "end": {
+              "line": 20,
+              "column": 19,
+              "program": "test-do-while.js"
+            }
+          }
+        },
+        "right": {
+          "type": "Identifier",
+          "name": "b",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 20,
+              "column": 22,
+              "program": "test-do-while.js"
+            },
+            "end": {
+              "line": 20,
+              "column": 23,
+              "program": "test-do-while.js"
+            }
+          }
+        },
+        "loc": {
+          "start": {
+            "line": 20,
+            "column": 18,
+            "program": "test-do-while.js"
+          },
+          "end": {
+            "line": 20,
+            "column": 23,
+            "program": "test-do-while.js"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 20,
+          "column": 1,
+          "program": "test-do-while.js"
+        },
+        "end": {
+          "line": 20,
+          "column": 24,
+          "program": "test-do-while.js"
+        }
+      }
+    },
+    {
+      "type": "DoWhileStatement",
+      "body": {
+        "type": "BlockStatement",
+        "statements": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "Identifier",
+                "name": "a",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 22,
+                    "column": 6,
+                    "program": "test-do-while.js"
+                  },
+                  "end": {
+                    "line": 22,
+                    "column": 7,
+                    "program": "test-do-while.js"
+                  }
+                }
+              },
+              "right": {
+                "type": "NumberLiteral",
+                "value": 2,
+                "loc": {
+                  "start": {
+                    "line": 22,
+                    "column": 10,
+                    "program": "test-do-while.js"
+                  },
+                  "end": {
+                    "line": 22,
+                    "column": 11,
+                    "program": "test-do-while.js"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 22,
+                  "column": 6,
+                  "program": "test-do-while.js"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 11,
+                  "program": "test-do-while.js"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 22,
+                "column": 6,
+                "program": "test-do-while.js"
+              },
+              "end": {
+                "line": 22,
+                "column": 11,
+                "program": "test-do-while.js"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 22,
+            "column": 4,
+            "program": "test-do-while.js"
+          },
+          "end": {
+            "line": 22,
+            "column": 13,
+            "program": "test-do-while.js"
+          }
+        }
+      },
+      "test": {
+        "type": "BinaryExpression",
+        "operator": ">",
+        "left": {
+          "type": "Identifier",
+          "name": "a",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 22,
+              "column": 21,
+              "program": "test-do-while.js"
+            },
+            "end": {
+              "line": 22,
+              "column": 22,
+              "program": "test-do-while.js"
+            }
+          }
+        },
+        "right": {
+          "type": "Identifier",
+          "name": "b",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 22,
+              "column": 25,
+              "program": "test-do-while.js"
+            },
+            "end": {
+              "line": 22,
+              "column": 26,
+              "program": "test-do-while.js"
+            }
+          }
+        },
+        "loc": {
+          "start": {
+            "line": 22,
+            "column": 21,
+            "program": "test-do-while.js"
+          },
+          "end": {
+            "line": 22,
+            "column": 26,
+            "program": "test-do-while.js"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 22,
+          "column": 1,
+          "program": "test-do-while.js"
+        },
+        "end": {
+          "line": 22,
+          "column": 27,
+          "program": "test-do-while.js"
+        }
+      }
+    },
+    {
+      "type": "DoWhileStatement",
+      "body": {
+        "type": "BlockStatement",
+        "statements": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "Identifier",
+                "name": "a",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 24,
+                    "column": 6,
+                    "program": "test-do-while.js"
+                  },
+                  "end": {
+                    "line": 24,
+                    "column": 7,
+                    "program": "test-do-while.js"
+                  }
+                }
+              },
+              "right": {
+                "type": "NumberLiteral",
+                "value": 2,
+                "loc": {
+                  "start": {
+                    "line": 24,
+                    "column": 10,
+                    "program": "test-do-while.js"
+                  },
+                  "end": {
+                    "line": 24,
+                    "column": 11,
+                    "program": "test-do-while.js"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 24,
+                  "column": 6,
+                  "program": "test-do-while.js"
+                },
+                "end": {
+                  "line": 24,
+                  "column": 11,
+                  "program": "test-do-while.js"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 24,
+                "column": 6,
+                "program": "test-do-while.js"
+              },
+              "end": {
+                "line": 24,
+                "column": 12,
+                "program": "test-do-while.js"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 24,
+            "column": 4,
+            "program": "test-do-while.js"
+          },
+          "end": {
+            "line": 24,
+            "column": 14,
+            "program": "test-do-while.js"
+          }
+        }
+      },
+      "test": {
+        "type": "BinaryExpression",
+        "operator": ">",
+        "left": {
+          "type": "Identifier",
+          "name": "a",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 24,
+              "column": 22,
+              "program": "test-do-while.js"
+            },
+            "end": {
+              "line": 24,
+              "column": 23,
+              "program": "test-do-while.js"
+            }
+          }
+        },
+        "right": {
+          "type": "Identifier",
+          "name": "b",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 24,
+              "column": 26,
+              "program": "test-do-while.js"
+            },
+            "end": {
+              "line": 24,
+              "column": 27,
+              "program": "test-do-while.js"
+            }
+          }
+        },
+        "loc": {
+          "start": {
+            "line": 24,
+            "column": 22,
+            "program": "test-do-while.js"
+          },
+          "end": {
+            "line": 24,
+            "column": 27,
+            "program": "test-do-while.js"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 24,
+          "column": 1,
+          "program": "test-do-while.js"
+        },
+        "end": {
+          "line": 24,
+          "column": 28,
+          "program": "test-do-while.js"
+        }
+      }
+    },
+    {
+      "type": "DoWhileStatement",
+      "body": {
+        "type": "ExpressionStatement",
+        "expression": {
+          "type": "AssignmentExpression",
+          "operator": "=",
+          "left": {
+            "type": "Identifier",
+            "name": "a",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 27,
+                "column": 5,
+                "program": "test-do-while.js"
+              },
+              "end": {
+                "line": 27,
+                "column": 6,
+                "program": "test-do-while.js"
+              }
+            }
+          },
+          "right": {
+            "type": "NumberLiteral",
+            "value": 2,
+            "loc": {
+              "start": {
+                "line": 27,
+                "column": 9,
+                "program": "test-do-while.js"
+              },
+              "end": {
+                "line": 27,
+                "column": 10,
+                "program": "test-do-while.js"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 27,
+              "column": 5,
+              "program": "test-do-while.js"
+            },
+            "end": {
+              "line": 27,
+              "column": 10,
+              "program": "test-do-while.js"
+            }
+          }
+        },
+        "loc": {
+          "start": {
+            "line": 27,
+            "column": 5,
+            "program": "test-do-while.js"
+          },
+          "end": {
+            "line": 27,
+            "column": 10,
+            "program": "test-do-while.js"
+          }
+        }
+      },
+      "test": {
+        "type": "BooleanLiteral",
+        "value": false,
+        "loc": {
+          "start": {
+            "line": 28,
+            "column": 8,
+            "program": "test-do-while.js"
+          },
+          "end": {
+            "line": 28,
+            "column": 13,
+            "program": "test-do-while.js"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 26,
+          "column": 1,
+          "program": "test-do-while.js"
+        },
+        "end": {
+          "line": 28,
+          "column": 14,
+          "program": "test-do-while.js"
+        }
+      }
+    },
+    {
+      "type": "DoWhileStatement",
+      "body": {
+        "type": "BlockStatement",
+        "statements": [],
+        "loc": {
+          "start": {
+            "line": 30,
+            "column": 4,
+            "program": "test-do-while.js"
+          },
+          "end": {
+            "line": 30,
+            "column": 7,
+            "program": "test-do-while.js"
+          }
+        }
+      },
+      "test": {
+        "type": "BooleanLiteral",
+        "value": false,
+        "loc": {
+          "start": {
+            "line": 30,
+            "column": 15,
+            "program": "test-do-while.js"
+          },
+          "end": {
+            "line": 30,
+            "column": 20,
+            "program": "test-do-while.js"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 30,
+          "column": 1,
+          "program": "test-do-while.js"
+        },
+        "end": {
+          "line": 30,
+          "column": 22,
+          "program": "test-do-while.js"
+        }
+      }
+    },
+    {
+      "type": "DoWhileStatement",
+      "body": {
+        "type": "BlockStatement",
+        "statements": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "Identifier",
+                "name": "a",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 33,
+                    "column": 5,
+                    "program": "test-do-while.js"
+                  },
+                  "end": {
+                    "line": 33,
+                    "column": 6,
+                    "program": "test-do-while.js"
+                  }
+                }
+              },
+              "right": {
+                "type": "NumberLiteral",
+                "value": 2,
+                "loc": {
+                  "start": {
+                    "line": 33,
+                    "column": 9,
+                    "program": "test-do-while.js"
+                  },
+                  "end": {
+                    "line": 33,
+                    "column": 10,
+                    "program": "test-do-while.js"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 33,
+                  "column": 5,
+                  "program": "test-do-while.js"
+                },
+                "end": {
+                  "line": 33,
+                  "column": 10,
+                  "program": "test-do-while.js"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 33,
+                "column": 5,
+                "program": "test-do-while.js"
+              },
+              "end": {
+                "line": 33,
+                "column": 11,
+                "program": "test-do-while.js"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 32,
+            "column": 4,
+            "program": "test-do-while.js"
+          },
+          "end": {
+            "line": 34,
+            "column": 2,
+            "program": "test-do-while.js"
+          }
+        }
+      },
+      "test": {
+        "type": "BooleanLiteral",
+        "value": false,
+        "loc": {
+          "start": {
+            "line": 34,
+            "column": 10,
+            "program": "test-do-while.js"
+          },
+          "end": {
+            "line": 34,
+            "column": 15,
+            "program": "test-do-while.js"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 32,
+          "column": 1,
+          "program": "test-do-while.js"
+        },
+        "end": {
+          "line": 34,
+          "column": 17,
+          "program": "test-do-while.js"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "test-do-while.js"
+    },
+    "end": {
+      "line": 45,
+      "column": 1,
+      "program": "test-do-while.js"
+    }
+  }
+}

@@ -1,0 +1,474 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "a",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 5,
+                "program": "try_catch_statement.ts"
+              },
+              "end": {
+                "line": 16,
+                "column": 6,
+                "program": "try_catch_statement.ts"
+              }
+            }
+          },
+          "init": {
+            "type": "NumberLiteral",
+            "value": 5,
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 9,
+                "program": "try_catch_statement.ts"
+              },
+              "end": {
+                "line": 16,
+                "column": 10,
+                "program": "try_catch_statement.ts"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 16,
+              "column": 5,
+              "program": "try_catch_statement.ts"
+            },
+            "end": {
+              "line": 16,
+              "column": 10,
+              "program": "try_catch_statement.ts"
+            }
+          }
+        }
+      ],
+      "kind": "var",
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 1,
+          "program": "try_catch_statement.ts"
+        },
+        "end": {
+          "line": 16,
+          "column": 10,
+          "program": "try_catch_statement.ts"
+        }
+      }
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "c",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 5,
+                "program": "try_catch_statement.ts"
+              },
+              "end": {
+                "line": 17,
+                "column": 6,
+                "program": "try_catch_statement.ts"
+              }
+            }
+          },
+          "init": {
+            "type": "NumberLiteral",
+            "value": 0,
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 9,
+                "program": "try_catch_statement.ts"
+              },
+              "end": {
+                "line": 17,
+                "column": 10,
+                "program": "try_catch_statement.ts"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 17,
+              "column": 5,
+              "program": "try_catch_statement.ts"
+            },
+            "end": {
+              "line": 17,
+              "column": 10,
+              "program": "try_catch_statement.ts"
+            }
+          }
+        }
+      ],
+      "kind": "var",
+      "loc": {
+        "start": {
+          "line": 17,
+          "column": 1,
+          "program": "try_catch_statement.ts"
+        },
+        "end": {
+          "line": 17,
+          "column": 10,
+          "program": "try_catch_statement.ts"
+        }
+      }
+    },
+    {
+      "type": "TryStatement",
+      "block": {
+        "type": "BlockStatement",
+        "statements": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "Identifier",
+                "name": "a",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 19,
+                    "column": 2,
+                    "program": "try_catch_statement.ts"
+                  },
+                  "end": {
+                    "line": 19,
+                    "column": 3,
+                    "program": "try_catch_statement.ts"
+                  }
+                }
+              },
+              "right": {
+                "type": "BinaryExpression",
+                "operator": "/",
+                "left": {
+                  "type": "Identifier",
+                  "name": "a",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 19,
+                      "column": 6,
+                      "program": "try_catch_statement.ts"
+                    },
+                    "end": {
+                      "line": 19,
+                      "column": 7,
+                      "program": "try_catch_statement.ts"
+                    }
+                  }
+                },
+                "right": {
+                  "type": "NumberLiteral",
+                  "value": 0,
+                  "loc": {
+                    "start": {
+                      "line": 19,
+                      "column": 10,
+                      "program": "try_catch_statement.ts"
+                    },
+                    "end": {
+                      "line": 19,
+                      "column": 11,
+                      "program": "try_catch_statement.ts"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 19,
+                    "column": 6,
+                    "program": "try_catch_statement.ts"
+                  },
+                  "end": {
+                    "line": 19,
+                    "column": 11,
+                    "program": "try_catch_statement.ts"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 2,
+                  "program": "try_catch_statement.ts"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 11,
+                  "program": "try_catch_statement.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 19,
+                "column": 2,
+                "program": "try_catch_statement.ts"
+              },
+              "end": {
+                "line": 19,
+                "column": 11,
+                "program": "try_catch_statement.ts"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 18,
+            "column": 5,
+            "program": "try_catch_statement.ts"
+          },
+          "end": {
+            "line": 20,
+            "column": 2,
+            "program": "try_catch_statement.ts"
+          }
+        }
+      },
+      "handler": [
+        {
+          "type": "CatchClause",
+          "body": {
+            "type": "BlockStatement",
+            "statements": [
+              {
+                "type": "ExpressionStatement",
+                "expression": {
+                  "type": "AssignmentExpression",
+                  "operator": "=",
+                  "left": {
+                    "type": "Identifier",
+                    "name": "c",
+                    "decorators": [],
+                    "loc": {
+                      "start": {
+                        "line": 21,
+                        "column": 3,
+                        "program": "try_catch_statement.ts"
+                      },
+                      "end": {
+                        "line": 21,
+                        "column": 4,
+                        "program": "try_catch_statement.ts"
+                      }
+                    }
+                  },
+                  "right": {
+                    "type": "NumberLiteral",
+                    "value": 1,
+                    "loc": {
+                      "start": {
+                        "line": 21,
+                        "column": 7,
+                        "program": "try_catch_statement.ts"
+                      },
+                      "end": {
+                        "line": 21,
+                        "column": 8,
+                        "program": "try_catch_statement.ts"
+                      }
+                    }
+                  },
+                  "loc": {
+                    "start": {
+                      "line": 21,
+                      "column": 3,
+                      "program": "try_catch_statement.ts"
+                    },
+                    "end": {
+                      "line": 21,
+                      "column": 8,
+                      "program": "try_catch_statement.ts"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 21,
+                    "column": 3,
+                    "program": "try_catch_statement.ts"
+                  },
+                  "end": {
+                    "line": 21,
+                    "column": 8,
+                    "program": "try_catch_statement.ts"
+                  }
+                }
+              }
+            ],
+            "loc": {
+              "start": {
+                "line": 20,
+                "column": 13,
+                "program": "try_catch_statement.ts"
+              },
+              "end": {
+                "line": 22,
+                "column": 2,
+                "program": "try_catch_statement.ts"
+              }
+            }
+          },
+          "param": {
+            "type": "Identifier",
+            "name": "b",
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 20,
+                "column": 10,
+                "program": "try_catch_statement.ts"
+              },
+              "end": {
+                "line": 20,
+                "column": 11,
+                "program": "try_catch_statement.ts"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 20,
+              "column": 3,
+              "program": "try_catch_statement.ts"
+            },
+            "end": {
+              "line": 22,
+              "column": 2,
+              "program": "try_catch_statement.ts"
+            }
+          }
+        }
+      ],
+      "finalizer": {
+        "type": "BlockStatement",
+        "statements": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "AssignmentExpression",
+              "operator": "=",
+              "left": {
+                "type": "Identifier",
+                "name": "a",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 23,
+                    "column": 3,
+                    "program": "try_catch_statement.ts"
+                  },
+                  "end": {
+                    "line": 23,
+                    "column": 4,
+                    "program": "try_catch_statement.ts"
+                  }
+                }
+              },
+              "right": {
+                "type": "NumberLiteral",
+                "value": 0,
+                "loc": {
+                  "start": {
+                    "line": 23,
+                    "column": 7,
+                    "program": "try_catch_statement.ts"
+                  },
+                  "end": {
+                    "line": 23,
+                    "column": 8,
+                    "program": "try_catch_statement.ts"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 23,
+                  "column": 3,
+                  "program": "try_catch_statement.ts"
+                },
+                "end": {
+                  "line": 23,
+                  "column": 8,
+                  "program": "try_catch_statement.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 23,
+                "column": 3,
+                "program": "try_catch_statement.ts"
+              },
+              "end": {
+                "line": 23,
+                "column": 8,
+                "program": "try_catch_statement.ts"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 22,
+            "column": 11,
+            "program": "try_catch_statement.ts"
+          },
+          "end": {
+            "line": 24,
+            "column": 2,
+            "program": "try_catch_statement.ts"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 18,
+          "column": 1,
+          "program": "try_catch_statement.ts"
+        },
+        "end": {
+          "line": 24,
+          "column": 2,
+          "program": "try_catch_statement.ts"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "try_catch_statement.ts"
+    },
+    "end": {
+      "line": 25,
+      "column": 1,
+      "program": "try_catch_statement.ts"
+    }
+  }
+}

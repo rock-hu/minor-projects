@@ -1,0 +1,4497 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "A1",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 29,
+              "column": 7,
+              "program": "union_types_merging.ets"
+            },
+            "end": {
+              "line": 29,
+              "column": 9,
+              "program": "union_types_merging.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 29,
+                  "column": 11,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 29,
+                  "column": 11,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 29,
+                      "column": 11,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 29,
+                      "column": 11,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 29,
+                      "column": 11,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 29,
+                      "column": 11,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 29,
+                    "column": 11,
+                    "program": "union_types_merging.ets"
+                  },
+                  "end": {
+                    "line": 29,
+                    "column": 11,
+                    "program": "union_types_merging.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 29,
+                  "column": 11,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 29,
+                  "column": 11,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 29,
+            "column": 10,
+            "program": "union_types_merging.ets"
+          },
+          "end": {
+            "line": 30,
+            "column": 6,
+            "program": "union_types_merging.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 29,
+          "column": 1,
+          "program": "union_types_merging.ets"
+        },
+        "end": {
+          "line": 30,
+          "column": 6,
+          "program": "union_types_merging.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "A2",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 30,
+              "column": 7,
+              "program": "union_types_merging.ets"
+            },
+            "end": {
+              "line": 30,
+              "column": 9,
+              "program": "union_types_merging.ets"
+            }
+          }
+        },
+        "superClass": {
+          "type": "ETSTypeReference",
+          "part": {
+            "type": "ETSTypeReferencePart",
+            "name": {
+              "type": "Identifier",
+              "name": "A1",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 30,
+                  "column": 18,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 30,
+                  "column": 20,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 30,
+                "column": 18,
+                "program": "union_types_merging.ets"
+              },
+              "end": {
+                "line": 30,
+                "column": 22,
+                "program": "union_types_merging.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 30,
+              "column": 18,
+              "program": "union_types_merging.ets"
+            },
+            "end": {
+              "line": 30,
+              "column": 22,
+              "program": "union_types_merging.ets"
+            }
+          }
+        },
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 30,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 30,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 30,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 30,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 30,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 30,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 30,
+                    "column": 22,
+                    "program": "union_types_merging.ets"
+                  },
+                  "end": {
+                    "line": 30,
+                    "column": 22,
+                    "program": "union_types_merging.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 30,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 30,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 30,
+            "column": 21,
+            "program": "union_types_merging.ets"
+          },
+          "end": {
+            "line": 31,
+            "column": 6,
+            "program": "union_types_merging.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 30,
+          "column": 1,
+          "program": "union_types_merging.ets"
+        },
+        "end": {
+          "line": 31,
+          "column": 6,
+          "program": "union_types_merging.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "A3",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 31,
+              "column": 7,
+              "program": "union_types_merging.ets"
+            },
+            "end": {
+              "line": 31,
+              "column": 9,
+              "program": "union_types_merging.ets"
+            }
+          }
+        },
+        "superClass": {
+          "type": "ETSTypeReference",
+          "part": {
+            "type": "ETSTypeReferencePart",
+            "name": {
+              "type": "Identifier",
+              "name": "A2",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 31,
+                  "column": 18,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 31,
+                  "column": 20,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 31,
+                "column": 18,
+                "program": "union_types_merging.ets"
+              },
+              "end": {
+                "line": 31,
+                "column": 22,
+                "program": "union_types_merging.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 31,
+              "column": 18,
+              "program": "union_types_merging.ets"
+            },
+            "end": {
+              "line": 31,
+              "column": 22,
+              "program": "union_types_merging.ets"
+            }
+          }
+        },
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 31,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 31,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 31,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 31,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 31,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 31,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 31,
+                    "column": 22,
+                    "program": "union_types_merging.ets"
+                  },
+                  "end": {
+                    "line": 31,
+                    "column": 22,
+                    "program": "union_types_merging.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 31,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 31,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 31,
+            "column": 21,
+            "program": "union_types_merging.ets"
+          },
+          "end": {
+            "line": 32,
+            "column": 6,
+            "program": "union_types_merging.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 31,
+          "column": 1,
+          "program": "union_types_merging.ets"
+        },
+        "end": {
+          "line": 32,
+          "column": 6,
+          "program": "union_types_merging.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "A4",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 32,
+              "column": 7,
+              "program": "union_types_merging.ets"
+            },
+            "end": {
+              "line": 32,
+              "column": 9,
+              "program": "union_types_merging.ets"
+            }
+          }
+        },
+        "superClass": {
+          "type": "ETSTypeReference",
+          "part": {
+            "type": "ETSTypeReferencePart",
+            "name": {
+              "type": "Identifier",
+              "name": "A3",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 32,
+                  "column": 18,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 32,
+                  "column": 20,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 32,
+                "column": 18,
+                "program": "union_types_merging.ets"
+              },
+              "end": {
+                "line": 32,
+                "column": 22,
+                "program": "union_types_merging.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 32,
+              "column": 18,
+              "program": "union_types_merging.ets"
+            },
+            "end": {
+              "line": 32,
+              "column": 22,
+              "program": "union_types_merging.ets"
+            }
+          }
+        },
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 32,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 32,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 32,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 32,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 32,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 32,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 32,
+                    "column": 22,
+                    "program": "union_types_merging.ets"
+                  },
+                  "end": {
+                    "line": 32,
+                    "column": 22,
+                    "program": "union_types_merging.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 32,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 32,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 32,
+            "column": 21,
+            "program": "union_types_merging.ets"
+          },
+          "end": {
+            "line": 33,
+            "column": 6,
+            "program": "union_types_merging.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 32,
+          "column": 1,
+          "program": "union_types_merging.ets"
+        },
+        "end": {
+          "line": 33,
+          "column": 6,
+          "program": "union_types_merging.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "A5",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 33,
+              "column": 7,
+              "program": "union_types_merging.ets"
+            },
+            "end": {
+              "line": 33,
+              "column": 9,
+              "program": "union_types_merging.ets"
+            }
+          }
+        },
+        "superClass": {
+          "type": "ETSTypeReference",
+          "part": {
+            "type": "ETSTypeReferencePart",
+            "name": {
+              "type": "Identifier",
+              "name": "A4",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 33,
+                  "column": 18,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 33,
+                  "column": 20,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 33,
+                "column": 18,
+                "program": "union_types_merging.ets"
+              },
+              "end": {
+                "line": 33,
+                "column": 22,
+                "program": "union_types_merging.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 33,
+              "column": 18,
+              "program": "union_types_merging.ets"
+            },
+            "end": {
+              "line": 33,
+              "column": 22,
+              "program": "union_types_merging.ets"
+            }
+          }
+        },
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 33,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 33,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 33,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 33,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 33,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 33,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 33,
+                    "column": 22,
+                    "program": "union_types_merging.ets"
+                  },
+                  "end": {
+                    "line": 33,
+                    "column": 22,
+                    "program": "union_types_merging.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 33,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 33,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 33,
+            "column": 21,
+            "program": "union_types_merging.ets"
+          },
+          "end": {
+            "line": 35,
+            "column": 6,
+            "program": "union_types_merging.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 33,
+          "column": 1,
+          "program": "union_types_merging.ets"
+        },
+        "end": {
+          "line": 35,
+          "column": 6,
+          "program": "union_types_merging.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "B1",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 35,
+              "column": 7,
+              "program": "union_types_merging.ets"
+            },
+            "end": {
+              "line": 35,
+              "column": 9,
+              "program": "union_types_merging.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 35,
+                  "column": 11,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 35,
+                  "column": 11,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 35,
+                      "column": 11,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 35,
+                      "column": 11,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 35,
+                      "column": 11,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 35,
+                      "column": 11,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 35,
+                    "column": 11,
+                    "program": "union_types_merging.ets"
+                  },
+                  "end": {
+                    "line": 35,
+                    "column": 11,
+                    "program": "union_types_merging.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 35,
+                  "column": 11,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 35,
+                  "column": 11,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 35,
+            "column": 10,
+            "program": "union_types_merging.ets"
+          },
+          "end": {
+            "line": 36,
+            "column": 6,
+            "program": "union_types_merging.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 35,
+          "column": 1,
+          "program": "union_types_merging.ets"
+        },
+        "end": {
+          "line": 36,
+          "column": 6,
+          "program": "union_types_merging.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "B2",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 36,
+              "column": 7,
+              "program": "union_types_merging.ets"
+            },
+            "end": {
+              "line": 36,
+              "column": 9,
+              "program": "union_types_merging.ets"
+            }
+          }
+        },
+        "superClass": {
+          "type": "ETSTypeReference",
+          "part": {
+            "type": "ETSTypeReferencePart",
+            "name": {
+              "type": "Identifier",
+              "name": "B1",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 36,
+                  "column": 18,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 36,
+                  "column": 20,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 36,
+                "column": 18,
+                "program": "union_types_merging.ets"
+              },
+              "end": {
+                "line": 36,
+                "column": 22,
+                "program": "union_types_merging.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 36,
+              "column": 18,
+              "program": "union_types_merging.ets"
+            },
+            "end": {
+              "line": 36,
+              "column": 22,
+              "program": "union_types_merging.ets"
+            }
+          }
+        },
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 36,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 36,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 36,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 36,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 36,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 36,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 36,
+                    "column": 22,
+                    "program": "union_types_merging.ets"
+                  },
+                  "end": {
+                    "line": 36,
+                    "column": 22,
+                    "program": "union_types_merging.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 36,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 36,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 36,
+            "column": 21,
+            "program": "union_types_merging.ets"
+          },
+          "end": {
+            "line": 37,
+            "column": 6,
+            "program": "union_types_merging.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 36,
+          "column": 1,
+          "program": "union_types_merging.ets"
+        },
+        "end": {
+          "line": 37,
+          "column": 6,
+          "program": "union_types_merging.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "B3",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 37,
+              "column": 7,
+              "program": "union_types_merging.ets"
+            },
+            "end": {
+              "line": 37,
+              "column": 9,
+              "program": "union_types_merging.ets"
+            }
+          }
+        },
+        "superClass": {
+          "type": "ETSTypeReference",
+          "part": {
+            "type": "ETSTypeReferencePart",
+            "name": {
+              "type": "Identifier",
+              "name": "B2",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 37,
+                  "column": 18,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 37,
+                  "column": 20,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 37,
+                "column": 18,
+                "program": "union_types_merging.ets"
+              },
+              "end": {
+                "line": 37,
+                "column": 22,
+                "program": "union_types_merging.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 37,
+              "column": 18,
+              "program": "union_types_merging.ets"
+            },
+            "end": {
+              "line": 37,
+              "column": 22,
+              "program": "union_types_merging.ets"
+            }
+          }
+        },
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 37,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 37,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 37,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 37,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 37,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 37,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 37,
+                    "column": 22,
+                    "program": "union_types_merging.ets"
+                  },
+                  "end": {
+                    "line": 37,
+                    "column": 22,
+                    "program": "union_types_merging.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 37,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 37,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 37,
+            "column": 21,
+            "program": "union_types_merging.ets"
+          },
+          "end": {
+            "line": 38,
+            "column": 6,
+            "program": "union_types_merging.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 37,
+          "column": 1,
+          "program": "union_types_merging.ets"
+        },
+        "end": {
+          "line": 38,
+          "column": 6,
+          "program": "union_types_merging.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "B4",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 38,
+              "column": 7,
+              "program": "union_types_merging.ets"
+            },
+            "end": {
+              "line": 38,
+              "column": 9,
+              "program": "union_types_merging.ets"
+            }
+          }
+        },
+        "superClass": {
+          "type": "ETSTypeReference",
+          "part": {
+            "type": "ETSTypeReferencePart",
+            "name": {
+              "type": "Identifier",
+              "name": "B3",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 38,
+                  "column": 18,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 38,
+                  "column": 20,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 38,
+                "column": 18,
+                "program": "union_types_merging.ets"
+              },
+              "end": {
+                "line": 38,
+                "column": 22,
+                "program": "union_types_merging.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 38,
+              "column": 18,
+              "program": "union_types_merging.ets"
+            },
+            "end": {
+              "line": 38,
+              "column": 22,
+              "program": "union_types_merging.ets"
+            }
+          }
+        },
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 38,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 38,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 38,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 38,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 38,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 38,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 38,
+                    "column": 22,
+                    "program": "union_types_merging.ets"
+                  },
+                  "end": {
+                    "line": 38,
+                    "column": 22,
+                    "program": "union_types_merging.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 38,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 38,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 38,
+            "column": 21,
+            "program": "union_types_merging.ets"
+          },
+          "end": {
+            "line": 39,
+            "column": 6,
+            "program": "union_types_merging.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 38,
+          "column": 1,
+          "program": "union_types_merging.ets"
+        },
+        "end": {
+          "line": 39,
+          "column": 6,
+          "program": "union_types_merging.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "B5",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 39,
+              "column": 7,
+              "program": "union_types_merging.ets"
+            },
+            "end": {
+              "line": 39,
+              "column": 9,
+              "program": "union_types_merging.ets"
+            }
+          }
+        },
+        "superClass": {
+          "type": "ETSTypeReference",
+          "part": {
+            "type": "ETSTypeReferencePart",
+            "name": {
+              "type": "Identifier",
+              "name": "B4",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 39,
+                  "column": 18,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 39,
+                  "column": 20,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 39,
+                "column": 18,
+                "program": "union_types_merging.ets"
+              },
+              "end": {
+                "line": 39,
+                "column": 22,
+                "program": "union_types_merging.ets"
+              }
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 39,
+              "column": 18,
+              "program": "union_types_merging.ets"
+            },
+            "end": {
+              "line": 39,
+              "column": 22,
+              "program": "union_types_merging.ets"
+            }
+          }
+        },
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "constructor",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 39,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 39,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "kind": "constructor",
+            "static": false,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "constructor",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 39,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 39,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 39,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 39,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 39,
+                    "column": 22,
+                    "program": "union_types_merging.ets"
+                  },
+                  "end": {
+                    "line": 39,
+                    "column": 22,
+                    "program": "union_types_merging.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 39,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 39,
+                  "column": 22,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": null
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 39,
+            "column": 21,
+            "program": "union_types_merging.ets"
+          },
+          "end": {
+            "line": 39,
+            "column": 23,
+            "program": "union_types_merging.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 39,
+          "column": 1,
+          "program": "union_types_merging.ets"
+        },
+        "end": {
+          "line": 39,
+          "column": 23,
+          "program": "union_types_merging.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "union_types_merging.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "union_types_merging.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "union_types_merging.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "union_types_merging.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 14,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 14,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 18,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 22,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "union1",
+                            "typeAnnotation": {
+                              "type": "ETSUnionType",
+                              "types": [
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "A1",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 17,
+                                          "column": 16,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 17,
+                                          "column": 18,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 17,
+                                        "column": 16,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 17,
+                                        "column": 20,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 17,
+                                      "column": 16,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 17,
+                                      "column": 20,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "A2",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 17,
+                                          "column": 21,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 17,
+                                          "column": 23,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 17,
+                                        "column": 21,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 17,
+                                        "column": 25,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 17,
+                                      "column": 21,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 17,
+                                      "column": 25,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "A3",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 17,
+                                          "column": 26,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 17,
+                                          "column": 28,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 17,
+                                        "column": 26,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 17,
+                                        "column": 30,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 17,
+                                      "column": 26,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 17,
+                                      "column": 30,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "A4",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 17,
+                                          "column": 31,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 17,
+                                          "column": 33,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 17,
+                                        "column": 31,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 17,
+                                        "column": 35,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 17,
+                                      "column": 31,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 17,
+                                      "column": 35,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "A5",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 17,
+                                          "column": 36,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 17,
+                                          "column": 38,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 17,
+                                        "column": 36,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 17,
+                                        "column": 39,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 17,
+                                      "column": 36,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 17,
+                                      "column": 39,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                }
+                              ],
+                              "loc": {
+                                "start": {
+                                  "line": 17,
+                                  "column": 15,
+                                  "program": "union_types_merging.ets"
+                                },
+                                "end": {
+                                  "line": 17,
+                                  "column": 39,
+                                  "program": "union_types_merging.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 17,
+                                "column": 7,
+                                "program": "union_types_merging.ets"
+                              },
+                              "end": {
+                                "line": 17,
+                                "column": 13,
+                                "program": "union_types_merging.ets"
+                              }
+                            }
+                          },
+                          "init": null,
+                          "loc": {
+                            "start": {
+                              "line": 17,
+                              "column": 7,
+                              "program": "union_types_merging.ets"
+                            },
+                            "end": {
+                              "line": 17,
+                              "column": 13,
+                              "program": "union_types_merging.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 17,
+                          "column": 3,
+                          "program": "union_types_merging.ets"
+                        },
+                        "end": {
+                          "line": 17,
+                          "column": 40,
+                          "program": "union_types_merging.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "union2",
+                            "typeAnnotation": {
+                              "type": "ETSUnionType",
+                              "types": [
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "B5",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 18,
+                                          "column": 16,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 18,
+                                          "column": 18,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 18,
+                                        "column": 16,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 18,
+                                        "column": 20,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 18,
+                                      "column": 16,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 18,
+                                      "column": 20,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "B4",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 18,
+                                          "column": 21,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 18,
+                                          "column": 23,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 18,
+                                        "column": 21,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 18,
+                                        "column": 25,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 18,
+                                      "column": 21,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 18,
+                                      "column": 25,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "B3",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 18,
+                                          "column": 26,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 18,
+                                          "column": 28,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 18,
+                                        "column": 26,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 18,
+                                        "column": 30,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 18,
+                                      "column": 26,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 18,
+                                      "column": 30,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "B2",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 18,
+                                          "column": 31,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 18,
+                                          "column": 33,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 18,
+                                        "column": 31,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 18,
+                                        "column": 35,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 18,
+                                      "column": 31,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 18,
+                                      "column": 35,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "B1",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 18,
+                                          "column": 36,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 18,
+                                          "column": 38,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 18,
+                                        "column": 36,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 18,
+                                        "column": 39,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 18,
+                                      "column": 36,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 18,
+                                      "column": 39,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                }
+                              ],
+                              "loc": {
+                                "start": {
+                                  "line": 18,
+                                  "column": 15,
+                                  "program": "union_types_merging.ets"
+                                },
+                                "end": {
+                                  "line": 18,
+                                  "column": 39,
+                                  "program": "union_types_merging.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 18,
+                                "column": 7,
+                                "program": "union_types_merging.ets"
+                              },
+                              "end": {
+                                "line": 18,
+                                "column": 13,
+                                "program": "union_types_merging.ets"
+                              }
+                            }
+                          },
+                          "init": null,
+                          "loc": {
+                            "start": {
+                              "line": 18,
+                              "column": 7,
+                              "program": "union_types_merging.ets"
+                            },
+                            "end": {
+                              "line": 18,
+                              "column": 13,
+                              "program": "union_types_merging.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 18,
+                          "column": 3,
+                          "program": "union_types_merging.ets"
+                        },
+                        "end": {
+                          "line": 18,
+                          "column": 40,
+                          "program": "union_types_merging.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "union3",
+                            "typeAnnotation": {
+                              "type": "ETSUnionType",
+                              "types": [
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "A1",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 19,
+                                          "column": 16,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 19,
+                                          "column": 18,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 19,
+                                        "column": 16,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 19,
+                                        "column": 20,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 19,
+                                      "column": 16,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 19,
+                                      "column": 20,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "B5",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 19,
+                                          "column": 21,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 19,
+                                          "column": 23,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 19,
+                                        "column": 21,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 19,
+                                        "column": 25,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 19,
+                                      "column": 21,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 19,
+                                      "column": 25,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "A2",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 19,
+                                          "column": 26,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 19,
+                                          "column": 28,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 19,
+                                        "column": 26,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 19,
+                                        "column": 30,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 19,
+                                      "column": 26,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 19,
+                                      "column": 30,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "B4",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 19,
+                                          "column": 31,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 19,
+                                          "column": 33,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 19,
+                                        "column": 31,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 19,
+                                        "column": 35,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 19,
+                                      "column": 31,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 19,
+                                      "column": 35,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "A3",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 19,
+                                          "column": 36,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 19,
+                                          "column": 38,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 19,
+                                        "column": 36,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 19,
+                                        "column": 40,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 19,
+                                      "column": 36,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 19,
+                                      "column": 40,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "B3",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 19,
+                                          "column": 41,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 19,
+                                          "column": 43,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 19,
+                                        "column": 41,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 19,
+                                        "column": 45,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 19,
+                                      "column": 41,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 19,
+                                      "column": 45,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "A4",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 19,
+                                          "column": 46,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 19,
+                                          "column": 48,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 19,
+                                        "column": 46,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 19,
+                                        "column": 50,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 19,
+                                      "column": 46,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 19,
+                                      "column": 50,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "B2",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 19,
+                                          "column": 51,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 19,
+                                          "column": 53,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 19,
+                                        "column": 51,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 19,
+                                        "column": 55,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 19,
+                                      "column": 51,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 19,
+                                      "column": 55,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "A5",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 19,
+                                          "column": 56,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 19,
+                                          "column": 58,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 19,
+                                        "column": 56,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 19,
+                                        "column": 60,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 19,
+                                      "column": 56,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 19,
+                                      "column": 60,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "B1",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 19,
+                                          "column": 61,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 19,
+                                          "column": 63,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 19,
+                                        "column": 61,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 19,
+                                        "column": 64,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 19,
+                                      "column": 61,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 19,
+                                      "column": 64,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                }
+                              ],
+                              "loc": {
+                                "start": {
+                                  "line": 19,
+                                  "column": 15,
+                                  "program": "union_types_merging.ets"
+                                },
+                                "end": {
+                                  "line": 19,
+                                  "column": 64,
+                                  "program": "union_types_merging.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 19,
+                                "column": 7,
+                                "program": "union_types_merging.ets"
+                              },
+                              "end": {
+                                "line": 19,
+                                "column": 13,
+                                "program": "union_types_merging.ets"
+                              }
+                            }
+                          },
+                          "init": null,
+                          "loc": {
+                            "start": {
+                              "line": 19,
+                              "column": 7,
+                              "program": "union_types_merging.ets"
+                            },
+                            "end": {
+                              "line": 19,
+                              "column": 13,
+                              "program": "union_types_merging.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 19,
+                          "column": 3,
+                          "program": "union_types_merging.ets"
+                        },
+                        "end": {
+                          "line": 19,
+                          "column": 65,
+                          "program": "union_types_merging.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "union4",
+                            "typeAnnotation": {
+                              "type": "ETSUnionType",
+                              "types": [
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "A1",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 20,
+                                          "column": 16,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 20,
+                                          "column": 18,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 20,
+                                        "column": 16,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 20,
+                                        "column": 20,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 16,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 20,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "B5",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 20,
+                                          "column": 21,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 20,
+                                          "column": 23,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 20,
+                                        "column": 21,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 20,
+                                        "column": 25,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 21,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 25,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "A2",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 20,
+                                          "column": 26,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 20,
+                                          "column": 28,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 20,
+                                        "column": 26,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 20,
+                                        "column": 30,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 26,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 30,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "B4",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 20,
+                                          "column": 31,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 20,
+                                          "column": 33,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 20,
+                                        "column": 31,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 20,
+                                        "column": 35,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 31,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 35,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "A3",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 20,
+                                          "column": 36,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 20,
+                                          "column": 38,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 20,
+                                        "column": 36,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 20,
+                                        "column": 40,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 36,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 40,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "object",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 20,
+                                          "column": 41,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 20,
+                                          "column": 47,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 20,
+                                        "column": 41,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 20,
+                                        "column": 49,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 41,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 49,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "B3",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 20,
+                                          "column": 50,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 20,
+                                          "column": 52,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 20,
+                                        "column": 50,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 20,
+                                        "column": 54,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 50,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 54,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "A4",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 20,
+                                          "column": 55,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 20,
+                                          "column": 57,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 20,
+                                        "column": 55,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 20,
+                                        "column": 59,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 55,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 59,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "B2",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 20,
+                                          "column": 60,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 20,
+                                          "column": 62,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 20,
+                                        "column": 60,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 20,
+                                        "column": 64,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 60,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 64,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "A5",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 20,
+                                          "column": 65,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 20,
+                                          "column": 67,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 20,
+                                        "column": 65,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 20,
+                                        "column": 69,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 65,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 69,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "B1",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 20,
+                                          "column": 70,
+                                          "program": "union_types_merging.ets"
+                                        },
+                                        "end": {
+                                          "line": 20,
+                                          "column": 72,
+                                          "program": "union_types_merging.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 20,
+                                        "column": 70,
+                                        "program": "union_types_merging.ets"
+                                      },
+                                      "end": {
+                                        "line": 20,
+                                        "column": 73,
+                                        "program": "union_types_merging.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 20,
+                                      "column": 70,
+                                      "program": "union_types_merging.ets"
+                                    },
+                                    "end": {
+                                      "line": 20,
+                                      "column": 73,
+                                      "program": "union_types_merging.ets"
+                                    }
+                                  }
+                                }
+                              ],
+                              "loc": {
+                                "start": {
+                                  "line": 20,
+                                  "column": 15,
+                                  "program": "union_types_merging.ets"
+                                },
+                                "end": {
+                                  "line": 20,
+                                  "column": 73,
+                                  "program": "union_types_merging.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 20,
+                                "column": 7,
+                                "program": "union_types_merging.ets"
+                              },
+                              "end": {
+                                "line": 20,
+                                "column": 13,
+                                "program": "union_types_merging.ets"
+                              }
+                            }
+                          },
+                          "init": null,
+                          "loc": {
+                            "start": {
+                              "line": 20,
+                              "column": 7,
+                              "program": "union_types_merging.ets"
+                            },
+                            "end": {
+                              "line": 20,
+                              "column": 13,
+                              "program": "union_types_merging.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 20,
+                          "column": 3,
+                          "program": "union_types_merging.ets"
+                        },
+                        "end": {
+                          "line": 20,
+                          "column": 74,
+                          "program": "union_types_merging.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "AssignmentExpression",
+                        "operator": "=",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "union1",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 22,
+                              "column": 3,
+                              "program": "union_types_merging.ets"
+                            },
+                            "end": {
+                              "line": 22,
+                              "column": 9,
+                              "program": "union_types_merging.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "ETSNewClassInstanceExpression",
+                          "typeReference": {
+                            "type": "ETSTypeReference",
+                            "part": {
+                              "type": "ETSTypeReferencePart",
+                              "name": {
+                                "type": "Identifier",
+                                "name": "A1",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 22,
+                                    "column": 16,
+                                    "program": "union_types_merging.ets"
+                                  },
+                                  "end": {
+                                    "line": 22,
+                                    "column": 18,
+                                    "program": "union_types_merging.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 22,
+                                  "column": 16,
+                                  "program": "union_types_merging.ets"
+                                },
+                                "end": {
+                                  "line": 22,
+                                  "column": 19,
+                                  "program": "union_types_merging.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 22,
+                                "column": 16,
+                                "program": "union_types_merging.ets"
+                              },
+                              "end": {
+                                "line": 22,
+                                "column": 19,
+                                "program": "union_types_merging.ets"
+                              }
+                            }
+                          },
+                          "arguments": [],
+                          "loc": {
+                            "start": {
+                              "line": 22,
+                              "column": 12,
+                              "program": "union_types_merging.ets"
+                            },
+                            "end": {
+                              "line": 22,
+                              "column": 21,
+                              "program": "union_types_merging.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 22,
+                            "column": 3,
+                            "program": "union_types_merging.ets"
+                          },
+                          "end": {
+                            "line": 22,
+                            "column": 21,
+                            "program": "union_types_merging.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 22,
+                          "column": 3,
+                          "program": "union_types_merging.ets"
+                        },
+                        "end": {
+                          "line": 22,
+                          "column": 21,
+                          "program": "union_types_merging.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "AssignmentExpression",
+                        "operator": "=",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "union2",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 23,
+                              "column": 3,
+                              "program": "union_types_merging.ets"
+                            },
+                            "end": {
+                              "line": 23,
+                              "column": 9,
+                              "program": "union_types_merging.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "ETSNewClassInstanceExpression",
+                          "typeReference": {
+                            "type": "ETSTypeReference",
+                            "part": {
+                              "type": "ETSTypeReferencePart",
+                              "name": {
+                                "type": "Identifier",
+                                "name": "B1",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 23,
+                                    "column": 16,
+                                    "program": "union_types_merging.ets"
+                                  },
+                                  "end": {
+                                    "line": 23,
+                                    "column": 18,
+                                    "program": "union_types_merging.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 23,
+                                  "column": 16,
+                                  "program": "union_types_merging.ets"
+                                },
+                                "end": {
+                                  "line": 23,
+                                  "column": 19,
+                                  "program": "union_types_merging.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 23,
+                                "column": 16,
+                                "program": "union_types_merging.ets"
+                              },
+                              "end": {
+                                "line": 23,
+                                "column": 19,
+                                "program": "union_types_merging.ets"
+                              }
+                            }
+                          },
+                          "arguments": [],
+                          "loc": {
+                            "start": {
+                              "line": 23,
+                              "column": 12,
+                              "program": "union_types_merging.ets"
+                            },
+                            "end": {
+                              "line": 23,
+                              "column": 21,
+                              "program": "union_types_merging.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 23,
+                            "column": 3,
+                            "program": "union_types_merging.ets"
+                          },
+                          "end": {
+                            "line": 23,
+                            "column": 21,
+                            "program": "union_types_merging.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 23,
+                          "column": 3,
+                          "program": "union_types_merging.ets"
+                        },
+                        "end": {
+                          "line": 23,
+                          "column": 21,
+                          "program": "union_types_merging.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "AssignmentExpression",
+                        "operator": "=",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "union3",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 24,
+                              "column": 3,
+                              "program": "union_types_merging.ets"
+                            },
+                            "end": {
+                              "line": 24,
+                              "column": 9,
+                              "program": "union_types_merging.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "ETSNewClassInstanceExpression",
+                          "typeReference": {
+                            "type": "ETSTypeReference",
+                            "part": {
+                              "type": "ETSTypeReferencePart",
+                              "name": {
+                                "type": "Identifier",
+                                "name": "A1",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 24,
+                                    "column": 16,
+                                    "program": "union_types_merging.ets"
+                                  },
+                                  "end": {
+                                    "line": 24,
+                                    "column": 18,
+                                    "program": "union_types_merging.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 24,
+                                  "column": 16,
+                                  "program": "union_types_merging.ets"
+                                },
+                                "end": {
+                                  "line": 24,
+                                  "column": 19,
+                                  "program": "union_types_merging.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 24,
+                                "column": 16,
+                                "program": "union_types_merging.ets"
+                              },
+                              "end": {
+                                "line": 24,
+                                "column": 19,
+                                "program": "union_types_merging.ets"
+                              }
+                            }
+                          },
+                          "arguments": [],
+                          "loc": {
+                            "start": {
+                              "line": 24,
+                              "column": 12,
+                              "program": "union_types_merging.ets"
+                            },
+                            "end": {
+                              "line": 24,
+                              "column": 21,
+                              "program": "union_types_merging.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 24,
+                            "column": 3,
+                            "program": "union_types_merging.ets"
+                          },
+                          "end": {
+                            "line": 24,
+                            "column": 21,
+                            "program": "union_types_merging.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 24,
+                          "column": 3,
+                          "program": "union_types_merging.ets"
+                        },
+                        "end": {
+                          "line": 24,
+                          "column": 21,
+                          "program": "union_types_merging.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "AssignmentExpression",
+                        "operator": "=",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "union3",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 25,
+                              "column": 3,
+                              "program": "union_types_merging.ets"
+                            },
+                            "end": {
+                              "line": 25,
+                              "column": 9,
+                              "program": "union_types_merging.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "ETSNewClassInstanceExpression",
+                          "typeReference": {
+                            "type": "ETSTypeReference",
+                            "part": {
+                              "type": "ETSTypeReferencePart",
+                              "name": {
+                                "type": "Identifier",
+                                "name": "B1",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 25,
+                                    "column": 16,
+                                    "program": "union_types_merging.ets"
+                                  },
+                                  "end": {
+                                    "line": 25,
+                                    "column": 18,
+                                    "program": "union_types_merging.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 25,
+                                  "column": 16,
+                                  "program": "union_types_merging.ets"
+                                },
+                                "end": {
+                                  "line": 25,
+                                  "column": 19,
+                                  "program": "union_types_merging.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 25,
+                                "column": 16,
+                                "program": "union_types_merging.ets"
+                              },
+                              "end": {
+                                "line": 25,
+                                "column": 19,
+                                "program": "union_types_merging.ets"
+                              }
+                            }
+                          },
+                          "arguments": [],
+                          "loc": {
+                            "start": {
+                              "line": 25,
+                              "column": 12,
+                              "program": "union_types_merging.ets"
+                            },
+                            "end": {
+                              "line": 25,
+                              "column": 21,
+                              "program": "union_types_merging.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 25,
+                            "column": 3,
+                            "program": "union_types_merging.ets"
+                          },
+                          "end": {
+                            "line": 25,
+                            "column": 21,
+                            "program": "union_types_merging.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 25,
+                          "column": 3,
+                          "program": "union_types_merging.ets"
+                        },
+                        "end": {
+                          "line": 25,
+                          "column": 21,
+                          "program": "union_types_merging.ets"
+                        }
+                      }
+                    },
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "AssignmentExpression",
+                        "operator": "=",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "union4",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 26,
+                              "column": 3,
+                              "program": "union_types_merging.ets"
+                            },
+                            "end": {
+                              "line": 26,
+                              "column": 9,
+                              "program": "union_types_merging.ets"
+                            }
+                          }
+                        },
+                        "right": {
+                          "type": "ETSNewClassInstanceExpression",
+                          "typeReference": {
+                            "type": "ETSTypeReference",
+                            "part": {
+                              "type": "ETSTypeReferencePart",
+                              "name": {
+                                "type": "Identifier",
+                                "name": "Object",
+                                "decorators": [],
+                                "loc": {
+                                  "start": {
+                                    "line": 26,
+                                    "column": 16,
+                                    "program": "union_types_merging.ets"
+                                  },
+                                  "end": {
+                                    "line": 26,
+                                    "column": 22,
+                                    "program": "union_types_merging.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 26,
+                                  "column": 16,
+                                  "program": "union_types_merging.ets"
+                                },
+                                "end": {
+                                  "line": 26,
+                                  "column": 23,
+                                  "program": "union_types_merging.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 26,
+                                "column": 16,
+                                "program": "union_types_merging.ets"
+                              },
+                              "end": {
+                                "line": 26,
+                                "column": 23,
+                                "program": "union_types_merging.ets"
+                              }
+                            }
+                          },
+                          "arguments": [],
+                          "loc": {
+                            "start": {
+                              "line": 26,
+                              "column": 12,
+                              "program": "union_types_merging.ets"
+                            },
+                            "end": {
+                              "line": 26,
+                              "column": 25,
+                              "program": "union_types_merging.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 26,
+                            "column": 3,
+                            "program": "union_types_merging.ets"
+                          },
+                          "end": {
+                            "line": 26,
+                            "column": 25,
+                            "program": "union_types_merging.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 26,
+                          "column": 3,
+                          "program": "union_types_merging.ets"
+                        },
+                        "end": {
+                          "line": 26,
+                          "column": 25,
+                          "program": "union_types_merging.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 23,
+                      "program": "union_types_merging.ets"
+                    },
+                    "end": {
+                      "line": 27,
+                      "column": 2,
+                      "program": "union_types_merging.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 10,
+                    "program": "union_types_merging.ets"
+                  },
+                  "end": {
+                    "line": 27,
+                    "column": 2,
+                    "program": "union_types_merging.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "union_types_merging.ets"
+                },
+                "end": {
+                  "line": 27,
+                  "column": 2,
+                  "program": "union_types_merging.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 1,
+                "program": "union_types_merging.ets"
+              },
+              "end": {
+                "line": 27,
+                "column": 2,
+                "program": "union_types_merging.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "union_types_merging.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "union_types_merging.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "union_types_merging.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "union_types_merging.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "union_types_merging.ets"
+    },
+    "end": {
+      "line": 39,
+      "column": 23,
+      "program": "union_types_merging.ets"
+    }
+  }
+}

@@ -1,0 +1,579 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "trailing_lambda_define_lambda_in_body.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "trailing_lambda_define_lambda_in_body.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "trailing_lambda_define_lambda_in_body.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "trailing_lambda_define_lambda_in_body.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "foo",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "trailing_lambda_define_lambda_in_body.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 13,
+                  "program": "trailing_lambda_define_lambda_in_body.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "foo",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "trailing_lambda_define_lambda_in_body.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 13,
+                      "program": "trailing_lambda_define_lambda_in_body.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "a0",
+                      "typeAnnotation": {
+                        "type": "ETSFunctionType",
+                        "params": [],
+                        "returnType": {
+                          "type": "ETSPrimitiveType",
+                          "loc": {
+                            "start": {
+                              "line": 16,
+                              "column": 24,
+                              "program": "trailing_lambda_define_lambda_in_body.ets"
+                            },
+                            "end": {
+                              "line": 16,
+                              "column": 28,
+                              "program": "trailing_lambda_define_lambda_in_body.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 16,
+                            "column": 18,
+                            "program": "trailing_lambda_define_lambda_in_body.ets"
+                          },
+                          "end": {
+                            "line": 16,
+                            "column": 28,
+                            "program": "trailing_lambda_define_lambda_in_body.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 16,
+                          "column": 14,
+                          "program": "trailing_lambda_define_lambda_in_body.ets"
+                        },
+                        "end": {
+                          "line": 16,
+                          "column": 28,
+                          "program": "trailing_lambda_define_lambda_in_body.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 16,
+                        "column": 14,
+                        "program": "trailing_lambda_define_lambda_in_body.ets"
+                      },
+                      "end": {
+                        "line": 16,
+                        "column": 28,
+                        "program": "trailing_lambda_define_lambda_in_body.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 31,
+                      "program": "trailing_lambda_define_lambda_in_body.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 35,
+                      "program": "trailing_lambda_define_lambda_in_body.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "a0",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 17,
+                              "column": 5,
+                              "program": "trailing_lambda_define_lambda_in_body.ets"
+                            },
+                            "end": {
+                              "line": 17,
+                              "column": 7,
+                              "program": "trailing_lambda_define_lambda_in_body.ets"
+                            }
+                          }
+                        },
+                        "arguments": [],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 17,
+                            "column": 5,
+                            "program": "trailing_lambda_define_lambda_in_body.ets"
+                          },
+                          "end": {
+                            "line": 17,
+                            "column": 9,
+                            "program": "trailing_lambda_define_lambda_in_body.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 17,
+                          "column": 5,
+                          "program": "trailing_lambda_define_lambda_in_body.ets"
+                        },
+                        "end": {
+                          "line": 17,
+                          "column": 10,
+                          "program": "trailing_lambda_define_lambda_in_body.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 36,
+                      "program": "trailing_lambda_define_lambda_in_body.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 2,
+                      "program": "trailing_lambda_define_lambda_in_body.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 10,
+                    "program": "trailing_lambda_define_lambda_in_body.ets"
+                  },
+                  "end": {
+                    "line": 18,
+                    "column": 2,
+                    "program": "trailing_lambda_define_lambda_in_body.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "trailing_lambda_define_lambda_in_body.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 2,
+                  "program": "trailing_lambda_define_lambda_in_body.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 1,
+                "program": "trailing_lambda_define_lambda_in_body.ets"
+              },
+              "end": {
+                "line": 18,
+                "column": 2,
+                "program": "trailing_lambda_define_lambda_in_body.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 10,
+                  "program": "trailing_lambda_define_lambda_in_body.ets"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 14,
+                  "program": "trailing_lambda_define_lambda_in_body.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 10,
+                      "program": "trailing_lambda_define_lambda_in_body.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 14,
+                      "program": "trailing_lambda_define_lambda_in_body.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 18,
+                      "program": "trailing_lambda_define_lambda_in_body.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 22,
+                      "program": "trailing_lambda_define_lambda_in_body.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "Identifier",
+                          "name": "foo",
+                          "decorators": [],
+                          "loc": {
+                            "start": {
+                              "line": 21,
+                              "column": 5,
+                              "program": "trailing_lambda_define_lambda_in_body.ets"
+                            },
+                            "end": {
+                              "line": 21,
+                              "column": 8,
+                              "program": "trailing_lambda_define_lambda_in_body.ets"
+                            }
+                          }
+                        },
+                        "arguments": [],
+                        "optional": false,
+                        "loc": {
+                          "start": {
+                            "line": 21,
+                            "column": 5,
+                            "program": "trailing_lambda_define_lambda_in_body.ets"
+                          },
+                          "end": {
+                            "line": 21,
+                            "column": 10,
+                            "program": "trailing_lambda_define_lambda_in_body.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 21,
+                          "column": 5,
+                          "program": "trailing_lambda_define_lambda_in_body.ets"
+                        },
+                        "end": {
+                          "line": 21,
+                          "column": 10,
+                          "program": "trailing_lambda_define_lambda_in_body.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 23,
+                      "program": "trailing_lambda_define_lambda_in_body.ets"
+                    },
+                    "end": {
+                      "line": 27,
+                      "column": 2,
+                      "program": "trailing_lambda_define_lambda_in_body.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 20,
+                    "column": 10,
+                    "program": "trailing_lambda_define_lambda_in_body.ets"
+                  },
+                  "end": {
+                    "line": 27,
+                    "column": 2,
+                    "program": "trailing_lambda_define_lambda_in_body.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 10,
+                  "program": "trailing_lambda_define_lambda_in_body.ets"
+                },
+                "end": {
+                  "line": 27,
+                  "column": 2,
+                  "program": "trailing_lambda_define_lambda_in_body.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 20,
+                "column": 1,
+                "program": "trailing_lambda_define_lambda_in_body.ets"
+              },
+              "end": {
+                "line": 27,
+                "column": 2,
+                "program": "trailing_lambda_define_lambda_in_body.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "trailing_lambda_define_lambda_in_body.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "trailing_lambda_define_lambda_in_body.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "trailing_lambda_define_lambda_in_body.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "trailing_lambda_define_lambda_in_body.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "trailing_lambda_define_lambda_in_body.ets"
+    },
+    "end": {
+      "line": 28,
+      "column": 1,
+      "program": "trailing_lambda_define_lambda_in_body.ets"
+    }
+  }
+}

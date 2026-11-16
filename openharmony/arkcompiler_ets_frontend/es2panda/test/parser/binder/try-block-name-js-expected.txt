@@ -1,0 +1,114 @@
+slotNum = 0x0
+.language ECMAScript
+.function any .#*#tryFoo(any a0, any a1, any a2) {
+label_1: 
+label_0: 
+	returnundefined
+label_2: 
+}
+
+slotNum = 0x0
+.language ECMAScript
+.function any .#*#tryFoo^1(any a0, any a1, any a2) {
+label_1: 
+label_0: 
+	returnundefined
+label_2: 
+}
+
+slotNum = 0x0
+.language ECMAScript
+.function any .#*#tryFoo^2(any a0, any a1, any a2) {
+label_1: 
+label_0: 
+	returnundefined
+label_2: 
+}
+
+slotNum = 0x5
+.language ECMAScript
+.function any .func_main_0(any a0, any a1, any a2) {
+	nop
+label_15: 
+label_0: 
+	ldundefined
+	sta v0
+label_9: 
+label_7: 
+label_11: 
+	definefunc 0x0, .#*#tryFoo, 0x0
+label_8: 
+end_label_8: 
+	jmp label_1
+label_17: 
+label_13: 
+	definefunc 0x1, .#*#tryFoo^1, 0x0
+label_10: 
+end_label_10: 
+label_1: 
+	ldhole
+	sta v2
+	mov v1, v2
+	jmp label_2
+label_18: 
+	sta v1
+label_2: 
+	ldundefined
+	eq 0x2, v0
+	jeqz label_3
+label_4: 
+	definefunc 0x3, .#*#tryFoo^2, 0x0
+label_3: 
+	ldhole
+	sta v0
+	lda v1
+	noteq 0x4, v0
+	jeqz label_5
+label_6: 
+	lda v1
+	throw
+label_5: 
+	returnundefined
+label_16: 
+}
+
+.catchall label_7, end_label_8, label_17
+
+.catchall label_9, end_label_10, label_18
+
+
+======> literal array buffer <======
+------------------------------------
+slot _0
+------------------------------------
+slot _1
+{
+  index: 0
+    tag: 2
+    val: 0
+},
+{
+  index: 1
+    tag: 2
+    val: 0
+},
+{
+  index: 2
+    tag: 2
+    val: 0
+},
+{
+  index: 3
+    tag: 2
+    val: 0
+},
+{
+  index: 4
+    tag: 2
+    val: 0
+},
+{
+  index: 5
+    tag: 2
+    val: 0
+},

@@ -1,0 +1,3165 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "TSTypeAliasDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "Alias",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 32,
+            "column": 6,
+            "program": "await_complex_promise.ets"
+          },
+          "end": {
+            "line": 32,
+            "column": 11,
+            "program": "await_complex_promise.ets"
+          }
+        }
+      },
+      "typeAnnotation": {
+        "type": "ETSUnionType",
+        "types": [
+          {
+            "type": "ETSTypeReference",
+            "part": {
+              "type": "ETSTypeReferencePart",
+              "name": {
+                "type": "Identifier",
+                "name": "Promise",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 32,
+                    "column": 14,
+                    "program": "await_complex_promise.ets"
+                  },
+                  "end": {
+                    "line": 32,
+                    "column": 21,
+                    "program": "await_complex_promise.ets"
+                  }
+                }
+              },
+              "typeParams": {
+                "type": "TSTypeParameterInstantiation",
+                "params": [
+                  {
+                    "type": "ETSTypeReference",
+                    "part": {
+                      "type": "ETSTypeReferencePart",
+                      "name": {
+                        "type": "Identifier",
+                        "name": "string",
+                        "decorators": [],
+                        "loc": {
+                          "start": {
+                            "line": 32,
+                            "column": 22,
+                            "program": "await_complex_promise.ets"
+                          },
+                          "end": {
+                            "line": 32,
+                            "column": 28,
+                            "program": "await_complex_promise.ets"
+                          }
+                        }
+                      },
+                      "loc": {
+                        "start": {
+                          "line": 32,
+                          "column": 22,
+                          "program": "await_complex_promise.ets"
+                        },
+                        "end": {
+                          "line": 32,
+                          "column": 29,
+                          "program": "await_complex_promise.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 32,
+                        "column": 22,
+                        "program": "await_complex_promise.ets"
+                      },
+                      "end": {
+                        "line": 32,
+                        "column": 29,
+                        "program": "await_complex_promise.ets"
+                      }
+                    }
+                  }
+                ],
+                "loc": {
+                  "start": {
+                    "line": 32,
+                    "column": 21,
+                    "program": "await_complex_promise.ets"
+                  },
+                  "end": {
+                    "line": 32,
+                    "column": 29,
+                    "program": "await_complex_promise.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 32,
+                  "column": 14,
+                  "program": "await_complex_promise.ets"
+                },
+                "end": {
+                  "line": 32,
+                  "column": 30,
+                  "program": "await_complex_promise.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 32,
+                "column": 14,
+                "program": "await_complex_promise.ets"
+              },
+              "end": {
+                "line": 32,
+                "column": 30,
+                "program": "await_complex_promise.ets"
+              }
+            }
+          },
+          {
+            "type": "ETSTypeReference",
+            "part": {
+              "type": "ETSTypeReferencePart",
+              "name": {
+                "type": "Identifier",
+                "name": "number",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 32,
+                    "column": 30,
+                    "program": "await_complex_promise.ets"
+                  },
+                  "end": {
+                    "line": 32,
+                    "column": 36,
+                    "program": "await_complex_promise.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 32,
+                  "column": 30,
+                  "program": "await_complex_promise.ets"
+                },
+                "end": {
+                  "line": 32,
+                  "column": 37,
+                  "program": "await_complex_promise.ets"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 32,
+                "column": 30,
+                "program": "await_complex_promise.ets"
+              },
+              "end": {
+                "line": 32,
+                "column": 37,
+                "program": "await_complex_promise.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 32,
+            "column": 14,
+            "program": "await_complex_promise.ets"
+          },
+          "end": {
+            "line": 32,
+            "column": 37,
+            "program": "await_complex_promise.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 32,
+          "column": 1,
+          "program": "await_complex_promise.ets"
+        },
+        "end": {
+          "line": 32,
+          "column": 37,
+          "program": "await_complex_promise.ets"
+        }
+      }
+    },
+    {
+      "type": "ClassDeclaration",
+      "definition": {
+        "id": {
+          "type": "Identifier",
+          "name": "ETSGLOBAL",
+          "decorators": [],
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 1,
+              "program": "await_complex_promise.ets"
+            },
+            "end": {
+              "line": 1,
+              "column": 1,
+              "program": "await_complex_promise.ets"
+            }
+          }
+        },
+        "superClass": null,
+        "implements": [],
+        "body": [
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "main",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "main",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "await_complex_promise.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "await_complex_promise.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "_$init$_",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "_$init$_",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [],
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1,
+                      "program": null
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1,
+                    "program": null
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                },
+                "end": {
+                  "line": 1,
+                  "column": 1,
+                  "program": null
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 1,
+                "program": "await_complex_promise.ets"
+              },
+              "end": {
+                "line": 1,
+                "column": 1,
+                "program": "await_complex_promise.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "foo1",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "await_complex_promise.ets"
+                },
+                "end": {
+                  "line": 16,
+                  "column": 14,
+                  "program": "await_complex_promise.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "foo1",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 10,
+                      "program": "await_complex_promise.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 14,
+                      "program": "await_complex_promise.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "p",
+                      "typeAnnotation": {
+                        "type": "ETSTypeReference",
+                        "part": {
+                          "type": "ETSTypeReferencePart",
+                          "name": {
+                            "type": "Identifier",
+                            "name": "Promise",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 16,
+                                "column": 18,
+                                "program": "await_complex_promise.ets"
+                              },
+                              "end": {
+                                "line": 16,
+                                "column": 25,
+                                "program": "await_complex_promise.ets"
+                              }
+                            }
+                          },
+                          "typeParams": {
+                            "type": "TSTypeParameterInstantiation",
+                            "params": [
+                              {
+                                "type": "ETSTypeReference",
+                                "part": {
+                                  "type": "ETSTypeReferencePart",
+                                  "name": {
+                                    "type": "Identifier",
+                                    "name": "Promise",
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 16,
+                                        "column": 26,
+                                        "program": "await_complex_promise.ets"
+                                      },
+                                      "end": {
+                                        "line": 16,
+                                        "column": 33,
+                                        "program": "await_complex_promise.ets"
+                                      }
+                                    }
+                                  },
+                                  "typeParams": {
+                                    "type": "TSTypeParameterInstantiation",
+                                    "params": [
+                                      {
+                                        "type": "ETSTypeReference",
+                                        "part": {
+                                          "type": "ETSTypeReferencePart",
+                                          "name": {
+                                            "type": "Identifier",
+                                            "name": "string",
+                                            "decorators": [],
+                                            "loc": {
+                                              "start": {
+                                                "line": 16,
+                                                "column": 34,
+                                                "program": "await_complex_promise.ets"
+                                              },
+                                              "end": {
+                                                "line": 16,
+                                                "column": 40,
+                                                "program": "await_complex_promise.ets"
+                                              }
+                                            }
+                                          },
+                                          "loc": {
+                                            "start": {
+                                              "line": 16,
+                                              "column": 34,
+                                              "program": "await_complex_promise.ets"
+                                            },
+                                            "end": {
+                                              "line": 16,
+                                              "column": 42,
+                                              "program": "await_complex_promise.ets"
+                                            }
+                                          }
+                                        },
+                                        "loc": {
+                                          "start": {
+                                            "line": 16,
+                                            "column": 34,
+                                            "program": "await_complex_promise.ets"
+                                          },
+                                          "end": {
+                                            "line": 16,
+                                            "column": 42,
+                                            "program": "await_complex_promise.ets"
+                                          }
+                                        }
+                                      }
+                                    ],
+                                    "loc": {
+                                      "start": {
+                                        "line": 16,
+                                        "column": 33,
+                                        "program": "await_complex_promise.ets"
+                                      },
+                                      "end": {
+                                        "line": 16,
+                                        "column": 42,
+                                        "program": "await_complex_promise.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 16,
+                                      "column": 26,
+                                      "program": "await_complex_promise.ets"
+                                    },
+                                    "end": {
+                                      "line": 16,
+                                      "column": 42,
+                                      "program": "await_complex_promise.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 16,
+                                    "column": 26,
+                                    "program": "await_complex_promise.ets"
+                                  },
+                                  "end": {
+                                    "line": 16,
+                                    "column": 42,
+                                    "program": "await_complex_promise.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "loc": {
+                              "start": {
+                                "line": 16,
+                                "column": 25,
+                                "program": "await_complex_promise.ets"
+                              },
+                              "end": {
+                                "line": 16,
+                                "column": 42,
+                                "program": "await_complex_promise.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 16,
+                              "column": 18,
+                              "program": "await_complex_promise.ets"
+                            },
+                            "end": {
+                              "line": 16,
+                              "column": 43,
+                              "program": "await_complex_promise.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 16,
+                            "column": 18,
+                            "program": "await_complex_promise.ets"
+                          },
+                          "end": {
+                            "line": 16,
+                            "column": 43,
+                            "program": "await_complex_promise.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 16,
+                          "column": 15,
+                          "program": "await_complex_promise.ets"
+                        },
+                        "end": {
+                          "line": 16,
+                          "column": 43,
+                          "program": "await_complex_promise.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 16,
+                        "column": 15,
+                        "program": "await_complex_promise.ets"
+                      },
+                      "end": {
+                        "line": 16,
+                        "column": 43,
+                        "program": "await_complex_promise.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 45,
+                      "program": "await_complex_promise.ets"
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 49,
+                      "program": "await_complex_promise.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "result",
+                            "typeAnnotation": {
+                              "type": "ETSTypeReference",
+                              "part": {
+                                "type": "ETSTypeReferencePart",
+                                "name": {
+                                  "type": "Identifier",
+                                  "name": "string",
+                                  "decorators": [],
+                                  "loc": {
+                                    "start": {
+                                      "line": 17,
+                                      "column": 17,
+                                      "program": "await_complex_promise.ets"
+                                    },
+                                    "end": {
+                                      "line": 17,
+                                      "column": 23,
+                                      "program": "await_complex_promise.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 17,
+                                    "column": 17,
+                                    "program": "await_complex_promise.ets"
+                                  },
+                                  "end": {
+                                    "line": 17,
+                                    "column": 25,
+                                    "program": "await_complex_promise.ets"
+                                  }
+                                }
+                              },
+                              "loc": {
+                                "start": {
+                                  "line": 17,
+                                  "column": 17,
+                                  "program": "await_complex_promise.ets"
+                                },
+                                "end": {
+                                  "line": 17,
+                                  "column": 25,
+                                  "program": "await_complex_promise.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 17,
+                                "column": 9,
+                                "program": "await_complex_promise.ets"
+                              },
+                              "end": {
+                                "line": 17,
+                                "column": 15,
+                                "program": "await_complex_promise.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "AwaitExpression",
+                            "argument": {
+                              "type": "Identifier",
+                              "name": "p",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 17,
+                                  "column": 32,
+                                  "program": "await_complex_promise.ets"
+                                },
+                                "end": {
+                                  "line": 17,
+                                  "column": 33,
+                                  "program": "await_complex_promise.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 17,
+                                "column": 26,
+                                "program": "await_complex_promise.ets"
+                              },
+                              "end": {
+                                "line": 17,
+                                "column": 33,
+                                "program": "await_complex_promise.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 17,
+                              "column": 9,
+                              "program": "await_complex_promise.ets"
+                            },
+                            "end": {
+                              "line": 17,
+                              "column": 33,
+                              "program": "await_complex_promise.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 17,
+                          "column": 5,
+                          "program": "await_complex_promise.ets"
+                        },
+                        "end": {
+                          "line": 17,
+                          "column": 34,
+                          "program": "await_complex_promise.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 16,
+                      "column": 50,
+                      "program": "await_complex_promise.ets"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 2,
+                      "program": "await_complex_promise.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 16,
+                    "column": 10,
+                    "program": "await_complex_promise.ets"
+                  },
+                  "end": {
+                    "line": 18,
+                    "column": 2,
+                    "program": "await_complex_promise.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 16,
+                  "column": 10,
+                  "program": "await_complex_promise.ets"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 2,
+                  "program": "await_complex_promise.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 16,
+                "column": 1,
+                "program": "await_complex_promise.ets"
+              },
+              "end": {
+                "line": 18,
+                "column": 2,
+                "program": "await_complex_promise.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "foo2",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 10,
+                  "program": "await_complex_promise.ets"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 14,
+                  "program": "await_complex_promise.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "foo2",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 10,
+                      "program": "await_complex_promise.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 14,
+                      "program": "await_complex_promise.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "p",
+                      "typeAnnotation": {
+                        "type": "ETSTypeReference",
+                        "part": {
+                          "type": "ETSTypeReferencePart",
+                          "name": {
+                            "type": "Identifier",
+                            "name": "Promise",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 20,
+                                "column": 18,
+                                "program": "await_complex_promise.ets"
+                              },
+                              "end": {
+                                "line": 20,
+                                "column": 25,
+                                "program": "await_complex_promise.ets"
+                              }
+                            }
+                          },
+                          "typeParams": {
+                            "type": "TSTypeParameterInstantiation",
+                            "params": [
+                              {
+                                "type": "ETSUnionType",
+                                "types": [
+                                  {
+                                    "type": "ETSTypeReference",
+                                    "part": {
+                                      "type": "ETSTypeReferencePart",
+                                      "name": {
+                                        "type": "Identifier",
+                                        "name": "Promise",
+                                        "decorators": [],
+                                        "loc": {
+                                          "start": {
+                                            "line": 20,
+                                            "column": 26,
+                                            "program": "await_complex_promise.ets"
+                                          },
+                                          "end": {
+                                            "line": 20,
+                                            "column": 33,
+                                            "program": "await_complex_promise.ets"
+                                          }
+                                        }
+                                      },
+                                      "typeParams": {
+                                        "type": "TSTypeParameterInstantiation",
+                                        "params": [
+                                          {
+                                            "type": "ETSTypeReference",
+                                            "part": {
+                                              "type": "ETSTypeReferencePart",
+                                              "name": {
+                                                "type": "Identifier",
+                                                "name": "string",
+                                                "decorators": [],
+                                                "loc": {
+                                                  "start": {
+                                                    "line": 20,
+                                                    "column": 34,
+                                                    "program": "await_complex_promise.ets"
+                                                  },
+                                                  "end": {
+                                                    "line": 20,
+                                                    "column": 40,
+                                                    "program": "await_complex_promise.ets"
+                                                  }
+                                                }
+                                              },
+                                              "loc": {
+                                                "start": {
+                                                  "line": 20,
+                                                  "column": 34,
+                                                  "program": "await_complex_promise.ets"
+                                                },
+                                                "end": {
+                                                  "line": 20,
+                                                  "column": 41,
+                                                  "program": "await_complex_promise.ets"
+                                                }
+                                              }
+                                            },
+                                            "loc": {
+                                              "start": {
+                                                "line": 20,
+                                                "column": 34,
+                                                "program": "await_complex_promise.ets"
+                                              },
+                                              "end": {
+                                                "line": 20,
+                                                "column": 41,
+                                                "program": "await_complex_promise.ets"
+                                              }
+                                            }
+                                          }
+                                        ],
+                                        "loc": {
+                                          "start": {
+                                            "line": 20,
+                                            "column": 33,
+                                            "program": "await_complex_promise.ets"
+                                          },
+                                          "end": {
+                                            "line": 20,
+                                            "column": 41,
+                                            "program": "await_complex_promise.ets"
+                                          }
+                                        }
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 20,
+                                          "column": 26,
+                                          "program": "await_complex_promise.ets"
+                                        },
+                                        "end": {
+                                          "line": 20,
+                                          "column": 42,
+                                          "program": "await_complex_promise.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 20,
+                                        "column": 26,
+                                        "program": "await_complex_promise.ets"
+                                      },
+                                      "end": {
+                                        "line": 20,
+                                        "column": 42,
+                                        "program": "await_complex_promise.ets"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "type": "ETSTypeReference",
+                                    "part": {
+                                      "type": "ETSTypeReferencePart",
+                                      "name": {
+                                        "type": "Identifier",
+                                        "name": "number",
+                                        "decorators": [],
+                                        "loc": {
+                                          "start": {
+                                            "line": 20,
+                                            "column": 42,
+                                            "program": "await_complex_promise.ets"
+                                          },
+                                          "end": {
+                                            "line": 20,
+                                            "column": 48,
+                                            "program": "await_complex_promise.ets"
+                                          }
+                                        }
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 20,
+                                          "column": 42,
+                                          "program": "await_complex_promise.ets"
+                                        },
+                                        "end": {
+                                          "line": 20,
+                                          "column": 49,
+                                          "program": "await_complex_promise.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 20,
+                                        "column": 42,
+                                        "program": "await_complex_promise.ets"
+                                      },
+                                      "end": {
+                                        "line": 20,
+                                        "column": 49,
+                                        "program": "await_complex_promise.ets"
+                                      }
+                                    }
+                                  }
+                                ],
+                                "loc": {
+                                  "start": {
+                                    "line": 20,
+                                    "column": 26,
+                                    "program": "await_complex_promise.ets"
+                                  },
+                                  "end": {
+                                    "line": 20,
+                                    "column": 49,
+                                    "program": "await_complex_promise.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "loc": {
+                              "start": {
+                                "line": 20,
+                                "column": 25,
+                                "program": "await_complex_promise.ets"
+                              },
+                              "end": {
+                                "line": 20,
+                                "column": 49,
+                                "program": "await_complex_promise.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 20,
+                              "column": 18,
+                              "program": "await_complex_promise.ets"
+                            },
+                            "end": {
+                              "line": 20,
+                              "column": 50,
+                              "program": "await_complex_promise.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 20,
+                            "column": 18,
+                            "program": "await_complex_promise.ets"
+                          },
+                          "end": {
+                            "line": 20,
+                            "column": 50,
+                            "program": "await_complex_promise.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 20,
+                          "column": 15,
+                          "program": "await_complex_promise.ets"
+                        },
+                        "end": {
+                          "line": 20,
+                          "column": 50,
+                          "program": "await_complex_promise.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 20,
+                        "column": 15,
+                        "program": "await_complex_promise.ets"
+                      },
+                      "end": {
+                        "line": 20,
+                        "column": 50,
+                        "program": "await_complex_promise.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 52,
+                      "program": "await_complex_promise.ets"
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 56,
+                      "program": "await_complex_promise.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "result",
+                            "typeAnnotation": {
+                              "type": "ETSUnionType",
+                              "types": [
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "string",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 21,
+                                          "column": 17,
+                                          "program": "await_complex_promise.ets"
+                                        },
+                                        "end": {
+                                          "line": 21,
+                                          "column": 23,
+                                          "program": "await_complex_promise.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 21,
+                                        "column": 17,
+                                        "program": "await_complex_promise.ets"
+                                      },
+                                      "end": {
+                                        "line": 21,
+                                        "column": 24,
+                                        "program": "await_complex_promise.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 21,
+                                      "column": 17,
+                                      "program": "await_complex_promise.ets"
+                                    },
+                                    "end": {
+                                      "line": 21,
+                                      "column": 24,
+                                      "program": "await_complex_promise.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "number",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 21,
+                                          "column": 24,
+                                          "program": "await_complex_promise.ets"
+                                        },
+                                        "end": {
+                                          "line": 21,
+                                          "column": 30,
+                                          "program": "await_complex_promise.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 21,
+                                        "column": 24,
+                                        "program": "await_complex_promise.ets"
+                                      },
+                                      "end": {
+                                        "line": 21,
+                                        "column": 32,
+                                        "program": "await_complex_promise.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 21,
+                                      "column": 24,
+                                      "program": "await_complex_promise.ets"
+                                    },
+                                    "end": {
+                                      "line": 21,
+                                      "column": 32,
+                                      "program": "await_complex_promise.ets"
+                                    }
+                                  }
+                                }
+                              ],
+                              "loc": {
+                                "start": {
+                                  "line": 21,
+                                  "column": 17,
+                                  "program": "await_complex_promise.ets"
+                                },
+                                "end": {
+                                  "line": 21,
+                                  "column": 32,
+                                  "program": "await_complex_promise.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 21,
+                                "column": 9,
+                                "program": "await_complex_promise.ets"
+                              },
+                              "end": {
+                                "line": 21,
+                                "column": 15,
+                                "program": "await_complex_promise.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "AwaitExpression",
+                            "argument": {
+                              "type": "Identifier",
+                              "name": "p",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 21,
+                                  "column": 39,
+                                  "program": "await_complex_promise.ets"
+                                },
+                                "end": {
+                                  "line": 21,
+                                  "column": 40,
+                                  "program": "await_complex_promise.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 21,
+                                "column": 33,
+                                "program": "await_complex_promise.ets"
+                              },
+                              "end": {
+                                "line": 21,
+                                "column": 40,
+                                "program": "await_complex_promise.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 21,
+                              "column": 9,
+                              "program": "await_complex_promise.ets"
+                            },
+                            "end": {
+                              "line": 21,
+                              "column": 40,
+                              "program": "await_complex_promise.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 21,
+                          "column": 5,
+                          "program": "await_complex_promise.ets"
+                        },
+                        "end": {
+                          "line": 21,
+                          "column": 41,
+                          "program": "await_complex_promise.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 20,
+                      "column": 57,
+                      "program": "await_complex_promise.ets"
+                    },
+                    "end": {
+                      "line": 22,
+                      "column": 2,
+                      "program": "await_complex_promise.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 20,
+                    "column": 10,
+                    "program": "await_complex_promise.ets"
+                  },
+                  "end": {
+                    "line": 22,
+                    "column": 2,
+                    "program": "await_complex_promise.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 10,
+                  "program": "await_complex_promise.ets"
+                },
+                "end": {
+                  "line": 22,
+                  "column": 2,
+                  "program": "await_complex_promise.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 20,
+                "column": 1,
+                "program": "await_complex_promise.ets"
+              },
+              "end": {
+                "line": 22,
+                "column": 2,
+                "program": "await_complex_promise.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "foo3",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 24,
+                  "column": 10,
+                  "program": "await_complex_promise.ets"
+                },
+                "end": {
+                  "line": 24,
+                  "column": 14,
+                  "program": "await_complex_promise.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "foo3",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 24,
+                      "column": 10,
+                      "program": "await_complex_promise.ets"
+                    },
+                    "end": {
+                      "line": 24,
+                      "column": 14,
+                      "program": "await_complex_promise.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "p",
+                      "typeAnnotation": {
+                        "type": "ETSTypeReference",
+                        "part": {
+                          "type": "ETSTypeReferencePart",
+                          "name": {
+                            "type": "Identifier",
+                            "name": "Promise",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 24,
+                                "column": 18,
+                                "program": "await_complex_promise.ets"
+                              },
+                              "end": {
+                                "line": 24,
+                                "column": 25,
+                                "program": "await_complex_promise.ets"
+                              }
+                            }
+                          },
+                          "typeParams": {
+                            "type": "TSTypeParameterInstantiation",
+                            "params": [
+                              {
+                                "type": "ETSUnionType",
+                                "types": [
+                                  {
+                                    "type": "ETSTypeReference",
+                                    "part": {
+                                      "type": "ETSTypeReferencePart",
+                                      "name": {
+                                        "type": "Identifier",
+                                        "name": "Promise",
+                                        "decorators": [],
+                                        "loc": {
+                                          "start": {
+                                            "line": 24,
+                                            "column": 26,
+                                            "program": "await_complex_promise.ets"
+                                          },
+                                          "end": {
+                                            "line": 24,
+                                            "column": 33,
+                                            "program": "await_complex_promise.ets"
+                                          }
+                                        }
+                                      },
+                                      "typeParams": {
+                                        "type": "TSTypeParameterInstantiation",
+                                        "params": [
+                                          {
+                                            "type": "ETSTypeReference",
+                                            "part": {
+                                              "type": "ETSTypeReferencePart",
+                                              "name": {
+                                                "type": "Identifier",
+                                                "name": "string",
+                                                "decorators": [],
+                                                "loc": {
+                                                  "start": {
+                                                    "line": 24,
+                                                    "column": 34,
+                                                    "program": "await_complex_promise.ets"
+                                                  },
+                                                  "end": {
+                                                    "line": 24,
+                                                    "column": 40,
+                                                    "program": "await_complex_promise.ets"
+                                                  }
+                                                }
+                                              },
+                                              "loc": {
+                                                "start": {
+                                                  "line": 24,
+                                                  "column": 34,
+                                                  "program": "await_complex_promise.ets"
+                                                },
+                                                "end": {
+                                                  "line": 24,
+                                                  "column": 41,
+                                                  "program": "await_complex_promise.ets"
+                                                }
+                                              }
+                                            },
+                                            "loc": {
+                                              "start": {
+                                                "line": 24,
+                                                "column": 34,
+                                                "program": "await_complex_promise.ets"
+                                              },
+                                              "end": {
+                                                "line": 24,
+                                                "column": 41,
+                                                "program": "await_complex_promise.ets"
+                                              }
+                                            }
+                                          }
+                                        ],
+                                        "loc": {
+                                          "start": {
+                                            "line": 24,
+                                            "column": 33,
+                                            "program": "await_complex_promise.ets"
+                                          },
+                                          "end": {
+                                            "line": 24,
+                                            "column": 41,
+                                            "program": "await_complex_promise.ets"
+                                          }
+                                        }
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 24,
+                                          "column": 26,
+                                          "program": "await_complex_promise.ets"
+                                        },
+                                        "end": {
+                                          "line": 24,
+                                          "column": 42,
+                                          "program": "await_complex_promise.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 24,
+                                        "column": 26,
+                                        "program": "await_complex_promise.ets"
+                                      },
+                                      "end": {
+                                        "line": 24,
+                                        "column": 42,
+                                        "program": "await_complex_promise.ets"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "type": "ETSTypeReference",
+                                    "part": {
+                                      "type": "ETSTypeReferencePart",
+                                      "name": {
+                                        "type": "Identifier",
+                                        "name": "Promise",
+                                        "decorators": [],
+                                        "loc": {
+                                          "start": {
+                                            "line": 24,
+                                            "column": 42,
+                                            "program": "await_complex_promise.ets"
+                                          },
+                                          "end": {
+                                            "line": 24,
+                                            "column": 49,
+                                            "program": "await_complex_promise.ets"
+                                          }
+                                        }
+                                      },
+                                      "typeParams": {
+                                        "type": "TSTypeParameterInstantiation",
+                                        "params": [
+                                          {
+                                            "type": "ETSTypeReference",
+                                            "part": {
+                                              "type": "ETSTypeReferencePart",
+                                              "name": {
+                                                "type": "Identifier",
+                                                "name": "number",
+                                                "decorators": [],
+                                                "loc": {
+                                                  "start": {
+                                                    "line": 24,
+                                                    "column": 50,
+                                                    "program": "await_complex_promise.ets"
+                                                  },
+                                                  "end": {
+                                                    "line": 24,
+                                                    "column": 56,
+                                                    "program": "await_complex_promise.ets"
+                                                  }
+                                                }
+                                              },
+                                              "loc": {
+                                                "start": {
+                                                  "line": 24,
+                                                  "column": 50,
+                                                  "program": "await_complex_promise.ets"
+                                                },
+                                                "end": {
+                                                  "line": 24,
+                                                  "column": 58,
+                                                  "program": "await_complex_promise.ets"
+                                                }
+                                              }
+                                            },
+                                            "loc": {
+                                              "start": {
+                                                "line": 24,
+                                                "column": 50,
+                                                "program": "await_complex_promise.ets"
+                                              },
+                                              "end": {
+                                                "line": 24,
+                                                "column": 58,
+                                                "program": "await_complex_promise.ets"
+                                              }
+                                            }
+                                          }
+                                        ],
+                                        "loc": {
+                                          "start": {
+                                            "line": 24,
+                                            "column": 49,
+                                            "program": "await_complex_promise.ets"
+                                          },
+                                          "end": {
+                                            "line": 24,
+                                            "column": 58,
+                                            "program": "await_complex_promise.ets"
+                                          }
+                                        }
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 24,
+                                          "column": 42,
+                                          "program": "await_complex_promise.ets"
+                                        },
+                                        "end": {
+                                          "line": 24,
+                                          "column": 58,
+                                          "program": "await_complex_promise.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 24,
+                                        "column": 42,
+                                        "program": "await_complex_promise.ets"
+                                      },
+                                      "end": {
+                                        "line": 24,
+                                        "column": 58,
+                                        "program": "await_complex_promise.ets"
+                                      }
+                                    }
+                                  }
+                                ],
+                                "loc": {
+                                  "start": {
+                                    "line": 24,
+                                    "column": 26,
+                                    "program": "await_complex_promise.ets"
+                                  },
+                                  "end": {
+                                    "line": 24,
+                                    "column": 58,
+                                    "program": "await_complex_promise.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "loc": {
+                              "start": {
+                                "line": 24,
+                                "column": 25,
+                                "program": "await_complex_promise.ets"
+                              },
+                              "end": {
+                                "line": 24,
+                                "column": 58,
+                                "program": "await_complex_promise.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 24,
+                              "column": 18,
+                              "program": "await_complex_promise.ets"
+                            },
+                            "end": {
+                              "line": 24,
+                              "column": 59,
+                              "program": "await_complex_promise.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 24,
+                            "column": 18,
+                            "program": "await_complex_promise.ets"
+                          },
+                          "end": {
+                            "line": 24,
+                            "column": 59,
+                            "program": "await_complex_promise.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 24,
+                          "column": 15,
+                          "program": "await_complex_promise.ets"
+                        },
+                        "end": {
+                          "line": 24,
+                          "column": 59,
+                          "program": "await_complex_promise.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 24,
+                        "column": 15,
+                        "program": "await_complex_promise.ets"
+                      },
+                      "end": {
+                        "line": 24,
+                        "column": 59,
+                        "program": "await_complex_promise.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 24,
+                      "column": 61,
+                      "program": "await_complex_promise.ets"
+                    },
+                    "end": {
+                      "line": 24,
+                      "column": 65,
+                      "program": "await_complex_promise.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "result",
+                            "typeAnnotation": {
+                              "type": "ETSUnionType",
+                              "types": [
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "string",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 25,
+                                          "column": 17,
+                                          "program": "await_complex_promise.ets"
+                                        },
+                                        "end": {
+                                          "line": 25,
+                                          "column": 23,
+                                          "program": "await_complex_promise.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 25,
+                                        "column": 17,
+                                        "program": "await_complex_promise.ets"
+                                      },
+                                      "end": {
+                                        "line": 25,
+                                        "column": 24,
+                                        "program": "await_complex_promise.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 25,
+                                      "column": 17,
+                                      "program": "await_complex_promise.ets"
+                                    },
+                                    "end": {
+                                      "line": 25,
+                                      "column": 24,
+                                      "program": "await_complex_promise.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "number",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 25,
+                                          "column": 24,
+                                          "program": "await_complex_promise.ets"
+                                        },
+                                        "end": {
+                                          "line": 25,
+                                          "column": 30,
+                                          "program": "await_complex_promise.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 25,
+                                        "column": 24,
+                                        "program": "await_complex_promise.ets"
+                                      },
+                                      "end": {
+                                        "line": 25,
+                                        "column": 32,
+                                        "program": "await_complex_promise.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 25,
+                                      "column": 24,
+                                      "program": "await_complex_promise.ets"
+                                    },
+                                    "end": {
+                                      "line": 25,
+                                      "column": 32,
+                                      "program": "await_complex_promise.ets"
+                                    }
+                                  }
+                                }
+                              ],
+                              "loc": {
+                                "start": {
+                                  "line": 25,
+                                  "column": 17,
+                                  "program": "await_complex_promise.ets"
+                                },
+                                "end": {
+                                  "line": 25,
+                                  "column": 32,
+                                  "program": "await_complex_promise.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 25,
+                                "column": 9,
+                                "program": "await_complex_promise.ets"
+                              },
+                              "end": {
+                                "line": 25,
+                                "column": 15,
+                                "program": "await_complex_promise.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "AwaitExpression",
+                            "argument": {
+                              "type": "Identifier",
+                              "name": "p",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 25,
+                                  "column": 39,
+                                  "program": "await_complex_promise.ets"
+                                },
+                                "end": {
+                                  "line": 25,
+                                  "column": 40,
+                                  "program": "await_complex_promise.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 25,
+                                "column": 33,
+                                "program": "await_complex_promise.ets"
+                              },
+                              "end": {
+                                "line": 25,
+                                "column": 40,
+                                "program": "await_complex_promise.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 25,
+                              "column": 9,
+                              "program": "await_complex_promise.ets"
+                            },
+                            "end": {
+                              "line": 25,
+                              "column": 40,
+                              "program": "await_complex_promise.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 25,
+                          "column": 5,
+                          "program": "await_complex_promise.ets"
+                        },
+                        "end": {
+                          "line": 25,
+                          "column": 41,
+                          "program": "await_complex_promise.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 24,
+                      "column": 66,
+                      "program": "await_complex_promise.ets"
+                    },
+                    "end": {
+                      "line": 26,
+                      "column": 2,
+                      "program": "await_complex_promise.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 24,
+                    "column": 10,
+                    "program": "await_complex_promise.ets"
+                  },
+                  "end": {
+                    "line": 26,
+                    "column": 2,
+                    "program": "await_complex_promise.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 24,
+                  "column": 10,
+                  "program": "await_complex_promise.ets"
+                },
+                "end": {
+                  "line": 26,
+                  "column": 2,
+                  "program": "await_complex_promise.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 24,
+                "column": 1,
+                "program": "await_complex_promise.ets"
+              },
+              "end": {
+                "line": 26,
+                "column": 2,
+                "program": "await_complex_promise.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "foo4",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 28,
+                  "column": 10,
+                  "program": "await_complex_promise.ets"
+                },
+                "end": {
+                  "line": 28,
+                  "column": 14,
+                  "program": "await_complex_promise.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "foo4",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 28,
+                      "column": 10,
+                      "program": "await_complex_promise.ets"
+                    },
+                    "end": {
+                      "line": 28,
+                      "column": 14,
+                      "program": "await_complex_promise.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "p",
+                      "typeAnnotation": {
+                        "type": "ETSTypeReference",
+                        "part": {
+                          "type": "ETSTypeReferencePart",
+                          "name": {
+                            "type": "Identifier",
+                            "name": "Promise",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 28,
+                                "column": 18,
+                                "program": "await_complex_promise.ets"
+                              },
+                              "end": {
+                                "line": 28,
+                                "column": 25,
+                                "program": "await_complex_promise.ets"
+                              }
+                            }
+                          },
+                          "typeParams": {
+                            "type": "TSTypeParameterInstantiation",
+                            "params": [
+                              {
+                                "type": "ETSUnionType",
+                                "types": [
+                                  {
+                                    "type": "ETSNullType",
+                                    "loc": {
+                                      "start": {
+                                        "line": 28,
+                                        "column": 26,
+                                        "program": "await_complex_promise.ets"
+                                      },
+                                      "end": {
+                                        "line": 28,
+                                        "column": 30,
+                                        "program": "await_complex_promise.ets"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "type": "ETSTypeReference",
+                                    "part": {
+                                      "type": "ETSTypeReferencePart",
+                                      "name": {
+                                        "type": "Identifier",
+                                        "name": "Promise",
+                                        "decorators": [],
+                                        "loc": {
+                                          "start": {
+                                            "line": 28,
+                                            "column": 31,
+                                            "program": "await_complex_promise.ets"
+                                          },
+                                          "end": {
+                                            "line": 28,
+                                            "column": 38,
+                                            "program": "await_complex_promise.ets"
+                                          }
+                                        }
+                                      },
+                                      "typeParams": {
+                                        "type": "TSTypeParameterInstantiation",
+                                        "params": [
+                                          {
+                                            "type": "ETSTypeReference",
+                                            "part": {
+                                              "type": "ETSTypeReferencePart",
+                                              "name": {
+                                                "type": "Identifier",
+                                                "name": "string",
+                                                "decorators": [],
+                                                "loc": {
+                                                  "start": {
+                                                    "line": 28,
+                                                    "column": 39,
+                                                    "program": "await_complex_promise.ets"
+                                                  },
+                                                  "end": {
+                                                    "line": 28,
+                                                    "column": 45,
+                                                    "program": "await_complex_promise.ets"
+                                                  }
+                                                }
+                                              },
+                                              "loc": {
+                                                "start": {
+                                                  "line": 28,
+                                                  "column": 39,
+                                                  "program": "await_complex_promise.ets"
+                                                },
+                                                "end": {
+                                                  "line": 28,
+                                                  "column": 47,
+                                                  "program": "await_complex_promise.ets"
+                                                }
+                                              }
+                                            },
+                                            "loc": {
+                                              "start": {
+                                                "line": 28,
+                                                "column": 39,
+                                                "program": "await_complex_promise.ets"
+                                              },
+                                              "end": {
+                                                "line": 28,
+                                                "column": 47,
+                                                "program": "await_complex_promise.ets"
+                                              }
+                                            }
+                                          }
+                                        ],
+                                        "loc": {
+                                          "start": {
+                                            "line": 28,
+                                            "column": 38,
+                                            "program": "await_complex_promise.ets"
+                                          },
+                                          "end": {
+                                            "line": 28,
+                                            "column": 47,
+                                            "program": "await_complex_promise.ets"
+                                          }
+                                        }
+                                      },
+                                      "loc": {
+                                        "start": {
+                                          "line": 28,
+                                          "column": 31,
+                                          "program": "await_complex_promise.ets"
+                                        },
+                                        "end": {
+                                          "line": 28,
+                                          "column": 47,
+                                          "program": "await_complex_promise.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 28,
+                                        "column": 31,
+                                        "program": "await_complex_promise.ets"
+                                      },
+                                      "end": {
+                                        "line": 28,
+                                        "column": 47,
+                                        "program": "await_complex_promise.ets"
+                                      }
+                                    }
+                                  }
+                                ],
+                                "loc": {
+                                  "start": {
+                                    "line": 28,
+                                    "column": 26,
+                                    "program": "await_complex_promise.ets"
+                                  },
+                                  "end": {
+                                    "line": 28,
+                                    "column": 47,
+                                    "program": "await_complex_promise.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "loc": {
+                              "start": {
+                                "line": 28,
+                                "column": 25,
+                                "program": "await_complex_promise.ets"
+                              },
+                              "end": {
+                                "line": 28,
+                                "column": 47,
+                                "program": "await_complex_promise.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 28,
+                              "column": 18,
+                              "program": "await_complex_promise.ets"
+                            },
+                            "end": {
+                              "line": 28,
+                              "column": 48,
+                              "program": "await_complex_promise.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 28,
+                            "column": 18,
+                            "program": "await_complex_promise.ets"
+                          },
+                          "end": {
+                            "line": 28,
+                            "column": 48,
+                            "program": "await_complex_promise.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 28,
+                          "column": 15,
+                          "program": "await_complex_promise.ets"
+                        },
+                        "end": {
+                          "line": 28,
+                          "column": 48,
+                          "program": "await_complex_promise.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 28,
+                        "column": 15,
+                        "program": "await_complex_promise.ets"
+                      },
+                      "end": {
+                        "line": 28,
+                        "column": 48,
+                        "program": "await_complex_promise.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 28,
+                      "column": 50,
+                      "program": "await_complex_promise.ets"
+                    },
+                    "end": {
+                      "line": 28,
+                      "column": 54,
+                      "program": "await_complex_promise.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "result",
+                            "typeAnnotation": {
+                              "type": "ETSUnionType",
+                              "types": [
+                                {
+                                  "type": "ETSNullType",
+                                  "loc": {
+                                    "start": {
+                                      "line": 29,
+                                      "column": 17,
+                                      "program": "await_complex_promise.ets"
+                                    },
+                                    "end": {
+                                      "line": 29,
+                                      "column": 21,
+                                      "program": "await_complex_promise.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "string",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 29,
+                                          "column": 22,
+                                          "program": "await_complex_promise.ets"
+                                        },
+                                        "end": {
+                                          "line": 29,
+                                          "column": 28,
+                                          "program": "await_complex_promise.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 29,
+                                        "column": 22,
+                                        "program": "await_complex_promise.ets"
+                                      },
+                                      "end": {
+                                        "line": 29,
+                                        "column": 30,
+                                        "program": "await_complex_promise.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 29,
+                                      "column": 22,
+                                      "program": "await_complex_promise.ets"
+                                    },
+                                    "end": {
+                                      "line": 29,
+                                      "column": 30,
+                                      "program": "await_complex_promise.ets"
+                                    }
+                                  }
+                                }
+                              ],
+                              "loc": {
+                                "start": {
+                                  "line": 29,
+                                  "column": 17,
+                                  "program": "await_complex_promise.ets"
+                                },
+                                "end": {
+                                  "line": 29,
+                                  "column": 30,
+                                  "program": "await_complex_promise.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 29,
+                                "column": 9,
+                                "program": "await_complex_promise.ets"
+                              },
+                              "end": {
+                                "line": 29,
+                                "column": 15,
+                                "program": "await_complex_promise.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "AwaitExpression",
+                            "argument": {
+                              "type": "Identifier",
+                              "name": "p",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 29,
+                                  "column": 37,
+                                  "program": "await_complex_promise.ets"
+                                },
+                                "end": {
+                                  "line": 29,
+                                  "column": 38,
+                                  "program": "await_complex_promise.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 29,
+                                "column": 31,
+                                "program": "await_complex_promise.ets"
+                              },
+                              "end": {
+                                "line": 29,
+                                "column": 38,
+                                "program": "await_complex_promise.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 29,
+                              "column": 9,
+                              "program": "await_complex_promise.ets"
+                            },
+                            "end": {
+                              "line": 29,
+                              "column": 38,
+                              "program": "await_complex_promise.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 29,
+                          "column": 5,
+                          "program": "await_complex_promise.ets"
+                        },
+                        "end": {
+                          "line": 29,
+                          "column": 39,
+                          "program": "await_complex_promise.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 28,
+                      "column": 55,
+                      "program": "await_complex_promise.ets"
+                    },
+                    "end": {
+                      "line": 30,
+                      "column": 2,
+                      "program": "await_complex_promise.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 28,
+                    "column": 10,
+                    "program": "await_complex_promise.ets"
+                  },
+                  "end": {
+                    "line": 30,
+                    "column": 2,
+                    "program": "await_complex_promise.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 28,
+                  "column": 10,
+                  "program": "await_complex_promise.ets"
+                },
+                "end": {
+                  "line": 30,
+                  "column": 2,
+                  "program": "await_complex_promise.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 28,
+                "column": 1,
+                "program": "await_complex_promise.ets"
+              },
+              "end": {
+                "line": 30,
+                "column": 2,
+                "program": "await_complex_promise.ets"
+              }
+            }
+          },
+          {
+            "type": "MethodDefinition",
+            "key": {
+              "type": "Identifier",
+              "name": "foo5",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 33,
+                  "column": 10,
+                  "program": "await_complex_promise.ets"
+                },
+                "end": {
+                  "line": 33,
+                  "column": 14,
+                  "program": "await_complex_promise.ets"
+                }
+              }
+            },
+            "kind": "method",
+            "accessibility": "public",
+            "static": true,
+            "optional": false,
+            "computed": false,
+            "value": {
+              "type": "FunctionExpression",
+              "function": {
+                "type": "ScriptFunction",
+                "id": {
+                  "type": "Identifier",
+                  "name": "foo5",
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 33,
+                      "column": 10,
+                      "program": "await_complex_promise.ets"
+                    },
+                    "end": {
+                      "line": 33,
+                      "column": 14,
+                      "program": "await_complex_promise.ets"
+                    }
+                  }
+                },
+                "generator": false,
+                "async": false,
+                "expression": false,
+                "params": [
+                  {
+                    "type": "ETSParameterExpression",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "p",
+                      "typeAnnotation": {
+                        "type": "ETSTypeReference",
+                        "part": {
+                          "type": "ETSTypeReferencePart",
+                          "name": {
+                            "type": "Identifier",
+                            "name": "Promise",
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 33,
+                                "column": 18,
+                                "program": "await_complex_promise.ets"
+                              },
+                              "end": {
+                                "line": 33,
+                                "column": 25,
+                                "program": "await_complex_promise.ets"
+                              }
+                            }
+                          },
+                          "typeParams": {
+                            "type": "TSTypeParameterInstantiation",
+                            "params": [
+                              {
+                                "type": "ETSTypeReference",
+                                "part": {
+                                  "type": "ETSTypeReferencePart",
+                                  "name": {
+                                    "type": "Identifier",
+                                    "name": "Alias",
+                                    "decorators": [],
+                                    "loc": {
+                                      "start": {
+                                        "line": 33,
+                                        "column": 26,
+                                        "program": "await_complex_promise.ets"
+                                      },
+                                      "end": {
+                                        "line": 33,
+                                        "column": 31,
+                                        "program": "await_complex_promise.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 33,
+                                      "column": 26,
+                                      "program": "await_complex_promise.ets"
+                                    },
+                                    "end": {
+                                      "line": 33,
+                                      "column": 32,
+                                      "program": "await_complex_promise.ets"
+                                    }
+                                  }
+                                },
+                                "loc": {
+                                  "start": {
+                                    "line": 33,
+                                    "column": 26,
+                                    "program": "await_complex_promise.ets"
+                                  },
+                                  "end": {
+                                    "line": 33,
+                                    "column": 32,
+                                    "program": "await_complex_promise.ets"
+                                  }
+                                }
+                              }
+                            ],
+                            "loc": {
+                              "start": {
+                                "line": 33,
+                                "column": 25,
+                                "program": "await_complex_promise.ets"
+                              },
+                              "end": {
+                                "line": 33,
+                                "column": 32,
+                                "program": "await_complex_promise.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 33,
+                              "column": 18,
+                              "program": "await_complex_promise.ets"
+                            },
+                            "end": {
+                              "line": 33,
+                              "column": 33,
+                              "program": "await_complex_promise.ets"
+                            }
+                          }
+                        },
+                        "loc": {
+                          "start": {
+                            "line": 33,
+                            "column": 18,
+                            "program": "await_complex_promise.ets"
+                          },
+                          "end": {
+                            "line": 33,
+                            "column": 33,
+                            "program": "await_complex_promise.ets"
+                          }
+                        }
+                      },
+                      "decorators": [],
+                      "loc": {
+                        "start": {
+                          "line": 33,
+                          "column": 15,
+                          "program": "await_complex_promise.ets"
+                        },
+                        "end": {
+                          "line": 33,
+                          "column": 33,
+                          "program": "await_complex_promise.ets"
+                        }
+                      }
+                    },
+                    "loc": {
+                      "start": {
+                        "line": 33,
+                        "column": 15,
+                        "program": "await_complex_promise.ets"
+                      },
+                      "end": {
+                        "line": 33,
+                        "column": 33,
+                        "program": "await_complex_promise.ets"
+                      }
+                    }
+                  }
+                ],
+                "returnType": {
+                  "type": "ETSPrimitiveType",
+                  "loc": {
+                    "start": {
+                      "line": 33,
+                      "column": 35,
+                      "program": "await_complex_promise.ets"
+                    },
+                    "end": {
+                      "line": 33,
+                      "column": 39,
+                      "program": "await_complex_promise.ets"
+                    }
+                  }
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "statements": [
+                    {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "result",
+                            "typeAnnotation": {
+                              "type": "ETSUnionType",
+                              "types": [
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "string",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 34,
+                                          "column": 17,
+                                          "program": "await_complex_promise.ets"
+                                        },
+                                        "end": {
+                                          "line": 34,
+                                          "column": 23,
+                                          "program": "await_complex_promise.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 34,
+                                        "column": 17,
+                                        "program": "await_complex_promise.ets"
+                                      },
+                                      "end": {
+                                        "line": 34,
+                                        "column": 24,
+                                        "program": "await_complex_promise.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 34,
+                                      "column": 17,
+                                      "program": "await_complex_promise.ets"
+                                    },
+                                    "end": {
+                                      "line": 34,
+                                      "column": 24,
+                                      "program": "await_complex_promise.ets"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "ETSTypeReference",
+                                  "part": {
+                                    "type": "ETSTypeReferencePart",
+                                    "name": {
+                                      "type": "Identifier",
+                                      "name": "number",
+                                      "decorators": [],
+                                      "loc": {
+                                        "start": {
+                                          "line": 34,
+                                          "column": 24,
+                                          "program": "await_complex_promise.ets"
+                                        },
+                                        "end": {
+                                          "line": 34,
+                                          "column": 30,
+                                          "program": "await_complex_promise.ets"
+                                        }
+                                      }
+                                    },
+                                    "loc": {
+                                      "start": {
+                                        "line": 34,
+                                        "column": 24,
+                                        "program": "await_complex_promise.ets"
+                                      },
+                                      "end": {
+                                        "line": 34,
+                                        "column": 32,
+                                        "program": "await_complex_promise.ets"
+                                      }
+                                    }
+                                  },
+                                  "loc": {
+                                    "start": {
+                                      "line": 34,
+                                      "column": 24,
+                                      "program": "await_complex_promise.ets"
+                                    },
+                                    "end": {
+                                      "line": 34,
+                                      "column": 32,
+                                      "program": "await_complex_promise.ets"
+                                    }
+                                  }
+                                }
+                              ],
+                              "loc": {
+                                "start": {
+                                  "line": 34,
+                                  "column": 17,
+                                  "program": "await_complex_promise.ets"
+                                },
+                                "end": {
+                                  "line": 34,
+                                  "column": 32,
+                                  "program": "await_complex_promise.ets"
+                                }
+                              }
+                            },
+                            "decorators": [],
+                            "loc": {
+                              "start": {
+                                "line": 34,
+                                "column": 9,
+                                "program": "await_complex_promise.ets"
+                              },
+                              "end": {
+                                "line": 34,
+                                "column": 15,
+                                "program": "await_complex_promise.ets"
+                              }
+                            }
+                          },
+                          "init": {
+                            "type": "AwaitExpression",
+                            "argument": {
+                              "type": "Identifier",
+                              "name": "p",
+                              "decorators": [],
+                              "loc": {
+                                "start": {
+                                  "line": 34,
+                                  "column": 39,
+                                  "program": "await_complex_promise.ets"
+                                },
+                                "end": {
+                                  "line": 34,
+                                  "column": 40,
+                                  "program": "await_complex_promise.ets"
+                                }
+                              }
+                            },
+                            "loc": {
+                              "start": {
+                                "line": 34,
+                                "column": 33,
+                                "program": "await_complex_promise.ets"
+                              },
+                              "end": {
+                                "line": 34,
+                                "column": 40,
+                                "program": "await_complex_promise.ets"
+                              }
+                            }
+                          },
+                          "loc": {
+                            "start": {
+                              "line": 34,
+                              "column": 9,
+                              "program": "await_complex_promise.ets"
+                            },
+                            "end": {
+                              "line": 34,
+                              "column": 40,
+                              "program": "await_complex_promise.ets"
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "let",
+                      "loc": {
+                        "start": {
+                          "line": 34,
+                          "column": 5,
+                          "program": "await_complex_promise.ets"
+                        },
+                        "end": {
+                          "line": 34,
+                          "column": 41,
+                          "program": "await_complex_promise.ets"
+                        }
+                      }
+                    }
+                  ],
+                  "loc": {
+                    "start": {
+                      "line": 33,
+                      "column": 40,
+                      "program": "await_complex_promise.ets"
+                    },
+                    "end": {
+                      "line": 35,
+                      "column": 2,
+                      "program": "await_complex_promise.ets"
+                    }
+                  }
+                },
+                "loc": {
+                  "start": {
+                    "line": 33,
+                    "column": 10,
+                    "program": "await_complex_promise.ets"
+                  },
+                  "end": {
+                    "line": 35,
+                    "column": 2,
+                    "program": "await_complex_promise.ets"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 33,
+                  "column": 10,
+                  "program": "await_complex_promise.ets"
+                },
+                "end": {
+                  "line": 35,
+                  "column": 2,
+                  "program": "await_complex_promise.ets"
+                }
+              }
+            },
+            "overloads": [],
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 33,
+                "column": 1,
+                "program": "await_complex_promise.ets"
+              },
+              "end": {
+                "line": 35,
+                "column": 2,
+                "program": "await_complex_promise.ets"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 1,
+            "program": "await_complex_promise.ets"
+          },
+          "end": {
+            "line": 1,
+            "column": 1,
+            "program": "await_complex_promise.ets"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 1,
+          "program": "await_complex_promise.ets"
+        },
+        "end": {
+          "line": 1,
+          "column": 1,
+          "program": "await_complex_promise.ets"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "await_complex_promise.ets"
+    },
+    "end": {
+      "line": 36,
+      "column": 1,
+      "program": "await_complex_promise.ets"
+    }
+  }
+}

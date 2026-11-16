@@ -1,0 +1,576 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "type": "TSTypeAliasDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "foo",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 6,
+            "program": "test-type-alias.ts"
+          },
+          "end": {
+            "line": 17,
+            "column": 9,
+            "program": "test-type-alias.ts"
+          }
+        }
+      },
+      "typeAnnotation": {
+        "type": "TSUnionType",
+        "types": [
+          {
+            "type": "TSNumberKeyword",
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 12,
+                "program": "test-type-alias.ts"
+              },
+              "end": {
+                "line": 17,
+                "column": 18,
+                "program": "test-type-alias.ts"
+              }
+            }
+          },
+          {
+            "type": "TSStringKeyword",
+            "loc": {
+              "start": {
+                "line": 17,
+                "column": 21,
+                "program": "test-type-alias.ts"
+              },
+              "end": {
+                "line": 17,
+                "column": 27,
+                "program": "test-type-alias.ts"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 17,
+            "column": 12,
+            "program": "test-type-alias.ts"
+          },
+          "end": {
+            "line": 17,
+            "column": 27,
+            "program": "test-type-alias.ts"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 17,
+          "column": 1,
+          "program": "test-type-alias.ts"
+        },
+        "end": {
+          "line": 17,
+          "column": 28,
+          "program": "test-type-alias.ts"
+        }
+      }
+    },
+    {
+      "type": "EmptyStatement",
+      "loc": {
+        "start": {
+          "line": 17,
+          "column": 27,
+          "program": "test-type-alias.ts"
+        },
+        "end": {
+          "line": 17,
+          "column": 28,
+          "program": "test-type-alias.ts"
+        }
+      }
+    },
+    {
+      "type": "TSTypeAliasDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "bar",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 18,
+            "column": 6,
+            "program": "test-type-alias.ts"
+          },
+          "end": {
+            "line": 18,
+            "column": 9,
+            "program": "test-type-alias.ts"
+          }
+        }
+      },
+      "typeAnnotation": {
+        "type": "TSUnionType",
+        "types": [
+          {
+            "type": "TSTypeReference",
+            "typeName": {
+              "type": "Identifier",
+              "name": "foo",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 12,
+                  "program": "test-type-alias.ts"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 15,
+                  "program": "test-type-alias.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 18,
+                "column": 12,
+                "program": "test-type-alias.ts"
+              },
+              "end": {
+                "line": 18,
+                "column": 15,
+                "program": "test-type-alias.ts"
+              }
+            }
+          },
+          {
+            "type": "TSParenthesizedType",
+            "typeAnnotation": {
+              "type": "TSFunctionType",
+              "params": [
+                {
+                  "type": "Identifier",
+                  "name": "a",
+                  "typeAnnotation": {
+                    "type": "TSNumberKeyword",
+                    "loc": {
+                      "start": {
+                        "line": 18,
+                        "column": 23,
+                        "program": "test-type-alias.ts"
+                      },
+                      "end": {
+                        "line": 18,
+                        "column": 29,
+                        "program": "test-type-alias.ts"
+                      }
+                    }
+                  },
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 20,
+                      "program": "test-type-alias.ts"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 21,
+                      "program": "test-type-alias.ts"
+                    }
+                  }
+                },
+                {
+                  "type": "Identifier",
+                  "name": "b",
+                  "typeAnnotation": {
+                    "type": "TSStringKeyword",
+                    "loc": {
+                      "start": {
+                        "line": 18,
+                        "column": 34,
+                        "program": "test-type-alias.ts"
+                      },
+                      "end": {
+                        "line": 18,
+                        "column": 40,
+                        "program": "test-type-alias.ts"
+                      }
+                    }
+                  },
+                  "decorators": [],
+                  "loc": {
+                    "start": {
+                      "line": 18,
+                      "column": 31,
+                      "program": "test-type-alias.ts"
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 32,
+                      "program": "test-type-alias.ts"
+                    }
+                  }
+                }
+              ],
+              "returnType": {
+                "type": "TSVoidKeyword",
+                "loc": {
+                  "start": {
+                    "line": 18,
+                    "column": 45,
+                    "program": "test-type-alias.ts"
+                  },
+                  "end": {
+                    "line": 18,
+                    "column": 49,
+                    "program": "test-type-alias.ts"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 18,
+                  "column": 19,
+                  "program": "test-type-alias.ts"
+                },
+                "end": {
+                  "line": 18,
+                  "column": 49,
+                  "program": "test-type-alias.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 18,
+                "column": 18,
+                "program": "test-type-alias.ts"
+              },
+              "end": {
+                "line": 18,
+                "column": 50,
+                "program": "test-type-alias.ts"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 18,
+            "column": 12,
+            "program": "test-type-alias.ts"
+          },
+          "end": {
+            "line": 18,
+            "column": 50,
+            "program": "test-type-alias.ts"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 18,
+          "column": 1,
+          "program": "test-type-alias.ts"
+        },
+        "end": {
+          "line": 18,
+          "column": 51,
+          "program": "test-type-alias.ts"
+        }
+      }
+    },
+    {
+      "type": "EmptyStatement",
+      "loc": {
+        "start": {
+          "line": 18,
+          "column": 50,
+          "program": "test-type-alias.ts"
+        },
+        "end": {
+          "line": 18,
+          "column": 51,
+          "program": "test-type-alias.ts"
+        }
+      }
+    },
+    {
+      "type": "TSTypeAliasDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "baz",
+        "decorators": [],
+        "loc": {
+          "start": {
+            "line": 19,
+            "column": 6,
+            "program": "test-type-alias.ts"
+          },
+          "end": {
+            "line": 19,
+            "column": 9,
+            "program": "test-type-alias.ts"
+          }
+        }
+      },
+      "typeAnnotation": {
+        "type": "TSUnionType",
+        "types": [
+          {
+            "type": "TSTypeReference",
+            "typeName": {
+              "type": "Identifier",
+              "name": "foo",
+              "decorators": [],
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 12,
+                  "program": "test-type-alias.ts"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 15,
+                  "program": "test-type-alias.ts"
+                }
+              }
+            },
+            "loc": {
+              "start": {
+                "line": 19,
+                "column": 12,
+                "program": "test-type-alias.ts"
+              },
+              "end": {
+                "line": 19,
+                "column": 15,
+                "program": "test-type-alias.ts"
+              }
+            }
+          },
+          {
+            "type": "TSArrayType",
+            "elementType": {
+              "type": "TSTypeReference",
+              "typeName": {
+                "type": "Identifier",
+                "name": "bar",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 19,
+                    "column": 18,
+                    "program": "test-type-alias.ts"
+                  },
+                  "end": {
+                    "line": 19,
+                    "column": 21,
+                    "program": "test-type-alias.ts"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 18,
+                  "program": "test-type-alias.ts"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 21,
+                  "program": "test-type-alias.ts"
+                }
+              }
+            },
+            "annotations": [],
+            "loc": {
+              "start": {
+                "line": 19,
+                "column": 18,
+                "program": "test-type-alias.ts"
+              },
+              "end": {
+                "line": 19,
+                "column": 23,
+                "program": "test-type-alias.ts"
+              }
+            }
+          },
+          {
+            "type": "TSArrayType",
+            "elementType": {
+              "type": "TSNumberKeyword",
+              "loc": {
+                "start": {
+                  "line": 19,
+                  "column": 26,
+                  "program": "test-type-alias.ts"
+                },
+                "end": {
+                  "line": 19,
+                  "column": 32,
+                  "program": "test-type-alias.ts"
+                }
+              }
+            },
+            "annotations": [],
+            "loc": {
+              "start": {
+                "line": 19,
+                "column": 26,
+                "program": "test-type-alias.ts"
+              },
+              "end": {
+                "line": 19,
+                "column": 34,
+                "program": "test-type-alias.ts"
+              }
+            }
+          }
+        ],
+        "loc": {
+          "start": {
+            "line": 19,
+            "column": 12,
+            "program": "test-type-alias.ts"
+          },
+          "end": {
+            "line": 19,
+            "column": 34,
+            "program": "test-type-alias.ts"
+          }
+        }
+      },
+      "loc": {
+        "start": {
+          "line": 19,
+          "column": 1,
+          "program": "test-type-alias.ts"
+        },
+        "end": {
+          "line": 19,
+          "column": 35,
+          "program": "test-type-alias.ts"
+        }
+      }
+    },
+    {
+      "type": "EmptyStatement",
+      "loc": {
+        "start": {
+          "line": 19,
+          "column": 34,
+          "program": "test-type-alias.ts"
+        },
+        "end": {
+          "line": 19,
+          "column": 35,
+          "program": "test-type-alias.ts"
+        }
+      }
+    },
+    {
+      "type": "VariableDeclaration",
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "id": {
+            "type": "Identifier",
+            "name": "a",
+            "typeAnnotation": {
+              "type": "TSTypeReference",
+              "typeName": {
+                "type": "Identifier",
+                "name": "baz",
+                "decorators": [],
+                "loc": {
+                  "start": {
+                    "line": 20,
+                    "column": 8,
+                    "program": "test-type-alias.ts"
+                  },
+                  "end": {
+                    "line": 20,
+                    "column": 11,
+                    "program": "test-type-alias.ts"
+                  }
+                }
+              },
+              "loc": {
+                "start": {
+                  "line": 20,
+                  "column": 8,
+                  "program": "test-type-alias.ts"
+                },
+                "end": {
+                  "line": 20,
+                  "column": 11,
+                  "program": "test-type-alias.ts"
+                }
+              }
+            },
+            "decorators": [],
+            "loc": {
+              "start": {
+                "line": 20,
+                "column": 5,
+                "program": "test-type-alias.ts"
+              },
+              "end": {
+                "line": 20,
+                "column": 6,
+                "program": "test-type-alias.ts"
+              }
+            }
+          },
+          "init": null,
+          "loc": {
+            "start": {
+              "line": 20,
+              "column": 5,
+              "program": "test-type-alias.ts"
+            },
+            "end": {
+              "line": 20,
+              "column": 6,
+              "program": "test-type-alias.ts"
+            }
+          }
+        }
+      ],
+      "kind": "var",
+      "loc": {
+        "start": {
+          "line": 20,
+          "column": 1,
+          "program": "test-type-alias.ts"
+        },
+        "end": {
+          "line": 20,
+          "column": 12,
+          "program": "test-type-alias.ts"
+        }
+      }
+    }
+  ],
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 1,
+      "program": "test-type-alias.ts"
+    },
+    "end": {
+      "line": 20,
+      "column": 12,
+      "program": "test-type-alias.ts"
+    }
+  }
+}
