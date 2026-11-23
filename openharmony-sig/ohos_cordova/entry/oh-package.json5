@@ -1,0 +1,12 @@
+{
+  "name": "entry",
+  "version": "1.0.0",
+  "description": "cordova for harmonyOS 2025",
+  "main": "",
+  "author": "",
+  "license": "",
+  "dependencies": {
+    "@ohos/cordova": "file:../library"
+  }
+}
+
